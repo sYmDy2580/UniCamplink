@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ group["name"] }} - UniCamplink
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            UniCamplink 🎓
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/feed">
+                Feed
+            </a>
+
+            <a href="/groups">
+                Groups
+            </a>
+
+            <a href="/profile">
+                Profile
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="group-page-container">
+
+        <!-- GROUP INFORMATION -->
+
+        <section class="group-info-card">
+
+            <h1>
+                {{ group["name"] }}
+            </h1>
+
+            <p>
+                {{ group["description"] }}
+            </p>
+
+            <small>
+                Created by
+                {{ group["creator_name"] }}
+            </small>
+
+        </section>
+
+
+        <!-- JOIN BUTTON -->
+
+        {% if not is_member %}
+
+            <form
+                action="{{ url_for(
+                    'join_group',
+                    group_id=group['id']
+                ) }}"
+                method="POST"
+            >
+
+                <button
+                    type="submit"
+                    class="join-group-button"
+                >
+                    Join Group to Participate
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <!-- CREATE POST -->
+
+            <section class="create-group-post">
+
+                <h2>
+                    Create a Group Post
+                </h2>
+
+                <form method="POST">
+
+                    <textarea
+                        name="content"
+                        placeholder="Share something with this group..."
+                        required
+                    ></textarea>
+
+                    <button type="submit">
+                        Post to Group
+                    </button>
+
+                </form>
+
+            </section>
+
+        {% endif %}
+
+
+        <!-- GROUP POSTS -->
+
+        <section class="group-posts">
+
+            <h2>
+                Group Posts
+            </h2>
+
+
+            {% if posts %}
+
+                {% for post in posts %}
+
+                    <div class="post-card">
+
+                        <h3>
+
+                            <a
+                                href="{{ url_for(
+                                    'public_profile',
+                                    user_id=post['user_id']
+                                ) }}"
+                                class="user-profile-link"
+                            >
+
+                                {{ post["name"] }}
+
+                            </a>
+
+                        </h3>
+
+
+                        <p>
+                            {{ post["content"] }}
+                        </p>
+
+
+                        <small>
+                            {{ post["created_at"] }}
+                        </small>
+
+
+                        <form
+                            action="{{ url_for(
+                                'like_post',
+                                post_id=post['id']
+                            ) }}"
+                            method="POST"
+                        >
+
+                            <button
+                                type="submit"
+                                class="like-btn"
+                            >
+
+                                ❤️ Like
+                                ({{ post["like_count"] }})
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="no-posts">
+
+                    No posts in this group yet.
+                    Start the conversation! 🎉
+
+                </p>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

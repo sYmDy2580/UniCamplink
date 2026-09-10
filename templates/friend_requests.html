@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Friend Requests - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        body {
+            background: #f5f7fb !important;
+            color: #222 !important;
+        }
+
+        .requests-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .requests-container h1 {
+            margin-bottom: 25px;
+            color: #222 !important;
+        }
+
+        /* FRIEND REQUEST CARD */
+
+        .request-card {
+            background: #ffffff !important;
+            color: #222 !important;
+            border: 1px solid #d1d5db;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .request-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .request-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #e5e7eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 28px;
+            object-fit: cover;
+        }
+
+        .request-user h3 {
+            margin: 0 0 5px;
+            color: #111827 !important;
+        }
+
+        .request-user p {
+            margin: 0;
+            color: #475569 !important;
+        }
+
+        /* BUTTONS */
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .accept-button,
+        .reject-button {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white !important;
+        }
+
+        .accept-button {
+            background: #16a34a !important;
+        }
+
+        .accept-button:hover {
+            background: #15803d !important;
+        }
+
+        .reject-button {
+            background: #dc2626 !important;
+        }
+
+        .reject-button:hover {
+            background: #b91c1c !important;
+        }
+
+        /* EMPTY REQUESTS */
+
+        .empty-requests {
+            background: #ffffff !important;
+            color: #222 !important;
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+        }
+
+        .empty-requests h2 {
+            color: #222 !important;
+            margin-bottom: 10px;
+        }
+
+        .empty-requests p {
+            color: #475569 !important;
+        }
+
+        /* NAVIGATION */
+
+        .nav-links {
+            background: #ffffff;
+        }
+
+        .nav-links a {
+            color: #222 !important;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            .request-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .request-actions {
+                width: 100%;
+            }
+
+            .accept-button,
+            .reject-button {
+                flex: 1;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="nav-links">
+
+    <a href="/dashboard">Dashboard</a>
+
+    <a href="/feed">Feed</a>
+
+    <a href="/profile">Profile</a>
+
+    <a href="/groups">Groups 👥</a>
+
+    <a href="/search">Search 🔍</a>
+
+    <a href="/messages">Messages 💬</a>
+
+    <a href="/notifications">Notifications 🔔</a>
+
+    <a href="/marketplace">Marketplace 🛒</a>
+
+    <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        style="
+            background: none;
+            border: none;
+            color: #222;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+        "
+    >
+        Logout
+    </button>
+</form>
+
+</div>
+
+
+<main class="requests-container">
+
+    <h1>
+        👥 Friend Requests
+    </h1>
+
+
+    {% if requests %}
+
+        {% for request in requests %}
+
+            <div class="request-card">
+
+                <div class="request-user">
+
+                    {% if request["profile_picture"] %}
+
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/' + request['profile_picture']
+                            ) }}"
+                            alt="{{ request['name'] }}"
+                            class="request-avatar"
+                        >
+
+                    {% else %}
+
+                        <div class="request-avatar">
+                            👤
+                        </div>
+
+                    {% endif %}
+
+
+                    <div>
+
+                        <h3>
+                            {{ request["name"] }}
+                        </h3>
+
+                        <p>
+                            🏫 {{ request["university"] }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="request-actions">
+
+                    <!-- ACCEPT FRIEND REQUEST -->
+
+                    <form
+                        action="{{ url_for(
+                            'accept_friend_request',
+                            request_id=request['id']
+                        ) }}"
+                        method="POST"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="accept-button"
+                        >
+                            ✅ Accept
+                        </button>
+
+                    </form>
+
+
+                    <!-- REJECT FRIEND REQUEST -->
+
+                    <form
+                        action="{{ url_for(
+                            'reject_friend_request',
+                            request_id=request['id']
+                        ) }}"
+                        method="POST"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="reject-button"
+                        >
+                            ❌ Reject
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-requests">
+
+            <h2>
+                No Friend Requests
+            </h2>
+
+            <p>
+                You don't have any pending friend requests right now.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+</body>
+
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Feed - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+
+<nav class="navbar">
+
+    <a href="/dashboard" class="logo">
+
+        <img
+            src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+            alt="UniCamplink Logo"
+        >
+
+        <span>UniCamplink</span>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="/dashboard">
+            Dashboard
+        </a>
+
+        <a href="/feed">
+            Feed
+        </a>
+
+        <a href="/profile">
+            Profile
+        </a>
+
+        <a href="/groups">
+            Groups 👥
+        </a>
+
+        <a href="/search">
+            Search 🔍
+        </a>
+
+        <a href="/messages">
+            Messages 💬
+        </a>
+
+        <a href="/marketplace">
+            Marketplace 🛒
+        </a>
+
+        <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        style="
+            background: none;
+            border: none;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+        "
+    >
+        Logout
+    </button>
+</form>
+
+    </div>
+
+</nav>
+
+
+
+<!-- ============================================================
+     MAIN FEED
+============================================================ -->
+
+<main class="feed-container">
+
+
+    <!-- ========================================================
+         CREATE POST
+    ========================================================= -->
+
+    <div class="create-post">
+
+        <h2>
+            Create a Post
+        </h2>
+
+
+        <form
+            action="{{ url_for('create_post') }}"
+            method="POST"
+        >
+
+            <!-- CSRF Protection -->
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <textarea
+                name="content"
+                placeholder="What's happening on campus?"
+                required
+            ></textarea>
+
+
+            <button type="submit">
+                Post
+            </button>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- ========================================================
+         STUDENT FEED
+    ========================================================= -->
+
+    <div class="posts-section">
+
+        <h2>
+            Student Feed
+        </h2>
+
+
+        {% if posts %}
+
+
+            {% for post in posts %}
+
+
+            <!-- =================================================
+                 POST CARD
+            ================================================== -->
+
+            <div class="post-card">
+
+
+                <!-- =================================================
+                     AUTHOR
+                ================================================== -->
+
+                <h3>
+
+                    <a
+                        href="{{ url_for(
+                            'view_user',
+                            user_id=post['user_id']
+                        ) }}"
+                        class="user-profile-link"
+                    >
+
+                        {{ post["author_name"] }}
+
+                    </a>
+
+                </h3>
+
+
+                {% if post["author_university"] %}
+
+                    <small>
+
+                        🎓 {{ post["author_university"] }}
+
+                    </small>
+
+                {% endif %}
+
+
+
+                <!-- =================================================
+                     POST CONTENT
+                ================================================== -->
+
+                <p>
+
+                    {{ post["content"] }}
+
+                </p>
+
+
+                <small>
+
+                    {{ post["created_at"] }}
+
+                </small>
+
+
+
+                <!-- =================================================
+                     LIKE BUTTON
+                ================================================== -->
+
+                <form
+                    action="{{ url_for(
+                        'like_post',
+                        post_id=post['id']
+                    ) }}"
+                    method="POST"
+                >
+
+                    <!-- CSRF Protection -->
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="like-btn"
+                    >
+
+                        {% if post["user_liked"] %}
+
+                            💔 Unlike
+
+                        {% else %}
+
+                            ❤️ Like
+
+                        {% endif %}
+
+                        ({{ post["like_count"] }})
+
+                    </button>
+
+                </form>
+
+
+
+                <!-- =================================================
+                     COMMENTS
+                ================================================== -->
+
+                <div class="comments-section">
+
+
+                    <h4>
+
+                        💬 Comments
+                        ({{ post["comment_count"] }})
+
+                    </h4>
+
+
+
+                    <!-- =================================================
+                         COMMENT FORM
+                    ================================================= -->
+
+                    <form
+                        action="{{ url_for(
+                            'comment',
+                            post_id=post['id']
+                        ) }}"
+                        method="POST"
+                        class="comment-form"
+                    >
+
+                        <!-- CSRF Protection -->
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <input
+                            type="text"
+                            name="content"
+                            placeholder="Write a comment..."
+                            required
+                        >
+
+
+                        <button type="submit">
+
+                            Comment
+
+                        </button>
+
+                    </form>
+
+
+                </div>
+
+
+            </div>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <!-- =================================================
+                 NO POSTS
+            ================================================== -->
+
+            <div class="no-posts">
+
+                <p>
+
+                    No posts yet.
+                    Be the first student to post! 🎉
+
+                </p>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</main>
+
+
+</body>
+
+</html>

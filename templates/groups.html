@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Groups - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <a href="/dashboard" class="logo">
+
+            <img
+                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                alt="UniCamplink Logo"
+            >
+
+            <span>UniCamplink</span>
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/feed">
+                Feed
+            </a>
+
+            <a href="/profile">
+                Profile
+            </a>
+
+            <a href="/groups">
+                Groups 👥
+            </a>
+
+            <a href="/search">
+                Search 🔍
+            </a>
+
+            <a href="/messages">
+                Messages 💬
+            </a>
+
+            <a href="/marketplace">
+                Marketplace 🛒
+            </a>
+
+            <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        style="
+            background: none;
+            border: none;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+        "
+    >
+        Logout
+    </button>
+</form>
+
+        </div>
+
+    </nav>
+
+
+    <main class="groups-container">
+
+        <div class="groups-header">
+
+            <div>
+
+                <h1>
+                    Student Communities 👥
+                </h1>
+
+                <p>
+                    Connect with students who share
+                    your interests.
+                </p>
+
+            </div>
+
+
+            <a
+                href="/create-group"
+                class="create-group-button"
+            >
+                + Create Group
+            </a>
+
+        </div>
+
+
+        <section class="groups-grid">
+
+            {% if groups %}
+
+                {% for group in groups %}
+
+                    <div class="group-card">
+
+                        <h2>
+
+                            <a
+                                href="{{ url_for(
+                                    'group_detail',
+                                    group_id=group['id']
+                                ) }}"
+                            >
+                                {{ group["name"] }}
+                            </a>
+
+                        </h2>
+
+
+                        <p class="group-description">
+
+                            {{ group["description"]
+                               or "No description yet." }}
+
+                        </p>
+
+
+                        <p class="group-creator">
+
+                            Created by
+
+                            <strong>
+                                {{ group["creator_name"] }}
+                            </strong>
+
+                        </p>
+
+
+                        <p class="member-count">
+
+                            👥
+                            {{ group["member_count"] }}
+                            Members
+
+                        </p>
+
+
+                        <form
+                            action="{{ url_for(
+                                'join_group',
+                                group_id=group['id']
+                            ) }}"
+                            method="POST"
+                        >
+
+                            <!-- CSRF Protection -->
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="join-group-button"
+                            >
+                                Join Group
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="no-groups">
+
+                    No groups yet.
+                    Be the first student to create one! 🎉
+
+                </p>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

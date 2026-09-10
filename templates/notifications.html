@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Notifications - UniCamplink</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            background: #2563eb;
+            color: white;
+            padding: 15px 25px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            font-size: 22px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* MAIN */
+
+        .container {
+            max-width: 800px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .page-title p {
+            color: #666;
+        }
+
+        /* NOTIFICATION CARD */
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+
+            display: flex;
+            align-items: center;
+            gap: 15px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+            text-decoration: none;
+            color: inherit;
+
+            transition: 0.2s;
+        }
+
+        .notification:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .notification.unread {
+            border-left: 4px solid #2563eb;
+            background: #eff6ff;
+        }
+
+        /* PROFILE IMAGE */
+
+        .notification-image {
+            width: 50px;
+            height: 50px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            background: #ddd;
+
+            flex-shrink: 0;
+        }
+
+        /* ICON */
+
+        .notification-icon {
+            width: 50px;
+            height: 50px;
+
+            border-radius: 50%;
+
+            background: #e5edff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 22px;
+
+            flex-shrink: 0;
+        }
+
+        /* CONTENT */
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-message {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .notification-message strong {
+            color: #2563eb;
+        }
+
+        .notification-time {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* EMPTY */
+
+        .empty {
+            background: white;
+            padding: 50px 20px;
+
+            text-align: center;
+
+            border-radius: 12px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .empty-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .empty h2 {
+            margin-bottom: 8px;
+        }
+
+        .empty p {
+            color: #777;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                padding: 13px 15px;
+            }
+
+            .navbar h2 {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                gap: 10px;
+                font-size: 13px;
+            }
+
+            .container {
+                margin-top: 25px;
+                padding: 0 12px;
+            }
+
+            .page-title h1 {
+                font-size: 24px;
+            }
+
+            .notification {
+                padding: 13px;
+            }
+
+            .notification-image,
+            .notification-icon {
+                width: 43px;
+                height: 43px;
+            }
+
+            .notification-message {
+                font-size: 14px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <h2>UniCamplink</h2>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard') }}">
+                🏠 Home
+            </a>
+
+            <a href="{{ url_for('messages') }}">
+                💬 Messages
+            </a>
+
+            <a href="{{ url_for('notifications') }}">
+                🔔 Notifications
+            </a>
+
+            <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button type="submit">
+        Logout
+    </button>
+</form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="container">
+
+        <div class="page-title">
+
+            <h1>🔔 Notifications</h1>
+
+            <p>
+                Stay updated with what's happening on UniCamplink.
+            </p>
+
+        </div>
+
+
+        {% if notifications %}
+
+            <div class="notification-list">
+
+                {% for notification in notifications %}
+
+                    <a
+                        href="{{ notification['link'] or '#' }}"
+                        class="
+                            notification
+                            {% if notification['is_read'] == 0 %}
+                                unread
+                            {% endif %}
+                        "
+                    >
+
+                        {% if notification['sender_picture'] %}
+
+                            <img
+                                src="{{ url_for(
+                                    'static',
+                                    filename='uploads/' + notification['sender_picture']
+                                ) }}"
+                                class="notification-image"
+                                alt="Profile"
+                            >
+
+                        {% else %}
+
+                            <div class="notification-icon">
+
+                                {% if notification['type'] == 'like' %}
+                                    ❤️
+                                {% elif notification['type'] == 'comment' %}
+                                    💬
+                                {% elif notification['type'] == 'message' %}
+                                    ✉️
+                                {% elif notification['type'] == 'follow' %}
+                                    👤
+                                {% else %}
+                                    🔔
+                                {% endif %}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <div class="notification-content">
+
+                            <div class="notification-message">
+
+                                {% if notification['sender_name'] %}
+
+                                    <strong>
+                                        {{ notification['sender_name'] }}
+                                    </strong>
+
+                                {% endif %}
+
+                                {{ notification['message'] }}
+
+                            </div>
+
+                            <div class="notification-time">
+
+                               {{ notification['created_at']|nigeria_time }}
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    🔔
+                </div>
+
+                <h2>
+                    No notifications yet
+                </h2>
+
+                <p>
+                    When someone interacts with you,
+                    you'll see their notifications here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</body>
+
+</html>

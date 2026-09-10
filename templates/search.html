@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Search Students - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        .search-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .search-header h1 {
+            margin-bottom: 10px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-form button {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .search-results h2 {
+            margin-bottom: 20px;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(260px, 1fr)
+            );
+            gap: 20px;
+        }
+
+        .student-card {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            background: white;
+            border: 1px solid #ddd;
+            transition: 0.2s ease;
+        }
+
+        .student-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .student-image,
+        .student-avatar {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .student-image {
+            object-fit: cover;
+        }
+
+        .student-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eee;
+            font-size: 30px;
+        }
+
+        .student-info h3 {
+            margin: 0 0 8px;
+        }
+
+        .student-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .student-bio {
+            font-size: 14px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .search-form button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <a href="/dashboard" class="logo">
+
+            <img
+                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                alt="UniCamplink Logo"
+            >
+
+            <span>UniCamplink</span>
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/feed">
+                Feed
+            </a>
+
+            <a href="/profile">
+                Profile
+            </a>
+
+            <a href="/groups">
+                Groups 👥
+            </a>
+
+            <a href="/search">
+                Search 🔍
+            </a>
+
+            <a href="/messages">
+                Messages 💬
+            </a>
+
+            <a href="/marketplace">
+                Marketplace 🛒
+            </a>
+
+            <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        style="
+            background: none;
+            border: none;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+        "
+    >
+        Logout
+    </button>
+</form>
+
+        </div>
+
+    </nav>
+
+
+    <main class="search-container">
+
+
+        <section class="search-header">
+
+            <h1>
+                Find Students 🔍
+            </h1>
+
+            <p>
+                Search for students by their name,
+                email, or university.
+            </p>
+
+        </section>
+
+
+        <form
+            action="{{ url_for('search_students') }}"
+            method="GET"
+            class="search-form"
+        >
+
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search name, email or university..."
+            >
+
+            <button type="submit">
+                Search
+            </button>
+
+        </form>
+
+
+        {% if query %}
+
+            <section class="search-results">
+
+                <h2>
+                    Search Results
+                </h2>
+
+
+                {% if users %}
+
+                    <div class="student-grid">
+
+
+                        {% for user in users %}
+
+                            <a
+                                href="{{ url_for(
+                                    'view_user',
+                                    user_id=user['id']
+                                ) }}"
+                                class="student-card"
+                            >
+
+
+                                {% if user["profile_picture"] %}
+
+                                    <img
+                                        src="{{ url_for(
+                                            'static',
+                                            filename='uploads/' + user['profile_picture']
+                                        ) }}"
+                                        alt="{{ user['name'] }}"
+                                        class="student-image"
+                                    >
+
+                                {% else %}
+
+                                    <div class="student-avatar">
+                                        👤
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="student-info">
+
+                                    <h3>
+                                        {{ user["name"] }}
+                                    </h3>
+
+                                    <p>
+                                        🏫
+                                        {{ user["university"] }}
+                                    </p>
+
+
+                                    {% if user["bio"] %}
+
+                                        <p class="student-bio">
+                                            {{ user["bio"] }}
+                                        </p>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                            </a>
+
+                        {% endfor %}
+
+
+                    </div>
+
+
+                {% else %}
+
+                    <p class="no-results">
+
+                        No students found for
+                        "{{ query }}".
+
+                    </p>
+
+                {% endif %}
+
+
+            </section>
+
+        {% endif %}
+
+
+    </main>
+
+
+</body>
+
+</html>

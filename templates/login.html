@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - UniCamplink</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+
+        <a href="/" class="logo">
+            <img
+                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                alt="UniCamplink Logo"
+            >
+            <span>UniCamplink</span>
+        </a>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/signup">Join Now</a>
+        </div>
+
+    </nav>
+
+
+    <!-- Login Section -->
+    <section class="auth-section">
+
+        <div class="auth-card">
+
+            <h1>Welcome Back 👋</h1>
+
+            <p>
+                Login to continue to UniCamplink.
+            </p>
+
+
+            <form action="/login" method="POST">
+<input
+    type="hidden"
+    name="csrf_token"
+    value="{{ csrf_token() }}"
+>
+                <!-- CSRF Protection -->
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    required
+                >
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    required
+                >
+
+                <button type="submit">
+                    Login
+                </button>
+
+            </form>
+
+
+            <p class="auth-link">
+
+                Don't have an account?
+
+                <a href="/signup">
+                    Create one
+                </a>
+
+            </p>
+
+        </div>
+
+    </section>
+
+</body>
+</html>

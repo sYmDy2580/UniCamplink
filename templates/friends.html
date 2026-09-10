@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Friends - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        .friends-container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+
+        .friends-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .friends-header h1 {
+            color: #0369a1;
+            margin-bottom: 8px;
+        }
+
+        .friends-header p {
+            color: #64748b;
+        }
+
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fill,
+                minmax(250px, 1fr)
+            );
+            gap: 20px;
+        }
+
+        .friend-card {
+            background: white;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .friend-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 12px;
+        }
+
+        .friend-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #e0f2fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 35px;
+        }
+
+        .friend-card h2 {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .friend-card h2 a {
+            color: #0369a1;
+            text-decoration: none;
+        }
+
+        .friend-card h2 a:hover {
+            text-decoration: underline;
+        }
+
+        .friend-university {
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .view-profile-btn {
+            display: inline-block;
+            background: #0ea5e9;
+            color: white;
+            text-decoration: none;
+            padding: 9px 16px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        .view-profile-btn:hover {
+            background: #0284c7;
+        }
+
+        .no-friends {
+            background: white;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .no-friends h2 {
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+
+        .no-friends p {
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .find-students-btn {
+            display: inline-block;
+            background: #0ea5e9;
+            color: white;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+
+            .friends-container {
+                width: 94%;
+                margin: 25px auto;
+            }
+
+            .friends-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <a href="/dashboard" class="logo">
+
+        <img
+            src="{{ url_for(
+                'static',
+                filename='images/unicamplink-logo.png'
+            ) }}"
+            alt="UniCamplink Logo"
+        >
+
+        <span>UniCamplink</span>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="/dashboard">
+            Dashboard
+        </a>
+
+        <a href="/feed">
+            Feed
+        </a>
+
+        <a href="/profile">
+            Profile
+        </a>
+
+        <a href="/friends">
+            Friends 👥
+        </a>
+
+        <a href="/groups">
+            Groups
+        </a>
+
+        <a href="/search">
+            Search
+        </a>
+
+        <a href="/messages">
+            Messages
+        </a>
+
+        <a href="/marketplace">
+            Marketplace
+        </a>
+
+        <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        style="
+            background: none;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+        "
+    >
+        Logout
+    </button>
+</form>
+
+    </div>
+
+</nav>
+
+
+<!-- FRIENDS -->
+
+<main class="friends-container">
+
+    <div class="friends-header">
+
+        <h1>
+            My Friends 👥
+        </h1>
+
+        <p>
+            Connect with students in your campus community.
+        </p>
+
+    </div>
+
+
+    {% if friends %}
+
+        <div class="friends-grid">
+
+            {% for friend in friends %}
+
+                <div class="friend-card">
+
+
+                    {% if friend["profile_picture"] %}
+
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/' + friend['profile_picture']
+                            ) }}"
+                            alt="{{ friend['name'] }}"
+                            class="friend-avatar"
+                        >
+
+                    {% else %}
+
+                        <div class="friend-placeholder">
+                            👤
+                        </div>
+
+                    {% endif %}
+
+
+                    <h2>
+
+                        <a
+                            href="{{ url_for(
+                                'view_user',
+                                user_id=friend['id']
+                            ) }}"
+                        >
+                            {{ friend["name"] }}
+                        </a>
+
+                    </h2>
+
+
+                    <p class="friend-university">
+
+                        {{ friend["university"] }}
+
+                    </p>
+
+
+                    <a
+                        href="{{ url_for(
+                            'view_user',
+                            user_id=friend['id']
+                        ) }}"
+                        class="view-profile-btn"
+                    >
+                        View Profile
+                    </a>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <div class="no-friends">
+
+            <h2>
+                You don't have any friends yet.
+            </h2>
+
+            <p>
+                Search for students and start connecting
+                with your campus community.
+            </p>
+
+            <a
+                href="/search"
+                class="find-students-btn"
+            >
+                Find Students 🔎
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+
+</body>
+
+</html>

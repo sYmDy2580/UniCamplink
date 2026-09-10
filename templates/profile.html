@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Profile - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        /* ========================================= */
+        /* PROFILE NAVIGATION */
+        /* ========================================= */
+
+        .navbar {
+            background: #38bdf8;
+            min-height: 70px;
+            padding: 0 35px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white !important;
+            font-size: 25px;
+            font-weight: 800;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav-links a {
+            color: white !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* ========================================= */
+        /* MOBILE NAVIGATION */
+        /* ========================================= */
+
+        @media (max-width: 900px) {
+
+            .navbar {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 5px;
+            }
+
+            .nav-links a {
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .logo {
+                font-size: 22px;
+            }
+
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+<!-- ================================================= -->
+<!-- NAVIGATION -->
+<!-- ================================================= -->
+
+<nav class="navbar">
+
+    <a href="/dashboard" class="logo">
+
+        <img
+            src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+            alt="UniCamplink Logo"
+        >
+
+        <span>UniCamplink</span>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="/dashboard">
+            Dashboard
+        </a>
+
+        <a href="/feed">
+            Feed
+        </a>
+
+        <a href="/profile">
+            Profile
+        </a>
+
+        <a href="/groups">
+            Groups 👥
+        </a>
+
+        <a href="/search">
+            Search 🔍
+        </a>
+
+        <a href="/messages">
+            Messages 💬
+        </a>
+
+        <a href="/marketplace">
+            Marketplace 🛒
+        </a>
+
+        <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        style="
+            background: none;
+            border: none;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+        "
+    >
+        Logout
+    </button>
+</form>
+
+    </div>
+
+</nav>
+
+
+<!-- ================================================= -->
+<!-- PROFILE -->
+<!-- ================================================= -->
+
+<main class="profile-container">
+
+
+    <div class="profile-card">
+
+
+        <!-- PROFILE PICTURE -->
+
+        {% if user["profile_picture"] %}
+
+            <img
+                src="{{ url_for('static', filename='uploads/' + user['profile_picture']) }}"
+                alt="Profile Picture"
+                class="profile-image"
+            >
+
+        {% else %}
+
+            <div class="profile-avatar">
+                👤
+            </div>
+
+        {% endif %}
+
+
+        <!-- NAME -->
+
+        <h1>
+            {{ user["name"] }}
+        </h1>
+
+
+        <!-- UNIVERSITY -->
+
+        <p class="university">
+            🏫 {{ user["university"] }}
+        </p>
+
+
+        <!-- BIO -->
+
+        {% if user["bio"] %}
+
+            <p class="bio">
+                {{ user["bio"] }}
+            </p>
+
+        {% else %}
+
+            <p class="bio">
+                No bio added yet.
+            </p>
+
+        {% endif %}
+
+
+        <!-- EDIT PROFILE -->
+
+        <a
+            href="/edit-profile"
+            class="edit-profile-btn"
+        >
+            ✏️ Edit Profile
+        </a>
+
+
+        <!-- PROFILE STATS -->
+
+        <div class="profile-stats">
+
+
+            <div class="stat">
+
+                <strong>
+                    {{ post_count }}
+                </strong>
+
+                <span>
+                    Posts
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <strong>
+                    {{ total_likes }}
+                </strong>
+
+                <span>
+                    Total Likes
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- USER POSTS -->
+    <!-- ================================================= -->
+
+    <section class="profile-posts">
+
+
+        <h2>
+            {{ user["name"] }}'s Posts
+        </h2>
+
+
+        {% if posts %}
+
+
+            {% for post in posts %}
+
+
+                <div class="post-card">
+
+
+                    <p>
+                        {{ post["content"] }}
+                    </p>
+
+
+                    <small>
+                        {{ post["created_at"] }}
+                    </small>
+
+
+                </div>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <p>
+                No posts yet.
+            </p>
+
+
+        {% endif %}
+
+
+    </section>
+
+
+</main>
+
+
+</body>
+
+</html>

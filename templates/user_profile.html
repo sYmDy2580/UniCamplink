@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{{ user["name"] }} - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        /* ================================================= */
+        /* PROFILE PAGE */
+        /* ================================================= */
+
+        .profile-container {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        /* ================================================= */
+        /* PROFILE CARD */
+        /* ================================================= */
+
+        .profile-card {
+            background: var(--card);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        /* ================================================= */
+        /* PROFILE IMAGE */
+        /* ================================================= */
+
+        .profile-picture,
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+
+        .profile-picture {
+            object-fit: cover;
+            display: block;
+            border: 3px solid var(--primary);
+        }
+
+        .profile-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            font-size: 55px;
+        }
+
+        /* ================================================= */
+        /* NAME */
+        /* ================================================= */
+
+        .profile-card h1 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 30px;
+        }
+
+        /* ================================================= */
+        /* PROFILE INFORMATION */
+        /* ================================================= */
+
+        .profile-card p {
+            margin: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .profile-bio {
+            max-width: 600px;
+            margin: 15px auto;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ================================================= */
+        /* MESSAGE BUTTON */
+        /* ================================================= */
+
+        .message-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 22px;
+            background: var(--primary-dark);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.2s ease;
+        }
+
+        .message-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* ================================================= */
+        /* FRIEND BUTTON */
+        /* ================================================= */
+
+        .friend-button {
+            display: inline-block;
+            padding: 12px 22px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .friend-button:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        /* ================================================= */
+        /* FRIENDSHIP STATUS */
+        /* ================================================= */
+
+        .friend-status {
+            display: inline-block;
+            padding: 12px 22px;
+            margin-top: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .friends-status {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+        }
+
+        .pending-status {
+            background: rgba(234, 179, 8, 0.15);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.35);
+        }
+
+        .respond-button {
+            background: #7c3aed;
+        }
+
+        .respond-button:hover {
+            background: #6d28d9;
+        }
+
+        /* ================================================= */
+        /* EDIT PROFILE BUTTON */
+        /* ================================================= */
+
+        .edit-profile-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 22px;
+            background: var(--primary-dark);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.2s ease;
+        }
+
+        .edit-profile-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* ================================================= */
+        /* BACK BUTTON */
+        /* ================================================= */
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 25px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            background: var(--card);
+            transition: 0.2s ease;
+        }
+
+        .back-button:hover {
+            background: var(--card-hover);
+            border-color: var(--primary);
+        }
+
+        /* ================================================= */
+        /* POSTS */
+        /* ================================================= */
+
+        .posts-section {
+            margin-top: 30px;
+        }
+
+        .posts-section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .post-card {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .post-card p {
+            margin: 0 0 10px;
+            color: var(--text-secondary);
+        }
+
+        .post-date {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .no-posts {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 25px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        /* ================================================= */
+        /* MOBILE */
+        /* ================================================= */
+
+        @media (max-width: 600px) {
+
+            .profile-container {
+                width: 94%;
+                margin: 25px auto;
+                padding: 10px;
+            }
+
+            .profile-card {
+                padding: 20px;
+            }
+
+            .profile-card h1 {
+                font-size: 26px;
+            }
+
+            .message-button,
+            .friend-button,
+            .friend-status,
+            .edit-profile-button {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            .profile-picture,
+            .profile-avatar {
+                width: 105px;
+                height: 105px;
+            }
+
+            .profile-avatar {
+                font-size: 48px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================================================= -->
+    <!-- NAVIGATION -->
+    <!-- ================================================= -->
+
+    <nav class="navbar">
+
+        <a
+            href="/dashboard"
+            class="logo"
+        >
+
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='images/unicamplink-logo.png'
+                ) }}"
+                alt="UniCamplink Logo"
+            >
+
+            <span>
+                UniCamplink
+            </span>
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/feed">
+                Feed
+            </a>
+
+            <a href="/profile">
+                Profile
+            </a>
+
+            <a href="/friends">
+                Friends 👥
+            </a>
+
+            <a href="/groups">
+                Groups 👥
+            </a>
+
+            <a href="/search">
+                Search 🔍
+            </a>
+
+            <a href="/messages">
+                Messages 💬
+            </a>
+
+            <a href="/marketplace">
+                Marketplace 🛒
+            </a>
+
+            <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        style="
+            background: none;
+            border: none;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+        "
+    >
+        Logout
+    </button>
+</form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================================================= -->
+    <!-- MAIN PROFILE -->
+    <!-- ================================================= -->
+
+    <main class="profile-container">
+
+
+        <!-- BACK BUTTON -->
+
+        <a
+            href="{{ url_for('search') }}"
+            class="back-button"
+        >
+            ← Back to Search
+        </a>
+
+
+        <!-- ================================================= -->
+        <!-- PROFILE CARD -->
+        <!-- ================================================= -->
+
+        <section class="profile-card">
+
+
+            <!-- PROFILE PICTURE -->
+
+            {% if user["profile_picture"] %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/' + user['profile_picture']
+                    ) }}"
+                    alt="{{ user['name'] }}"
+                    class="profile-picture"
+                >
+
+            {% else %}
+
+                <div class="profile-avatar">
+                    👤
+                </div>
+
+            {% endif %}
+
+
+            <!-- NAME -->
+
+            <h1>
+                {{ user["name"] }}
+            </h1>
+
+
+            <!-- UNIVERSITY -->
+
+            <p>
+                🏫 {{ user["university"] }}
+            </p>
+
+
+            <!-- EMAIL -->
+
+            <p>
+                📧 {{ user["email"] }}
+            </p>
+
+
+            <!-- BIO -->
+
+            {% if user["bio"] %}
+
+                <p class="profile-bio">
+                    {{ user["bio"] }}
+                </p>
+
+            {% endif %}
+
+
+            <!-- ================================================= -->
+            <!-- PROFILE ACTIONS -->
+            <!-- ================================================= -->
+
+            {% if user["id"] == current_user_id %}
+
+
+                <!-- OWN PROFILE -->
+
+                <a
+                    href="{{ url_for('profile') }}"
+                    class="edit-profile-button"
+                >
+                    ✏️ Edit My Profile
+                </a>
+
+
+            {% else %}
+
+
+                <!-- MESSAGE USER -->
+
+                <a
+                    href="{{ url_for(
+                        'chat',
+                        user_id=user['id']
+                    ) }}"
+                    class="message-button"
+                >
+                    💬 Message {{ user["name"] }}
+                </a>
+
+
+                <!-- ================================================= -->
+                <!-- FRIENDSHIP STATUS -->
+                <!-- ================================================= -->
+
+                {% if is_friend %}
+
+
+                    <!-- ALREADY FRIENDS -->
+
+                    <div class="friend-status friends-status">
+                        ❤️ Friends
+                    </div>
+
+
+                {% elif request_sent %}
+
+
+                    <!-- REQUEST ALREADY SENT -->
+
+                    <div class="friend-status pending-status">
+                        ⏳ Friend Request Sent
+                    </div>
+
+
+                {% elif request_received %}
+
+
+                    <!-- THEY SENT YOU A REQUEST -->
+
+                    <a
+                        href="{{ url_for('friend_requests') }}"
+                        class="friend-button respond-button"
+                    >
+                        🤝 Respond to Friend Request
+                    </a>
+
+
+                {% else %}
+
+
+                    <!-- NO FRIENDSHIP -->
+
+                    <form
+                        action="{{ url_for(
+                            'send_friend_request',
+                            user_id=user['id']
+                        ) }}"
+                        method="POST"
+                        style="display: inline-block; margin-top: 15px;"
+                    >
+
+                        <!-- ================================================= -->
+                        <!-- CSRF SECURITY TOKEN -->
+                        <!-- ================================================= -->
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="friend-button"
+                        >
+                             Add Friend
+                        </button>
+
+                    </form>
+
+
+                {% endif %}
+
+
+            {% endif %}
+
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- USER POSTS -->
+        <!-- ================================================= -->
+
+        <section class="posts-section">
+
+
+            <h2>
+                {{ user["name"] }}'s Posts
+            </h2>
+
+
+            {% if posts %}
+
+
+                {% for post in posts %}
+
+                    <article class="post-card">
+
+                        <p>
+                            {{ post["content"] }}
+                        </p>
+
+                        <div class="post-date">
+
+                            Posted:
+                            {{ post["created_at"] }}
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+
+            {% else %}
+
+
+                <div class="no-posts">
+
+                    <p>
+                        {{ user["name"] }} hasn't made any posts yet.
+                    </p>
+
+                </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+
+    </main>
+
+
+</body>
+
+</html>

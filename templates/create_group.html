@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Group - UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <a href="/dashboard" class="logo">
+
+            <img
+                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                alt="UniCamplink Logo"
+            >
+
+            <span>UniCamplink</span>
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/groups">
+                Groups
+            </a>
+
+            <a href="/profile">
+                Profile
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="create-group-container">
+
+        <div class="create-group-card">
+
+            <h1>
+                Create a Student Group 👥
+            </h1>
+
+            <p>
+                Start a community for students
+                with similar interests.
+            </p>
+
+
+            <form method="POST">
+
+                <!-- CSRF Protection -->
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <label for="name">
+                    Group Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="e.g. Computer Engineering Students"
+                    required
+                >
+
+
+                <label for="description">
+                    Group Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    placeholder="What is this group about?"
+                    required
+                ></textarea>
+
+
+                <button type="submit">
+                    Create Group
+                </button>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

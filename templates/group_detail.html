@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{{ group['name'] }} - UniCamplink</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        nav {
+            background: #111827;
+            padding: 16px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        nav .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .group-header h1 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .group-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .group-info {
+            color: #777;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .join-button,
+        .post-button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .join-button:hover,
+        .post-button:hover {
+            background: #1d4ed8;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        .post {
+            border-top: 1px solid #eee;
+            padding: 18px 0;
+        }
+
+        .post:first-child {
+            border-top: none;
+        }
+
+        .post-author {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .post-content {
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .post-date {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .members {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .member {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .member-name {
+            font-weight: bold;
+        }
+
+        .member-university {
+            color: #777;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .empty {
+            color: #777;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 600px) {
+
+            nav {
+                align-items: flex-start;
+            }
+
+            nav a {
+                display: inline-block;
+                margin: 5px 8px 5px 0;
+            }
+
+            .container {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            UniCamplink 🎓
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('feed') }}">
+                Feed
+            </a>
+
+            <a href="{{ url_for('profile') }}">
+                Profile
+            </a>
+
+            <a href="{{ url_for('groups') }}">
+                Groups 👥
+            </a>
+
+            <a href="{{ url_for('search') }}">
+                Search 🔍
+            </a>
+
+            <form
+    action="{{ url_for('logout') }}"
+    method="POST"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button type="submit">
+        Logout
+    </button>
+</form>
+
+        </div>
+
+    </nav>
+
+
+    <div class="container">
+
+
+        <!-- GROUP INFORMATION -->
+
+        <div class="card group-header">
+
+            <h1>
+                {{ group['name'] }}
+            </h1>
+
+            <div class="group-description">
+                {{ group['description'] or 'No description provided.' }}
+            </div>
+
+            <div class="group-info">
+                Created by {{ group['creator_name'] }}
+            </div>
+
+
+            {% if not is_member %}
+
+                <form
+                    action="{{ url_for('join_group', group_id=group['id']) }}"
+                    method="POST"
+                    style="margin-top: 18px;"
+                >
+
+                    <!-- CSRF Protection -->
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="join-button"
+                    >
+                        Join Group
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <p style="color: green; font-weight: bold;">
+                    ✓ You are a member of this group
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- CREATE GROUP POST -->
+
+        {% if is_member %}
+
+            <div class="card">
+
+                <h2>
+                    Create a Post
+                </h2>
+
+                <form
+                    action="{{ url_for('create_group_post', group_id=group['id']) }}"
+                    method="POST"
+                >
+
+                    <!-- CSRF Protection -->
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <textarea
+                        name="content"
+                        placeholder="Share something with this group..."
+                        required
+                    ></textarea>
+
+                    <button
+                        type="submit"
+                        class="post-button"
+                    >
+                        Post
+                    </button>
+
+                </form>
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- GROUP POSTS -->
+
+        <div class="card">
+
+            <h2>
+                Group Posts
+            </h2>
+
+            {% if posts %}
+
+                {% for post in posts %}
+
+                    <div class="post">
+
+                        <div class="post-author">
+                            {{ post['author_name'] }}
+                        </div>
+
+                        <div class="post-content">
+                            {{ post['content'] }}
+                        </div>
+
+                        <div class="post-date">
+                            {{ post['created_at'] }}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty">
+                    No posts yet. Be the first to post!
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- GROUP MEMBERS -->
+
+        <div class="card">
+
+            <h2>
+                Members 👥
+            </h2>
+
+            {% if members %}
+
+                <div class="members">
+
+                    {% for member in members %}
+
+                        <div class="member">
+
+                            <div class="member-name">
+                                {{ member['name'] }}
+                            </div>
+
+                            <div class="member-university">
+                                🎓 {{ member['university'] }}
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+                    No members yet.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+
+</body>
+
+</html>

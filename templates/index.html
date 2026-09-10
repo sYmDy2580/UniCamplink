@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>UniCamplink - Connect Your Campus</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+
+        <a href="/" class="logo">
+            <img
+                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                alt="UniCamplink Logo"
+            >
+            <span>UniCamplink</span>
+        </a>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/login">Login</a>
+            <a href="/signup" class="signup-btn">Join Now</a>
+        </div>
+
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <h1>
+                Your Campus.<br>
+                Your Community.
+            </h1>
+
+            <p>
+                UniCamplink connects students, communities,
+                groups, opportunities and campus marketplaces
+                all in one place.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="/signup" class="primary-btn">
+                    Join UniCamplink
+                </a>
+
+                <a href="/login" class="secondary-btn">
+                    Login
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+
+        <h2>Everything Students Need in One Place</h2>
+
+        <div class="feature-container">
+
+            <div class="feature-card">
+                <div class="icon">👥</div>
+
+                <h3>Connect</h3>
+
+                <p>
+                    Meet and interact with students
+                    across your campus.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">💬</div>
+
+                <h3>Communities</h3>
+
+                <p>
+                    Join groups based on departments,
+                    interests and activities.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🛒</div>
+
+                <h3>Marketplace</h3>
+
+                <p>
+                    Buy, sell and promote products
+                    and services within your campus.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer>
+
+        <p>
+            © 2026 UniCamplink. Connecting Students Everywhere.
+        </p>
+
+    </footer>
+
+</body>
+</html>
