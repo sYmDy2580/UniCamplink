@@ -1418,6 +1418,7 @@ def feed():
             session["user_id"],
         )
     ).fetchall()
+    
 
     conn.close()
 
