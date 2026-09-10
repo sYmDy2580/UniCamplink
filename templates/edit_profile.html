@@ -32,6 +32,7 @@
             <a href="/dashboard">Dashboard</a>
             <a href="/feed">Feed</a>
             <a href="/profile">Profile</a>
+
             <form
                 action="{{ url_for('logout') }}"
                 method="POST"
@@ -42,6 +43,7 @@
                     name="csrf_token"
                     value="{{ csrf_token() }}"
                 >
+
                 <button
                     type="submit"
                     style="
@@ -54,6 +56,7 @@
                     Logout
                 </button>
             </form>
+        </div>
 
     </nav>
 
@@ -64,7 +67,10 @@
 
             <h1>Edit Profile</h1>
 
-            <form method="POST" enctype="multipart/form-data">
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+            >
 
                 <!-- CSRF Protection -->
                 <input
@@ -73,6 +79,40 @@
                     value="{{ csrf_token() }}"
                 >
 
+
+                <!-- NAME -->
+                <label for="name">
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="{{ user['name'] or '' }}"
+                    placeholder="Enter your full name"
+                    maxlength="100"
+                    required
+                >
+
+
+                <!-- UNIVERSITY -->
+                <label for="university">
+                    University
+                </label>
+
+                <input
+                    type="text"
+                    id="university"
+                    name="university"
+                    value="{{ user['university'] or '' }}"
+                    placeholder="Enter your university"
+                    maxlength="150"
+                    required
+                >
+
+
+                <!-- PROFILE PICTURE -->
                 <label for="profile_picture">
                     Profile Picture
                 </label>
@@ -84,6 +124,8 @@
                     accept=".png,.jpg,.jpeg,.gif"
                 >
 
+
+                <!-- BIO -->
                 <label for="bio">
                     About Me
                 </label>
@@ -92,18 +134,20 @@
                     id="bio"
                     name="bio"
                     placeholder="Tell other students about yourself..."
-                    maxlength="300"
+                    maxlength="500"
                 >{{ user["bio"] or "" }}</textarea>
 
                 <p class="bio-limit">
-                    Maximum 300 characters
+                    Maximum 500 characters
                 </p>
+
 
                 <button type="submit">
                     Save Changes
                 </button>
 
             </form>
+
 
             <a href="/profile" class="cancel-btn">
                 Cancel
