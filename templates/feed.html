@@ -1,111 +1,164 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
 
-    <title>Student Feed - UniCamplink</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+<meta
+    name="description"
+    content="UniCamplink Student Feed — share updates, interact with students and stay connected with your campus community."
+>
+
+<title>Student Feed | UniCamplink</title>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
+
 
 </head>
 
-
 <body>
-
-
-<!-- ============================================================
-     NAVIGATION
-============================================================ -->
 
 <nav class="navbar">
 
-    <a href="/dashboard" class="logo">
+
+<div class="nav-container">
+
+
+    <!-- =====================================================
+         BRAND
+    ====================================================== -->
+
+    <a
+        href="{{ url_for('dashboard') }}"
+        class="nav-brand"
+    >
 
         <img
             src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
             alt="UniCamplink Logo"
         >
 
-        <span>UniCamplink</span>
+        <span>
+            UniCamplink
+        </span>
 
     </a>
 
 
+    <!-- =====================================================
+         NAVIGATION LINKS
+    ====================================================== -->
+
     <div class="nav-links">
 
-        <a href="/dashboard">
+
+        <a href="{{ url_for('dashboard') }}">
             Dashboard
         </a>
 
-        <a href="/feed">
+
+        <a href="{{ url_for('feed') }}">
             Feed
         </a>
 
-        <a href="/profile">
+
+        <a href="{{ url_for('profile') }}">
             Profile
         </a>
 
-        <a href="/groups">
-            Groups 👥
+
+        <a href="{{ url_for('groups') }}">
+            Groups
         </a>
 
-        <a href="/search">
-            Search 🔍
+
+        <a href="{{ url_for('search_students') }}">
+            Search
         </a>
 
-        <a href="/messages">
-            Messages 💬
+
+        <a href="{{ url_for('messages') }}">
+            Messages
         </a>
 
-        <a href="/marketplace">
-            Marketplace 🛒
+
+        <a href="{{ url_for('friends') }}">
+            Friends
         </a>
+
+
+        <a href="{{ url_for('friend_requests') }}">
+            Requests
+        </a>
+
+
+        <a href="{{ url_for('notifications') }}">
+            Notifications
+        </a>
+
+
+        <a href="{{ url_for('marketplace') }}">
+            Marketplace
+        </a>
+
+
+        <!-- =================================================
+             THEME TOGGLE
+        ================================================== -->
+
+        <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle theme"
+        >
+            🌙 Dark Mode
+        </button>
+
+
+        <!-- =================================================
+             LOGOUT
+        ================================================== -->
 
         <form
-    action="{{ url_for('logout') }}"
-    method="POST"
-    style="display: inline;"
->
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
-    >
+            action="{{ url_for('logout') }}"
+            method="POST"
+            class="logout-form"
+        >
 
-    <button
-        type="submit"
-        style="
-            background: none;
-            border: none;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-        "
-    >
-        Logout
-    </button>
-</form>
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <button
+                type="submit"
+                class="nav-logout"
+            >
+                Logout
+            </button>
+
+        </form>
+
 
     </div>
 
+</div>
+
+
 </nav>
-
-
 
 <!-- ============================================================
      MAIN FEED
@@ -114,68 +167,88 @@
 <main class="feed-container">
 
 
-    <!-- ========================================================
-         CREATE POST
-    ========================================================= -->
+<!-- ========================================================
+     CREATE POST
+========================================================= -->
 
-    <div class="create-post">
+<section class="create-post">
 
-        <h2>
-            Create a Post
-        </h2>
+    <h2>
+        ✍️ Create a Post
+    </h2>
 
 
-        <form
-            action="{{ url_for('create_post') }}"
-            method="POST"
+    <p>
+        Share an announcement, idea, experience,
+        question or useful information with your
+        campus community.
+    </p>
+
+
+    <form
+        action="{{ url_for('create_post') }}"
+        method="POST"
+    >
+
+
+        <!-- CSRF PROTECTION -->
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
         >
 
-            <!-- CSRF Protection -->
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{ csrf_token() }}"
-            >
 
-            <textarea
-                name="content"
-                placeholder="What's happening on campus?"
-                required
-            ></textarea>
+        <!-- POST CONTENT -->
+
+        <textarea
+            name="content"
+            placeholder="What's happening on campus?"
+            maxlength="2000"
+            required
+        ></textarea>
 
 
-            <button type="submit">
-                Post
-            </button>
+        <!-- SUBMIT -->
 
-        </form>
-
-    </div>
-
-
-
-    <!-- ========================================================
-         STUDENT FEED
-    ========================================================= -->
-
-    <div class="posts-section">
-
-        <h2>
-            Student Feed
-        </h2>
+        <button
+            type="submit"
+            class="primary-btn"
+        >
+            Share Update 🚀
+        </button>
 
 
-        {% if posts %}
+    </form>
+
+</section>
 
 
-            {% for post in posts %}
+
+<!-- ========================================================
+     STUDENT FEED
+========================================================= -->
+
+<section class="posts-section">
+
+
+    <h2>
+        📰 Student Feed
+    </h2>
+
+
+    {% if posts %}
+
+
+        {% for post in posts %}
 
 
             <!-- =================================================
                  POST CARD
             ================================================== -->
 
-            <div class="post-card">
+            <article class="post-card">
 
 
                 <!-- =================================================
@@ -199,12 +272,12 @@
                 </h3>
 
 
+                <!-- UNIVERSITY -->
+
                 {% if post["author_university"] %}
 
                     <small>
-
                         🎓 {{ post["author_university"] }}
-
                     </small>
 
                 {% endif %}
@@ -216,21 +289,25 @@
                 ================================================== -->
 
                 <p>
-
                     {{ post["content"] }}
-
                 </p>
 
+
+
+                <!-- =================================================
+                     DATE
+                ================================================== -->
 
                 <small>
 
                     {{ post["created_at"]|nigeria_time }}
+
                 </small>
 
 
 
                 <!-- =================================================
-                     LIKE BUTTON
+                     LIKE
                 ================================================== -->
 
                 <form
@@ -241,12 +318,12 @@
                     method="POST"
                 >
 
-                    <!-- CSRF Protection -->
                     <input
                         type="hidden"
                         name="csrf_token"
                         value="{{ csrf_token() }}"
                     >
+
 
                     <button
                         type="submit"
@@ -289,7 +366,7 @@
 
                     <!-- =================================================
                          COMMENT FORM
-                    ================================================= -->
+                    ================================================== -->
 
                     <form
                         action="{{ url_for(
@@ -300,25 +377,26 @@
                         class="comment-form"
                     >
 
-                        <!-- CSRF Protection -->
                         <input
                             type="hidden"
                             name="csrf_token"
                             value="{{ csrf_token() }}"
                         >
 
+
                         <input
                             type="text"
                             name="content"
                             placeholder="Write a comment..."
+                            maxlength="1000"
                             required
                         >
 
 
-                        <button type="submit">
-
+                        <button
+                            type="submit"
+                        >
                             Comment
-
                         </button>
 
                     </form>
@@ -327,39 +405,46 @@
                 </div>
 
 
-            </div>
+            </article>
 
 
-            {% endfor %}
+        {% endfor %}
 
 
-        {% else %}
+    {% else %}
 
 
-            <!-- =================================================
-                 NO POSTS
-            ================================================== -->
+        <!-- =================================================
+             EMPTY FEED
+        ================================================== -->
 
-            <div class="no-posts">
+        <div class="no-posts">
 
-                <p>
+            <p>
 
-                    No posts yet.
-                    Be the first student to post! 🎉
+                No posts yet.
+                Be the first student to post! 🎉
 
-                </p>
+            </p>
 
-            </div>
-
-
-        {% endif %}
+        </div>
 
 
-    </div>
+    {% endif %}
+
+
+</section>
 
 
 </main>
 
+<!-- ============================================================
+     THEME SCRIPT
+============================================================ -->
+
+<script
+    src="{{ url_for('static', filename='js/theme.js') }}"
+></script>
 
 </body>
 

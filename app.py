@@ -1,6 +1,8 @@
 import os
 import sqlite3
 import math
+import smtplib
+from email.message import EmailMessage
 from uuid import uuid4
 from datetime import datetime, timedelta
 
@@ -48,6 +50,24 @@ if not SECRET_KEY:
     )
 
 app.secret_key = SECRET_KEY
+
+
+# ============================================================
+# EMAIL / SMTP CONFIGURATION
+# ============================================================
+
+MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
+MAIL_PORT = int(os.environ.get("MAIL_PORT", "587"))
+MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "")
+MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
+MAIL_USE_TLS = (
+    os.environ.get("MAIL_USE_TLS", "true").lower()
+    in {"1", "true", "yes", "on"}
+)
+MAIL_RECIPIENT = os.environ.get(
+    "MAIL_RECIPIENT",
+    "daveinfinitz@gmail.com"
+)
 
 
 # ============================================================
@@ -179,6 +199,71 @@ def add_security_headers(response):
         )
 
         response.headers["Pragma"] = "no-cache"
+
+    return response
+
+
+# ============================================================
+# POPUP NOTIFICATION ASSETS
+# ============================================================
+
+@app.after_request
+def inject_notification_popup_assets(response):
+
+    # Add the popup CSS/JavaScript automatically to every
+    # HTML page, so existing templates do not need to be
+    # rewritten just to enable popup notifications.
+    content_type = response.headers.get("Content-Type", "")
+
+    if (
+        "text/html" in content_type
+        and not response.direct_passthrough
+    ):
+        try:
+            html = response.get_data(as_text=True)
+
+            css_tag = (
+                '<link rel="stylesheet" '
+                'href="/static/css/notification-popup.css">'
+            )
+
+            js_tag = (
+                '<script src="/static/js/notification-popup.js" '
+                'defer></script>'
+            )
+
+            if css_tag not in html:
+                if "</head>" in html.lower():
+                    lower_html = html.lower()
+                    head_end = lower_html.find("</head>")
+                    html = (
+                        html[:head_end]
+                        + "\n"
+                        + css_tag
+                        + html[head_end:]
+                    )
+
+            if js_tag not in html:
+                lower_html = html.lower()
+                body_end = lower_html.rfind("</body>")
+
+                if body_end != -1:
+                    html = (
+                        html[:body_end]
+                        + "\n"
+                        + js_tag
+                        + "\n"
+                        + html[body_end:]
+                    )
+                else:
+                    html += "\n" + js_tag
+
+            response.set_data(html)
+
+        except (TypeError, ValueError):
+            # Never allow notification UI injection to break
+            # an otherwise valid page response.
+            pass
 
     return response
 
@@ -1457,7 +1542,9 @@ def create_post():
 
     conn = get_db_connection()
 
-    conn.execute(
+    current_user_id = session["user_id"]
+
+    cursor = conn.execute(
         """
         INSERT INTO posts
         (
@@ -1467,10 +1554,64 @@ def create_post():
         VALUES (?, ?)
         """,
         (
-            session["user_id"],
+            current_user_id,
             content
         )
     )
+
+    post_id = cursor.lastrowid
+
+    # --------------------------------------------------------
+    # NOTIFY RELEVANT STUDENTS
+    # --------------------------------------------------------
+    # A normal campus update is shared with the author's
+    # confirmed friends. The author is excluded automatically.
+    author = conn.execute(
+        """
+        SELECT name
+        FROM users
+        WHERE id = ?
+        """,
+        (
+            current_user_id,
+        )
+    ).fetchone()
+
+    author_name = author["name"] if author else "A student"
+
+    friends = conn.execute(
+        """
+        SELECT friend_id
+        FROM friends
+        WHERE user_id = ?
+        """,
+        (
+            current_user_id,
+        )
+    ).fetchall()
+
+    for friend in friends:
+
+        conn.execute(
+            """
+            INSERT INTO notifications
+            (
+                user_id,
+                sender_id,
+                type,
+                message,
+                link
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                friend["friend_id"],
+                current_user_id,
+                "post",
+                f"{author_name} shared a new campus update 📝",
+                f"/feed#post-{post_id}"
+            )
+        )
 
     conn.commit()
     conn.close()
@@ -3128,6 +3269,70 @@ def messages():
 
 
 # ============================================================
+# POPUP NOTIFICATIONS API
+# ============================================================
+
+@app.route("/api/notifications/unread")
+def unread_notifications():
+
+    if "user_id" not in session:
+        return {"notifications": []}, 401
+
+    try:
+        after_id = int(request.args.get("after_id", 0))
+    except (TypeError, ValueError):
+        after_id = 0
+
+    conn = get_db_connection()
+
+    notifications_list = conn.execute(
+        """
+        SELECT
+            notifications.id,
+            notifications.type,
+            notifications.message,
+            notifications.link,
+            notifications.created_at,
+            users.name AS sender_name,
+            users.profile_picture AS sender_picture
+
+        FROM notifications
+
+        LEFT JOIN users
+        ON notifications.sender_id = users.id
+
+        WHERE notifications.user_id = ?
+        AND notifications.is_read = 0
+        AND notifications.id > ?
+
+        ORDER BY notifications.id ASC
+        LIMIT 20
+        """,
+        (
+            session["user_id"],
+            after_id
+        )
+    ).fetchall()
+
+    conn.close()
+
+    return {
+        "notifications": [
+            {
+                "id": notification["id"],
+                "type": notification["type"],
+                "message": notification["message"],
+                "link": notification["link"] or "",
+                "created_at": notification["created_at"],
+                "sender_name": notification["sender_name"] or "UniCamplink",
+                "sender_picture": notification["sender_picture"] or ""
+            }
+            for notification in notifications_list
+        ]
+    }
+
+
+# ============================================================
 # NOTIFICATIONS
 # ============================================================
 
@@ -3930,11 +4135,16 @@ def chat(user_id):
         other_user=other_user,
         messages=chat_messages
     )
+
+
 # ============================================================
 # ADVERTISE WITH US
 # ============================================================
 
-@app.route("/advertise-with-us")
+@app.route(
+    "/advertise-with-us",
+    methods=["GET", "POST"]
+)
 def advertise_with_us():
 
     if "user_id" not in session:
@@ -3942,19 +4152,126 @@ def advertise_with_us():
             url_for("login")
         )
 
+    if request.method == "POST":
+
+        name = clean_text(
+            request.form.get("name"),
+            MAX_NAME_LENGTH
+        )
+
+        email = (
+            request.form.get("email", "")
+            .strip()
+            .lower()
+        )
+
+        business_name = clean_text(
+            request.form.get("business_name"),
+            MAX_NAME_LENGTH
+        )
+
+        advertising_type = clean_text(
+            request.form.get("advertising_type"),
+            MAX_NAME_LENGTH
+        )
+
+        message = clean_text(
+            request.form.get("message"),
+            MAX_MESSAGE_LENGTH
+        )
+
+        if not name or not business_name or not advertising_type or not message:
+            return render_template(
+                "advertise_with_us.html",
+                error="Please fill in all required fields."
+            ), 400
+
+        if not valid_email(email):
+            return render_template(
+                "advertise_with_us.html",
+                error="Please enter a valid email address."
+            ), 400
+
+        if not MAIL_USERNAME or not MAIL_PASSWORD:
+            return render_template(
+                "advertise_with_us.html",
+                error="Email service is not configured yet. Please try again later."
+            ), 500
+
+        subject = (
+            "UniCamplink Advertising Request - "
+            + business_name
+        )
+
+        email_message = EmailMessage()
+        email_message["Subject"] = subject
+        email_message["From"] = MAIL_USERNAME
+        email_message["To"] = MAIL_RECIPIENT
+        email_message["Reply-To"] = email
+
+        email_message.set_content(
+            "New UniCamplink advertising request\n\n"
+            "Name: " + name + "\n"
+            "Email: " + email + "\n"
+            "Business / Organization: " + business_name + "\n"
+            "Advertising Type: " + advertising_type + "\n\n"
+            "Message:\n" + message + "\n"
+        )
+
+        try:
+            with smtplib.SMTP(
+                MAIL_SERVER,
+                MAIL_PORT,
+                timeout=20
+            ) as smtp:
+
+                if MAIL_USE_TLS:
+                    smtp.starttls()
+
+                smtp.login(
+                    MAIL_USERNAME,
+                    MAIL_PASSWORD
+                )
+
+                smtp.send_message(
+                    email_message
+                )
+
+        except Exception:
+            app.logger.exception(
+                "UniCamplink advertising email failed."
+            )
+
+            return render_template(
+                "advertise_with_us.html",
+                error="We could not send your request right now. Please try again later."
+            ), 500
+
+        return render_template(
+            "advertise_with_us.html",
+            success="Your advertising request has been sent successfully. We will get back to you soon."
+        )
+
     return render_template(
         "advertise_with_us.html"
     )
+
 
 # ============================================================
 # START APPLICATION
 # ============================================================
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "5000"))
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            "5000"
+        )
+    )
 
     app.run(
-    host="0.0.0.0",
-    port=port,
-    debug=False
-)
+        host="0.0.0.0",
+        port=port,
+        debug=False
+    )

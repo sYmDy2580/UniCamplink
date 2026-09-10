@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
 <meta
     name="description"
     content="UniCamplink student dashboard — connect, communicate, discover opportunities and interact with your campus community."
@@ -37,25 +36,45 @@
 
     <div class="nav-links">
 
-        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('dashboard') }}">
+            Dashboard
+        </a>
 
-        <a href="{{ url_for('feed') }}">Feed</a>
+        <a href="{{ url_for('feed') }}">
+            Feed
+        </a>
 
-        <a href="{{ url_for('profile') }}">Profile</a>
+        <a href="{{ url_for('profile') }}">
+            Profile
+        </a>
 
-        <a href="{{ url_for('groups') }}">Groups</a>
+        <a href="{{ url_for('groups') }}">
+            Groups
+        </a>
 
-        <a href="{{ url_for('search_students') }}">Search</a>
+        <a href="{{ url_for('search_students') }}">
+            Search
+        </a>
 
-        <a href="{{ url_for('messages') }}">Messages</a>
+        <a href="{{ url_for('messages') }}">
+            Messages
+        </a>
 
-        <a href="{{ url_for('friends') }}">Friends</a>
+        <a href="{{ url_for('friends') }}">
+            Friends
+        </a>
 
-        <a href="{{ url_for('friend_requests') }}">Requests</a>
+        <a href="{{ url_for('friend_requests') }}">
+            Requests
+        </a>
 
-        <a href="{{ url_for('notifications') }}">Notifications</a>
+        <a href="{{ url_for('notifications') }}">
+            Notifications
+        </a>
 
-        <a href="{{ url_for('marketplace') }}">Marketplace</a>
+        <a href="{{ url_for('marketplace') }}">
+            Marketplace
+        </a>
 
         <button
             type="button"
@@ -95,6 +114,7 @@
 
 
 <header class="dashboard-header">
+
     <div class="dashboard-welcome">
 
         <span class="dashboard-badge">
@@ -113,6 +133,7 @@
         </p>
 
     </div>
+
 </header>
 
 
@@ -121,10 +142,17 @@
     aria-label="UniCamplink features"
 >
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">📰</div>
+    <!-- STUDENT FEED -->
 
-        <h2>Student Feed</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            📰
+        </div>
+
+        <h2>
+            Student Feed
+        </h2>
 
         <p>
             See what's happening around your campus,
@@ -138,13 +166,21 @@
         >
             Open Feed →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">👤</div>
+    <!-- MY PROFILE -->
 
-        <h2>My Profile</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            👤
+        </div>
+
+        <h2>
+            My Profile
+        </h2>
 
         <p>
             Manage your student profile, update your
@@ -158,13 +194,21 @@
         >
             View Profile →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">💬</div>
+    <!-- MESSAGES -->
 
-        <h2>Messages</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            💬
+        </div>
+
+        <h2>
+            Messages
+        </h2>
 
         <p>
             Chat privately with other students and
@@ -178,13 +222,21 @@
         >
             Open Messages →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">🤝</div>
+    <!-- FRIENDS -->
 
-        <h2>My Friends</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            🤝
+        </div>
+
+        <h2>
+            My Friends
+        </h2>
 
         <p>
             Build your student network and connect
@@ -197,13 +249,21 @@
         >
             View Friends →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">👋</div>
+    <!-- FRIEND REQUESTS -->
 
-        <h2>Friend Requests</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            👋
+        </div>
+
+        <h2>
+            Friend Requests
+        </h2>
 
         <p>
             View incoming friend requests and decide
@@ -216,13 +276,21 @@
         >
             View Requests →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">👥</div>
+    <!-- STUDENT GROUPS -->
 
-        <h2>Student Groups</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            👥
+        </div>
+
+        <h2>
+            Student Groups
+        </h2>
 
         <p>
             Join communities, discuss ideas, study
@@ -236,13 +304,21 @@
         >
             Explore Groups →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">🔍</div>
+    <!-- FIND STUDENTS -->
 
-        <h2>Find Students</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            🔍
+        </div>
+
+        <h2>
+            Find Students
+        </h2>
 
         <p>
             Search for students and discover people
@@ -255,13 +331,21 @@
         >
             Find Students →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">🔔</div>
+    <!-- NOTIFICATIONS -->
 
-        <h2>Notifications</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            🔔
+        </div>
+
+        <h2>
+            Notifications
+        </h2>
 
         <p>
             Stay updated about friend requests,
@@ -275,13 +359,21 @@
         >
             View Notifications →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">🛒</div>
+    <!-- MARKETPLACE -->
 
-        <h2>Marketplace</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            🛒
+        </div>
+
+        <h2>
+            Marketplace
+        </h2>
 
         <p>
             Buy and sell products and services within
@@ -295,13 +387,21 @@
         >
             Open Marketplace →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">📢</div>
+    <!-- ADVERTISE WITH US -->
 
-        <h2>Advertise With Us</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            📢
+        </div>
+
+        <h2>
+            Advertise With Us
+        </h2>
 
         <p>
             Promote your business, product, service,
@@ -315,13 +415,21 @@
         >
             Advertise Now →
         </a>
+
     </article>
 
 
-    <article class="dashboard-card">
-        <div class="dashboard-card-icon">✍️</div>
+    <!-- SHARE AN UPDATE -->
 
-        <h2>Share an Update</h2>
+    <article class="dashboard-card">
+
+        <div class="dashboard-card-icon">
+            ✍️
+        </div>
+
+        <h2>
+            Share an Update
+        </h2>
 
         <p>
             Share an announcement, idea, experience,
@@ -329,12 +437,21 @@
             other students.
         </p>
 
+        <!--
+            IMPORTANT:
+            create_post is POST-only in app.py.
+            Therefore this button goes to the Feed
+            instead of sending a GET request to
+            /create-post.
+        -->
+
         <a
-            href="{{ url_for('create_post') }}"
+            href="{{ url_for('feed') }}"
             class="primary-btn card-action"
         >
             Create Post →
         </a>
+
     </article>
 
 </section>
