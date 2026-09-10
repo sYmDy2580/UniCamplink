@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from flask import (
     Flask,
     redirect,
+    send_from_directory,
     render_template,
     request,
     session,
@@ -31,7 +32,7 @@ from PIL import Image, UnidentifiedImageError
 # APP CONFIGURATION
 # ============================================================
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None)
 
 
 # ============================================================
@@ -58,8 +59,13 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
 
     # Keep False for local HTTP development.
-    # Change to True when UniCamplink uses HTTPS.
-    SESSION_COOKIE_SECURE=False,
+    # Set SESSION_COOKIE_SECURE=true on Railway/HTTPS.
+    SESSION_COOKIE_SECURE=(
+        os.environ.get(
+            "SESSION_COOKIE_SECURE",
+            "false"
+        ).lower() in {"1", "true", "yes", "on"}
+    ),
 
     # Maximum request size: 5 MB
     MAX_CONTENT_LENGTH=5 * 1024 * 1024
@@ -87,8 +93,6 @@ def handle_csrf_error(error):
         "Please refresh the page and try again.",
         400
     )
-
-
 # ============================================================
 # SAFE ERROR HANDLING
 # ============================================================
@@ -146,7 +150,7 @@ def add_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
 
     # Prevent the app from being embedded in iframes
-    # by other websites.
+    # by other origins.
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
 
     # Limit information sent through the Referer header.
@@ -154,7 +158,8 @@ def add_security_headers(response):
         "strict-origin-when-cross-origin"
     )
 
-    # Disable browser features UniCamplink does not need.
+    # Disable browser features that UniCamplink
+    # does not currently need.
     response.headers["Permissions-Policy"] = (
         "camera=(), "
         "microphone=(), "
@@ -162,11 +167,17 @@ def add_security_headers(response):
         "payment=()"
     )
 
-    # Prevent authenticated/private pages from being cached.
+    # Prevent browsers from caching authenticated
+    # pages and sensitive application responses.
     if "user_id" in session:
+
         response.headers["Cache-Control"] = (
-            "no-store, no-cache, must-revalidate, max-age=0"
+            "no-store, "
+            "no-cache, "
+            "must-revalidate, "
+            "max-age=0"
         )
+
         response.headers["Pragma"] = "no-cache"
 
     return response
@@ -222,15 +233,39 @@ BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
 )
 
-DATABASE = os.path.join(
-    BASE_DIR,
-    "database.db"
+# Railway persistent storage is supplied through
+# UNICAMPLINK_DATA_DIR=/app/data.
+# Locally, keep the existing database and uploads
+# locations so development continues to work normally.
+DATA_DIR = os.environ.get(
+    "UNICAMPLINK_DATA_DIR"
 )
 
-UPLOAD_FOLDER = os.path.join(
+if DATA_DIR:
+    DATA_DIR = os.path.abspath(DATA_DIR)
+    DATABASE = os.path.join(
+        DATA_DIR,
+        "database.db"
+    )
+    UPLOAD_FOLDER = os.path.join(
+        DATA_DIR,
+        "uploads"
+    )
+else:
+    DATA_DIR = BASE_DIR
+    DATABASE = os.path.join(
+        BASE_DIR,
+        "database.db"
+    )
+    UPLOAD_FOLDER = os.path.join(
+        BASE_DIR,
+        "static",
+        "uploads"
+    )
+
+STATIC_FOLDER = os.path.join(
     BASE_DIR,
-    "static",
-    "uploads"
+    "static"
 )
 
 ALLOWED_EXTENSIONS = {
@@ -241,15 +276,72 @@ ALLOWED_EXTENSIONS = {
 }
 
 os.makedirs(
+    DATA_DIR,
+    exist_ok=True
+)
+
+os.makedirs(
     UPLOAD_FOLDER,
     exist_ok=True
 )
 
 
 # ============================================================
+# STATIC FILE SERVING
+# ============================================================
+
+@app.route(
+    "/static/<path:filename>",
+    endpoint="static"
+)
+def serve_static_file(filename):
+    # Uploaded profile/product images are stored in the
+    # persistent data directory on Railway.
+    if filename == "uploads" or filename.startswith("uploads/"):
+        upload_filename = filename[len("uploads/"):]
+
+        if not upload_filename:
+            return "File not found.", 404
+
+        return send_from_directory(
+            UPLOAD_FOLDER,
+            upload_filename
+        )
+
+    # CSS, JavaScript and the application logo remain in
+    # the normal project static directory.
+    return send_from_directory(
+        STATIC_FOLDER,
+        filename
+    )
+
+
+# ============================================================
+# SAFE UPLOAD PATH
+# ============================================================
+
+def safe_upload_path(filename):
+    upload_root = os.path.realpath(UPLOAD_FOLDER)
+    target_path = os.path.realpath(
+        os.path.join(UPLOAD_FOLDER, filename)
+    )
+
+    if (
+        target_path != upload_root
+        and not target_path.startswith(
+            upload_root + os.sep
+        )
+    ):
+        raise ValueError("Unsafe upload path.")
+
+    return target_path
+
+
+# ============================================================
 # PILLOW SECURITY
 # ============================================================
 
+# Protect against extremely large/decompression-bomb images.
 Image.MAX_IMAGE_PIXELS = 16_777_216
 
 
@@ -272,7 +364,7 @@ def get_db_connection():
     )
 
     # Wait briefly instead of immediately failing
-    # when another request temporarily locks SQLite.
+    # when another request temporarily locks the database.
     conn.execute(
         "PRAGMA busy_timeout = 5000"
     )
@@ -309,38 +401,6 @@ def allowed_file(filename):
         filename.rsplit(".", 1)[1].lower()
         in ALLOWED_EXTENSIONS
     )
-
-
-def safe_upload_path(filename):
-    """
-    Return a safe absolute path inside UPLOAD_FOLDER.
-
-    Prevents path traversal from escaping
-    the designated upload directory.
-    """
-
-    upload_root = os.path.realpath(
-        UPLOAD_FOLDER
-    )
-
-    target_path = os.path.realpath(
-        os.path.join(
-            UPLOAD_FOLDER,
-            filename
-        )
-    )
-
-    if (
-        target_path != upload_root
-        and not target_path.startswith(
-            upload_root + os.sep
-        )
-    ):
-        raise ValueError(
-            "Unsafe upload path."
-        )
-
-    return target_path
 
 
 def clean_text(value, max_length):
@@ -388,6 +448,11 @@ def validate_image(image):
     - Image dimensions must not exceed 4096x4096
     - File extension must match detected image format
     - Pillow decompression-bomb protection
+
+    Returns:
+
+        True  -> valid image
+        False -> invalid or unsafe image
     """
 
     if not image or not image.filename:
@@ -992,6 +1057,10 @@ def login():
 
         conn = get_db_connection()
 
+        # ----------------------------------------------------
+        # CHECK LOGIN ATTEMPT RECORD
+        # ----------------------------------------------------
+
         attempt_record = conn.execute(
             """
             SELECT
@@ -1060,6 +1129,10 @@ def login():
 
                     conn.commit()
 
+        # ----------------------------------------------------
+        # FIND USER
+        # ----------------------------------------------------
+
         user = conn.execute(
             """
             SELECT *
@@ -1075,6 +1148,10 @@ def login():
 
             stored_password = user["password"]
 
+            # ------------------------------------------------
+            # HASHED PASSWORD
+            # ------------------------------------------------
+
             if stored_password.startswith(
                 ("scrypt:", "pbkdf2:")
             ):
@@ -1085,6 +1162,10 @@ def login():
                 ):
 
                     login_successful = True
+
+            # ------------------------------------------------
+            # LEGACY PLAINTEXT PASSWORD
+            # ------------------------------------------------
 
             else:
 
@@ -1112,6 +1193,10 @@ def login():
 
                     login_successful = True
 
+        # ----------------------------------------------------
+        # SUCCESSFUL LOGIN
+        # ----------------------------------------------------
+
         if login_successful:
 
             conn.execute(
@@ -1135,6 +1220,10 @@ def login():
                 url_for("dashboard")
             )
 
+        # ----------------------------------------------------
+        # FAILED LOGIN
+        # ----------------------------------------------------
+
         existing_attempt = conn.execute(
             """
             SELECT failed_attempts
@@ -1153,6 +1242,10 @@ def login():
         else:
 
             failed_attempts = 1
+
+        # ----------------------------------------------------
+        # LOCK ACCOUNT AFTER 5 FAILED ATTEMPTS
+        # ----------------------------------------------------
 
         if failed_attempts >= 5:
 
@@ -1192,6 +1285,10 @@ def login():
                 "Too many failed login attempts. "
                 "Please try again in 10 minutes."
             ), 429
+
+        # ----------------------------------------------------
+        # RECORD FAILED ATTEMPT
+        # ----------------------------------------------------
 
         conn.execute(
             """
@@ -1803,6 +1900,7 @@ def edit_profile():
                 safe_upload_path(filename)
             )
 
+            # Remove old profile picture if it exists.
             if profile_picture:
 
                 old_image_path = safe_upload_path(
@@ -2630,6 +2728,10 @@ def add_product():
                 "150 characters."
             ), 400
 
+        # ----------------------------------------------------
+        # SAFE PRICE VALIDATION
+        # ----------------------------------------------------
+
         try:
 
             price = float(price_text)
@@ -3125,6 +3227,7 @@ def send_friend_request(user_id):
 
         return "Student not found.", 404
 
+    # Prevent sending another request when already friends.
     already_friends = conn.execute(
         """
         SELECT id
@@ -3544,6 +3647,10 @@ def logout():
 )
 def chat(user_id):
 
+    # --------------------------------------------------------
+    # LOGIN REQUIRED
+    # --------------------------------------------------------
+
     if "user_id" not in session:
 
         return redirect(
@@ -3552,6 +3659,10 @@ def chat(user_id):
 
     current_user_id = session["user_id"]
 
+    # --------------------------------------------------------
+    # PREVENT SELF-MESSAGING
+    # --------------------------------------------------------
+
     if user_id == current_user_id:
 
         return redirect(
@@ -3559,6 +3670,10 @@ def chat(user_id):
         )
 
     conn = get_db_connection()
+
+    # --------------------------------------------------------
+    # FIND OTHER USER
+    # --------------------------------------------------------
 
     other_user = conn.execute(
         """
@@ -3577,6 +3692,10 @@ def chat(user_id):
 
         return "Student not found.", 404
 
+    # --------------------------------------------------------
+    # CHECK FRIENDSHIP
+    # --------------------------------------------------------
+
     friendship = conn.execute(
         """
         SELECT id
@@ -3591,6 +3710,10 @@ def chat(user_id):
     ).fetchone()
 
     is_friend = bool(friendship)
+
+    # --------------------------------------------------------
+    # CHECK MARKETPLACE CONTACT
+    # --------------------------------------------------------
 
     product_id = request.args.get(
         "product_id",
@@ -3617,6 +3740,10 @@ def chat(user_id):
         if product:
 
             is_marketplace_contact = True
+
+    # --------------------------------------------------------
+    # CHECK EXISTING CONVERSATION
+    # --------------------------------------------------------
 
     existing_conversation = conn.execute(
         """
@@ -3649,6 +3776,10 @@ def chat(user_id):
         existing_conversation
     )
 
+    # --------------------------------------------------------
+    # CHAT AUTHORIZATION
+    # --------------------------------------------------------
+
     if not (
         is_friend
         or is_marketplace_contact
@@ -3662,6 +3793,10 @@ def chat(user_id):
             "your friends or contact a seller through "
             "a marketplace product."
         ), 403
+
+    # --------------------------------------------------------
+    # SEND MESSAGE
+    # --------------------------------------------------------
 
     if request.method == "POST":
 
@@ -3727,6 +3862,10 @@ def chat(user_id):
             )
         )
 
+    # --------------------------------------------------------
+    # LOAD CHAT MESSAGES
+    # --------------------------------------------------------
+
     chat_messages = conn.execute(
         """
         SELECT
@@ -3764,6 +3903,10 @@ def chat(user_id):
         )
     ).fetchall()
 
+    # --------------------------------------------------------
+    # MARK RECEIVED MESSAGES AS READ
+    # --------------------------------------------------------
+
     conn.execute(
         """
         UPDATE messages
@@ -3793,6 +3936,15 @@ def chat(user_id):
 
 if __name__ == "__main__":
 
+    port = int(
+        os.environ.get(
+            "PORT",
+            "5000"
+        )
+    )
+
     app.run(
+        host="0.0.0.0",
+        port=port,
         debug=False
     )
