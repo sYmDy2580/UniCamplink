@@ -3,843 +3,348 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dashboard - UniCamplink</title>
+
+<meta
+    name="description"
+    content="UniCamplink student dashboard — connect, communicate, discover opportunities and interact with your campus community."
+>
+
+<title>Dashboard | UniCamplink</title>
 
 <link
     rel="stylesheet"
     href="{{ url_for('static', filename='style.css') }}"
 >
 
-<style>
-
-    /* =========================================
-       UNI CAMPLINK DASHBOARD
-    ========================================= */
-
-    body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: linear-gradient(
-            135deg,
-            #e0f2fe,
-            #f8fbff
-        );
-        color: #0f172a;
-    }
-
-
-    /* =========================================
-       NAVIGATION
-    ========================================= */
-
-    .navbar {
-        background: #38bdf8;
-        min-height: 70px;
-        padding: 0 35px;
-
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        box-shadow:
-            0 4px 15px
-            rgba(14, 165, 233, 0.25);
-
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-
-
-    .logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-        color: white;
-        font-size: 25px;
-        font-weight: 800;
-
-        white-space: nowrap;
-        text-decoration: none;
-    }
-
-
-    .logo img {
-        width: 45px;
-        height: 45px;
-
-        object-fit: contain;
-        display: block;
-    }
-
-
-    .nav-links {
-        display: flex;
-        align-items: center;
-
-        gap: 8px;
-        flex-wrap: wrap;
-
-        justify-content: flex-end;
-    }
-
-
-    .nav-links a {
-        color: white;
-
-        text-decoration: none;
-
-        font-size: 14px;
-        font-weight: 600;
-
-        padding: 10px 12px;
-
-        border-radius: 8px;
-
-        transition: 0.2s ease;
-    }
-
-
-    .nav-links a:hover {
-        background: rgba(255, 255, 255, 0.2);
-
-        transform: translateY(-1px);
-    }
-
-
-    /* =========================================
-       DASHBOARD HERO
-    ========================================= */
-
-    .dashboard {
-        max-width: 1150px;
-
-        margin: 0 auto;
-
-        padding:
-            55px
-            25px
-            70px;
-    }
-
-
-    .dashboard h1 {
-        font-size: 42px;
-
-        margin:
-            0
-            0
-            12px;
-
-        color: #075985;
-
-        font-weight: 800;
-    }
-
-
-    .dashboard > p {
-        font-size: 18px;
-
-        color: #475569;
-
-        margin-bottom: 25px;
-    }
-
-
-    /* =========================================
-       THEME BUTTON
-    ========================================= */
-
-    .theme-toggle {
-        border: none;
-
-        background: #0f172a;
-
-        color: white;
-
-        padding:
-            11px
-            18px;
-
-        border-radius: 10px;
-
-        font-size: 14px;
-        font-weight: 700;
-
-        cursor: pointer;
-
-        margin-bottom: 35px;
-
-        transition:
-            background 0.2s ease,
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-
-    .theme-toggle:hover {
-        background: #1e293b;
-
-        transform: translateY(-2px);
-
-        box-shadow:
-            0 6px 15px
-            rgba(15, 23, 42, 0.20);
-    }
-
-
-    /* =========================================
-       DASHBOARD CARDS
-    ========================================= */
-
-    .dashboard-cards {
-        display: grid;
-
-        grid-template-columns:
-            repeat(
-                auto-fit,
-                minmax(250px, 1fr)
-            );
-
-        gap: 24px;
-    }
-
-
-    .dashboard-card {
-        background:
-            rgba(255, 255, 255, 0.95);
-
-        border:
-            1px solid
-            #bae6fd;
-
-        border-radius: 20px;
-
-        padding: 28px;
-
-        min-height: 210px;
-
-        box-shadow:
-            0 8px 25px
-            rgba(14, 165, 233, 0.10);
-
-        transition:
-            transform 0.25s ease,
-            box-shadow 0.25s ease,
-            border-color 0.25s ease;
-
-        position: relative;
-
-        overflow: hidden;
-    }
-
-
-    .dashboard-card::before {
-        content: "";
-
-        position: absolute;
-
-        top: 0;
-        left: 0;
-
-        width: 100%;
-        height: 5px;
-
-        background: #38bdf8;
-    }
-
-
-    .dashboard-card:hover {
-        transform: translateY(-7px);
-
-        border-color: #38bdf8;
-
-        box-shadow:
-            0 15px 35px
-            rgba(14, 165, 233, 0.20);
-    }
-
-
-    .dashboard-card h2 {
-        color: #075985;
-
-        font-size: 21px;
-
-        margin:
-            5px
-            0
-            14px;
-    }
-
-
-    .dashboard-card p {
-        color: #475569;
-
-        line-height: 1.6;
-
-        font-size: 15px;
-
-        min-height: 48px;
-    }
-
-
-    /* =========================================
-       BUTTONS
-    ========================================= */
-
-    .primary-btn {
-        display: inline-block;
-
-        background: #0ea5e9;
-
-        color: white;
-
-        text-decoration: none;
-
-        padding:
-            11px
-            18px;
-
-        border-radius: 10px;
-
-        font-weight: 700;
-
-        transition:
-            background 0.2s ease,
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-
-    .primary-btn:hover {
-        background: #0284c7;
-
-        transform: translateY(-2px);
-
-        box-shadow:
-            0 6px 15px
-            rgba(14, 165, 233, 0.25);
-    }
-
-
-    /* =========================================
-       DARK MODE
-    ========================================= */
-
-    body:not(.light-mode) {
-        background:
-            linear-gradient(
-                135deg,
-                #020617,
-                #0f172a
-            );
-
-        color: #f8fafc;
-    }
-
-
-    body:not(.light-mode) .navbar {
-        background: #0f172a;
-    }
-
-
-    body:not(.light-mode) .nav-links a {
-        color: #f8fafc;
-    }
-
-
-    body:not(.light-mode) .nav-links a:hover {
-        background:
-            rgba(255, 255, 255, 0.10);
-    }
-
-
-    body:not(.light-mode) .dashboard h1 {
-        color: #7dd3fc;
-    }
-
-
-    body:not(.light-mode) .dashboard > p {
-        color: #cbd5e1;
-    }
-
-
-    body:not(.light-mode) .dashboard-card {
-        background: #1e293b;
-
-        border-color: #334155;
-
-        box-shadow:
-            0 10px 30px
-            rgba(0, 0, 0, 0.30);
-    }
-
-
-    body:not(.light-mode) .dashboard-card:hover {
-        border-color: #38bdf8;
-    }
-
-
-    body:not(.light-mode) .dashboard-card h2 {
-        color: #7dd3fc;
-    }
-
-
-    body:not(.light-mode) .dashboard-card p {
-        color: #cbd5e1;
-    }
-
-
-    body:not(.light-mode) .theme-toggle {
-        background: #f8fafc;
-
-        color: #0f172a;
-    }
-
-
-    body:not(.light-mode) .theme-toggle:hover {
-        background: #e2e8f0;
-    }
-
-
-    /* =========================================
-       MOBILE
-    ========================================= */
-
-    @media (max-width: 900px) {
-
-        .navbar {
-            padding:
-                15px
-                20px;
-
-            flex-direction: column;
-
-            align-items: flex-start;
-
-            gap: 15px;
-        }
-
-
-        .nav-links {
-            width: 100%;
-
-            justify-content: flex-start;
-
-            overflow-x: auto;
-
-            flex-wrap: nowrap;
-
-            padding-bottom: 5px;
-        }
-
-
-        .nav-links a {
-            white-space: nowrap;
-        }
-
-
-        .dashboard {
-            padding-top: 35px;
-        }
-
-
-        .dashboard h1 {
-            font-size: 34px;
-        }
-
-    }
-
-
-    @media (max-width: 600px) {
-
-        .logo {
-            font-size: 22px;
-        }
-
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-        }
-
-
-        .dashboard {
-            padding:
-                30px
-                16px
-                50px;
-        }
-
-
-        .dashboard h1 {
-            font-size: 29px;
-        }
-
-
-        .dashboard > p {
-            font-size: 16px;
-        }
-
-
-        .dashboard-card {
-            padding: 23px;
-
-            min-height: auto;
-        }
-
-
-        .dashboard-card h2 {
-            font-size: 19px;
-        }
-
-
-        .primary-btn {
-            width: 100%;
-
-            text-align: center;
-
-            box-sizing: border-box;
-        }
-
-
-        .theme-toggle {
-            width: 100%;
-
-            box-sizing: border-box;
-        }
-
-    }
-
-</style>
-
 
 </head>
 
 <body>
 
-
-<!-- =========================================
-     NAVIGATION
-========================================= -->
-
 <nav class="navbar">
+    <div class="nav-container">
 
-    <a
-        href="/dashboard"
-        class="logo"
-    >
 
+    <a href="{{ url_for('dashboard') }}" class="nav-brand">
         <img
-            src="{{ url_for(
-                'static',
-                filename='images/unicamplink-logo.png'
-            ) }}"
+            src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
             alt="UniCamplink Logo"
         >
-
-        <span>
-            UniCamplink
-        </span>
-
+        <span>UniCamplink</span>
     </a>
-
 
     <div class="nav-links">
 
-        <a href="/dashboard">
-            Dashboard
-        </a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
 
+        <a href="{{ url_for('feed') }}">Feed</a>
 
-        <a href="/feed">
-            Feed
-        </a>
+        <a href="{{ url_for('profile') }}">Profile</a>
 
+        <a href="{{ url_for('groups') }}">Groups</a>
 
-        <a href="/profile">
-            Profile
-        </a>
+        <a href="{{ url_for('search_students') }}">Search</a>
 
+        <a href="{{ url_for('messages') }}">Messages</a>
 
-        <a href="/groups">
-            Groups 👥
-        </a>
+        <a href="{{ url_for('friends') }}">Friends</a>
 
+        <a href="{{ url_for('friend_requests') }}">Requests</a>
 
-        <a href="/search">
-            Search 🔍
-        </a>
+        <a href="{{ url_for('notifications') }}">Notifications</a>
 
+        <a href="{{ url_for('marketplace') }}">Marketplace</a>
 
-        <a href="/messages">
-            Messages 💬
-        </a>
-
-
-        <!-- FRIENDS LINK ADDED -->
-
-        <a href="/friends">
-            Friends 👥
-        </a>
-
-
-        <a href="/notifications">
-            Notifications 🔔
-        </a>
-
-
-        <a href="/marketplace">
-            Marketplace 🛒
-        </a>
-
+        <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle theme"
+        >
+            🌙 Dark Mode
+        </button>
 
         <form
-    action="{{ url_for('logout') }}"
-    method="POST"
-    style="display: inline;"
->
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
-    >
+            action="{{ url_for('logout') }}"
+            method="POST"
+            class="logout-form"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
 
-    <button
-        type="submit"
-        style="
-            background: none;
-            border: none;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-        "
-    >
-        Logout
-    </button>
-</form>
+            <button
+                type="submit"
+                class="nav-logout"
+            >
+                Logout
+            </button>
+        </form>
 
     </div>
+</div>
+
 
 </nav>
 
+<main class="dashboard">
 
 
-<!-- =========================================
-     DASHBOARD
-========================================= -->
+<header class="dashboard-header">
+    <div class="dashboard-welcome">
 
-<section class="dashboard">
+        <span class="dashboard-badge">
+            🎓 Student Community
+        </span>
 
+        <h1>
+            Welcome, {{ session.get('user_name', 'Student') }}! 🎉
+        </h1>
 
-    <h1>
-        Welcome, {{ name }}! 🎉
-    </h1>
-
-
-    <p>
-        You are now connected to UniCamplink.
-    </p>
-
-
-
-    <!-- =====================================
-         THEME TOGGLE
-    ====================================== -->
-
-    <button
-        id="theme-toggle"
-        class="theme-toggle"
-        type="button"
-    >
-        ☀️ Light Mode
-    </button>
-
-
-
-    <!-- =====================================
-         DASHBOARD CARDS
-    ====================================== -->
-
-    <div class="dashboard-cards">
-
-
-        <!-- FEED -->
-
-        <div class="dashboard-card">
-
-            <h2>
-                💬 Student Feed
-            </h2>
-
-            <p>
-                See what is happening around
-                your campus and stay connected
-                with other students.
-            </p>
-
-            <a
-                href="/feed"
-                class="primary-btn"
-            >
-                Open Feed →
-            </a>
-
-        </div>
-
-
-
-        <!-- MESSAGES -->
-
-        <div class="dashboard-card">
-
-            <h2>
-                💬 Messages
-            </h2>
-
-            <p>
-                Chat privately with other
-                students and stay connected
-                with your friends.
-            </p>
-
-            <a
-                href="/messages"
-                class="primary-btn"
-            >
-                Open Messages →
-            </a>
-
-        </div>
-
-
-
-        <!-- FRIENDS -->
-
-        <div class="dashboard-card">
-
-            <h2>
-                👥 My Friends
-            </h2>
-
-            <p>
-                View your friends, connect with
-                people you know and manage your
-                student connections.
-            </p>
-
-            <a
-                href="/friends"
-                class="primary-btn"
-            >
-                View Friends →
-            </a>
-
-        </div>
-
-
-
-        <!-- MARKETPLACE -->
-
-        <div class="dashboard-card">
-
-            <h2>
-                🛒 Marketplace
-            </h2>
-
-            <p>
-                Buy and sell products within
-                your student community.
-            </p>
-
-            <a
-                href="/marketplace"
-                class="primary-btn"
-            >
-                Open Marketplace →
-            </a>
-
-        </div>
-
-
-
-        <!-- GROUPS -->
-
-        <div class="dashboard-card">
-
-            <h2>
-                👥 Student Groups
-            </h2>
-
-            <p>
-                Join communities, discuss ideas,
-                study together and connect with
-                other students.
-            </p>
-
-            <a
-                href="/groups"
-                class="primary-btn"
-            >
-                Explore Groups →
-            </a>
-
-        </div>
-
-
-
-        <!-- SEARCH -->
-
-        <div class="dashboard-card">
-
-            <h2>
-                🔍 Find Students
-            </h2>
-
-            <p>
-                Discover and connect with students
-                across your campus.
-            </p>
-
-            <a
-                href="/search"
-                class="primary-btn"
-            >
-                Find Students →
-            </a>
-
-        </div>
-
+        <p>
+            You are now connected to UniCamplink.
+            Connect with students, communicate,
+            discover opportunities and explore your
+            campus community.
+        </p>
 
     </div>
+</header>
+
+
+<section
+    class="dashboard-cards"
+    aria-label="UniCamplink features"
+>
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">📰</div>
+
+        <h2>Student Feed</h2>
+
+        <p>
+            See what's happening around your campus,
+            share updates, interact with students and
+            stay informed.
+        </p>
+
+        <a
+            href="{{ url_for('feed') }}"
+            class="primary-btn card-action"
+        >
+            Open Feed →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">👤</div>
+
+        <h2>My Profile</h2>
+
+        <p>
+            Manage your student profile, update your
+            information, add a bio and introduce
+            yourself to other students.
+        </p>
+
+        <a
+            href="{{ url_for('profile') }}"
+            class="primary-btn card-action"
+        >
+            View Profile →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">💬</div>
+
+        <h2>Messages</h2>
+
+        <p>
+            Chat privately with other students and
+            stay connected with your friends and
+            campus community.
+        </p>
+
+        <a
+            href="{{ url_for('messages') }}"
+            class="primary-btn card-action"
+        >
+            Open Messages →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">🤝</div>
+
+        <h2>My Friends</h2>
+
+        <p>
+            Build your student network and connect
+            with people you know around your campus.
+        </p>
+
+        <a
+            href="{{ url_for('friends') }}"
+            class="primary-btn card-action"
+        >
+            View Friends →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">👋</div>
+
+        <h2>Friend Requests</h2>
+
+        <p>
+            View incoming friend requests and decide
+            who you want to connect with on UniCamplink.
+        </p>
+
+        <a
+            href="{{ url_for('friend_requests') }}"
+            class="primary-btn card-action"
+        >
+            View Requests →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">👥</div>
+
+        <h2>Student Groups</h2>
+
+        <p>
+            Join communities, discuss ideas, study
+            together and connect with students who
+            share your interests.
+        </p>
+
+        <a
+            href="{{ url_for('groups') }}"
+            class="primary-btn card-action"
+        >
+            Explore Groups →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">🔍</div>
+
+        <h2>Find Students</h2>
+
+        <p>
+            Search for students and discover people
+            within your campus community.
+        </p>
+
+        <a
+            href="{{ url_for('search_students') }}"
+            class="primary-btn card-action"
+        >
+            Find Students →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">🔔</div>
+
+        <h2>Notifications</h2>
+
+        <p>
+            Stay updated about friend requests,
+            interactions, messages and other
+            UniCamplink activities.
+        </p>
+
+        <a
+            href="{{ url_for('notifications') }}"
+            class="primary-btn card-action"
+        >
+            View Notifications →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">🛒</div>
+
+        <h2>Marketplace</h2>
+
+        <p>
+            Buy and sell products and services within
+            your student community through the
+            UniCamplink marketplace.
+        </p>
+
+        <a
+            href="{{ url_for('marketplace') }}"
+            class="primary-btn card-action"
+        >
+            Open Marketplace →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">📢</div>
+
+        <h2>Advertise With Us</h2>
+
+        <p>
+            Promote your business, product, service,
+            event, job opportunity or campus promotion
+            to the UniCamplink community.
+        </p>
+
+        <a
+            href="{{ url_for('advertise_with_us') }}"
+            class="primary-btn card-action"
+        >
+            Advertise Now →
+        </a>
+    </article>
+
+
+    <article class="dashboard-card">
+        <div class="dashboard-card-icon">✍️</div>
+
+        <h2>Share an Update</h2>
+
+        <p>
+            Share an announcement, idea, experience,
+            question or useful information with
+            other students.
+        </p>
+
+        <a
+            href="{{ url_for('create_post') }}"
+            class="primary-btn card-action"
+        >
+            Create Post →
+        </a>
+    </article>
 
 </section>
 
 
-
-<!-- =========================================
-     THEME JAVASCRIPT
-========================================= -->
+</main>
 
 <script
-    src="{{ url_for(
-        'static',
-        filename='js/theme.js'
-    ) }}"
+    src="{{ url_for('static', filename='js/theme.js') }}"
 ></script>
 
-
 </body>
-
 </html>

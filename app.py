@@ -1418,7 +1418,6 @@ def feed():
             session["user_id"],
         )
     ).fetchall()
-    
 
     conn.close()
 
@@ -3621,6 +3620,8 @@ def reject_friend_request(request_id):
     )
 
 
+
+
 # ============================================================
 # LOGOUT
 # ============================================================
@@ -3929,23 +3930,31 @@ def chat(user_id):
         other_user=other_user,
         messages=chat_messages
     )
+# ============================================================
+# ADVERTISE WITH US
+# ============================================================
 
+@app.route("/advertise-with-us")
+def advertise_with_us():
+
+    if "user_id" not in session:
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "advertise_with_us.html"
+    )
 
 # ============================================================
 # START APPLICATION
 # ============================================================
 
 if __name__ == "__main__":
-
-    port = int(
-        os.environ.get(
-            "PORT",
-            "5000"
-        )
-    )
+    port = int(os.environ.get("PORT", "5000"))
 
     app.run(
-        host="0.0.0.0",
-        port=port,
-        debug=False
-    )
+    host="0.0.0.0",
+    port=port,
+    debug=False
+)
