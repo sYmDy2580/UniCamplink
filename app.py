@@ -4462,7 +4462,40 @@ def api_chat_messages(user_id):
 }
     
 
+# ============================================================
+# UPDATE USER LAST SEEN
+# ============================================================
 
+@app.before_request
+def update_last_seen():
+
+    if "user_id" not in session:
+        return
+
+    if request.path.startswith("/static/"):
+        return
+
+    try:
+
+        conn = get_db_connection()
+
+        conn.execute(
+            """
+            UPDATE users
+            SET last_seen = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """,
+            (
+                session["user_id"],
+            )
+        )
+
+        conn.commit()
+        conn.close()
+
+    except Exception as e:
+
+        print("LAST SEEN ERROR:", e)
 # ============================================================
 # ADMIN — MEMBERS
 # ============================================================
