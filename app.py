@@ -3,6 +3,7 @@ import sqlite3
 import math
 import smtplib
 from email.message import EmailMessage
+from urllib.parse import quote
 from uuid import uuid4
 from datetime import datetime, timedelta
 
@@ -68,6 +69,11 @@ MAIL_RECIPIENT = os.environ.get(
     "MAIL_RECIPIENT",
     "daveinfinitz@gmail.com"
 )
+
+WHATSAPP_NUMBER = os.environ.get(
+    "WHATSAPP_NUMBER",
+    ""
+).strip().replace("+", "").replace(" ", "").replace("-", "")
 
 
 # ============================================================
@@ -867,6 +873,28 @@ def create_tables():
             FOREIGN KEY (receiver_id)
             REFERENCES users(id)
             ON DELETE CASCADE
+        )
+    """)
+
+    # ========================================================
+    # ADVERTISEMENT REQUESTS
+    # ========================================================
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS advertisement_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            business_name TEXT NOT NULL,
+            advertising_type TEXT NOT NULL,
+            message TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (user_id)
+            REFERENCES users(id)
+            ON DELETE SET NULL
         )
     """)
 
@@ -4192,64 +4220,68 @@ def advertise_with_us():
                 error="Please enter a valid email address."
             ), 400
 
-        if not MAIL_USERNAME or not MAIL_PASSWORD:
+        conn = get_db_connection()
+
+        try:
+            cursor = conn.execute(
+                """
+                INSERT INTO advertisement_requests
+                (user_id, name, email, business_name, advertising_type, message)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    session.get("user_id"),
+                    name,
+                    email,
+                    business_name,
+                    advertising_type,
+                    message
+                )
+            )
+
+            request_id = cursor.lastrowid
+            conn.commit()
+
+        except Exception:
+            conn.rollback()
+            app.logger.exception(
+                "UniCamplink advertising request database save failed."
+            )
+            conn.close()
+
             return render_template(
                 "advertise_with_us.html",
-                error="Email service is not configured yet. Please try again later."
+                error="We could not save your request right now. Please try again later."
             ), 500
 
-        subject = (
-            "UniCamplink Advertising Request - "
-            + business_name
-        )
+        conn.close()
 
-        email_message = EmailMessage()
-        email_message["Subject"] = subject
-        email_message["From"] = MAIL_USERNAME
-        email_message["To"] = MAIL_RECIPIENT
-        email_message["Reply-To"] = email
-
-        email_message.set_content(
-            "New UniCamplink advertising request\n\n"
+        whatsapp_message = (
+            "Hello UniCamplink, I want to advertise on UniCamplink.\n\n"
+            "Advertisement Request ID: #" + str(request_id) + "\n"
             "Name: " + name + "\n"
             "Email: " + email + "\n"
             "Business / Organization: " + business_name + "\n"
             "Advertising Type: " + advertising_type + "\n\n"
-            "Message:\n" + message + "\n"
+            "Message:\n" + message
         )
 
-        try:
-            with smtplib.SMTP(
-                MAIL_SERVER,
-                MAIL_PORT,
-                timeout=20
-            ) as smtp:
-
-                if MAIL_USE_TLS:
-                    smtp.starttls()
-
-                smtp.login(
-                    MAIL_USERNAME,
-                    MAIL_PASSWORD
-                )
-
-                smtp.send_message(
-                    email_message
-                )
-
-        except Exception:
-            app.logger.exception(
-                "UniCamplink advertising email failed."
+        if WHATSAPP_NUMBER:
+            whatsapp_url = (
+                "https://wa.me/"
+                + WHATSAPP_NUMBER
+                + "?text="
+                + quote(whatsapp_message)
             )
 
-            return render_template(
-                "advertise_with_us.html",
-                error="We could not send your request right now. Please try again later."
-            ), 500
+            return redirect(whatsapp_url)
 
         return render_template(
             "advertise_with_us.html",
-            success="Your advertising request has been sent successfully. We will get back to you soon."
+            success=(
+                "Your advertising request has been received successfully "
+                "(Request #" + str(request_id) + "). We will contact you soon."
+            )
         )
 
     return render_template(
