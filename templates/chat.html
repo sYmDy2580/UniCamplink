@@ -1,833 +1,915 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>
-        Chat with {{ other_user["name"] }} - UniCamplink
-    </title>
+<title>
+    Chat with {{ other_user["name"] }} - UniCamplink
+</title>
 
-    <style>
+<style>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #f8fafc;
-            min-height: 100vh;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        min-height: 100vh;
+    }
 
-        /* =====================================================
-           HEADER
-        ===================================================== */
+    /* =====================================================
+       HEADER
+    ===================================================== */
+
+    .chat-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        padding: 15px 20px;
+
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-info h2 {
+        font-size: 18px;
+        margin-bottom: 3px;
+    }
+
+    .user-info p {
+        font-size: 13px;
+        color: #94a3b8;
+        margin-top: 3px;
+    }
+
+    #user-status {
+        font-size: 13px;
+        color: #94a3b8;
+        margin-top: 5px;
+    }
+
+    /* =====================================================
+       CHAT CONTAINER
+    ===================================================== */
+
+    .chat-container {
+        max-width: 900px;
+        margin: 0 auto;
+
+        height: calc(100vh - 75px);
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* =====================================================
+       MESSAGES
+    ===================================================== */
+
+    #messages {
+        flex: 1;
+
+        overflow-y: auto;
+
+        padding: 20px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .message-row {
+        display: flex;
+        width: 100%;
+    }
+
+    .message-row.sent {
+        justify-content: flex-end;
+    }
+
+    .message-row.received {
+        justify-content: flex-start;
+    }
+
+    .message {
+        max-width: 75%;
+
+        padding: 10px 14px;
+
+        border-radius: 15px;
+
+        font-size: 15px;
+        line-height: 1.5;
+
+        word-wrap: break-word;
+
+        position: relative;
+    }
+
+    .message-row.sent .message {
+        background: #0284c7;
+        color: white;
+
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-row.received .message {
+        background: #1e293b;
+        color: #f8fafc;
+
+        border: 1px solid #334155;
+
+        border-bottom-left-radius: 4px;
+    }
+
+    .time {
+        display: block;
+
+        font-size: 10px;
+
+        margin-top: 5px;
+
+        opacity: 0.7;
+
+        text-align: right;
+    }
+
+    /* =====================================================
+       EMPTY CHAT
+    ===================================================== */
+
+    .empty-chat {
+        margin: auto;
+
+        text-align: center;
+
+        color: #94a3b8;
+    }
+
+    .empty-chat h3 {
+        color: #f8fafc;
+        margin-bottom: 8px;
+    }
+
+    /* =====================================================
+       MESSAGE FORM
+    ===================================================== */
+
+    .message-form {
+        display: flex;
+
+        gap: 10px;
+
+        padding: 15px 20px;
+
+        background: #1e293b;
+
+        border-top: 1px solid #334155;
+    }
+
+    .message-form input {
+        flex: 1;
+
+        padding: 12px 15px;
+
+        border-radius: 25px;
+
+        border: 1px solid #475569;
+
+        background: #0f172a;
+
+        color: #f8fafc;
+
+        outline: none;
+
+        font-size: 15px;
+    }
+
+    .message-form input:focus {
+        border-color: #38bdf8;
+    }
+
+    .message-form button {
+        border: none;
+
+        padding: 12px 20px;
+
+        border-radius: 25px;
+
+        background: #0284c7;
+
+        color: white;
+
+        font-weight: bold;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+    .message-form button:hover {
+        background: #0369a1;
+    }
+
+    .message-form button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* =====================================================
+       SCROLLBAR
+    ===================================================== */
+
+    #messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #messages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 10px;
+    }
+
+    /* =====================================================
+       MOBILE
+    ===================================================== */
+
+    @media (max-width: 600px) {
 
         .chat-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-
-            padding: 15px 20px;
-
-            background: #1e293b;
-            border-bottom: 1px solid #334155;
-
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            padding: 12px 15px;
         }
-
-        .back-button {
-            text-decoration: none;
-            color: #38bdf8;
-
-            font-size: 24px;
-            font-weight: bold;
-
-            width: 40px;
-            height: 40px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 50%;
-
-            transition: 0.2s;
-        }
-
-        .back-button:hover {
-            background: #334155;
-        }
-
-        .user-info {
-            flex: 1;
-        }
-
-        .user-info h2 {
-            font-size: 18px;
-            margin-bottom: 3px;
-        }
-
-        .user-info p {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-top: 3px;
-        }
-
-        #user-status {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-top: 5px;
-        }
-
-        /* =====================================================
-           CHAT CONTAINER
-        ===================================================== */
 
         .chat-container {
-            max-width: 900px;
-
-            margin: 0 auto;
-
-            height: calc(100vh - 75px);
-
-            display: flex;
-            flex-direction: column;
+            height: calc(100vh - 65px);
         }
-
-        /* =====================================================
-           MESSAGES
-        ===================================================== */
 
         #messages {
-            flex: 1;
-
-            overflow-y: auto;
-
-            padding: 20px;
-
-            display: flex;
-            flex-direction: column;
-
-            gap: 10px;
-        }
-
-        .message-row {
-            display: flex;
-            width: 100%;
-        }
-
-        .message-row.sent {
-            justify-content: flex-end;
-        }
-
-        .message-row.received {
-            justify-content: flex-start;
+            padding: 15px 10px;
         }
 
         .message {
-            max-width: 75%;
-
-            padding: 10px 14px;
-
-            border-radius: 15px;
-
-            font-size: 15px;
-            line-height: 1.5;
-
-            word-wrap: break-word;
-
-            position: relative;
+            max-width: 85%;
+            font-size: 14px;
         }
-
-        .message-row.sent .message {
-            background: #0284c7;
-            color: white;
-
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-row.received .message {
-            background: #1e293b;
-            color: #f8fafc;
-
-            border: 1px solid #334155;
-
-            border-bottom-left-radius: 4px;
-        }
-
-        .time {
-            display: block;
-
-            font-size: 10px;
-
-            margin-top: 5px;
-
-            opacity: 0.7;
-
-            text-align: right;
-        }
-
-        /* =====================================================
-           EMPTY CHAT
-        ===================================================== */
-
-        .empty-chat {
-            margin: auto;
-
-            text-align: center;
-
-            color: #94a3b8;
-        }
-
-        .empty-chat h3 {
-            color: #f8fafc;
-            margin-bottom: 8px;
-        }
-
-        /* =====================================================
-           MESSAGE FORM
-        ===================================================== */
 
         .message-form {
-            display: flex;
-
-            gap: 10px;
-
-            padding: 15px 20px;
-
-            background: #1e293b;
-
-            border-top: 1px solid #334155;
+            padding: 10px;
         }
 
         .message-form input {
-            flex: 1;
-
-            padding: 12px 15px;
-
-            border-radius: 25px;
-
-            border: 1px solid #475569;
-
-            background: #0f172a;
-
-            color: #f8fafc;
-
-            outline: none;
-
-            font-size: 15px;
-        }
-
-        .message-form input:focus {
-            border-color: #38bdf8;
+            min-width: 0;
         }
 
         .message-form button {
-            border: none;
-
-            padding: 12px 20px;
-
-            border-radius: 25px;
-
-            background: #0284c7;
-
-            color: white;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-            transition: 0.2s;
+            padding: 12px 16px;
         }
 
-        .message-form button:hover {
-            background: #0369a1;
-        }
+    }
 
-        /* =====================================================
-           SCROLLBAR
-        ===================================================== */
-
-        #messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        #messages::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 10px;
-        }
-
-        /* =====================================================
-           MOBILE
-        ===================================================== */
-
-        @media (max-width: 600px) {
-
-            .chat-header {
-                padding: 12px 15px;
-            }
-
-            .chat-container {
-                height: calc(100vh - 65px);
-            }
-
-            #messages {
-                padding: 15px 10px;
-            }
-
-            .message {
-                max-width: 85%;
-                font-size: 14px;
-            }
-
-            .message-form {
-                padding: 10px;
-            }
-
-            .message-form input {
-                min-width: 0;
-            }
-
-            .message-form button {
-                padding: 12px 16px;
-            }
-
-        }
-
-    </style>
+</style>
+```
 
 </head>
 
 <body>
 
-    <!-- =====================================================
-         CHAT HEADER
-    ====================================================== -->
+```
+<!-- =====================================================
+     CHAT HEADER
+====================================================== -->
 
-    <header class="chat-header">
+<header class="chat-header">
 
-        
+    <div class="user-info">
 
-        <div class="user-info">
+        <h2>
+            {{ other_user["name"] }}
+        </h2>
 
-            <h2>
-                {{ other_user["name"] }}
-            </h2>
+        <p>
+            {{ other_user["university"] }}
+        </p>
+
+        <p id="user-status">
+            Checking status...
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     CHAT
+====================================================== -->
+
+<main class="chat-container">
+
+    <div id="messages">
+
+        <div class="empty-chat">
+
+            <h3>
+                Loading conversation...
+            </h3>
 
             <p>
-                {{ other_user["university"] }}
-            </p>
-
-            <p id="user-status">
-                Checking status...
+                Please wait.
             </p>
 
         </div>
 
-    </header>
+    </div>
 
 
-    <!-- =====================================================
-         CHAT
-    ====================================================== -->
+    <!-- =================================================
+         MESSAGE FORM
+    ================================================== -->
 
-    <main class="chat-container">
-
-        <div id="messages">
-
-            <div class="empty-chat">
-
-                <h3>
-                    Loading conversation...
-                </h3>
-
-                <p>
-                    Please wait.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             MESSAGE FORM
-        ================================================== -->
-
-        <form
-    method="POST"
-    class="message-form"
-    id="message-form"
->
-
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
+    <form
+        method="POST"
+        class="message-form"
+        id="message-form"
     >
 
-    <input
-        type="text"
-        name="message"
-        id="message-input"
-        placeholder="Type a message..."
-        autocomplete="off"
-        maxlength="2000"
-        required
-    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
 
-    <button type="submit">
-        Send
-    </button>
+        <input
+            type="text"
+            name="message"
+            id="message-input"
+            placeholder="Type a message..."
+            autocomplete="off"
+            maxlength="2000"
+            required
+        >
 
-</form>
+        <button type="submit">
+            Send
+        </button>
 
+    </form>
 
-    </main>
-
-
-    <!-- =====================================================
-         JAVASCRIPT
-    ====================================================== -->
-
-    <script>
-
-        const messagesContainer =
-            document.getElementById("messages");
-
-        const messageForm =
-            document.getElementById("message-form");
-
-        const messageInput =
-            document.getElementById("message-input");
-
-        const statusElement =
-            document.getElementById("user-status");
+</main>
 
 
-        const currentUserId =
-            Number("{{ session['user_id'] }}");
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+<script>
+
+    const messagesContainer =
+        document.getElementById("messages");
+
+    const messageForm =
+        document.getElementById("message-form");
+
+    const messageInput =
+        document.getElementById("message-input");
+
+    const statusElement =
+        document.getElementById("user-status");
 
 
-        const otherUserId =
-            Number("{{ other_user['id'] }}");
+    const currentUserId =
+        Number("{{ session['user_id'] }}");
 
 
-        /* =================================================
-           ESCAPE HTML
-        ================================================= */
+    const otherUserId =
+        Number("{{ other_user['id'] }}");
 
-        function escapeHtml(text) {
 
-            const div =
-                document.createElement("div");
+    /* =================================================
+       ESCAPE HTML
+    ================================================= */
 
-            div.textContent =
-                text || "";
+    function escapeHtml(text) {
 
-            return div.innerHTML;
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            text || "";
+
+        return div.innerHTML;
+    }
+
+
+    /* =================================================
+       FORMAT MESSAGE TIME
+    ================================================= */
+
+    function formatMessageTime(createdAt) {
+
+        if (!createdAt) {
+            return "";
         }
 
-
-        /* =================================================
-           FORMAT MESSAGE TIME
-        ================================================= */
-
-        function formatMessageTime(createdAt) {
-
-            if (!createdAt) {
-                return "";
-            }
-
-            const date =
-                new Date(
-                    createdAt.replace(" ", "T") + "Z"
-                );
-
-            if (isNaN(date.getTime())) {
-                return createdAt;
-            }
-
-            return date.toLocaleTimeString(
-                "en-NG",
-                {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true
-                }
+        const date =
+            new Date(
+                createdAt.replace(" ", "T") + "Z"
             );
+
+        if (isNaN(date.getTime())) {
+            return createdAt;
+        }
+
+        return date.toLocaleTimeString(
+            "en-NG",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
+            }
+        );
+    }
+
+
+    /* =================================================
+       FORMAT LAST SEEN
+    ================================================= */
+
+    function updateUserStatus(lastSeen) {
+
+        if (!statusElement) {
+            return;
+        }
+
+        if (!lastSeen) {
+
+            statusElement.textContent =
+                "Last seen unavailable";
+
+            statusElement.style.color =
+                "#94a3b8";
+
+            return;
         }
 
 
-        /* =================================================
-           FORMAT LAST SEEN
-        ================================================= */
-
-        function updateUserStatus(lastSeen) {
-
-            if (!statusElement) {
-                return;
-            }
-
-            if (!lastSeen) {
-
-                statusElement.textContent =
-                    "Last seen unavailable";
-
-                return;
-            }
+        const lastSeenDate =
+            new Date(
+                lastSeen.replace(" ", "T") + "Z"
+            );
 
 
-            const lastSeenDate =
-                new Date(
-                    lastSeen.replace(" ", "T") + "Z"
-                );
-
-
-            if (isNaN(lastSeenDate.getTime())) {
-
-                statusElement.textContent =
-                    "Last seen recently";
-
-                return;
-            }
-
-
-            const now =
-                new Date();
-
-
-            const difference =
-                Math.floor(
-                    (now - lastSeenDate) / 1000
-                );
-
-
-            /* =============================================
-               ONLINE
-            ============================================= */
-
-            if (
-                difference >= 0 &&
-                difference <= 30
-            ) {
-
-                statusElement.textContent =
-                    "🟢 Online";
-
-                statusElement.style.color =
-                    "#22c55e";
-
-                return;
-            }
-
-
-            /* =============================================
-               JUST NOW
-            ============================================= */
-
-            if (difference < 60) {
-
-                statusElement.textContent =
-                    "Last seen just now";
-
-                statusElement.style.color =
-                    "#94a3b8";
-
-                return;
-            }
-
-
-            /* =============================================
-               MINUTES
-            ============================================= */
-
-            if (difference < 3600) {
-
-                const minutes =
-                    Math.floor(
-                        difference / 60
-                    );
-
-                statusElement.textContent =
-                    `Last seen ${minutes} minute${
-                        minutes === 1 ? "" : "s"
-                    } ago`;
-
-                statusElement.style.color =
-                    "#94a3b8";
-
-                return;
-            }
-
-
-            /* =============================================
-               HOURS
-            ============================================= */
-
-            if (difference < 86400) {
-
-                const hours =
-                    Math.floor(
-                        difference / 3600
-                    );
-
-                statusElement.textContent =
-                    `Last seen ${hours} hour${
-                        hours === 1 ? "" : "s"
-                    } ago`;
-
-                statusElement.style.color =
-                    "#94a3b8";
-
-                return;
-            }
-
-
-            /* =============================================
-               OLDER
-            ============================================= */
+        if (isNaN(lastSeenDate.getTime())) {
 
             statusElement.textContent =
                 "Last seen recently";
 
             statusElement.style.color =
                 "#94a3b8";
+
+            return;
         }
 
 
-        /* =================================================
-           RENDER MESSAGES
-        ================================================= */
-
-        function renderMessages(messageList) {
-
-            if (!messagesContainer) {
-                return;
-            }
+        const now =
+            new Date();
 
 
-            if (
-                !Array.isArray(messageList) ||
-                messageList.length === 0
-            ) {
+        const difference =
+            Math.floor(
+                (now - lastSeenDate) / 1000
+            );
 
-                messagesContainer.innerHTML = `
 
-                    <div class="empty-chat">
+        /* =============================================
+           ONLINE
+        ============================================= */
 
-                        <h3>
-                            Start a conversation
-                        </h3>
+        if (
+            difference >= 0 &&
+            difference <= 30
+        ) {
 
-                        <p>
-                            Send a message to
-                            {{ other_user["name"] }}
-                        </p>
+            statusElement.textContent =
+                "🟢 Online";
+
+            statusElement.style.color =
+                "#22c55e";
+
+            return;
+        }
+
+
+        /* =============================================
+           JUST NOW
+        ============================================= */
+
+        if (difference < 60) {
+
+            statusElement.textContent =
+                "Last seen just now";
+
+            statusElement.style.color =
+                "#94a3b8";
+
+            return;
+        }
+
+
+        /* =============================================
+           MINUTES
+        ============================================= */
+
+        if (difference < 3600) {
+
+            const minutes =
+                Math.floor(
+                    difference / 60
+                );
+
+            statusElement.textContent =
+                `Last seen ${minutes} minute${
+                    minutes === 1 ? "" : "s"
+                } ago`;
+
+            statusElement.style.color =
+                "#94a3b8";
+
+            return;
+        }
+
+
+        /* =============================================
+           HOURS
+        ============================================= */
+
+        if (difference < 86400) {
+
+            const hours =
+                Math.floor(
+                    difference / 3600
+                );
+
+            statusElement.textContent =
+                `Last seen ${hours} hour${
+                    hours === 1 ? "" : "s"
+                } ago`;
+
+            statusElement.style.color =
+                "#94a3b8";
+
+            return;
+        }
+
+
+        /* =============================================
+           OLDER
+        ============================================= */
+
+        statusElement.textContent =
+            "Last seen recently";
+
+        statusElement.style.color =
+            "#94a3b8";
+    }
+
+
+    /* =================================================
+       RENDER MESSAGES
+    ================================================= */
+
+    function renderMessages(messageList) {
+
+        if (!messagesContainer) {
+            return;
+        }
+
+
+        if (
+            !Array.isArray(messageList) ||
+            messageList.length === 0
+        ) {
+
+            messagesContainer.innerHTML = `
+
+                <div class="empty-chat">
+
+                    <h3>
+                        Start a conversation
+                    </h3>
+
+                    <p>
+                        Send a message to
+                        {{ other_user["name"] }}
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        messagesContainer.innerHTML =
+            messageList.map(message => {
+
+                const isSent =
+                    Number(message.sender_id) ===
+                    Number(currentUserId);
+
+
+                return `
+
+                    <div class="message-row ${
+                        isSent
+                            ? "sent"
+                            : "received"
+                    }">
+
+                        <div class="message">
+
+                            ${escapeHtml(
+                                message.message
+                            )}
+
+                            <span class="time">
+
+                                ${formatMessageTime(
+                                    message.created_at
+                                )}
+
+                            </span>
+
+                        </div>
 
                     </div>
 
                 `;
 
+            }).join("");
+
+
+        messagesContainer.scrollTop =
+            messagesContainer.scrollHeight;
+    }
+
+
+    /* =================================================
+       LOAD CHAT MESSAGES
+    ================================================= */
+
+    async function loadChatMessages() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/chat/${otherUserId}/messages`,
+                    {
+                        method: "GET",
+                        cache: "no-store"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                console.error(
+                    "Chat API error:",
+                    response.status
+                );
+
                 return;
             }
 
 
-            messagesContainer.innerHTML =
-                messageList.map(message => {
-
-                    const isSent =
-                        Number(message.sender_id) ===
-                        Number(currentUserId);
+            const data =
+                await response.json();
 
 
-                    return `
+            /* =========================================
+               UPDATE ONLINE / LAST SEEN STATUS
+            ========================================= */
 
-                        <div class="message-row ${
-                            isSent
-                                ? "sent"
-                                : "received"
-                        }">
-
-                            <div class="message">
-
-                                ${escapeHtml(
-                                    message.message
-                                )}
-
-                                <span class="time">
-
-                                    ${formatMessageTime(
-                                        message.created_at
-                                    )}
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    `;
-
-                }).join("");
+            updateUserStatus(
+                data.other_user_last_seen
+            );
 
 
-            messagesContainer.scrollTop =
-                messagesContainer.scrollHeight;
+            /* =========================================
+               UPDATE MESSAGES
+            ========================================= */
+
+            if (
+                data &&
+                Array.isArray(data.messages)
+            ) {
+
+                renderMessages(
+                    data.messages
+                );
+
+            }
+
         }
 
+        catch (error) {
 
-        /* =================================================
-           LOAD CHAT MESSAGES
-        ================================================= */
+            console.error(
+                "Live chat update failed:",
+                error
+            );
 
-        async function loadChatMessages() {
+        }
 
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/chat/${otherUserId}/messages`,
-                        {
-                            method: "GET",
-                            cache: "no-store"
-                        }
-                    );
+    }
 
 
-                if (!response.ok) {
+    /* =================================================
+       SEND MESSAGE
+    ================================================= */
 
-                    console.error(
-                        "Chat API error:",
-                        response.status
+    if (messageForm) {
+
+        messageForm.addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+
+                const message =
+                    messageInput.value.trim();
+
+
+                if (!message) {
+                    return;
+                }
+
+
+                if (message.length > 2000) {
+
+                    alert(
+                        "Message cannot exceed 2000 characters."
                     );
 
                     return;
                 }
 
 
-                const data =
-                    await response.json();
+                const csrfInput =
+                    messageForm.querySelector(
+                        'input[name="csrf_token"]'
+                    );
 
 
-                /* =========================================
-                   UPDATE ONLINE / LAST SEEN STATUS
-                ========================================= */
-
-                updateUserStatus(
-                    data.other_user_last_seen
-                );
+                const csrfToken =
+                    csrfInput
+                        ? csrfInput.value
+                        : "";
 
 
-                /* =========================================
-                   UPDATE MESSAGES
-                ========================================= */
+                const sendButton =
+                    messageForm.querySelector(
+                        'button[type="submit"]'
+                    );
 
-                if (
-                    data &&
-                    Array.isArray(data.messages)
-                ) {
 
-                    renderMessages(
-                        data.messages
+                if (sendButton) {
+
+                    sendButton.disabled = true;
+
+                    sendButton.textContent =
+                        "Sending...";
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            window.location.href,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/x-www-form-urlencoded"
+                                },
+
+                                body:
+                                    new URLSearchParams({
+                                        csrf_token: csrfToken,
+                                        message: message
+                                    })
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        console.error(
+                            "Message sending failed:",
+                            response.status
+                        );
+
+                        alert(
+                            "Could not send message. Please try again."
+                        );
+
+                        return;
+                    }
+
+
+                    messageInput.value = "";
+
+
+                    await loadChatMessages();
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Message sending error:",
+                        error
+                    );
+
+                    alert(
+                        "Could not send message. Please try again."
                     );
 
                 }
 
+                finally {
+
+                    if (sendButton) {
+
+                        sendButton.disabled = false;
+
+                        sendButton.textContent =
+                            "Send";
+
+                    }
+
+                    messageInput.focus();
+
+                }
+
             }
+        );
 
-            catch (error) {
-
-                console.error(
-                    "Live chat update failed:",
-                    error
-                );
-
-            }
-
-        }
+    }
 
 
-       /* =================================================
-   SEND MESSAGE
-================================================= */
+    /* =================================================
+       INITIAL LOAD
+    ================================================= */
 
-if (messageForm) {
+    if (messagesContainer) {
 
-    messageForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            // ...the code above...
-
-        }
-    );
-
-}
+        loadChatMessages();
 
 
-/* =================================================
-   INITIAL LOAD
-================================================= */
+        /* =============================================
+           REFRESH CHAT EVERY 3 SECONDS
+        ============================================= */
 
-if (messagesContainer) {
+        setInterval(
+            loadChatMessages,
+            3000
+        );
 
-    messagesContainer.scrollTop =
-        messagesContainer.scrollHeight;
+    }
 
-    loadChatMessages();
-
-    setInterval(
-        loadChatMessages,
-        3000
-    );
-
-}
-
-
-        
-
-
-        /* =================================================
-           INITIAL LOAD
-        ================================================= */
-
-        if (messagesContainer) {
-
-            messagesContainer.scrollTop =
-                messagesContainer.scrollHeight;
-
-            loadChatMessages();
-
-
-            /* =============================================
-               REFRESH CHAT EVERY 3 SECONDS
-            ============================================= */
-
-            setInterval(
-                loadChatMessages,
-                3000
-            );
-
-        }
-
-    </script>
+</script>
 
 </body>
 </html>
