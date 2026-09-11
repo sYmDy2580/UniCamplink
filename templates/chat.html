@@ -371,13 +371,6 @@
         ================================================== -->
 
         <form
-            method="POST"
-            class="message-form"
-            id="message-form"
-        >
-
-            
-<form
     method="POST"
     class="message-form"
     id="message-form"
@@ -395,6 +388,7 @@
         id="message-input"
         placeholder="Type a message..."
         autocomplete="off"
+        maxlength="2000"
         required
     >
 
@@ -774,28 +768,7 @@
            SEND MESSAGE
         ================================================= */
 
-        if (messageForm) {
-
-            messageForm.addEventListener(
-                "submit",
-                function() {
-
-                    /*
-                     The normal Flask POST request
-                     will handle sending the message.
-                    */
-
-                    if (messageInput) {
-
-                        messageInput.disabled =
-                            true;
-
-                    }
-
-                }
-            );
-
-        }
+        
 
 
         /* =================================================
