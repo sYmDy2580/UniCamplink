@@ -955,6 +955,11 @@ def update_users_table():
             ALTER TABLE users
             ADD COLUMN joined_at TIMESTAMP
         """)
+    if not column_exists("users", "last_seen"):
+        conn.execute("""
+            ALTER TABLE users
+            ADD COLUMN last_seen TIMESTAMP
+        """)
 
     conn.commit()
     conn.close()
@@ -1001,6 +1006,41 @@ create_tables()
 update_users_table()
 update_posts_table()
 update_comments_table()
+# ============================================================
+# USER ONLINE / LAST SEEN TRACKER
+# ============================================================
+
+@app.before_request
+def update_last_seen():
+
+    if "user_id" not in session:
+        return
+
+    # Don't update for static files
+    if request.path.startswith("/static/"):
+        return
+
+    try:
+
+        conn = get_db_connection()
+
+        conn.execute(
+            """
+            UPDATE users
+            SET last_seen = ?
+            WHERE id = ?
+            """,
+            (
+                datetime.utcnow(),
+                session["user_id"]
+            )
+        )
+
+        conn.commit()
+        conn.close()
+
+    except Exception:
+        pass
 
 
 # ============================================================
@@ -3940,15 +3980,20 @@ def chat(user_id):
     # --------------------------------------------------------
 
     other_user = conn.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE id = ?
-        """,
-        (
-            user_id,
-        )
-    ).fetchone()
+    """
+    SELECT
+        id,
+        name,
+        university,
+        profile_picture,
+        last_seen
+    FROM users
+    WHERE id = ?
+    """,
+    (
+        user_id,
+    )
+).fetchone()
 
     if not other_user:
 
@@ -4217,7 +4262,7 @@ def api_chat_messages(user_id):
     # Check that the other user exists
     other_user = conn.execute(
         """
-        SELECT id
+        SELECT *
         FROM users
         WHERE id = ?
         """,
@@ -4411,8 +4456,13 @@ def api_chat_messages(user_id):
                 )
             }
             for message in chat_messages
-        ]
-    }
+         ],
+    "other_user_last_seen": (
+        other_user["last_seen"]
+        or ""
+    )
+}
+    
 
 
 # ============================================================
