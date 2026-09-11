@@ -4192,6 +4192,227 @@ def chat(user_id):
         other_user=other_user,
         messages=chat_messages
     )
+# ============================================================
+# LIVE CHAT MESSAGES API
+# ============================================================
+
+@app.route("/api/chat/<int:user_id>/messages")
+def api_chat_messages(user_id):
+
+    if "user_id" not in session:
+        return {
+            "messages": []
+        }, 401
+
+    current_user_id = session["user_id"]
+
+    # Prevent self-chat
+    if user_id == current_user_id:
+        return {
+            "messages": []
+        }, 400
+
+    conn = get_db_connection()
+
+    # Check that the other user exists
+    other_user = conn.execute(
+        """
+        SELECT id
+        FROM users
+        WHERE id = ?
+        """,
+        (
+            user_id,
+        )
+    ).fetchone()
+
+    if not other_user:
+        conn.close()
+
+        return {
+            "messages": []
+        }, 404
+
+    # --------------------------------------------------------
+    # CHECK FRIENDSHIP
+    # --------------------------------------------------------
+
+    friendship = conn.execute(
+        """
+        SELECT id
+        FROM friends
+        WHERE user_id = ?
+        AND friend_id = ?
+        """,
+        (
+            current_user_id,
+            user_id
+        )
+    ).fetchone()
+
+    is_friend = bool(friendship)
+
+    # --------------------------------------------------------
+    # CHECK EXISTING CONVERSATION
+    # --------------------------------------------------------
+
+    existing_conversation = conn.execute(
+        """
+        SELECT id
+        FROM messages
+        WHERE
+            (
+                sender_id = ?
+                AND receiver_id = ?
+            )
+            OR
+            (
+                sender_id = ?
+                AND receiver_id = ?
+            )
+        LIMIT 1
+        """,
+        (
+            current_user_id,
+            user_id,
+            user_id,
+            current_user_id
+        )
+    ).fetchone()
+
+    has_existing_conversation = bool(
+        existing_conversation
+    )
+
+    # --------------------------------------------------------
+    # CHECK MARKETPLACE CONTACT
+    # --------------------------------------------------------
+
+    product_id = request.args.get(
+        "product_id",
+        type=int
+    )
+
+    is_marketplace_contact = False
+
+    if product_id:
+
+        product = conn.execute(
+            """
+            SELECT id
+            FROM products
+            WHERE id = ?
+            AND seller_id = ?
+            """,
+            (
+                product_id,
+                user_id
+            )
+        ).fetchone()
+
+        if product:
+            is_marketplace_contact = True
+
+    # --------------------------------------------------------
+    # AUTHORIZE CHAT
+    # --------------------------------------------------------
+
+    if not (
+        is_friend
+        or is_marketplace_contact
+        or has_existing_conversation
+    ):
+        conn.close()
+
+        return {
+            "messages": []
+        }, 403
+
+    # --------------------------------------------------------
+    # GET MESSAGES
+    # --------------------------------------------------------
+
+    chat_messages = conn.execute(
+        """
+        SELECT
+            messages.id,
+            messages.sender_id,
+            messages.receiver_id,
+            messages.message,
+            messages.created_at,
+            users.name AS sender_name,
+            users.profile_picture
+
+        FROM messages
+
+        JOIN users
+        ON users.id = messages.sender_id
+
+        WHERE
+            (
+                messages.sender_id = ?
+                AND messages.receiver_id = ?
+            )
+
+            OR
+
+            (
+                messages.sender_id = ?
+                AND messages.receiver_id = ?
+            )
+
+        ORDER BY
+            messages.created_at ASC,
+            messages.id ASC
+        """,
+        (
+            current_user_id,
+            user_id,
+            user_id,
+            current_user_id
+        )
+    ).fetchall()
+
+    # --------------------------------------------------------
+    # MARK RECEIVED MESSAGES AS READ
+    # --------------------------------------------------------
+
+    conn.execute(
+        """
+        UPDATE messages
+        SET is_read = 1
+        WHERE sender_id = ?
+        AND receiver_id = ?
+        """,
+        (
+            user_id,
+            current_user_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "messages": [
+            {
+                "id": message["id"],
+                "sender_id": message["sender_id"],
+                "receiver_id": message["receiver_id"],
+                "message": message["message"],
+                "created_at": message["created_at"],
+                "sender_name": (
+                    message["sender_name"]
+                    or "UniCamplink User"
+                ),
+                "profile_picture": (
+                    message["profile_picture"]
+                    or ""
+                )
+            }
+            for message in chat_messages
+        ]
+    }
 
 
 # ============================================================

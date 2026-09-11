@@ -518,17 +518,183 @@
 
     <script>
 
-        const messages =
-            document.getElementById("messages");
+    const messagesContainer =
+        document.getElementById("messages");
 
-        if (messages) {
+    const currentUserId =
+        Number("{{ session['user_id'] }}");
 
-            messages.scrollTop =
-                messages.scrollHeight;
+    const otherUserId =
+        Number("{{ other_user['id'] }}");
+
+
+    function escapeHtml(text) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent = text;
+
+        return div.innerHTML;
+    }
+
+
+    function formatMessageTime(createdAt) {
+
+        if (!createdAt) {
+            return "";
+        }
+
+        const date =
+            new Date(
+                createdAt.replace(" ", "T") + "+01:00"
+            );
+
+        if (isNaN(date.getTime())) {
+            return createdAt;
+        }
+
+        return date.toLocaleTimeString(
+            "en-NG",
+            {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
+            }
+        );
+    }
+
+
+    function renderMessages(messageList) {
+
+        if (!messagesContainer) {
+            return;
+        }
+
+
+        if (!messageList.length) {
+
+            messagesContainer.innerHTML = `
+                <div class="empty-chat">
+
+                    <h3>
+                        Start a conversation
+                    </h3>
+
+                    <p>
+                        Send a message to
+                        {{ other_user["name"] }}
+                    </p>
+
+                </div>
+            `;
+
+            return;
+        }
+
+
+        messagesContainer.innerHTML =
+            messageList.map(message => {
+
+                const isSent =
+                    Number(message.sender_id)
+                    === Number(currentUserId);
+
+
+                return `
+                    <div class="message-row ${
+                        isSent
+                            ? "sent"
+                            : "received"
+                    }">
+
+                        <div class="message">
+
+                            ${escapeHtml(message.message)}
+
+                            <span class="time">
+                                ${formatMessageTime(
+                                    message.created_at
+                                )}
+                            </span>
+
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+
+
+        messagesContainer.scrollTop =
+            messagesContainer.scrollHeight;
+    }
+
+
+    async function loadChatMessages() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/chat/${otherUserId}/messages`,
+                    {
+                        method: "GET",
+                        cache: "no-store"
+                    }
+                );
+
+
+            if (!response.ok) {
+                return;
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                data &&
+                Array.isArray(data.messages)
+            ) {
+
+                renderMessages(
+                    data.messages
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Live chat update failed:",
+                error
+            );
 
         }
 
-    </script>
+    }
+
+
+    if (messagesContainer) {
+
+        /* Initial scroll */
+
+        messagesContainer.scrollTop =
+            messagesContainer.scrollHeight;
+
+
+        /* Live chat polling */
+
+        setInterval(
+            loadChatMessages,
+            3000
+        );
+
+    }
+
+</script>
 
 
 </body>
