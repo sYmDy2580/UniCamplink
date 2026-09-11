@@ -143,45 +143,49 @@
             toast.remove();
         }, 300);
     }
-function updateNotificationBadge(count) {
-    const notificationLinks = Array.from(
-        document.querySelectorAll("a")
-    ).filter((link) => {
-        const text = (link.textContent || "").trim().toLowerCase();
 
-        return (
-            text.includes("notifications") ||
-            link.getAttribute("href") === "/notifications"
-        );
-    });
+    /* =========================================================
+       UNREAD NOTIFICATION BADGE
+    ========================================================= */
 
-    notificationLinks.forEach((link) => {
-        let badge = link.querySelector(
-            ".unicamplink-notification-badge"
-        );
-
-        if (count > 0) {
-            if (!badge) {
-                badge = document.createElement("span");
-
-                badge.className =
-                    "unicamplink-notification-badge";
-
-                link.appendChild(badge);
-            }
-
-            badge.textContent =
-                count > 99 ? "99+" : String(count);
-
-            badge.setAttribute(
-                "aria-label",
-                count + " unread notifications"
+    function updateNotificationBadge(count) {
+        const notificationLinks =
+            document.querySelectorAll(
+                ".notification-nav-link"
             );
-        } else if (badge) {
-            badge.remove();
-        }
-    });
-}
+
+        notificationLinks.forEach((link) => {
+            let badge = link.querySelector(
+                ".unicamplink-notification-badge"
+            );
+
+            if (count > 0) {
+                if (!badge) {
+                    badge = document.createElement("span");
+
+                    badge.className =
+                        "unicamplink-notification-badge";
+
+                    link.appendChild(badge);
+                }
+
+                badge.textContent =
+                    count > 99
+                        ? "99+"
+                        : String(count);
+
+                badge.setAttribute(
+                    "aria-label",
+                    count +
+                    " unread notifications"
+                );
+
+            } else if (badge) {
+                badge.remove();
+            }
+        });
+    }
+
     async function checkNotifications() {
         if (
             polling ||
@@ -211,27 +215,35 @@ function updateNotificationBadge(count) {
                 return;
             }
 
-           const data = await response.json();
+            const data = await response.json();
 
-const notifications = Array.isArray(data.notifications)
-    ? data.notifications
-    : [];
+            /* Update unread badge */
+            updateNotificationBadge(
+                Number(data.unread_count || 0)
+            );
 
-updateNotificationBadge(
-    Number(data.unread_count || 0)
-);
+            const notifications =
+                Array.isArray(data.notifications)
+                    ? data.notifications
+                    : [];
 
-            notifications.forEach((notification) => {
-                const id = Number(
-                    notification.id || 0
-                );
+            notifications.forEach(
+                (notification) => {
+                    const id = Number(
+                        notification.id || 0
+                    );
 
-                if (id > lastNotificationId) {
-                    showNotification(notification);
+                    if (
+                        id > lastNotificationId
+                    ) {
+                        showNotification(
+                            notification
+                        );
 
-                    lastNotificationId = id;
+                        lastNotificationId = id;
+                    }
                 }
-            });
+            );
 
             if (lastNotificationId > 0) {
                 localStorage.setItem(
@@ -239,6 +251,7 @@ updateNotificationBadge(
                     String(lastNotificationId)
                 );
             }
+
         } catch (error) {
             // Keep the notification system silent
             // when the network is unavailable.
@@ -262,7 +275,10 @@ updateNotificationBadge(
         );
     }
 
-    if (document.readyState === "loading") {
+    if (
+        document.readyState ===
+        "loading"
+    ) {
         document.addEventListener(
             "DOMContentLoaded",
             startNotificationPolling
@@ -270,4 +286,5 @@ updateNotificationBadge(
     } else {
         startNotificationPolling();
     }
+
 })();
