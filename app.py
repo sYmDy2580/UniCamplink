@@ -75,6 +75,8 @@ WHATSAPP_NUMBER = os.environ.get(
     ""
 ).strip().replace("+", "").replace(" ", "").replace("-", "")
 
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+
 
 # ============================================================
 # SESSION SECURITY
@@ -4162,6 +4164,50 @@ def chat(user_id):
         "chat.html",
         other_user=other_user,
         messages=chat_messages
+    )
+
+
+# ============================================================
+# ADMIN — MEMBERS
+# ============================================================
+
+@app.route("/admin/members")
+def admin_members():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    if not ADMIN_EMAIL:
+        return "Admin access is not configured yet.", 500
+
+    conn = get_db_connection()
+
+    current_user = conn.execute(
+        "SELECT id, name, email FROM users WHERE id = ?",
+        (session["user_id"],)
+    ).fetchone()
+
+    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:
+        conn.close()
+        return "Access denied.", 403
+
+    total_users = conn.execute(
+        "SELECT COUNT(*) FROM users"
+    ).fetchone()[0]
+
+    users = conn.execute(
+        """
+        SELECT id, name, email, university, joined_at
+        FROM users
+        ORDER BY COALESCE(joined_at, '9999-12-31 23:59:59') DESC, id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "admin_members.html",
+        users=users,
+        total_users=total_users
     )
 
 
