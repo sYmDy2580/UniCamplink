@@ -3346,7 +3346,23 @@ def unread_notifications():
 
     conn.close()
 
+       # Get total unread notification count
+    unread_count = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM notifications
+        WHERE user_id = ?
+        AND is_read = 0
+        """,
+        (
+            session["user_id"],
+        )
+    ).fetchone()[0]
+
+    conn.close()
+
     return {
+        "unread_count": unread_count,
         "notifications": [
             {
                 "id": notification["id"],

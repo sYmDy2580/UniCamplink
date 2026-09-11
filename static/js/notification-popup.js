@@ -143,7 +143,45 @@
             toast.remove();
         }, 300);
     }
+function updateNotificationBadge(count) {
+    const notificationLinks = Array.from(
+        document.querySelectorAll("a")
+    ).filter((link) => {
+        const text = (link.textContent || "").trim().toLowerCase();
 
+        return (
+            text.includes("notifications") ||
+            link.getAttribute("href") === "/notifications"
+        );
+    });
+
+    notificationLinks.forEach((link) => {
+        let badge = link.querySelector(
+            ".unicamplink-notification-badge"
+        );
+
+        if (count > 0) {
+            if (!badge) {
+                badge = document.createElement("span");
+
+                badge.className =
+                    "unicamplink-notification-badge";
+
+                link.appendChild(badge);
+            }
+
+            badge.textContent =
+                count > 99 ? "99+" : String(count);
+
+            badge.setAttribute(
+                "aria-label",
+                count + " unread notifications"
+            );
+        } else if (badge) {
+            badge.remove();
+        }
+    });
+}
     async function checkNotifications() {
         if (
             polling ||
@@ -173,13 +211,15 @@
                 return;
             }
 
-            const data = await response.json();
+           const data = await response.json();
 
-            const notifications = Array.isArray(
-                data.notifications
-            )
-                ? data.notifications
-                : [];
+const notifications = Array.isArray(data.notifications)
+    ? data.notifications
+    : [];
+
+updateNotificationBadge(
+    Number(data.unread_count || 0)
+);
 
             notifications.forEach((notification) => {
                 const id = Number(

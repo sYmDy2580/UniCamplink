@@ -2478,3 +2478,19 @@ padding: 20px 14px;
 font-size: 14px;
 }
 }
+/* =========================================================
+   UNICAMPLINK — NOTIFICATIONS NAVBAR
+========================================================= */
+
+.notification-nav-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    white-space: nowrap !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.notification-nav-link::before {
+    content: none !important;
+}
