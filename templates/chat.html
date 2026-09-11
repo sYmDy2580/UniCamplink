@@ -764,9 +764,42 @@
         }
 
 
-        /* =================================================
-           SEND MESSAGE
-        ================================================= */
+       /* =================================================
+   SEND MESSAGE
+================================================= */
+
+if (messageForm) {
+
+    messageForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            // ...the code above...
+
+        }
+    );
+
+}
+
+
+/* =================================================
+   INITIAL LOAD
+================================================= */
+
+if (messagesContainer) {
+
+    messagesContainer.scrollTop =
+        messagesContainer.scrollHeight;
+
+    loadChatMessages();
+
+    setInterval(
+        loadChatMessages,
+        3000
+    );
+
+}
+
 
         
 
