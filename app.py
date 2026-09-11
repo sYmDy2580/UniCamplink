@@ -3306,15 +3306,34 @@ def messages():
 def unread_notifications():
 
     if "user_id" not in session:
-        return {"notifications": []}, 401
+        return {
+            "unread_count": 0,
+            "notifications": []
+        }, 401
 
     try:
-        after_id = int(request.args.get("after_id", 0))
+        after_id = int(
+            request.args.get("after_id", 0)
+        )
     except (TypeError, ValueError):
         after_id = 0
 
     conn = get_db_connection()
 
+    # Get total unread notification count
+    unread_count = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM notifications
+        WHERE user_id = ?
+        AND is_read = 0
+        """,
+        (
+            session["user_id"],
+        )
+    ).fetchone()[0]
+
+    # Get new unread notifications
     notifications_list = conn.execute(
         """
         SELECT
@@ -3346,23 +3365,9 @@ def unread_notifications():
 
     conn.close()
 
-       # Get total unread notification count
-    unread_count = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM notifications
-        WHERE user_id = ?
-        AND is_read = 0
-        """,
-        (
-            session["user_id"],
-        )
-    ).fetchone()[0]
-
-    conn.close()
-
     return {
         "unread_count": unread_count,
+
         "notifications": [
             {
                 "id": notification["id"],
@@ -3370,8 +3375,14 @@ def unread_notifications():
                 "message": notification["message"],
                 "link": notification["link"] or "",
                 "created_at": notification["created_at"],
-                "sender_name": notification["sender_name"] or "UniCamplink",
-                "sender_picture": notification["sender_picture"] or ""
+                "sender_name": (
+                    notification["sender_name"]
+                    or "UniCamplink"
+                ),
+                "sender_picture": (
+                    notification["sender_picture"]
+                    or ""
+                )
             }
             for notification in notifications_list
         ]
