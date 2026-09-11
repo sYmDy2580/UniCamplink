@@ -382,22 +382,37 @@
             id="message-form"
         >
 
-            <input
-                type="text"
-                name="message"
-                id="message-input"
-                placeholder="Type a message..."
-                autocomplete="off"
-                required
-            >
+            ```html
+<form
+    method="POST"
+    class="message-form"
+    id="message-form"
+>
 
-            <button
-                type="submit"
-            >
-                Send
-            </button>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
 
-        </form>
+    <input
+        type="text"
+        name="message"
+        id="message-input"
+        placeholder="Type a message..."
+        autocomplete="off"
+        required
+    >
+
+    <button
+        type="submit"
+    >
+        Send
+    </button>
+
+</form>
+```
+
 
     </main>
 
