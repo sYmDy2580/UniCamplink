@@ -1016,7 +1016,6 @@ def update_last_seen():
     if "user_id" not in session:
         return
 
-    # Don't update for static files
     if request.path.startswith("/static/"):
         return
 
@@ -1027,21 +1026,20 @@ def update_last_seen():
         conn.execute(
             """
             UPDATE users
-            SET last_seen = ?
+            SET last_seen = CURRENT_TIMESTAMP
             WHERE id = ?
             """,
             (
-                datetime.utcnow(),
-                session["user_id"]
+                session["user_id"],
             )
         )
 
         conn.commit()
         conn.close()
 
-    except Exception:
-        pass
+    except Exception as e:
 
+        print("LAST SEEN ERROR:", e)
 
 # ============================================================
 # HOME
