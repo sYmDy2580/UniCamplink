@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Ambassador Management | UniCamplink</title>
+
+```
+<style>
+    :root {
+        --bg: #0f172a;
+        --card: #111827;
+        --card2: #1e293b;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --border: rgba(148, 163, 184, 0.18);
+        --primary: #38bdf8;
+        --success: #22c55e;
+        --danger: #ef4444;
+    }
+
+    [data-theme="light"] {
+        --bg: #f1f5f9;
+        --card: #ffffff;
+        --card2: #f8fafc;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: rgba(15, 23, 42, 0.12);
+        --primary: #0284c7;
+        --success: #16a34a;
+        --danger: #dc2626;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .container {
+        width: min(1400px, calc(100% - 30px));
+        margin: auto;
+    }
+
+    header {
+        padding: 28px 0 18px;
+    }
+
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: clamp(24px, 4vw, 34px);
+    }
+
+    .subtitle {
+        color: var(--muted);
+        margin-top: 7px;
+        font-size: 14px;
+    }
+
+    .nav-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        border: 0;
+        border-radius: 9px;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: #001018;
+    }
+
+    .btn-dark {
+        background: var(--card2);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .stat {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        padding: 20px;
+    }
+
+    .stat-number {
+        color: var(--primary);
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        margin-top: 5px;
+        font-size: 13px;
+    }
+
+    .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 20px 0;
+    }
+
+    .panel-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .panel-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .panel-header p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .search {
+        display: flex;
+        gap: 10px;
+        padding: 18px;
+        background: var(--card2);
+        border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+    }
+
+    .search input {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    input {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        outline: none;
+    }
+
+    input:focus {
+        border-color: var(--primary);
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        min-width: 950px;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    th {
+        background: var(--card2);
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    .student {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 230px;
+    }
+
+    .avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        background: var(--card2);
+        flex-shrink: 0;
+    }
+
+    .avatar-placeholder {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: #001018;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .student-name {
+        font-weight: 700;
+    }
+
+    .muted {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, .12);
+        color: var(--success);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .badge-neutral {
+        background: var(--card2);
+        color: var(--muted);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 8px;
+        min-width: 390px;
+    }
+
+    .inline-form {
+        margin: 0;
+    }
+
+    .active-card {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr auto;
+        gap: 15px;
+        align-items: center;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .active-card:last-child {
+        border-bottom: 0;
+    }
+
+    .active-person {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .empty {
+        text-align: center;
+        padding: 35px 20px;
+        color: var(--muted);
+    }
+
+    .note {
+        margin: 20px 0 30px;
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(56, 189, 248, .08);
+        border: 1px solid rgba(56, 189, 248, .2);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+        .active-card {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .remove-area {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: calc(100% - 20px);
+        }
+
+        .stats {
+            grid-template-columns: 1fr;
+        }
+
+        .nav-actions {
+            width: 100%;
+        }
+
+        .nav-actions .btn {
+            flex: 1;
+            text-align: center;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            min-width: 0;
+        }
+
+        .active-card {
+            grid-template-columns: 1fr;
+        }
+
+        .remove-area {
+            grid-column: auto;
+        }
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<header>
+    <div class="topbar">
+
+        <div>
+            <h1>🎓 Campus Ambassador Management</h1>
+            <div class="subtitle">
+                Appoint, manage and remove official UniCamplink Campus Ambassadors.
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <a class="btn btn-dark"
+               href="{{ url_for('admin_dashboard') }}">
+                🛡️ Admin Dashboard
+            </a>
+
+            <a class="btn btn-dark"
+               href="{{ url_for('admin_members') }}">
+                👥 Member Management
+            </a>
+        </div>
+
+    </div>
+</header>
+
+
+<section class="stats">
+
+    <div class="stat">
+        <div class="stat-number">
+            {{ active_count }}
+        </div>
+
+        <div class="stat-label">
+            Active Campus Ambassadors
+        </div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-number">
+            ✓
+        </div>
+
+        <div class="stat-label">
+            Separate from Verified Student
+        </div>
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+        <h2>Registered Students</h2>
+
+        <p>
+            Search registered students and appoint them as official
+            UniCamplink Campus Ambassadors.
+        </p>
+    </div>
+
+
+    <form class="search"
+          method="GET"
+          action="{{ url_for('admin_campus_ambassadors') }}">
+
+        <input
+            type="search"
+            name="q"
+            value="{{ search or '' }}"
+            maxlength="100"
+            placeholder="Search registered students..."
+        >
+
+        <button class="btn btn-primary" type="submit">
+            🔎 Search
+        </button>
+
+        {% if search %}
+            <a class="btn btn-dark"
+               href="{{ url_for('admin_campus_ambassadors') }}">
+                Clear
+            </a>
+        {% endif %}
+
+    </form>
+
+
+    {% if users %}
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>University</th>
+                    <th>Ambassador Status</th>
+                    <th>Campus / School</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for user in users %}
+
+                <tr>
+
+                    <td>
+
+                        <div class="student">
+
+                            {% if user.profile_picture %}
+
+                                <img
+                                    class="avatar"
+                                    src="{{ url_for('static', filename=user.profile_picture) }}"
+                                    alt="{{ user.name }}"
+                                >
+
+                            {% else %}
+
+                                <div class="avatar-placeholder">
+                                    {{ (user.name or '?')[:1]|upper }}
+                                </div>
+
+                            {% endif %}
+
+
+                            <div>
+
+                                <div class="student-name">
+                                    {{ user.name }}
+                                </div>
+
+                                <div class="muted">
+                                    {{ user.email }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+                        {{ user.university or '—' }}
+                    </td>
+
+
+                    <td>
+
+                        {% if user.ambassador_active %}
+
+                            <span class="badge">
+                                ✓ Official Ambassador
+                            </span>
+
+                            <div class="muted">
+                                {{ user.appointed_at or '' }}
+                            </div>
+
+                        {% else %}
+
+                            <span class="badge badge-neutral">
+                                Not an active ambassador
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if user.ambassador_active %}
+
+                            <strong>
+                                {{ user.ambassador_campus or '—' }}
+                            </strong>
+
+                            <div class="muted">
+                                {{ user.ambassador_school or '—' }}
+                            </div>
+
+                        {% else %}
+
+                            <span class="muted">
+                                Not assigned
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if user.ambassador_active %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('admin_remove_campus_ambassador', user_id=user.id) }}"
+                                onsubmit="return confirm('Remove Campus Ambassador status from this student?');"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    class="btn btn-danger"
+                                    type="submit"
+                                >
+                                    Remove
+                                </button>
+
+                            </form>
+
+                        {% else %}
+
+                            <form
+                                class="inline-form"
+                                method="POST"
+                                action="{{ url_for('admin_appoint_campus_ambassador', user_id=user.id) }}"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <div class="form-grid">
+
+                                    <input
+                                        type="text"
+                                        name="campus"
+                                        maxlength="150"
+                                        placeholder="Campus"
+                                        required
+                                    >
+
+                                    <input
+                                        type="text"
+                                        name="school"
+                                        maxlength="150"
+                                        placeholder="School / University"
+                                        required
+                                    >
+
+                                    <button
+                                        class="btn btn-primary"
+                                        type="submit"
+                                    >
+                                        Appoint
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+        <div class="empty">
+            No students found.
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <h2>🎓 Active Campus Ambassadors</h2>
+
+        <p>
+            Students who currently have official UniCamplink
+            Campus Ambassador status.
+        </p>
+
+    </div>
+
+
+    {% if ambassadors %}
+
+        {% for ambassador in ambassadors %}
+
+            <div class="active-card">
+
+                <div class="active-person">
+
+                    {% if ambassador.profile_picture %}
+
+                        <img
+                            class="avatar"
+                            src="{{ url_for('static', filename=ambassador.profile_picture) }}"
+                            alt="{{ ambassador.name }}"
+                        >
+
+                    {% else %}
+
+                        <div class="avatar-placeholder">
+                            {{ (ambassador.name or '?')[:1]|upper }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <div>
+
+                        <div class="student-name">
+                            {{ ambassador.name }}
+                        </div>
+
+                        <div class="muted">
+                            {{ ambassador.email }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <strong>Campus</strong>
+
+                    <div class="muted">
+                        {{ ambassador.campus or '—' }}
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <strong>School</strong>
+
+                    <div class="muted">
+                        {{ ambassador.school or ambassador.university or '—' }}
+                    </div>
+
+                    <div class="muted">
+                        Appointed:
+                        {{ ambassador.appointed_at or '—' }}
+                    </div>
+
+                </div>
+
+
+                <div class="remove-area">
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_remove_campus_ambassador', user_id=ambassador.user_id) }}"
+                        onsubmit="return confirm('Remove Campus Ambassador status from this student?');"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            class="btn btn-danger"
+                            type="submit"
+                        >
+                            Remove
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty">
+            No active Campus Ambassadors yet.
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+<div class="note">
+
+    <strong>ℹ️ UniCamplink role distinction:</strong>
+
+    Campus Ambassador status is separate from Verified Student status.
+    An ambassador is an officially appointed student representative
+    for an assigned campus or school.
+
+</div>
+```
+
+</div>
+
+<script>
+    const savedTheme = localStorage.getItem("unicamplink-theme");
+
+    if (savedTheme === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+    } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+    }
+</script>
+
+</body>
+</html>

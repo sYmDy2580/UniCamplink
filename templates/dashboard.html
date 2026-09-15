@@ -80,6 +80,11 @@
         <a href="{{ url_for('marketplace') }}">
             Marketplace
         </a>
+        {% if is_admin %}
+<a href="{{ url_for('admin_dashboard') }}">
+    🛡️ Admin Dashboard
+</a>
+{% endif %}
 
         <button
             type="button"

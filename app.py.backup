@@ -978,52 +978,10 @@ def update_users_table():
             ALTER TABLE users
             ADD COLUMN joined_at TIMESTAMP
         """)
-
     if not column_exists("users", "last_seen"):
-
         conn.execute("""
             ALTER TABLE users
             ADD COLUMN last_seen TIMESTAMP
-        """)
-
-    # ============================================================
-    # SAFE MIGRATION — VERIFIED STUDENTS
-    # ============================================================
-
-    if not column_exists("users", "is_verified_student"):
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN is_verified_student INTEGER DEFAULT 0
-        """)
-
-        # Existing UniCamplink users are treated as already verified.
-        conn.execute("""
-            UPDATE users
-            SET is_verified_student = 1
-            WHERE is_verified_student = 0
-        """)
-
-    if not column_exists("users", "verified_at"):
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN verified_at TIMESTAMP
-        """)
-
-        # Give existing users a verification timestamp.
-        conn.execute("""
-            UPDATE users
-            SET verified_at = CURRENT_TIMESTAMP
-            WHERE is_verified_student = 1
-            AND verified_at IS NULL
-        """)
-
-    if not column_exists("users", "verified_by"):
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN verified_by INTEGER
         """)
 
     conn.commit()
@@ -1684,7 +1642,10 @@ def login():
 def dashboard():
 
     if "user_id" not in session:
-        return redirect(url_for("login"))
+
+        return redirect(
+            url_for("login")
+        )
 
     conn = get_db_connection()
 
@@ -1694,26 +1655,24 @@ def dashboard():
         FROM users
         WHERE id = ?
         """,
-        (session["user_id"],)
+        (
+            session["user_id"],
+        )
     ).fetchone()
 
     conn.close()
 
     if not user:
-        session.clear()
-        return redirect(url_for("login"))
 
-    # Check whether the logged-in user is the configured admin.
-    is_admin = bool(
-        ADMIN_EMAIL
-        and user["email"]
-        and user["email"].lower() == ADMIN_EMAIL
-    )
+        session.clear()
+
+        return redirect(
+            url_for("login")
+        )
 
     return render_template(
         "dashboard.html",
-        user=user,
-        is_admin=is_admin
+        user=user
     )
 
 
@@ -4760,7 +4719,6 @@ def admin_dashboard():
         WHERE active = 1
         """
     ).fetchone()[0]
-    total_verified_students = conn.execute( """ SELECT COUNT(*) FROM users WHERE is_verified_student = 1 """ ).fetchone()[0]
 
     recent_users = conn.execute(
         """
@@ -4788,10 +4746,8 @@ def admin_dashboard():
         total_friend_requests=total_friend_requests,
         total_advertisements=total_advertisements,
         pending_advertisements=pending_advertisements,
-
-    total_ambassadors=total_ambassadors,
-    total_verified_students=total_verified_students,
-    recent_users=recent_users
+        total_ambassadors=total_ambassadors,
+        recent_users=recent_users
     )
 
 # ============================================================
@@ -4978,10 +4934,6 @@ def admin_members():
         conn.close()
         return "Access denied.", 403
 
-    # -----------------------------
-    # MEMBER STATISTICS
-    # -----------------------------
-
     total_users = conn.execute(
         "SELECT COUNT(*) FROM users"
     ).fetchone()[0]
@@ -4995,21 +4947,8 @@ def admin_members():
         """
     ).fetchone()[0]
 
-    campus_ambassadors = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM campus_ambassadors
-        WHERE active = 1
-        """
-    ).fetchone()[0]
-
-    # -----------------------------
-    # MEMBER LIST
-    # -----------------------------
-
     if search:
         pattern = f"%{search}%"
-
         users = conn.execute(
             """
             SELECT
@@ -5020,14 +4959,12 @@ def admin_members():
                 profile_picture,
                 joined_at,
                 last_seen,
-
                 CASE
                     WHEN last_seen IS NOT NULL
                     AND last_seen >= datetime('now', '-15 minutes')
                     THEN 1
                     ELSE 0
                 END AS is_active,
-
                 CASE
                     WHEN EXISTS (
                         SELECT 1
@@ -5038,24 +4975,17 @@ def admin_members():
                     THEN 1
                     ELSE 0
                 END AS is_campus_ambassador
-
             FROM users
-
             WHERE
                 LOWER(name) LIKE LOWER(?)
                 OR LOWER(email) LIKE LOWER(?)
                 OR LOWER(COALESCE(university, '')) LIKE LOWER(?)
-
             ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
+                COALESCE(joined_at, '9999-12-31 23:59:59') DESC,
                 id DESC
             """,
             (pattern, pattern, pattern)
         ).fetchall()
-
     else:
         users = conn.execute(
             """
@@ -5067,14 +4997,12 @@ def admin_members():
                 profile_picture,
                 joined_at,
                 last_seen,
-
                 CASE
                     WHEN last_seen IS NOT NULL
                     AND last_seen >= datetime('now', '-15 minutes')
                     THEN 1
                     ELSE 0
                 END AS is_active,
-
                 CASE
                     WHEN EXISTS (
                         SELECT 1
@@ -5085,20 +5013,12 @@ def admin_members():
                     THEN 1
                     ELSE 0
                 END AS is_campus_ambassador
-
             FROM users
-
             ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
+                COALESCE(joined_at, '9999-12-31 23:59:59') DESC,
                 id DESC
             """
         ).fetchall()
-
-    # Number of members currently displayed
-    result_count = len(users)
 
     conn.close()
 
@@ -5107,11 +5027,8 @@ def admin_members():
         users=users,
         total_users=total_users,
         active_members=active_members,
-        campus_ambassadors=campus_ambassadors,
-        result_count=result_count,
         search=search
     )
-
 
 # ============================================================
 # ADMIN — CAMPUS AMBASSADORS
@@ -5137,175 +5054,6 @@ def _require_admin():
         return None, ("Access denied.", 403)
 
     return current_user, conn
-
-# ============================================================
-
-# ADMIN — VERIFIED STUDENTS
-
-# ============================================================
-
-@app.route("/admin/verified-students")
-def admin_verified_students():
-    current_user, result = _require_admin()
-
-    if current_user is None:
-        return result
-
-    conn = result
-
-    search = clean_text(
-        request.args.get("q"),
-        MAX_SEARCH_LENGTH
-    )
-
-    if search is None:
-        conn.close()
-        return (
-            "Search query is too long. Maximum length is 100 characters."
-        ), 400
-
-    search = search or ""
-
-    if search:
-        pattern = f"%{search}%"
-
-        users = conn.execute(
-            """
-            SELECT
-                id,
-                name,
-                email,
-                university,
-                is_verified_student,
-                verified_at,
-                verified_by
-            FROM users
-            WHERE
-                LOWER(name) LIKE LOWER(?)
-                OR LOWER(email) LIKE LOWER(?)
-                OR LOWER(COALESCE(university, '')) LIKE LOWER(?)
-            ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
-                id DESC
-            """,
-            (pattern, pattern, pattern)
-        ).fetchall()
-    else:
-        users = conn.execute(
-            """
-            SELECT
-                id,
-                name,
-                email,
-                university,
-                is_verified_student,
-                verified_at,
-                verified_by
-            FROM users
-            ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
-                id DESC
-            """
-        ).fetchall()
-
-    conn.close()
-
-    return render_template(
-        "admin_verified_students.html",
-        current_user=current_user,
-        users=users,
-        search=search
-    )
-
-
-@app.route("/admin/verified-students/<int:user_id>/verify", methods=["POST"])
-def admin_verify_student(user_id):
-    current_user, result = _require_admin()
-
-    if current_user is None:
-        return result
-
-    conn = result
-
-    user = conn.execute(
-        """
-        SELECT id, name
-        FROM users
-        WHERE id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-    if not user:
-        conn.close()
-        return "Student not found.", 404
-
-    conn.execute(
-        """
-        UPDATE users
-        SET
-            is_verified_student = 1,
-            verified_at = CURRENT_TIMESTAMP,
-            verified_by = ?
-        WHERE id = ?
-        """,
-        (current_user["id"], user_id)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect(
-        url_for("admin_verified_students")
-    )
-
-
-@app.route("/admin/verified-students/<int:user_id>/unverify", methods=["POST"])
-def admin_unverify_student(user_id):
-    current_user, result = _require_admin()
-
-    if current_user is None:
-        return result
-
-    conn = result
-
-    user = conn.execute(
-        """
-        SELECT id, name
-        FROM users
-        WHERE id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-    if not user:
-        conn.close()
-        return "Student not found.", 404
-
-    conn.execute(
-        """
-        UPDATE users
-        SET
-            is_verified_student = 0,
-            verified_at = NULL,
-            verified_by = NULL
-        WHERE id = ?
-        """,
-        (user_id,)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect(
-        url_for("admin_verified_students")
-    )
 
 
 @app.route("/admin/campus-ambassadors")
@@ -5536,9 +5284,7 @@ def admin_remove_campus_ambassador(user_id):
 def advertise_with_us():
 
     if "user_id" not in session:
-        return redirect(
-            url_for("login")
-        )
+        return redirect(url_for("login"))
 
     if request.method == "POST":
 
@@ -5568,10 +5314,6 @@ def advertise_with_us():
             MAX_MESSAGE_LENGTH
         )
 
-        # --------------------------------------------------------
-        # VALIDATION
-        # --------------------------------------------------------
-
         if (
             not name
             or not business_name
@@ -5580,84 +5322,40 @@ def advertise_with_us():
         ):
             return render_template(
                 "advertise_with_us.html",
-                error="Please fill in all required fields."
+                error="Please fill in all required fields.",
+                form_data=request.form
             ), 400
 
         if not valid_email(email):
             return render_template(
                 "advertise_with_us.html",
-                error="Please enter a valid email address."
+                error="Please enter a valid email address.",
+                form_data=request.form
             ), 400
 
-        # --------------------------------------------------------
-        # SAVE ADVERTISEMENT REQUEST
-        # --------------------------------------------------------
+        # WhatsApp number for UniCamplink advertising
+        whatsapp_number = "2349161162607"
 
-        conn = get_db_connection()
-
-        try:
-
-            conn.execute(
-                """
-                INSERT INTO advertisement_requests
-                (
-                    user_id,
-                    advertiser_name,
-                    business_name,
-                    email,
-                    category,
-                    subject,
-                    message,
-                    status,
-                    name,
-                    advertising_type
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
-                """,
-                (
-                    session["user_id"],
-                    name,
-                    business_name,
-                    email,
-                    advertising_type,
-                    business_name,
-                    message,
-                    name,
-                    advertising_type
-                )
-            )
-
-            conn.commit()
-
-        except Exception:
-            conn.rollback()
-            app.logger.exception(
-                "Failed to save UniCamplink advertising request."
-            )
-
-            return render_template(
-                "advertise_with_us.html",
-                error=(
-                    "We could not submit your advertising request "
-                    "right now. Please try again."
-                )
-            ), 500
-
-        finally:
-            conn.close()
-
-        # --------------------------------------------------------
-        # SUCCESS
-        # --------------------------------------------------------
-
-        return render_template(
-            "advertise_with_us.html",
-            success=(
-                "Your advertising request has been submitted "
-                "successfully. Our team will review it and get "
-                "back to you soon."
-            )
+        whatsapp_message = (
+            "Hello UniCamplink 👋\n\n"
+            "I want to advertise on UniCamplink.\n\n"
+            f"Name: {name}\n"
+            f"Email: {email}\n"
+            f"Business Name: {business_name}\n"
+            f"Advertising Type: {advertising_type}\n\n"
+            f"Message:\n{message}"
         )
+
+        from urllib.parse import quote
+
+        whatsapp_url = (
+            "https://wa.me/"
+            + whatsapp_number
+            + "?text="
+            + quote(whatsapp_message)
+        )
+
+        return redirect(whatsapp_url)
 
     return render_template(
         "advertise_with_us.html"

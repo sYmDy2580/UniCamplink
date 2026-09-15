@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | UniCamplink</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f8fc;
+            color: #172033;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #00a9e8, #0077c8);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.15);
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .brand p {
+            margin: 3px 0 0;
+            opacity: .9;
+            font-size: 13px;
+        }
+
+        .logout-btn {
+            color: white;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,.6);
+            padding: 9px 15px;
+            border-radius: 8px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,.12);
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            margin-bottom: 5px;
+        }
+
+        .welcome p {
+            color: #64748b;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, .08);
+            border-left: 4px solid #00a9e8;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 8px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .admin-card {
+            background: white;
+            padding: 24px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, .08);
+        }
+
+        .admin-card h3 {
+            margin-top: 0;
+        }
+
+        .admin-card p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .admin-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #00a9e8;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .admin-btn:hover {
+            background: #0077c8;
+        }
+
+        .ambassador-btn {
+            background: #7c3aed;
+        }
+
+        .ambassador-btn:hover {
+            background: #6d28d9;
+        }
+
+        .warning {
+            border-left-color: #f59e0b;
+        }
+
+        .success {
+            border-left-color: #10b981;
+        }
+
+        .danger {
+            border-left-color: #ef4444;
+        }
+
+        .ambassador-card {
+            border-left: 4px solid #7c3aed;
+        }
+
+        .verified-card {
+            border-left: 4px solid #10b981;
+        }
+
+        .recent-users {
+            margin-top: 30px;
+            background: white;
+            padding: 24px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, .08);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .pending-badge {
+            display: inline-block;
+            background: #fff7ed;
+            color: #c2410c;
+            padding: 4px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .ambassador-badge {
+            display: inline-block;
+            background: #f3e8ff;
+            color: #7e22ce;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .verified-badge {
+            display: inline-block;
+            background: #ecfdf5;
+            color: #047857;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .header-inner {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .logout-btn {
+                display: inline-block;
+            }
+
+            .admin-container {
+                margin-top: 20px;
+            }
+
+            .stat-card {
+                padding: 17px;
+            }
+
+            .admin-card {
+                padding: 20px;
+            }
+
+            .admin-btn {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="admin-header">
+    <div class="header-inner">
+
+        <div class="brand">
+
+            <img
+                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                alt="UniCamplink Logo"
+            >
+
+            <div>
+                <h1>UniCamplink Admin</h1>
+                <p>Administration & Management Panel</p>
+            </div>
+
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="logout-btn"
+            >
+                🏠 Dashboard
+            </a>
+
+            <form
+                action="{{ url_for('logout') }}"
+                method="POST"
+                style="margin:0;"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="logout-btn"
+                    style="
+                        background: transparent;
+                        cursor: pointer;
+                        font: inherit;
+                    "
+                >
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+</header>
+
+
+<main class="admin-container">
+
+    <section class="welcome">
+
+        <h2>
+            Welcome, {{ current_user["name"] }} 👋
+        </h2>
+
+        <p>
+            Manage UniCamplink activity, members, advertisements,
+            campus ambassadors, verified students and platform data.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         PLATFORM STATISTICS
+    ====================================================== -->
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <h3>👥 Total Users</h3>
+            <div class="stat-number">
+                {{ total_users }}
+            </div>
+        </div>
+
+
+        <div class="stat-card success">
+            <h3>🟢 Active Now</h3>
+            <div class="stat-number">
+                {{ active_members }}
+            </div>
+        </div>
+
+
+        <div class="stat-card">
+            <h3>📝 Total Posts</h3>
+            <div class="stat-number">
+                {{ total_posts }}
+            </div>
+        </div>
+
+
+        <div class="stat-card">
+            <h3>👨‍👩‍👧 Groups</h3>
+            <div class="stat-number">
+                {{ total_groups }}
+            </div>
+        </div>
+
+
+        <div class="stat-card">
+            <h3>🛍️ Marketplace</h3>
+            <div class="stat-number">
+                {{ total_products }}
+            </div>
+        </div>
+
+
+        <div class="stat-card">
+            <h3>💬 Messages</h3>
+            <div class="stat-number">
+                {{ total_messages }}
+            </div>
+        </div>
+
+
+        <div class="stat-card">
+            <h3>🤝 Friend Requests</h3>
+            <div class="stat-number">
+                {{ total_friend_requests }}
+            </div>
+        </div>
+
+
+        <div class="stat-card success">
+            <h3>📢 Advertisements</h3>
+            <div class="stat-number">
+                {{ total_advertisements }}
+            </div>
+        </div>
+
+
+        <div class="stat-card warning">
+            <h3>⏳ Pending Ads</h3>
+            <div class="stat-number">
+                {{ pending_advertisements }}
+            </div>
+        </div>
+
+
+        <div class="stat-card ambassador-card">
+            <h3>🎓 Campus Ambassadors</h3>
+            <div class="stat-number">
+                {{ total_ambassadors }}
+            </div>
+        </div>
+
+
+        <div class="stat-card verified-card">
+            <h3>✅ Verified Students</h3>
+            <div class="stat-number">
+                {{ total_verified_students }}
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ADMIN MANAGEMENT
+    ====================================================== -->
+
+    <section class="admin-grid">
+
+
+        <!-- Advertisement Management -->
+
+        <div class="admin-card">
+
+            <h3>📢 Advertisement Management</h3>
+
+            <p>
+                Review advertising requests submitted by businesses,
+                organizations and students.
+            </p>
+
+            {% if pending_advertisements > 0 %}
+
+                <span class="pending-badge">
+                    {{ pending_advertisements }} pending request(s)
+                </span>
+
+            {% endif %}
+
+            <br>
+
+            <a
+                href="{{ url_for('admin_advertisements') }}"
+                class="admin-btn"
+            >
+                Manage Advertisements
+            </a>
+
+        </div>
+
+
+        <!-- Member Management -->
+
+        <div class="admin-card">
+
+            <h3>👥 Member Management</h3>
+
+            <p>
+                View and manage registered UniCamplink members,
+                search students and check account activity.
+            </p>
+
+            <a
+                href="{{ url_for('admin_members') }}"
+                class="admin-btn"
+            >
+                View Members
+            </a>
+
+        </div>
+
+
+        <!-- Campus Ambassador Management -->
+
+        <div class="admin-card ambassador-card">
+
+            <h3>🎓 Campus Ambassador Management</h3>
+
+            <p>
+                Appoint official UniCamplink Campus Ambassadors,
+                assign their campus and school, view active ambassadors
+                and remove ambassador status when necessary.
+            </p>
+
+            {% if total_ambassadors > 0 %}
+
+                <span class="ambassador-badge">
+                    {{ total_ambassadors }} active ambassador(s)
+                </span>
+
+            {% endif %}
+
+            <br>
+
+            <a
+                href="{{ url_for('admin_campus_ambassadors') }}"
+                class="admin-btn ambassador-btn"
+            >
+                Manage Ambassadors
+            </a>
+
+        </div>
+
+
+        <!-- Verified Student Management -->
+
+        <div class="admin-card verified-card">
+
+            <h3>✅ Verified Students</h3>
+
+            <p>
+                Verify or remove official Verified Student status
+                for registered UniCamplink students.
+            </p>
+
+            <a
+                href="{{ url_for('admin_verified_students') }}"
+                class="admin-btn"
+            >
+                Manage Verified Students
+            </a>
+
+        </div>
+
+
+        <!-- Return to Platform -->
+
+        <div class="admin-card">
+
+            <h3>🏠 Return to UniCamplink</h3>
+
+            <p>
+                Return to the normal UniCamplink dashboard.
+            </p>
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                class="admin-btn"
+            >
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RECENT MEMBERS
+    ====================================================== -->
+
+    <section class="recent-users">
+
+        <h3>🆕 Recent Members</h3>
+
+        {% if recent_users %}
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>University</th>
+                        <th>Joined</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for user in recent_users %}
+
+                        <tr>
+
+                            <td>
+                                {{ user["name"] }}
+                            </td>
+
+                            <td>
+                                {{ user["email"] }}
+                            </td>
+
+                            <td>
+                                {{ user["university"] or "—" }}
+                            </td>
+
+                            <td>
+                                {{ user["joined_at"] or "—" }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p>
+                No members found yet.
+            </p>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+</html>

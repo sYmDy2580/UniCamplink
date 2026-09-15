@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Verified Students | UniCamplink Admin</title>
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}">
+
+<style>
+    .admin-page {
+        min-height: 100vh;
+        background: var(--bg, #f8fafc);
+        color: var(--text, #0f172a);
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+        color: white;
+        padding: 26px 20px;
+    }
+
+    .admin-header-inner {
+        max-width: 1200px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+    }
+
+    .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .admin-brand img {
+        width: 52px;
+        height: 52px;
+        object-fit: contain;
+        border-radius: 12px;
+        background: rgba(255,255,255,.15);
+    }
+
+    .admin-brand h1 {
+        margin: 0;
+        font-size: 1.45rem;
+    }
+
+    .admin-brand p {
+        margin: 4px 0 0;
+        opacity: .9;
+    }
+
+    .admin-logout,
+    .back-btn {
+        color: white;
+        text-decoration: none;
+        border: 1px solid rgba(255,255,255,.45);
+        padding: 9px 14px;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    .admin-container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 28px 20px 50px;
+    }
+
+    .page-title {
+        margin-bottom: 20px;
+    }
+
+    .page-title h2 {
+        margin: 0 0 6px;
+    }
+
+    .page-title p {
+        margin: 0;
+        opacity: .7;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 22px;
+    }
+
+    .search-form input {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 14px;
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 10px;
+        background: var(--card-bg, white);
+        color: var(--text, #0f172a);
+    }
+
+    .search-form button {
+        border: 0;
+        padding: 12px 18px;
+        border-radius: 10px;
+        background: #0ea5e9;
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .table-card {
+        background: var(--card-bg, white);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+    th,
+    td {
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border, #e2e8f0);
+    }
+
+    th {
+        font-size: .82rem;
+        opacity: .7;
+    }
+
+    tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .student-name {
+        font-weight: 700;
+    }
+
+    .student-email {
+        font-size: .85rem;
+        opacity: .7;
+        margin-top: 3px;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: .78rem;
+        font-weight: 800;
+    }
+
+    .verified {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .unverified {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .verify-btn,
+    .unverify-btn {
+        border: 0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .verify-btn {
+        background: #16a34a;
+        color: white;
+    }
+
+    .unverify-btn {
+        background: #dc2626;
+        color: white;
+    }
+
+    .empty {
+        padding: 30px;
+        text-align: center;
+        opacity: .65;
+    }
+
+    @media (max-width: 600px) {
+        .admin-header-inner {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-form {
+            flex-direction: column;
+        }
+
+        .search-form button {
+            width: 100%;
+        }
+
+        .admin-container {
+            padding: 22px 14px 40px;
+        }
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+```
+<header class="admin-header">
+    <div class="admin-header-inner">
+
+        <div class="admin-brand">
+            <img
+                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                alt="UniCamplink logo"
+            >
+
+            <div>
+                <h1>Verified Students</h1>
+                <p>Student verification management</p>
+            </div>
+        </div>
+
+        <a
+            class="admin-logout"
+            href="{{ url_for('logout') }}"
+        >
+            Logout
+        </a>
+
+    </div>
+</header>
+
+<main class="admin-container">
+
+    <div class="page-title">
+        <h2>✅ Verified Student Management</h2>
+        <p>
+            Search students and manage their official UniCamplink
+            verification status.
+        </p>
+    </div>
+
+    <form
+        class="search-form"
+        method="GET"
+        action="{{ url_for('admin_verified_students') }}"
+    >
+
+        <input
+            type="text"
+            name="q"
+            value="{{ search }}"
+            placeholder="Search by name, email or university..."
+            maxlength="100"
+        >
+
+        <button type="submit">
+            🔍 Search
+        </button>
+
+    </form>
+
+    <div class="table-card">
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>University</th>
+                        <th>Status</th>
+                        <th>Verified At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for user in users %}
+
+                    <tr>
+
+                        <td>
+                            <div class="student-name">
+                                {{ user['name'] }}
+                            </div>
+
+                            <div class="student-email">
+                                {{ user['email'] }}
+                            </div>
+                        </td>
+
+                        <td>
+                            {{ user['university'] or '—' }}
+                        </td>
+
+                        <td>
+
+                            {% if user['is_verified_student'] %}
+
+                                <span class="status verified">
+                                    ✓ Verified
+                                </span>
+
+                            {% else %}
+
+                                <span class="status unverified">
+                                    Not Verified
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ user['verified_at'] or '—' }}
+                        </td>
+
+                        <td>
+
+                            {% if user['is_verified_student'] %}
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin_unverify_student',
+                                        user_id=user['id']
+                                    ) }}"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <button
+                                        class="unverify-btn"
+                                        type="submit"
+                                        onclick="return confirm(
+                                            'Remove Verified Student status from this student?'
+                                        );"
+                                    >
+                                        Remove Verification
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin_verify_student',
+                                        user_id=user['id']
+                                    ) }}"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <button
+                                        class="verify-btn"
+                                        type="submit"
+                                    >
+                                        ✓ Verify Student
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+                        <td colspan="5" class="empty">
+                            No students found.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <a
+        class="back-btn"
+        href="{{ url_for('admin_dashboard') }}"
+        style="
+            display:inline-block;
+            background:#334155;
+        "
+    >
+        ← Back to Admin Dashboard
+    </a>
+
+</main>
+
+</div>
+
+</body>
+</html>

@@ -1,140 +1,438 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>UniCamplink — Members</title>
+<title>UniCamplink — Members</title>
 
-    <style>
-        :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --border: #334155;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --accent: #38bdf8;
-            --accent-dark: #0284c7;
-        }
+<style>
+    :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --border: #334155;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent-dark: #0284c7;
+        --success: #22c55e;
+        --gold: #f59e0b;
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    * {
+        box-sizing: border-box;
+    }
 
+    body {
+        margin: 0;
+        padding: 30px 16px;
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 30px;
+    }
+
+    .header p {
+        margin: 7px 0 0;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 20;
+    }
+
+    .back,
+    .ambassador-btn {
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        cursor: pointer;
+        pointer-events: auto;
+        position: relative;
+        z-index: 21;
+    }
+
+    .back {
+        background: var(--accent-dark);
+        border: 1px solid #0369a1;
+    }
+
+    .ambassador-btn {
+        background: #92400e;
+        border: 1px solid #b45309;
+    }
+
+    .back:hover {
+        background: #0369a1;
+    }
+
+    .ambassador-btn:hover {
+        background: #b45309;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+
+    .stat {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+    }
+
+    .number {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .active-number {
+        color: var(--success);
+    }
+
+    .label {
+        color: var(--muted);
+        margin-top: 5px;
+    }
+
+    /* SEARCH */
+
+    .search-box {
+        position: relative;
+        z-index: 5;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 20px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        position: relative;
+        z-index: 6;
+    }
+
+    .search-form input {
+        flex: 1;
+        min-width: 0;
+        height: 44px;
+        padding: 0 14px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: #0f172a;
+        color: var(--text);
+        outline: none;
+        font-size: 15px;
+        position: relative;
+        z-index: 7;
+        pointer-events: auto;
+    }
+
+    .search-form input::placeholder {
+        color: var(--muted);
+    }
+
+    .search-form input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+    }
+
+    .search-form button {
+        height: 44px;
+        border: none;
+        border-radius: 9px;
+        padding: 0 20px;
+        background: var(--accent-dark);
+        color: white;
+        cursor: pointer;
+        font-weight: 700;
+        position: relative;
+        z-index: 7;
+        pointer-events: auto;
+    }
+
+    .search-form button:hover {
+        background: #0369a1;
+    }
+
+    .clear-search {
+        display: inline-block;
+        margin-top: 10px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 14px;
+        cursor: pointer;
+        position: relative;
+        z-index: 8;
+    }
+
+    .clear-search:hover {
+        color: var(--accent);
+    }
+
+    /* TABLE */
+
+    .table-wrap {
+        overflow-x: auto;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1000px;
+    }
+
+    th,
+    td {
+        padding: 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    th {
+        color: var(--accent);
+        font-size: 14px;
+    }
+
+    td {
+        color: var(--text);
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    .member {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .avatar-placeholder {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #334155;
+        color: white;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .member-name {
+        font-weight: 700;
+    }
+
+    .member-id {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .online {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.12);
+    }
+
+    .offline {
+        color: #cbd5e1;
+        background: rgba(148, 163, 184, 0.12);
+    }
+
+    .ambassador {
+        display: inline-block;
+        color: #fbbf24;
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .regular-member {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .profile-btn {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+        cursor: pointer;
+        pointer-events: auto;
+        position: relative;
+        z-index: 5;
+    }
+
+    .profile-btn:hover {
+        text-decoration: underline;
+    }
+
+    .muted {
+        color: var(--muted);
+    }
+
+    .empty {
+        text-align: center;
+        padding: 35px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 700px) {
         body {
-            margin: 0;
-            padding: 30px 16px;
-            font-family: Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
+            padding: 20px 10px;
         }
 
         h1 {
-            margin: 0;
+            font-size: 24px;
         }
 
-        .back {
-            color: white;
-            background: var(--accent-dark);
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
+        .stats {
+            grid-template-columns: 1fr;
         }
 
-        .stat {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 20px;
+        .search-form {
+            flex-direction: column;
         }
 
-        .number {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .label {
-            color: var(--muted);
-            margin-top: 5px;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-        }
-
-        table {
+        .search-form input,
+        .search-form button {
             width: 100%;
-            border-collapse: collapse;
-            min-width: 720px;
         }
 
-        th,
-        td {
-            padding: 14px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
+        .actions {
+            width: 100%;
         }
 
-        th {
-            color: var(--accent);
+        .back,
+        .ambassador-btn {
+            flex: 1;
+            text-align: center;
         }
+    }
+</style>
 
-        td {
-            color: var(--text);
-        }
-
-        .muted {
-            color: var(--muted);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-    </style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <div class="header">
+<!-- HEADER -->
 
-        <div>
-            <h1>UniCamplink Members</h1>
+<div class="header">
 
-            <p class="muted">
-                Registered students on the platform
-            </p>
-        </div>
+    <div>
+        <h1>UniCamplink Members</h1>
 
-        <a class="back" href="{{ url_for('dashboard') }}">
-            ← Dashboard
+        <p class="muted">
+            Registered students on the platform
+        </p>
+    </div>
+
+    <div class="actions">
+
+        <a
+href="/admin/campus-ambassadors"
+style="
+display: inline-block;
+position: relative;
+z-index: 9999;
+pointer-events: auto;
+cursor: pointer;
+color: white;
+background: #92400e;
+border: 1px solid #b45309;
+padding: 10px 16px;
+border-radius: 8px;
+text-decoration: none;
+font-weight: 600;
+"
+
+>
+
+🎓 Campus Ambassadors
+
+</a>
+
+
+        <a
+            class="back"
+            href="{{ url_for('admin_dashboard') }}"
+        >
+            ← Admin Dashboard
         </a>
 
     </div>
 
+</div>
+
+
+<!-- STATS -->
+
+<div class="stats">
 
     <div class="stat">
-
         <div class="number">
             {{ total_users }}
         </div>
@@ -142,72 +440,259 @@
         <div class="label">
             Total registered users
         </div>
-
     </div>
 
 
-    <div class="table-wrap">
+    <div class="stat">
+        <div class="number active-number">
+            {{ active_members }}
+        </div>
 
-        <table>
-
-            <thead>
-
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>University</th>
-                    <th>Joined</th>
-                </tr>
-
-            </thead>
+        <div class="label">
+            Active members now
+        </div>
+    </div>
 
 
-            <tbody>
+    <div class="stat">
+        <div class="number">
+            {{ campus_ambassadors }}
+        </div>
 
-                {% for user in users %}
+        <div class="label">
+            Campus Ambassadors
+        </div>
+    </div>
 
-                <tr>
 
-                    <td>
-                        {{ loop.index }}
-                    </td>
+    <div class="stat">
+        <div class="number">
+            {{ result_count }}
+        </div>
 
-                    <td>
-                        {{ user['name'] }}
-                    </td>
+        <div class="label">
+            Search Results
+        </div>
+    </div>
 
-                    <td>
-                        {{ user['email'] }}
-                    </td>
+</div>
 
-                    <td>
-                        {{ user['university'] or '—' }}
-                    </td>
 
-                    <td>
-                        {{ user['joined_at'] or '—' }}
-                    </td>
+<!-- SEARCH -->
 
-                </tr>
+<div class="search-box">
 
-                {% else %}
+    <form
+        class="search-form"
+        method="GET"
+        action="{{ url_for('admin_members') }}"
+    >
 
-                <tr>
+        <input
+            type="search"
+            name="q"
+            value="{{ search }}"
+            placeholder="Search name, email or university…"
+            maxlength="100"
+            autocomplete="off"
+        >
 
-                    <td colspan="5" class="muted">
+        <button type="submit">
+            🔎 Search
+        </button>
+
+    </form>
+
+
+    {% if search %}
+
+    <a
+        class="clear-search"
+        href="{{ url_for('admin_members') }}"
+    >
+        ✕ Clear search
+    </a>
+
+    {% endif %}
+
+</div>
+
+
+<!-- MEMBERS TABLE -->
+
+<div class="table-wrap">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Member</th>
+                <th>Email</th>
+                <th>University</th>
+                <th>Status</th>
+                <th>Ambassador</th>
+                <th>Joined</th>
+                <th>Last Seen</th>
+                <th>Profile</th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+
+            {% for user in users %}
+
+            <tr>
+
+                <td>
+                    {{ loop.index }}
+                </td>
+
+
+                <td>
+
+                    <div class="member">
+
+                        {% if user['profile_picture'] %}
+
+                        <img
+                            class="avatar"
+                            src="{{ url_for('static', filename='uploads/' ~ user['profile_picture']) }}"
+                            alt="{{ user['name'] }}"
+                        >
+
+                        {% else %}
+
+                        <div class="avatar-placeholder">
+                            {{ user['name'][0]|upper if user['name'] else '?' }}
+                        </div>
+
+                        {% endif %}
+
+
+                        <div>
+
+                            <div class="member-name">
+                                {{ user['name'] }}
+                            </div>
+
+                            <div class="member-id">
+                                ID: {{ user['id'] }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+                    {{ user['email'] }}
+                </td>
+
+
+                <td>
+                    {{ user['university'] or '—' }}
+                </td>
+
+
+                <td>
+
+                    {% if user['is_active'] %}
+
+                    <span class="status online">
+                        🟢 Active
+                    </span>
+
+                    {% else %}
+
+                    <span class="status offline">
+                        ⚪ Offline
+                    </span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+
+                    {% if user['is_campus_ambassador'] %}
+
+                    <span class="ambassador">
+                        🎓 Official Ambassador
+                    </span>
+
+                    {% else %}
+
+                    <span class="regular-member">
+                        Regular Member
+                    </span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+                    {{ user['joined_at'] or '—' }}
+                </td>
+
+
+                <td>
+
+                    {% if user['last_seen'] %}
+                        {{ user['last_seen'] }}
+                    {% else %}
+                        <span class="muted">Never</span>
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+
+                    <a
+                        class="profile-btn"
+                        href="{{ url_for('view_user', user_id=user['id']) }}"
+                    >
+                        View
+                    </a>
+
+                </td>
+
+            </tr>
+
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="9" class="muted empty">
+
+                    {% if search %}
+
+                        No members found for "{{ search }}".
+
+                    {% else %}
+
                         No registered users yet.
-                    </td>
 
-                </tr>
+                    {% endif %}
 
-                {% endfor %}
+                </td>
 
-            </tbody>
+            </tr>
 
-        </table>
+            {% endfor %}
 
-    </div>
+        </tbody>
+
+    </table>
+
+</div>
 
 </div>
 
