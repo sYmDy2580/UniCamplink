@@ -4,7 +4,6 @@
 
 <head>
 
-
 <meta charset="UTF-8">
 
 <meta
@@ -14,10 +13,10 @@
 
 <meta
     name="description"
-    content="UniCamplink Student Feed — share updates, interact with students and stay connected with your campus community."
+    content="UniCamplink Student Feed — connect, share and interact with students."
 >
 
-<title>Student Feed | UniCamplink</title>
+<title>Feed | UniCamplink</title>
 
 <link
     rel="stylesheet"
@@ -25,111 +24,142 @@
 >
 
 
+<style>
+/* ============================================================
+   RAZOR COMMENT VISIBILITY + THEME
+============================================================ */
+.post-comments {
+    display: none;
+}
+
+.post-comments.visible {
+    display: block;
+}
+
+html[data-theme="light"] .razor-composer,
+html[data-theme="light"] .razor-post {
+    background: var(--surface, #ffffff);
+    color: var(--text, #111827);
+    border-color: var(--border, #e5e7eb);
+}
+
+html[data-theme="dark"] .razor-composer,
+html[data-theme="dark"] .razor-post {
+    background: var(--surface, #0f172a);
+    color: var(--text, #f8fafc);
+    border-color: var(--border, #334155);
+}
+
+html[data-theme="light"] .post-actions,
+html[data-theme="light"] .composer-footer,
+html[data-theme="dark"] .post-actions,
+html[data-theme="dark"] .composer-footer {
+    border-color: var(--border, #334155);
+}
+
+html[data-theme="light"] .comment-form input,
+html[data-theme="dark"] .comment-form input {
+    background: var(--surface-2, rgba(148,163,184,.12));
+    color: var(--text, #f8fafc);
+    border-color: var(--border, #334155);
+}
+
+html[data-theme="light"] .post-action-btn,
+html[data-theme="light"] .comment-count-btn,
+html[data-theme="light"] .composer-option {
+    color: var(--muted, #64748b);
+}
+
+html[data-theme="dark"] .post-action-btn,
+html[data-theme="dark"] .comment-count-btn,
+html[data-theme="dark"] .composer-option {
+    color: var(--muted, #94a3b8);
+}
+
+html[data-theme="light"] .post-action-btn:hover,
+html[data-theme="light"] .composer-option:hover,
+html[data-theme="dark"] .post-action-btn:hover,
+html[data-theme="dark"] .composer-option:hover {
+    background: var(--surface-2, rgba(148,163,184,.12));
+}
+/* RAZOR POST IMAGE UI */
+.image-upload-area{margin-top:12px}.image-upload-button{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border-color,rgba(148,163,184,.25));border-radius:12px;cursor:pointer;font-weight:700;color:var(--text-color,inherit);background:var(--card-color,rgba(255,255,255,.04));transition:.2s}.image-upload-button:hover{transform:translateY(-1px);border-color:#38bdf8}.post-image-preview{position:relative;margin-top:12px;max-width:420px}.post-image-preview img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:14px}.remove-post-image{position:absolute;top:8px;right:8px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:24px;cursor:pointer}.post-media{margin:12px 0 4px;overflow:hidden;border-radius:14px;background:rgba(148,163,184,.08);display:flex;justify-content:center;max-width:100%}.post-media img{display:block;width:auto;max-width:100%;height:auto;max-height:500px;object-fit:contain;cursor:zoom-in}@media(max-width:900px){.post-media img{max-height:440px}}.post-image-lightbox{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.88)}.post-image-lightbox.visible{display:flex}.post-image-lightbox img{max-width:min(1100px,95vw);max-height:90vh;object-fit:contain;border-radius:12px}.post-avatar,.comment-avatar-image,.composer-avatar img{cursor:zoom-in}.post-avatar-link,.comment-avatar-link{cursor:pointer}.lightbox-close{position:absolute;top:18px;right:22px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:30px;cursor:pointer}@media(max-width:640px){.post-media{border-radius:12px}.post-media img{max-height:380px;width:100%;object-fit:cover}.post-image-preview{max-width:100%}}
+</style>
+
 </head>
 
 <body>
 
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+
 <nav class="navbar">
 
-
 <div class="nav-container">
-
-
-    <!-- =====================================================
-         BRAND
-    ====================================================== -->
 
     <a
         href="{{ url_for('dashboard') }}"
         class="nav-brand"
     >
-
-        <img
-            src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
-            alt="UniCamplink Logo"
-        >
-
-        <span>
-            UniCamplink
-        </span>
-
+        <span>UniCamplink</span>
     </a>
 
 
-    <!-- =====================================================
-         NAVIGATION LINKS
-    ====================================================== -->
-
     <div class="nav-links">
-
 
         <a href="{{ url_for('dashboard') }}">
             Dashboard
         </a>
 
-
-        <a href="{{ url_for('feed') }}">
+        <a
+            href="{{ url_for('feed') }}"
+            class="active"
+        >
             Feed
         </a>
-
 
         <a href="{{ url_for('profile') }}">
             Profile
         </a>
 
-
         <a href="{{ url_for('groups') }}">
             Groups
         </a>
-
 
         <a href="{{ url_for('search_students') }}">
             Search
         </a>
 
-
         <a href="{{ url_for('messages') }}">
             Messages
         </a>
-
 
         <a href="{{ url_for('friends') }}">
             Friends
         </a>
 
-
         <a href="{{ url_for('friend_requests') }}">
             Requests
         </a>
 
-
         <a href="{{ url_for('notifications') }}">
             Notifications
         </a>
-
 
         <a href="{{ url_for('marketplace') }}">
             Marketplace
         </a>
 
 
-        <!-- =================================================
-             THEME TOGGLE
-        ================================================== -->
-
         <button
             type="button"
             class="theme-toggle"
             id="themeToggle"
-            aria-label="Toggle theme"
         >
             🌙 Dark Mode
         </button>
 
-
-        <!-- =================================================
-             LOGOUT
-        ================================================== -->
 
         <form
             action="{{ url_for('logout') }}"
@@ -152,46 +182,73 @@
 
         </form>
 
-
     </div>
 
 </div>
 
-
 </nav>
 
 <!-- ============================================================
-     MAIN FEED
+     RAZOR FEED
 ============================================================ -->
 
-<main class="feed-container">
-
+<main class="razor-feed">
 
 <!-- ========================================================
      CREATE POST
 ========================================================= -->
 
-<section class="create-post">
+<section class="razor-composer">
 
-    <h2>
-        ✍️ Create a Post
-    </h2>
+    <div class="composer-header">
+
+        <div class="composer-avatar">
+
+            {% if session.get("profile_picture") %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/' +
+                        session.get('profile_picture')
+                    ) }}"
+                    alt="Your profile picture"
+                    class="composer-profile-picture"
+                    onclick="openProfileImage(this.src); event.preventDefault(); event.stopPropagation();"
+                >
+
+            {% else %}
+
+                <span>
+                    👤
+                </span>
+
+            {% endif %}
+
+        </div>
 
 
-    <p>
-        Share an announcement, idea, experience,
-        question or useful information with your
-        campus community.
-    </p>
+        <div>
+
+            <strong>
+                Create a post
+            </strong>
+
+            <span>
+                Share something with your campus
+            </span>
+
+        </div>
+
+    </div>
 
 
     <form
+        id="createPostForm"
         action="{{ url_for('create_post') }}"
         method="POST"
+        enctype="multipart/form-data"
     >
-
-
-        <!-- CSRF PROTECTION -->
 
         <input
             type="hidden"
@@ -200,117 +257,266 @@
         >
 
 
-        <!-- POST CONTENT -->
-
         <textarea
             name="content"
+            id="postContent"
+            maxlength="5000"
             placeholder="What's happening on campus?"
-            maxlength="2000"
-            required
         ></textarea>
 
 
-        <!-- SUBMIT -->
+        <div class="image-upload-area">
+            <label for="postImage" class="image-upload-button">🖼️ <span>Photo</span></label>
+            <input type="file" id="postImage" name="image" accept="image/png,image/jpeg,image/jpg,image/gif" hidden>
+            <div id="postImagePreview" class="post-image-preview" hidden>
+                <img id="postImagePreviewImg" src="" alt="Selected post image preview">
+                <button type="button" id="removePostImage" class="remove-post-image" aria-label="Remove selected image">×</button>
+            </div>
+        </div>
 
-        <button
-            type="submit"
-            class="primary-btn"
-        >
-            Share Update 🚀
-        </button>
+        <div class="composer-footer">
 
+            <div class="composer-options">
+
+                <button
+                    type="button"
+                    class="composer-option"
+                    title="Emoji"
+                    onclick="insertEmoji('😊')"
+                >
+                    😊
+                </button>
+
+                <button
+                    type="button"
+                    class="composer-option"
+                    title="Emoji"
+                    onclick="insertEmoji('🔥')"
+                >
+                    🔥
+                </button>
+
+                <button
+                    type="button"
+                    class="composer-option"
+                    title="Emoji"
+                    onclick="insertEmoji('🎓')"
+                >
+                    🎓
+                </button>
+
+                <button
+                    type="button"
+                    class="composer-option"
+                    title="Emoji"
+                    onclick="insertEmoji('😂')"
+                >
+                    😂
+                </button>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="razor-post-btn"
+            >
+                Post 🚀
+            </button>
+
+        </div>
 
     </form>
 
 </section>
 
 
-
 <!-- ========================================================
-     STUDENT FEED
+     FEED HEADER
 ========================================================= -->
 
-<section class="posts-section">
+<div class="razor-feed-header">
+
+    <div>
+
+        <h1>
+            Student Feed
+        </h1>
+
+        <p>
+            What's happening across the campus community?
+        </p>
+
+    </div>
+
+    <span class="feed-live">
+        ● Live
+    </span>
+
+</div>
 
 
-    <h2>
-        📰 Student Feed
-    </h2>
+<!-- ========================================================
+     POSTS
+========================================================= -->
 
+<section id="postsContainer">
 
     {% if posts %}
 
-
         {% for post in posts %}
 
+        <article
+            class="razor-post"
+            id="post-{{ post['id'] }}"
+            data-post-id="{{ post['id'] }}"
+        >
 
-            <!-- =================================================
-                 POST CARD
-            ================================================== -->
 
-            <article class="post-card">
+            <!-- ============================================
+                 AUTHOR
+            ============================================= -->
+
+            <div class="post-author">
+
+                <a
+                    href="{{ url_for(
+                        'view_user',
+                        user_id=post['user_id']
+                    ) }}"
+                    class="post-avatar-link"
+                >
+
+                    {% if post["profile_picture"] %}
+
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/' +
+                                post['profile_picture']
+                            ) }}"
+                            alt=""
+                            class="post-avatar"
+                            onclick="openProfileImage(this.src); event.preventDefault(); event.stopPropagation();"
+                            title="View profile picture"
+                            onerror="
+                                this.style.display='none';
+                                this.nextElementSibling.style.display='flex';
+                            "
+                        >
+
+                        <div
+                            class="post-avatar placeholder-avatar"
+                            style="display:none;"
+                        >
+                            👤
+                        </div>
+
+                    {% else %}
+
+                        <div class="post-avatar placeholder-avatar">
+                            👤
+                        </div>
+
+                    {% endif %}
+
+                </a>
 
 
-                <!-- =================================================
-                     AUTHOR
-                ================================================== -->
-
-                <h3>
+                <div class="post-author-info">
 
                     <a
                         href="{{ url_for(
                             'view_user',
                             user_id=post['user_id']
                         ) }}"
-                        class="user-profile-link"
+                        class="post-author-name"
                     >
-
                         {{ post["author_name"] }}
-
                     </a>
 
-                </h3>
+
+                    {% if post["author_university"] %}
+
+                        <span class="post-university">
+                            🎓 {{ post["author_university"] }}
+                        </span>
+
+                    {% endif %}
 
 
-                <!-- UNIVERSITY -->
+                    <span class="post-time">
+                        {{ post["created_at"]|nigeria_time }}
+                    </span>
 
-                {% if post["author_university"] %}
+                </div>
 
-                    <small>
-                        🎓 {{ post["author_university"] }}
-                    </small>
-
-                {% endif %}
+            </div>
 
 
+            <!-- ============================================
+                 CONTENT
+            ============================================= -->
 
-                <!-- =================================================
-                     POST CONTENT
-                ================================================== -->
+            <div class="post-content">
 
-                <p>
-                    {{ post["content"] }}
-                </p>
+                {{ post["content"] }}
 
+            </div>
 
-
-                <!-- =================================================
-                     DATE
-                ================================================== -->
-
-                <small>
-
-                    {{ post["created_at"]|nigeria_time }}
-
-                </small>
+            {% if post["image"] %}
+                <div class="post-media">
+                    <img src="{{ url_for('static', filename='uploads/' + post['image']) }}" alt="Post image" loading="lazy" onclick="openPostImage(this.src)">
+                </div>
+            {% endif %}
 
 
+            <!-- ============================================
+                 STATISTICS
+            ============================================= -->
 
-                <!-- =================================================
-                     LIKE
-                ================================================== -->
+            <div class="post-stats">
+
+                <span class="like-stat">
+
+                    ❤️
+
+                    <span class="like-count">
+                        {{ post["like_count"] }}
+                    </span>
+
+                </span>
+
+
+                <button
+                    type="button"
+                    class="comment-count-btn"
+                    onclick="focusComment('{{ post.id }}')"
+                >
+
+                    <span class="comment-count">
+                        {{ post["comment_count"] }}
+                    </span>
+
+                    comments
+
+                </button>
+
+            </div>
+
+
+            <!-- ============================================
+                 ACTIONS
+            ============================================= -->
+
+            <div class="post-actions">
+
+
+                <!-- LIKE -->
 
                 <form
+                    class="like-form"
+                    data-post-id="{{ post['id'] }}"
                     action="{{ url_for(
                         'like_post',
                         post_id=post['id']
@@ -327,125 +533,2786 @@
 
                     <button
                         type="submit"
-                        class="like-btn"
+                        class="post-action-btn like-button{% if post['user_liked'] %} liked{% endif %}"
                     >
 
                         {% if post["user_liked"] %}
 
-                            💔 Unlike
+                            ❤️
+                            <span>Unlike</span>
 
                         {% else %}
 
-                            ❤️ Like
+                            🤍
+                            <span>Like</span>
 
                         {% endif %}
-
-                        ({{ post["like_count"] }})
 
                     </button>
 
                 </form>
 
 
+                <!-- COMMENT -->
 
-                <!-- =================================================
-                     COMMENTS
-                ================================================== -->
+                <button
+                    type="button"
+                    class="post-action-btn"
+                    data-post-id="{{ post['id'] }}"
+                    onclick="focusComment(this.dataset.postId)"
+                >
 
-                <div class="comments-section">
+                    💬
+                    <span>Comment</span>
 
-
-                    <h4>
-
-                        💬 Comments
-                        ({{ post["comment_count"] }})
-
-                    </h4>
-
+                </button>
 
 
-                    <!-- =================================================
-                         COMMENT FORM
-                    ================================================== -->
+                <!-- SHARE -->
 
-                    <form
-                        action="{{ url_for(
-                            'comment',
-                            post_id=post['id']
-                        ) }}"
-                        method="POST"
-                        class="comment-form"
-                    >
+                <button
+                    type="button"
+                    class="post-action-btn"
+                    data-post-id="{{ post['id'] }}"
+                    onclick="copyPostLink(this.dataset.postId)"
+                >
 
-                        <input
-                            type="hidden"
-                            name="csrf_token"
-                            value="{{ csrf_token() }}"
-                        >
+                    ↗️
+                    <span>Share</span>
+
+                </button>
+
+            </div>
 
 
-                        <input
-                            type="text"
-                            name="content"
-                            placeholder="Write a comment..."
-                            maxlength="1000"
-                            required
-                        >
+            <!-- ============================================
+                 COMMENTS
+            ============================================= -->
 
+            <div
+                class="post-comments"
+                id="comments-{{ post['id'] }}"
+            >
 
-                        <button
-                            type="submit"
-                        >
-                            Comment
-                        </button>
+                <div class="comments-list">
 
-                    </form>
-
+                    <!-- Comments loaded dynamically -->
 
                 </div>
 
 
-            </article>
+                <!-- COMMENT FORM -->
 
+                <form
+                    class="comment-form"
+                    data-post-id="{{ post['id'] }}"
+                    action="{{ url_for(
+                        'comment',
+                        post_id=post['id']
+                    ) }}"
+                    method="POST"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+
+                    <input
+                        type="text"
+                        name="content"
+                        placeholder="Write a comment..."
+                        maxlength="2000"
+                        autocomplete="off"
+                        required
+                    >
+
+
+                    <button type="submit">
+                        ➤
+                    </button>
+
+                </form>
+
+            </div>
+
+
+        </article>
 
         {% endfor %}
 
-
     {% else %}
 
+        <div class="razor-empty">
 
-        <!-- =================================================
-             EMPTY FEED
-        ================================================== -->
+            <div>
+                🎓
+            </div>
 
-        <div class="no-posts">
+            <h2>
+                Your campus feed is quiet
+            </h2>
 
             <p>
-
-                No posts yet.
-                Be the first student to post! 🎉
-
+                Be the first student to start the conversation.
             </p>
 
         </div>
 
-
     {% endif %}
 
-
 </section>
-
 
 </main>
 
 <!-- ============================================================
-     THEME SCRIPT
+     THEME
 ============================================================ -->
 
-<script
-    src="{{ url_for('static', filename='js/theme.js') }}"
-></script>
+<script>
+/* ============================================================
+   RAZOR THEME — FUNCTIONAL DARK / LIGHT MODE
+============================================================ */
+(function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    const storageKey = "unicamplink-theme";
+
+    function applyTheme(theme) {
+        const isDark = theme === "dark";
+        root.setAttribute("data-theme", isDark ? "dark" : "light");
+        document.body.classList.toggle("dark-mode", isDark);
+        document.body.classList.toggle("light-mode", !isDark);
+
+        if (toggle) {
+            toggle.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+            toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+            toggle.setAttribute("aria-pressed", String(isDark));
+        }
+    }
+
+    let savedTheme = "dark";
+    try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored === "light" || stored === "dark") {
+            savedTheme = stored;
+        }
+    } catch (error) {
+        console.warn("Unable to read saved theme.", error);
+    }
+
+    applyTheme(savedTheme);
+
+    if (toggle) {
+        toggle.addEventListener("click", function () {
+            const current = root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+            const next = current === "dark" ? "light" : "dark";
+            applyTheme(next);
+            try {
+                localStorage.setItem(storageKey, next);
+            } catch (error) {
+                console.warn("Unable to save theme.", error);
+            }
+        });
+    }
+})();
+</script>
+
+<!-- ============================================================
+     RAZOR JAVASCRIPT
+============================================================ -->
+
+<script>
+
+"use strict";
+
+
+/* ============================================================
+   CSRF TOKEN
+============================================================ */
+
+const csrfToken =
+    document.querySelector(
+        'input[name="csrf_token"]'
+    )?.value || "";
+
+
+/* ============================================================
+   ROBUST API RESPONSE HANDLER
+============================================================ */
+
+async function parseApiResponse(response) {
+
+    const contentType =
+        response.headers.get(
+            "content-type"
+        ) || "";
+
+
+    /*
+     * --------------------------------------------------------
+     * JSON RESPONSE
+     * --------------------------------------------------------
+     */
+
+    if (
+        contentType
+            .toLowerCase()
+            .includes("application/json")
+    ) {
+
+        let data;
+
+        try {
+
+            data =
+                await response.json();
+
+        } catch (error) {
+
+            console.error(
+                "Invalid JSON response:",
+                error
+            );
+
+            throw new Error(
+                `The server returned invalid JSON (${response.status}).`
+            );
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data?.error ||
+                data?.message ||
+                `Request failed (${response.status}).`
+            );
+        }
+
+
+        if (
+            data &&
+            data.success === false
+        ) {
+
+            throw new Error(
+                data.error ||
+                data.message ||
+                "The request could not be completed."
+            );
+        }
+
+
+        return data;
+    }
+
+
+    /*
+     * --------------------------------------------------------
+     * NON-JSON RESPONSE
+     * --------------------------------------------------------
+     */
+
+    let responseText = "";
+
+    try {
+
+        responseText =
+            await response.text();
+
+    } catch (error) {
+
+        console.error(
+            "Unable to read server response:",
+            error
+        );
+    }
+
+
+    if (
+        response.status === 401 ||
+        response.redirected
+    ) {
+
+        throw new Error(
+            "Your session may have expired. Please log in again."
+        );
+    }
+
+
+    if (
+        response.status === 403
+    ) {
+
+        throw new Error(
+            "This action was blocked. Your session may have expired or the request was rejected."
+        );
+    }
+
+
+    if (
+        response.status === 404
+    ) {
+
+        throw new Error(
+            "The requested post or comment could not be found."
+        );
+    }
+
+
+    if (
+        response.status === 413
+    ) {
+
+        throw new Error(
+            "The request is too large."
+        );
+    }
+
+
+    if (
+        response.status >= 500
+    ) {
+
+        throw new Error(
+            "Something went wrong on the server. Please try again."
+        );
+    }
+
+
+    const cleanText =
+        responseText
+            .replace(
+                /<[^>]*>/g,
+                " "
+            )
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .trim();
+
+
+    if (
+        cleanText &&
+        cleanText.length <= 200
+    ) {
+
+        throw new Error(
+            cleanText
+        );
+    }
+
+
+    throw new Error(
+        `Request failed (${response.status}).`
+    );
+}
+
+
+/* ============================================================
+   EMOJI
+============================================================ */
+
+function insertEmoji(emoji) {
+
+    const textarea =
+        document.getElementById(
+            "postContent"
+        );
+
+
+    if (!textarea) {
+        return;
+    }
+
+
+    textarea.value += emoji;
+
+    textarea.focus();
+}
+
+
+/* ============================================================
+   FOCUS COMMENT
+============================================================ */
+
+function toggleComments(postId, focusInput = true) {
+
+    const comments =
+        document.getElementById(`comments-${postId}`);
+
+    if (!comments) {
+        return;
+    }
+
+    const isVisible =
+        comments.classList.contains("visible");
+
+    if (isVisible) {
+        comments.classList.remove("visible");
+        return;
+    }
+
+    comments.classList.add("visible");
+
+    // Load comments only when the user opens them.
+    loadComments(postId);
+
+    if (focusInput) {
+        const input = comments.querySelector(
+            ".comment-form input[name='content']"
+        );
+
+        if (input) {
+            setTimeout(function () {
+                try {
+                    input.focus({ preventScroll: true });
+                } catch (error) {
+                    input.focus();
+                }
+            }, 80);
+        }
+    }
+}
+
+function focusComment(postId) {
+    toggleComments(postId, true);
+}
+
+
+/* ============================================================
+   LIKE — AJAX
+============================================================ */
+
+document.querySelectorAll(
+    ".like-form"
+).forEach(form => {
+
+    form.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const button =
+                form.querySelector(
+                    ".like-button"
+                );
+
+
+            const postId =
+                form.dataset.postId;
+
+
+            if (
+                !button ||
+                !postId ||
+                button.disabled
+            ) {
+
+                return;
+            }
+
+
+            button.disabled = true;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        form.action,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken,
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+
+                                "Accept":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin"
+                        }
+                    );
+
+
+                const data =
+                    await parseApiResponse(
+                        response
+                    );
+
+
+                const post =
+                    document.getElementById(
+                        `post-${postId}`
+                    );
+
+
+                if (!post) {
+                    return;
+                }
+
+
+                const count =
+                    post.querySelector(
+                        ".like-count"
+                    );
+
+
+                if (count) {
+
+                    count.textContent =
+                        data.like_count;
+                }
+
+
+                if (data.user_liked) {
+
+                    button.classList.add(
+                        "liked"
+                    );
+
+                    button.innerHTML =
+                        "❤️ <span>Unlike</span>";
+
+                } else {
+
+                    button.classList.remove(
+                        "liked"
+                    );
+
+                    button.innerHTML =
+                        "🤍 <span>Like</span>";
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Like error:",
+                    error
+                );
+
+
+                alert(
+                    error.message ||
+                    "Unable to update like."
+                );
+
+
+            } finally {
+
+                button.disabled = false;
+            }
+        }
+    );
+});
+
+
+/* ============================================================
+   COMMENTS — AJAX
+============================================================ */
+
+document.querySelectorAll(
+    ".comment-form"
+).forEach(form => {
+
+    form.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const input =
+                form.querySelector(
+                    "input[name='content']"
+                );
+
+
+            const button =
+                form.querySelector(
+                    "button[type='submit']"
+                );
+
+
+            const postId =
+                form.dataset.postId;
+
+
+            if (
+                !input ||
+                !button ||
+                !postId
+            ) {
+
+                return;
+            }
+
+
+            const content =
+                input.value.trim();
+
+
+            if (!content) {
+                return;
+            }
+
+
+            if (button.disabled) {
+                return;
+            }
+
+
+            button.disabled = true;
+
+
+            const parentCommentId =
+                input.dataset.parentCommentId ||
+                "";
+
+
+            const formData =
+                new FormData(form);
+
+
+            if (parentCommentId) {
+
+                formData.set(
+                    "parent_comment_id",
+                    parentCommentId
+                );
+
+            } else {
+
+                formData.delete(
+                    "parent_comment_id"
+                );
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        form.action,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken,
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+
+                                "Accept":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin",
+
+                            body:
+                                formData
+                        }
+                    );
+
+
+                const data =
+                    await parseApiResponse(
+                        response
+                    );
+
+
+                const commentsList =
+                    document.querySelector(
+                        `#comments-${postId} .comments-list`
+                    );
+
+
+                if (
+                    commentsList &&
+                    data.comment
+                ) {
+
+                    addCommentToList(
+                        commentsList,
+                        data.comment
+                    );
+                }
+
+
+                const post =
+                    document.getElementById(
+                        `post-${postId}`
+                    );
+
+
+                if (post) {
+
+                    const count =
+                        post.querySelector(
+                            ".comment-count"
+                        );
+
+
+                    if (count) {
+
+                        count.textContent =
+                            data.comment_count;
+                    }
+                }
+
+
+                input.value = "";
+
+
+                cancelReply(
+                    input
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Comment error:",
+                    error
+                );
+
+
+                alert(
+                    error.message ||
+                    "Unable to add comment."
+                );
+
+
+            } finally {
+
+                button.disabled = false;
+            }
+        }
+    );
+});
+
+
+/* ============================================================
+   ADD COMMENT / REPLY TO DOM
+============================================================ */
+
+function addCommentToList(
+    commentsList,
+    comment
+) {
+
+    if (
+        !commentsList ||
+        !comment ||
+        !comment.id
+    ) {
+
+        return;
+    }
+
+
+    const commentId =
+        String(
+            comment.id
+        );
+
+
+    /*
+     * Strong duplicate protection.
+     */
+
+    const existing =
+        commentsList.querySelector(
+            `[data-comment-id="${CSS.escape(commentId)}"]`
+        );
+
+
+    if (existing) {
+        return;
+    }
+
+
+    /*
+     * Create comment element.
+     */
+
+    const commentElement =
+        document.createElement(
+            "div"
+        );
+
+
+    commentElement.className =
+        "razor-comment";
+
+
+    commentElement.dataset.commentId =
+        commentId;
+
+
+    commentElement.dataset.parentCommentId =
+        comment.parent_comment_id
+            ? String(comment.parent_comment_id)
+            : "";
+
+
+    /* --------------------------------------------------------
+       AVATAR
+    -------------------------------------------------------- */
+
+    const avatarContainer =
+        document.createElement(
+            "div"
+        );
+
+
+    avatarContainer.className =
+        "comment-avatar";
+
+
+    const avatarLink =
+        document.createElement(
+            "a"
+        );
+
+
+    avatarLink.href =
+        `/user/${comment.user_id}`;
+
+
+    avatarLink.className =
+        "comment-avatar-link";
+
+
+    if (comment.profile_picture) {
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+
+        image.src =
+            `/static/uploads/${encodeURIComponent(
+                comment.profile_picture
+            )}`;
+
+
+        image.alt =
+            "";
+
+
+        image.className =
+            "comment-avatar-image";
+
+        image.title =
+            "View profile picture";
+
+        image.addEventListener(
+            "click",
+            function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                openProfileImage(this.src);
+            }
+        );
+
+
+        image.addEventListener(
+            "error",
+            function() {
+
+                this.style.display =
+                    "none";
+
+
+                const placeholder =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                placeholder.className =
+                    "comment-avatar-placeholder";
+
+
+                placeholder.textContent =
+                    "👤";
+
+
+                avatarLink.appendChild(
+                    placeholder
+                );
+
+            },
+            {
+                once: true
+            }
+        );
+
+
+        avatarLink.appendChild(
+            image
+        );
+
+    } else {
+
+        const placeholder =
+            document.createElement(
+                "div"
+            );
+
+
+        placeholder.className =
+            "comment-avatar-placeholder";
+
+
+        placeholder.textContent =
+            "👤";
+
+
+        avatarLink.appendChild(
+            placeholder
+        );
+    }
+
+
+    avatarContainer.appendChild(
+        avatarLink
+    );
+
+
+    /* --------------------------------------------------------
+       COMMENT BODY
+    -------------------------------------------------------- */
+
+    const body =
+        document.createElement(
+            "div"
+        );
+
+
+    body.className =
+        "comment-body";
+
+
+    /*
+     * Author name.
+     */
+
+    const authorLink =
+        document.createElement(
+            "a"
+        );
+
+
+    authorLink.href =
+        `/user/${comment.user_id}`;
+
+
+    authorLink.className =
+        "comment-author-link";
+
+
+    authorLink.title =
+        "View profile";
+
+
+    const author =
+        document.createElement(
+            "strong"
+        );
+
+
+    author.textContent =
+        comment.author_name ||
+        "UniCamplink User";
+
+
+    authorLink.appendChild(
+        author
+    );
+
+
+    body.appendChild(
+        authorLink
+    );
+
+
+    /*
+     * Comment bubble.
+     */
+
+    const bubble =
+        document.createElement(
+            "div"
+        );
+
+
+    bubble.className =
+        "comment-bubble";
+
+
+    bubble.textContent =
+        comment.content ||
+        "";
+
+
+    body.appendChild(
+        bubble
+    );
+
+
+    /*
+     * Comment actions.
+     */
+
+    const actions =
+        document.createElement(
+            "div"
+        );
+
+
+    actions.className =
+        "comment-actions";
+
+
+    const replyButton =
+        document.createElement(
+            "button"
+        );
+
+
+    replyButton.type =
+        "button";
+
+
+    replyButton.className =
+        "comment-reply-btn";
+
+
+    replyButton.textContent =
+        "Reply";
+
+
+    replyButton.addEventListener(
+        "click",
+        function() {
+
+            prepareReply(
+                commentId
+            );
+
+        }
+    );
+
+
+    actions.appendChild(
+        replyButton
+    );
+
+
+    body.appendChild(
+        actions
+    );
+
+
+    /*
+     * Assemble comment.
+     */
+
+    commentElement.appendChild(
+        avatarContainer
+    );
+
+
+    commentElement.appendChild(
+        body
+    );
+
+
+    /* --------------------------------------------------------
+       TOP-LEVEL COMMENT
+    -------------------------------------------------------- */
+
+    if (
+        !comment.parent_comment_id
+    ) {
+
+        commentsList.appendChild(
+            commentElement
+        );
+
+        return;
+    }
+
+
+    /* --------------------------------------------------------
+       REPLY
+    -------------------------------------------------------- */
+
+    const parentId =
+        String(
+            comment.parent_comment_id
+        );
+
+
+    const parentComment =
+        commentsList.querySelector(
+            `[data-comment-id="${CSS.escape(parentId)}"]`
+        );
+
+
+    /*
+     * Parent isn't currently available.
+     */
+
+    if (!parentComment) {
+
+        commentsList.appendChild(
+            commentElement
+        );
+
+        return;
+    }
+
+
+    /*
+     * Find/create replies container.
+     */
+
+    let repliesContainer =
+        parentComment.querySelector(
+            ":scope > .comment-replies"
+        );
+
+
+    if (!repliesContainer) {
+
+        repliesContainer =
+            document.createElement(
+                "div"
+            );
+
+
+        repliesContainer.className =
+            "comment-replies";
+
+
+        parentComment.appendChild(
+            repliesContainer
+        );
+    }
+
+
+    /*
+     * Add reply.
+     */
+
+    repliesContainer.appendChild(
+        commentElement
+    );
+}
+
+
+/* ============================================================
+   LOAD EXISTING COMMENTS
+============================================================ */
+
+async function loadComments(postId) {
+
+    const commentsList =
+        document.querySelector(
+            `#comments-${postId} .comments-list`
+        );
+
+
+    if (!commentsList) {
+        return;
+    }
+
+
+    /*
+     * Prevent duplicate loading.
+     */
+
+    if (
+        commentsList.dataset.loaded === "true"
+    ) {
+
+        return;
+    }
+
+
+    /*
+     * Prevent simultaneous requests.
+     */
+
+    if (
+        commentsList.dataset.loading === "true"
+    ) {
+
+        return;
+    }
+
+
+    commentsList.dataset.loading =
+        "true";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/comments/${postId}`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "X-Requested-With":
+                            "XMLHttpRequest",
+
+                        "Accept":
+                            "application/json"
+                    },
+
+                    credentials:
+                        "same-origin"
+                }
+            );
+
+
+        const data =
+            await parseApiResponse(
+                response
+            );
+
+
+        if (
+            !Array.isArray(
+                data.comments
+            )
+        ) {
+
+            throw new Error(
+                "The server returned an invalid comments response."
+            );
+        }
+
+
+        /*
+         * Mark loaded BEFORE rendering.
+         */
+
+        commentsList.dataset.loaded =
+            "true";
+
+
+        /*
+         * Clear only after successful
+         * server response.
+         */
+
+        commentsList.replaceChildren();
+
+
+        /*
+         * ----------------------------------------------------
+         * TOP-LEVEL COMMENTS FIRST
+         * ----------------------------------------------------
+         */
+
+        const topLevelComments =
+            data.comments.filter(
+                comment =>
+                    !comment.parent_comment_id
+            );
+
+
+        topLevelComments.forEach(
+            comment => {
+
+                addCommentToList(
+                    commentsList,
+                    comment
+                );
+
+            }
+        );
+
+
+        /*
+         * ----------------------------------------------------
+         * REPLIES SECOND
+         * ----------------------------------------------------
+         */
+
+        const replies =
+            data.comments.filter(
+                comment =>
+                    comment.parent_comment_id
+            );
+
+
+        replies.forEach(
+            comment => {
+
+                addCommentToList(
+                    commentsList,
+                    comment
+                );
+
+            }
+        );
+
+
+    } catch (error) {
+
+        /*
+         * Allow retry after failed load.
+         */
+
+        delete commentsList.dataset.loaded;
+
+
+        console.error(
+            "Comment loading error:",
+            error
+        );
+
+
+    } finally {
+
+        delete commentsList.dataset.loading;
+    }
+}
+
+
+
+/* ============================================================
+   PREPARE REPLY
+============================================================ */
+
+function prepareReply(commentId) {
+
+    const comment =
+        document.querySelector(
+            `[data-comment-id="${CSS.escape(
+                String(commentId)
+            )}"]`
+        );
+
+
+    if (!comment) {
+        return;
+    }
+
+
+    const post =
+        comment.closest(
+            ".razor-post"
+        );
+
+
+    if (!post) {
+        return;
+    }
+
+
+    const form =
+        post.querySelector(
+            ".comment-form"
+        );
+
+
+    if (!form) {
+        return;
+    }
+
+
+    const input =
+        form.querySelector(
+            "input[name='content']"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    /*
+     * Store parent ID.
+     */
+
+    input.dataset.parentCommentId =
+        String(
+            commentId
+        );
+
+
+    /*
+     * Change placeholder.
+     */
+
+    input.placeholder =
+        "Reply to this comment...";
+
+
+    /*
+     * Find/create cancel button.
+     */
+
+    let cancelButton =
+        form.querySelector(
+            ".cancel-reply-btn"
+        );
+
+
+    if (!cancelButton) {
+
+        cancelButton =
+            document.createElement(
+                "button"
+            );
+
+
+        cancelButton.type =
+            "button";
+
+
+        cancelButton.className =
+            "cancel-reply-btn";
+
+
+        cancelButton.textContent =
+            "Cancel reply";
+
+
+        cancelButton.addEventListener(
+            "click",
+            function() {
+
+                cancelReply(
+                    input
+                );
+
+            }
+        );
+
+
+        form.appendChild(
+            cancelButton
+        );
+    }
+
+
+    /*
+     * Show cancel button.
+     */
+
+    cancelButton.style.display =
+        "inline-block";
+
+
+    /*
+     * Focus without moving the feed.
+     * This keeps the Facebook-style feed position stable.
+     */
+    try {
+        input.focus({ preventScroll: true });
+    } catch (error) {
+        input.focus();
+    }
+
+    /*
+     * Give the active reply form a subtle visual state.
+     */
+    form.classList.add("replying");
+}
+
+
+/* ============================================================
+   CANCEL REPLY
+============================================================ */
+
+function cancelReply(input) {
+
+    if (!input) {
+        return;
+    }
+
+
+    /*
+     * Remove parent ID.
+     */
+
+    delete input.dataset.parentCommentId;
+
+
+    /*
+     * Restore placeholder.
+     */
+
+    input.placeholder =
+        "Write a comment...";
+
+
+    /*
+     * Hide cancel button.
+     */
+
+    const form =
+        input.closest(
+            ".comment-form"
+        );
+
+
+    if (!form) {
+        return;
+    }
+
+
+    const cancelButton =
+        form.querySelector(
+            ".cancel-reply-btn"
+        );
+
+
+    if (cancelButton) {
+        cancelButton.style.display = "none";
+    }
+
+    form.classList.remove("replying");
+}
+
+
+/* ============================================================
+   SHARE
+============================================================ */
+
+function copyPostLink(postId) {
+
+    const url =
+        `${window.location.origin}/feed#post-${postId}`;
+
+
+    if (
+        navigator.clipboard &&
+        window.isSecureContext
+    ) {
+
+        navigator.clipboard
+            .writeText(url)
+            .then(
+                function() {
+
+                    alert(
+                        "Post link copied!"
+                    );
+
+                }
+            )
+            .catch(
+                function() {
+
+                    alert(
+                        url
+                    );
+
+                }
+            );
+
+    } else {
+
+        alert(
+            url
+        );
+    }
+}
+
+
+/* ============================================================
+   CREATE POST — AJAX — NO PAGE REFRESH
+============================================================ */
+
+const createPostForm =
+    document.getElementById(
+        "createPostForm"
+    );
+
+
+/* ============================================================
+   INSERT NEW POST INTO FEED
+============================================================ */
+
+function insertNewRazorPost(postData) {
+
+    if (!postData || !postData.id) {
+        return;
+    }
+
+    const postsContainer =
+        document.getElementById(
+            "postsContainer"
+        );
+
+    if (!postsContainer) {
+        return;
+    }
+
+
+    /*
+     * --------------------------------------------------------
+     * Prevent duplicate insertion
+     * --------------------------------------------------------
+     */
+
+    const existingPost =
+        document.getElementById(
+            `post-${postData.id}`
+        );
+
+    if (existingPost) {
+        return;
+    }
+
+
+    /*
+     * --------------------------------------------------------
+     * Remove empty-feed message if it exists
+     * --------------------------------------------------------
+     */
+
+    const emptyFeed =
+        postsContainer.querySelector(
+            ".razor-empty"
+        );
+
+    if (emptyFeed) {
+        emptyFeed.remove();
+    }
+
+
+    /*
+     * --------------------------------------------------------
+     * Create post article
+     * --------------------------------------------------------
+     */
+
+    const post =
+        document.createElement(
+            "article"
+        );
+
+    post.className =
+        "razor-post new-post-enter";
+
+    post.id =
+        `post-${postData.id}`;
+
+    post.dataset.postId =
+        String(postData.id);
+
+
+    /*
+     * --------------------------------------------------------
+     * AUTHOR SECTION
+     * --------------------------------------------------------
+     */
+
+    const author =
+        document.createElement(
+            "div"
+        );
+
+    author.className =
+        "post-author";
+
+
+    const avatarLink =
+        document.createElement(
+            "a"
+        );
+
+    avatarLink.href =
+        `/user/${postData.user_id}`;
+
+    avatarLink.className =
+        "post-avatar-link";
+
+
+    /*
+     * Avatar
+     */
+
+    if (postData.profile_picture) {
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+        image.src =
+            `/static/uploads/${encodeURIComponent(
+                postData.profile_picture
+            )}`;
+
+        image.alt =
+            "";
+
+        image.className =
+            "post-avatar";
+
+        image.title =
+            "View profile picture";
+
+        image.addEventListener(
+            "click",
+            function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                openProfileImage(this.src);
+            }
+        );
+
+
+        const placeholder =
+            document.createElement(
+                "div"
+            );
+
+        placeholder.className =
+            "post-avatar placeholder-avatar";
+
+        placeholder.style.display =
+            "none";
+
+        placeholder.textContent =
+            "👤";
+
+
+        image.addEventListener(
+            "error",
+            function() {
+
+                this.style.display =
+                    "none";
+
+                placeholder.style.display =
+                    "flex";
+
+            },
+            {
+                once: true
+            }
+        );
+
+
+        avatarLink.appendChild(
+            image
+        );
+
+        avatarLink.appendChild(
+            placeholder
+        );
+
+    } else {
+
+        const placeholder =
+            document.createElement(
+                "div"
+            );
+
+        placeholder.className =
+            "post-avatar placeholder-avatar";
+
+        placeholder.textContent =
+            "👤";
+
+        avatarLink.appendChild(
+            placeholder
+        );
+    }
+
+
+    author.appendChild(
+        avatarLink
+    );
+
+
+    /*
+     * Author information
+     */
+
+    const authorInfo =
+        document.createElement(
+            "div"
+        );
+
+    authorInfo.className =
+        "post-author-info";
+
+
+    const authorName =
+        document.createElement(
+            "a"
+        );
+
+    authorName.href =
+        `/user/${postData.user_id}`;
+
+    authorName.className =
+        "post-author-name";
+
+    authorName.textContent =
+        postData.author_name ||
+        "UniCamplink User";
+
+
+    authorInfo.appendChild(
+        authorName
+    );
+
+
+    if (postData.author_university) {
+
+        const university =
+            document.createElement(
+                "span"
+            );
+
+        university.className =
+            "post-university";
+
+        university.textContent =
+            `🎓 ${postData.author_university}`;
+
+        authorInfo.appendChild(
+            university
+        );
+    }
+
+
+    /*
+     * New posts are genuinely just created,
+     * so show "Just now".
+     */
+
+    const postTime =
+        document.createElement(
+            "span"
+        );
+
+    postTime.className =
+        "post-time";
+
+    postTime.textContent =
+        "Just now";
+
+    authorInfo.appendChild(
+        postTime
+    );
+
+
+    author.appendChild(
+        authorInfo
+    );
+
+    post.appendChild(
+        author
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * CONTENT
+     * --------------------------------------------------------
+     */
+
+    const content =
+        document.createElement(
+            "div"
+        );
+
+    content.className =
+        "post-content";
+
+    content.textContent =
+        postData.content || "";
+
+    post.appendChild(
+        content
+    );
+
+    if (postData.image) {
+        const media = document.createElement("div");
+        media.className = "post-media";
+        const mediaImage = document.createElement("img");
+        mediaImage.src = `/static/uploads/${encodeURIComponent(postData.image)}`;
+        mediaImage.alt = "Post image";
+        mediaImage.loading = "lazy";
+        mediaImage.addEventListener("click", function() { openPostImage(this.src); });
+        media.appendChild(mediaImage);
+        post.appendChild(media);
+    }
+
+
+    /*
+     * --------------------------------------------------------
+     * STATISTICS
+     * --------------------------------------------------------
+     */
+
+    const stats =
+        document.createElement(
+            "div"
+        );
+
+    stats.className =
+        "post-stats";
+
+
+    /*
+     * Like statistic
+     */
+
+    const likeStat =
+        document.createElement(
+            "span"
+        );
+
+    likeStat.className =
+        "like-stat";
+
+    likeStat.innerHTML =
+        `❤️ <span class="like-count">0</span>`;
+
+    stats.appendChild(
+        likeStat
+    );
+
+
+    /*
+     * Comment statistic
+     */
+
+    const commentCountButton =
+        document.createElement(
+            "button"
+        );
+
+    commentCountButton.type =
+        "button";
+
+    commentCountButton.className =
+        "comment-count-btn";
+
+    commentCountButton.addEventListener(
+        "click",
+        function() {
+
+            focusComment(
+                String(postData.id)
+            );
+
+        }
+    );
+
+
+    const commentCount =
+        document.createElement(
+            "span"
+        );
+
+    commentCount.className =
+        "comment-count";
+
+    commentCount.textContent =
+        "0";
+
+
+    commentCountButton.appendChild(
+        commentCount
+    );
+
+    commentCountButton.appendChild(
+        document.createTextNode(
+            " comments"
+        )
+    );
+
+    stats.appendChild(
+        commentCountButton
+    );
+
+    post.appendChild(
+        stats
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * ACTIONS
+     * --------------------------------------------------------
+     */
+
+    const actions =
+        document.createElement(
+            "div"
+        );
+
+    actions.className =
+        "post-actions";
+
+
+    /*
+     * LIKE FORM
+     */
+
+    const likeForm =
+        document.createElement(
+            "form"
+        );
+
+    likeForm.className =
+        "like-form";
+
+    likeForm.dataset.postId =
+        String(postData.id);
+
+    likeForm.action =
+        `/like/${postData.id}`;
+
+    likeForm.method =
+        "POST";
+
+
+    const csrf =
+        document.createElement(
+            "input"
+        );
+
+    csrf.type =
+        "hidden";
+
+    csrf.name =
+        "csrf_token";
+
+    csrf.value =
+        csrfToken;
+
+    likeForm.appendChild(
+        csrf
+    );
+
+
+    const likeButton =
+        document.createElement(
+            "button"
+        );
+
+    likeButton.type =
+        "submit";
+
+    likeButton.className =
+        "post-action-btn like-button";
+
+    likeButton.innerHTML =
+        "🤍 <span>Like</span>";
+
+
+    likeForm.appendChild(
+        likeButton
+    );
+
+    actions.appendChild(
+        likeForm
+    );
+
+
+    /*
+     * COMMENT BUTTON
+     */
+
+    const commentButton =
+        document.createElement(
+            "button"
+        );
+
+    commentButton.type =
+        "button";
+
+    commentButton.className =
+        "post-action-btn";
+
+    commentButton.innerHTML =
+        "💬 <span>Comment</span>";
+
+
+    commentButton.addEventListener(
+        "click",
+        function() {
+
+            focusComment(
+                String(postData.id)
+            );
+
+        }
+    );
+
+
+    actions.appendChild(
+        commentButton
+    );
+
+
+    /*
+     * SHARE BUTTON
+     */
+
+    const shareButton =
+        document.createElement(
+            "button"
+        );
+
+    shareButton.type =
+        "button";
+
+    shareButton.className =
+        "post-action-btn";
+
+    shareButton.innerHTML =
+        "↗️ <span>Share</span>";
+
+
+    shareButton.addEventListener(
+        "click",
+        function() {
+
+            copyPostLink(
+                String(postData.id)
+            );
+
+        }
+    );
+
+
+    actions.appendChild(
+        shareButton
+    );
+
+
+    post.appendChild(
+        actions
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * COMMENTS SECTION
+     * --------------------------------------------------------
+     */
+
+    const commentsSection =
+        document.createElement(
+            "div"
+        );
+
+    commentsSection.className =
+        "post-comments";
+
+    commentsSection.id =
+        `comments-${postData.id}`;
+
+
+    const commentsList =
+        document.createElement(
+            "div"
+        );
+
+    commentsList.className =
+        "comments-list";
+
+
+    commentsSection.appendChild(
+        commentsList
+    );
+
+
+    /*
+     * COMMENT FORM
+     */
+
+    const commentForm =
+        document.createElement(
+            "form"
+        );
+
+    commentForm.className =
+        "comment-form";
+
+    commentForm.dataset.postId =
+        String(postData.id);
+
+    commentForm.action =
+        `/comment/${postData.id}`;
+
+    commentForm.method =
+        "POST";
+
+
+    const commentCsrf =
+        document.createElement(
+            "input"
+        );
+
+    commentCsrf.type =
+        "hidden";
+
+    commentCsrf.name =
+        "csrf_token";
+
+    commentCsrf.value =
+        csrfToken;
+
+    commentForm.appendChild(
+        commentCsrf
+    );
+
+
+    const commentInput =
+        document.createElement(
+            "input"
+        );
+
+    commentInput.type =
+        "text";
+
+    commentInput.name =
+        "content";
+
+    commentInput.placeholder =
+        "Write a comment...";
+
+    commentInput.maxLength =
+        2000;
+
+    commentInput.autocomplete =
+        "off";
+
+    commentInput.required =
+        true;
+
+
+    commentForm.appendChild(
+        commentInput
+    );
+
+
+    const commentSubmit =
+        document.createElement(
+            "button"
+        );
+
+    commentSubmit.type =
+        "submit";
+
+    commentSubmit.textContent =
+        "➤";
+
+
+    commentForm.appendChild(
+        commentSubmit
+    );
+
+    commentsSection.appendChild(
+        commentForm
+    );
+
+    post.appendChild(
+        commentsSection
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * INSERT AT TOP OF FEED
+     * --------------------------------------------------------
+     */
+
+    postsContainer.prepend(
+        post
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * ACTIVATE LIKE AJAX FOR NEW POST
+     * --------------------------------------------------------
+     */
+
+    likeForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            if (
+                likeButton.disabled
+            ) {
+                return;
+            }
+
+            likeButton.disabled =
+                true;
+
+            try {
+
+                const response =
+                    await fetch(
+                        likeForm.action,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken,
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+
+                                "Accept":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin"
+                        }
+                    );
+
+
+                const data =
+                    await parseApiResponse(
+                        response
+                    );
+
+
+                const count =
+                    post.querySelector(
+                        ".like-count"
+                    );
+
+
+                if (count) {
+
+                    count.textContent =
+                        data.like_count;
+                }
+
+
+                if (data.user_liked) {
+
+                    likeButton.classList.add(
+                        "liked"
+                    );
+
+                    likeButton.innerHTML =
+                        "❤️ <span>Unlike</span>";
+
+                } else {
+
+                    likeButton.classList.remove(
+                        "liked"
+                    );
+
+                    likeButton.innerHTML =
+                        "🤍 <span>Like</span>";
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "New post like error:",
+                    error
+                );
+
+                alert(
+                    error.message ||
+                    "Unable to update like."
+                );
+
+            } finally {
+
+                likeButton.disabled =
+                    false;
+            }
+        }
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * ACTIVATE COMMENT AJAX FOR NEW POST
+     * --------------------------------------------------------
+     */
+
+    commentForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const content =
+                commentInput.value.trim();
+
+
+            if (!content) {
+                return;
+            }
+
+
+            if (
+                commentSubmit.disabled
+            ) {
+                return;
+            }
+
+
+            commentSubmit.disabled =
+                true;
+
+
+            const formData =
+                new FormData(
+                    commentForm
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        commentForm.action,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken,
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+
+                                "Accept":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin",
+
+                            body:
+                                formData
+                        }
+                    );
+
+
+                const data =
+                    await parseApiResponse(
+                        response
+                    );
+
+
+                if (
+                    data.comment
+                ) {
+
+                    addCommentToList(
+                        commentsList,
+                        data.comment
+                    );
+                }
+
+
+                if (
+                    data.comment_count !==
+                    undefined
+                ) {
+
+                    commentCount.textContent =
+                        data.comment_count;
+                }
+
+
+                commentInput.value = "";
+
+            } catch (error) {
+
+                console.error(
+                    "New post comment error:",
+                    error
+                );
+
+                alert(
+                    error.message ||
+                    "Unable to add comment."
+                );
+
+            } finally {
+
+                commentSubmit.disabled =
+                    false;
+            }
+        }
+    );
+
+
+    /*
+     * --------------------------------------------------------
+     * SMOOTHLY SHOW NEW POST
+     * --------------------------------------------------------
+     */
+
+    post.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+
+/* ============================================================
+   POST IMAGE PICKER + PREVIEW
+============================================================ */
+const postImageInput = document.getElementById("postImage");
+const postImagePreview = document.getElementById("postImagePreview");
+const postImagePreviewImg = document.getElementById("postImagePreviewImg");
+const removePostImageButton = document.getElementById("removePostImage");
+
+if (postImageInput) {
+    postImageInput.addEventListener("change", function() {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        if (!["image/png", "image/jpeg", "image/gif"].includes(file.type)) {
+            alert("Please choose a PNG, JPG, JPEG or GIF image.");
+            this.value = ""; return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image must be 5 MB or smaller.");
+            this.value = ""; return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            postImagePreviewImg.src = event.target.result;
+            postImagePreview.hidden = false;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+if (removePostImageButton) {
+    removePostImageButton.addEventListener("click", function() {
+        if (postImageInput) postImageInput.value = "";
+        if (postImagePreviewImg) postImagePreviewImg.src = "";
+        if (postImagePreview) postImagePreview.hidden = true;
+    });
+}
+
+function openProfileImage(src) {
+    if (!src) return;
+    openPostImage(src);
+}
+
+function openPostImage(src) {
+    if (!src) return;
+    let overlay = document.getElementById("postImageLightbox");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "postImageLightbox";
+        overlay.className = "post-image-lightbox";
+        overlay.innerHTML = '<button type="button" class="lightbox-close" aria-label="Close image">×</button><img src="" alt="Expanded post image">';
+        overlay.addEventListener("click", function(event) {
+            if (event.target === overlay || event.target.classList.contains("lightbox-close")) overlay.classList.remove("visible");
+        });
+        document.body.appendChild(overlay);
+    }
+    overlay.querySelector("img").src = src;
+    overlay.classList.add("visible");
+}
+
+/* ============================================================
+   CREATE POST FORM
+============================================================ */
+
+if (createPostForm) {
+
+    createPostForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const textarea =
+                document.getElementById(
+                    "postContent"
+                );
+
+
+            if (!textarea) {
+                return;
+            }
+
+
+            const content =
+                textarea.value.trim();
+
+
+            const imageInput = document.getElementById("postImage");
+            const hasImage = imageInput && imageInput.files && imageInput.files.length > 0;
+
+            if (!content && !hasImage) {
+                alert("Write something or select an image.");
+                return;
+            }
+
+
+            const button =
+                createPostForm.querySelector(
+                    "button[type='submit']"
+                );
+
+
+            if (
+                !button ||
+                button.disabled
+            ) {
+                return;
+            }
+
+
+            button.disabled =
+                true;
+
+
+            const originalButtonText =
+                button.innerHTML;
+
+            button.innerHTML =
+                "Posting...";
+
+
+            const formData =
+                new FormData(
+                    createPostForm
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        createPostForm.action,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken,
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+
+                                "Accept":
+                                    "application/json"
+                            },
+
+                            credentials:
+                                "same-origin",
+
+                            body:
+                                formData
+                        }
+                    );
+
+
+                const data =
+                    await parseApiResponse(
+                        response
+                    );
+
+
+                if (
+                    !data ||
+                    !data.post
+                ) {
+
+                    throw new Error(
+                        "The server did not return the new post."
+                    );
+                }
+
+
+                /*
+                 * Insert the post directly into
+                 * the current feed.
+                 */
+
+                insertNewRazorPost(
+                    data.post
+                );
+
+
+                /*
+                 * Clear composer.
+                 */
+
+                textarea.value = "";
+                if (imageInput) imageInput.value = "";
+                if (postImagePreviewImg) postImagePreviewImg.src = "";
+                if (postImagePreview) postImagePreview.hidden = true;
+
+
+            } catch (error) {
+
+                console.error(
+                    "Create post error:",
+                    error
+                );
+
+                alert(
+                    error.message ||
+                    "Unable to create the post."
+                );
+
+
+            } finally {
+
+                button.disabled =
+                    false;
+
+                button.innerHTML =
+                    originalButtonText;
+            }
+        }
+    );
+}
+</script>
 
 </body>
-
 </html>
