@@ -2018,7 +2018,7 @@ def like_post(post_id):
                     session["user_id"],
                     "like",
                     "liked your post ❤️",
-                    "/feed"
+f"/feed#post-{post_id}"
                 )
             )
 
@@ -2154,7 +2154,7 @@ def comment(post_id):
                 session["user_id"],
                 "comment",
                 "commented on your post 💬",
-                "/feed"
+f"/feed#post-{post_id}"
             )
         )
 
@@ -2177,7 +2177,7 @@ def comment(post_id):
                     session["user_id"],
                     "reply",
                     "replied to your comment 💬",
-                    "/feed"
+                    f"/feed#post-{post_id}"
                 )
             )
 
@@ -3103,7 +3103,7 @@ def create_group_post(group_id):
 
         return "Group not found.", 404
 
-    conn.execute(
+    cursor = conn.execute(
         """
         INSERT INTO posts
         (
@@ -3119,6 +3119,70 @@ def create_group_post(group_id):
             group_id
         )
     )
+
+    post_id = cursor.lastrowid
+
+    # --------------------------------------------------------
+    # NOTIFY GROUP MEMBERS
+    # --------------------------------------------------------
+
+    group = conn.execute(
+        """
+        SELECT name
+        FROM groups
+        WHERE id = ?
+        """,
+        (group_id,)
+    ).fetchone()
+
+    group_name = group["name"] if group else "your group"
+
+    author = conn.execute(
+        """
+        SELECT name
+        FROM users
+        WHERE id = ?
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    author_name = author["name"] if author else "A student"
+
+    group_members = conn.execute(
+        """
+        SELECT user_id
+        FROM group_members
+        WHERE group_id = ?
+        AND user_id != ?
+        """,
+        (
+            group_id,
+            session["user_id"]
+        )
+    ).fetchall()
+
+    for member in group_members:
+
+        conn.execute(
+            """
+            INSERT INTO notifications
+            (
+                user_id,
+                sender_id,
+                type,
+                message,
+                link
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                member["user_id"],
+                session["user_id"],
+                "group",
+                f"{author_name} posted in {group_name} 👥",
+                f"/group/{group_id}"
+            )
+        )
 
     conn.commit()
     conn.close()
@@ -3409,6 +3473,63 @@ def add_product():
                 "available"
             )
         )
+        # --------------------------------------------------------
+        # NOTIFY FRIENDS ABOUT NEW MARKETPLACE LISTING
+        # --------------------------------------------------------
+
+        seller = conn.execute(
+            """
+            SELECT name
+            FROM users
+            WHERE id = ?
+            """,
+            (session["user_id"],)
+        ).fetchone()
+
+        seller_name = seller["name"] if seller else "A student"
+
+        friends = conn.execute(
+            """
+            SELECT friend_id
+            FROM friends
+            WHERE user_id = ?
+            """,
+            (session["user_id"],)
+        ).fetchall()
+
+        new_product_id = conn.execute(
+            """
+            SELECT id
+            FROM products
+            WHERE seller_id = ?
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (session["user_id"],)
+        ).fetchone()
+
+        if new_product_id:
+            for friend in friends:
+                conn.execute(
+                    """
+                    INSERT INTO notifications
+                    (
+                        user_id,
+                        sender_id,
+                        type,
+                        message,
+                        link
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        friend["friend_id"],
+                        session["user_id"],
+                        "marketplace",
+                        f"{seller_name} listed {name} on Marketplace 🛍️",
+                        f"/marketplace/product/{new_product_id['id']}"
+                    )
+                )
 
         conn.commit()
         conn.close()
@@ -3416,10 +3537,6 @@ def add_product():
         return redirect(
             url_for("marketplace")
         )
-
-    return render_template(
-        "add_product.html"
-    )
 
 
 # ============================================================

@@ -2,28 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <title>Admin Dashboard | UniCamplink</title>
+    <title>Razor Admin Center • UniCamplink</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 
     <style>
         /* =========================================================
-           RAZOR ADMIN DASHBOARD
-           Frontend only — uses existing Flask variables/routes
-        ========================================================= */
+           UNICAMPLINK RAZOR ADMIN CENTER
+           Facebook / TikTok inspired
+           Mobile-first • Dark + Light • No horizontal scrolling
+           ========================================================= */
 
         :root {
             --admin-bg: #f4f7fb;
             --admin-card: #ffffff;
-            --admin-text: #172033;
+            --admin-card-soft: #f8fafc;
+            --admin-text: #111827;
             --admin-muted: #64748b;
-            --admin-border: #e5eaf1;
+            --admin-border: rgba(15, 23, 42, .08);
 
-            --primary: #0ea5e9;
+            --primary: #38bdf8;
             --primary-dark: #0284c7;
-            --primary-soft: rgba(14, 165, 233, .12);
+            --primary-soft: rgba(56, 189, 248, .12);
 
             --green: #10b981;
             --green-soft: rgba(16, 185, 129, .12);
@@ -32,30 +35,34 @@
             --purple-soft: rgba(139, 92, 246, .12);
 
             --orange: #f59e0b;
-            --orange-soft: rgba(245, 158, 11, .13);
+            --orange-soft: rgba(245, 158, 11, .12);
 
             --red: #ef4444;
-            --shadow:
-                0 10px 35px rgba(15, 23, 42, .07);
+            --red-soft: rgba(239, 68, 68, .12);
+
+            --pink: #ec4899;
+            --pink-soft: rgba(236, 72, 153, .12);
+
+            --shadow-sm: 0 2px 10px rgba(15, 23, 42, .05);
+            --shadow: 0 10px 30px rgba(15, 23, 42, .07);
+
+            --radius-sm: 12px;
+            --radius: 18px;
+            --radius-lg: 24px;
 
             --sidebar-width: 250px;
-            --radius: 20px;
         }
 
         html[data-theme="dark"] {
             --admin-bg: #07111f;
             --admin-card: #0d1a2b;
+            --admin-card-soft: #111f32;
             --admin-text: #f8fafc;
             --admin-muted: #94a3b8;
-            --admin-border: rgba(148, 163, 184, .14);
+            --admin-border: rgba(148, 163, 184, .12);
 
-            --primary-soft: rgba(14, 165, 233, .14);
-            --green-soft: rgba(16, 185, 129, .14);
-            --purple-soft: rgba(139, 92, 246, .15);
-            --orange-soft: rgba(245, 158, 11, .14);
-
-            --shadow:
-                0 15px 45px rgba(0, 0, 0, .25);
+            --shadow-sm: 0 3px 14px rgba(0, 0, 0, .18);
+            --shadow: 0 15px 35px rgba(0, 0, 0, .22);
         }
 
         * {
@@ -68,212 +75,218 @@
 
         body {
             margin: 0;
-            background:
-                radial-gradient(
-                    circle at 15% 0%,
-                    rgba(14, 165, 233, .07),
-                    transparent 28%
-                ),
-                var(--admin-bg);
+            padding: 0;
+            min-height: 100vh;
+            background: var(--admin-bg);
             color: var(--admin-text);
             font-family:
                 Inter,
                 -apple-system,
                 BlinkMacSystemFont,
                 "Segoe UI",
+                Roboto,
+                Helvetica,
                 Arial,
                 sans-serif;
-            min-height: 100vh;
+            overflow-x: hidden;
+            transition:
+                background .25s ease,
+                color .25s ease;
+        }
+
+        button,
+        a,
+        input {
+            font: inherit;
         }
 
         a {
             color: inherit;
+            text-decoration: none;
         }
 
-        button,
-        a {
-            -webkit-tap-highlight-color: transparent;
+        button {
+            border: 0;
         }
 
         /* =========================================================
            TOP BAR
-        ========================================================= */
+           ========================================================= */
 
         .admin-topbar {
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
+            height: 68px;
             z-index: 1000;
 
-            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-            background: rgba(255, 255, 255, .88);
+            padding: 0 18px;
+
+            background: color-mix(
+                in srgb,
+                var(--admin-card) 92%,
+                transparent
+            );
+
             border-bottom: 1px solid var(--admin-border);
 
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
         }
 
-        html[data-theme="dark"] .admin-topbar {
-            background: rgba(7, 17, 31, .88);
-        }
-
-        .topbar-inner {
-            height: 100%;
-            max-width: 1500px;
-            margin: auto;
-
-            padding: 0 22px;
-
+        .topbar-left,
+        .topbar-right {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 18px;
         }
 
-        .top-brand {
-            display: flex;
-            align-items: center;
+        .topbar-left {
             gap: 12px;
-            text-decoration: none;
             min-width: 0;
         }
 
-        .top-brand img {
+        .topbar-right {
+            gap: 8px;
+        }
+
+        .mobile-menu {
             width: 42px;
             height: 42px;
-            object-fit: contain;
-            border-radius: 12px;
-            background: white;
-            padding: 3px;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, .12);
-            flex-shrink: 0;
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+            background: var(--admin-card-soft);
+            color: var(--admin-text);
+
+            cursor: pointer;
+            transition: .2s ease;
         }
 
-        .top-brand-text {
+        .mobile-menu:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+
+            border-radius: 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+
+            color: white;
+            font-weight: 900;
+            font-size: 17px;
+
+            box-shadow:
+                0 8px 18px rgba(14, 165, 233, .22);
+        }
+
+        .brand-text {
             min-width: 0;
         }
 
-        .top-brand-title {
-            display: block;
-            font-size: 16px;
-            font-weight: 800;
+        .brand-title {
+            font-size: 15px;
+            font-weight: 850;
             letter-spacing: -.2px;
-        }
-
-        .top-brand-subtitle {
-            display: block;
-            margin-top: 2px;
-            color: var(--admin-muted);
-            font-size: 11px;
             white-space: nowrap;
         }
 
-        .top-actions {
-            display: flex;
-            align-items: center;
-            gap: 9px;
+        .brand-subtitle {
+            color: var(--admin-muted);
+            font-size: 11px;
+            margin-top: 1px;
+            white-space: nowrap;
         }
 
         .top-action {
-            min-height: 40px;
-            padding: 9px 13px;
+            width: 42px;
+            height: 42px;
 
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 7px;
 
-            border: 1px solid var(--admin-border);
-            border-radius: 12px;
-
-            background: var(--admin-card);
+            border-radius: 50%;
+            background: var(--admin-card-soft);
             color: var(--admin-text);
-
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
 
             cursor: pointer;
             transition: .2s ease;
         }
 
         .top-action:hover {
-            transform: translateY(-1px);
-            border-color: rgba(14, 165, 233, .35);
             color: var(--primary);
-        }
-
-        .top-action.primary {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-
-        .top-action.primary:hover {
-            background: var(--primary-dark);
-            color: white;
-        }
-
-        .mobile-menu-btn {
-            display: none;
-        }
-
-        /* =========================================================
-           APP LAYOUT
-        ========================================================= */
-
-        .admin-layout {
-            max-width: 1500px;
-            margin: auto;
-
-            display: grid;
-            grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
-            gap: 25px;
-
-            padding: 25px 22px 45px;
+            background: var(--primary-soft);
+            transform: translateY(-1px);
         }
 
         /* =========================================================
            SIDEBAR
-        ========================================================= */
+           ========================================================= */
 
         .admin-sidebar {
-            position: sticky;
-            top: 97px;
-            height: fit-content;
+            position: fixed;
+            top: 68px;
+            left: 0;
+            bottom: 0;
+
+            width: var(--sidebar-width);
+            z-index: 900;
+
+            padding: 18px 12px;
 
             background: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            border-radius: var(--radius);
+            border-right: 1px solid var(--admin-border);
 
-            padding: 15px;
-
-            box-shadow: var(--shadow);
+            overflow-y: auto;
+            transition: transform .25s ease;
         }
 
-        .sidebar-label {
-            padding: 8px 11px 10px;
+        .sidebar-section-title {
+            padding: 8px 12px;
+            margin: 5px 0 7px;
 
             color: var(--admin-muted);
             font-size: 10px;
             font-weight: 800;
-            letter-spacing: 1px;
             text-transform: uppercase;
+            letter-spacing: .12em;
         }
 
         .sidebar-link {
+            position: relative;
+
             display: flex;
             align-items: center;
-            gap: 11px;
+            gap: 12px;
 
-            min-height: 45px;
-            padding: 10px 12px;
+            min-height: 46px;
+            padding: 0 13px;
+            margin-bottom: 4px;
 
-            border-radius: 12px;
+            border-radius: 14px;
 
             color: var(--admin-muted);
-            text-decoration: none;
-
             font-size: 13px;
             font-weight: 700;
 
@@ -282,125 +295,154 @@
 
         .sidebar-link:hover {
             color: var(--admin-text);
-            background: var(--primary-soft);
+            background: var(--admin-card-soft);
+            transform: translateX(2px);
         }
 
         .sidebar-link.active {
-            color: var(--primary);
+            color: var(--primary-dark);
             background: var(--primary-soft);
         }
 
+        html[data-theme="dark"] .sidebar-link.active {
+            color: var(--primary);
+        }
+
         .sidebar-icon {
-            width: 29px;
-            height: 29px;
+            width: 23px;
+            text-align: center;
+            font-size: 18px;
+            flex: 0 0 23px;
+        }
+
+        .sidebar-link-text {
+            flex: 1;
+        }
+
+        .sidebar-badge {
+            min-width: 20px;
+            height: 20px;
+
+            padding: 0 6px;
 
             display: inline-flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 9px;
+            border-radius: 999px;
 
-            background: rgba(148, 163, 184, .09);
+            background: var(--red);
+            color: white;
 
-            font-size: 15px;
-            flex-shrink: 0;
-        }
-
-        .sidebar-link.active .sidebar-icon {
-            background: rgba(14, 165, 233, .16);
+            font-size: 10px;
+            font-weight: 800;
         }
 
         .sidebar-divider {
             height: 1px;
             background: var(--admin-border);
-            margin: 13px 5px;
+            margin: 15px 8px;
         }
 
-        .sidebar-admin-card {
-            margin-top: 15px;
-            padding: 14px;
+        .sidebar-user {
+            margin-top: 18px;
+            padding: 13px;
 
-            border-radius: 15px;
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(14, 165, 233, .14),
-                    rgba(139, 92, 246, .10)
-                );
-
-            border: 1px solid rgba(14, 165, 233, .13);
+            border-radius: 16px;
+            background: var(--admin-card-soft);
+            border: 1px solid var(--admin-border);
         }
 
-        .sidebar-admin-card strong {
-            display: block;
-            font-size: 13px;
-        }
-
-        .sidebar-admin-card span {
-            display: block;
-            margin-top: 4px;
+        .sidebar-user-label {
             color: var(--admin-muted);
-            font-size: 11px;
-            line-height: 1.45;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .sidebar-user-name {
+            margin-top: 5px;
+            font-size: 13px;
+            font-weight: 800;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* =========================================================
+           MOBILE OVERLAY
+           ========================================================= */
+
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 850;
+
+            background: rgba(0, 0, 0, .48);
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition: .25s ease;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* =========================================================
            MAIN
-        ========================================================= */
+           ========================================================= */
 
         .admin-main {
-            min-width: 0;
+            margin-left: var(--sidebar-width);
+            padding: 92px 24px 100px;
+
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            width: 100%;
+            max-width: 1350px;
+            margin: 0 auto;
         }
 
         /* =========================================================
            HERO
-        ========================================================= */
+           ========================================================= */
 
         .admin-hero {
             position: relative;
             overflow: hidden;
 
-            border-radius: 25px;
+            padding: 28px;
 
-            padding: 30px;
+            border-radius: var(--radius-lg);
 
             background:
                 radial-gradient(
-                    circle at 90% 10%,
-                    rgba(255,255,255,.18),
-                    transparent 25%
+                    circle at 100% 0%,
+                    rgba(56, 189, 248, .22),
+                    transparent 32%
                 ),
-                linear-gradient(
-                    135deg,
-                    #0284c7,
-                    #0ea5e9 55%,
-                    #2563eb
-                );
+                radial-gradient(
+                    circle at 0% 100%,
+                    rgba(139, 92, 246, .12),
+                    transparent 30%
+                ),
+                var(--admin-card);
 
-            color: white;
+            border: 1px solid var(--admin-border);
+            box-shadow: var(--shadow);
 
-            box-shadow:
-                0 20px 45px rgba(14, 165, 233, .18);
-
-            margin-bottom: 24px;
-        }
-
-        .hero-decoration {
-            position: absolute;
-            width: 190px;
-            height: 190px;
-
-            right: -55px;
-            bottom: -85px;
-
-            border: 35px solid rgba(255,255,255,.08);
-            border-radius: 50%;
+            margin-bottom: 22px;
         }
 
         .hero-content {
             position: relative;
             z-index: 2;
-            max-width: 720px;
         }
 
         .hero-eyebrow {
@@ -408,96 +450,135 @@
             align-items: center;
             gap: 7px;
 
-            padding: 6px 10px;
+            padding: 7px 10px;
 
-            background: rgba(255,255,255,.14);
-            border: 1px solid rgba(255,255,255,.17);
             border-radius: 999px;
 
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: .3px;
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+
+            font-size: 10px;
+            font-weight: 900;
+
+            text-transform: uppercase;
+            letter-spacing: .1em;
+        }
+
+        html[data-theme="dark"] .hero-eyebrow {
+            color: var(--primary);
         }
 
         .hero-title {
-            margin: 15px 0 7px;
+            margin: 13px 0 5px;
 
-            font-size: clamp(25px, 3vw, 36px);
-            line-height: 1.1;
-            letter-spacing: -.8px;
+            font-size: clamp(25px, 4vw, 38px);
+            line-height: 1.08;
+            letter-spacing: -.045em;
+            font-weight: 900;
+        }
+
+        .hero-title span {
+            color: var(--primary);
         }
 
         .hero-description {
-            max-width: 650px;
+            max-width: 680px;
             margin: 0;
 
-            color: rgba(255,255,255,.84);
-
-            font-size: 14px;
+            color: var(--admin-muted);
+            font-size: 13px;
             line-height: 1.65;
         }
 
-        .hero-user {
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+
             margin-top: 19px;
+        }
+
+        .hero-button {
+            min-height: 40px;
 
             display: inline-flex;
             align-items: center;
-            gap: 9px;
+            justify-content: center;
+            gap: 7px;
 
-            padding: 8px 12px;
+            padding: 0 15px;
 
-            background: rgba(255,255,255,.12);
-            border: 1px solid rgba(255,255,255,.14);
             border-radius: 12px;
 
+            background: var(--primary);
+            color: white;
+
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
+
+            transition: .2s ease;
+        }
+
+        .hero-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .hero-button.secondary {
+            background: var(--admin-card-soft);
+            color: var(--admin-text);
+            border: 1px solid var(--admin-border);
+        }
+
+        .hero-button.secondary:hover {
+            background: var(--primary-soft);
+            color: var(--primary-dark);
         }
 
         /* =========================================================
            SECTION HEADERS
-        ========================================================= */
+           ========================================================= */
 
         .section-heading {
             display: flex;
-            align-items: end;
+            align-items: flex-end;
             justify-content: space-between;
-            gap: 15px;
 
-            margin: 28px 0 14px;
+            gap: 12px;
+            margin: 28px 2px 13px;
         }
 
         .section-heading h2 {
             margin: 0;
-
-            font-size: 19px;
-            letter-spacing: -.3px;
+            font-size: 17px;
+            letter-spacing: -.025em;
         }
 
         .section-heading p {
-            margin: 4px 0 0;
-
+            margin: 3px 0 0;
             color: var(--admin-muted);
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .section-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 12px;
+            color: var(--primary-dark);
+            font-size: 11px;
             font-weight: 800;
+            white-space: nowrap;
+        }
+
+        html[data-theme="dark"] .section-link {
+            color: var(--primary);
         }
 
         /* =========================================================
-           STATISTICS
-        ========================================================= */
+           STATS
+           ========================================================= */
 
         .stats-grid {
             display: grid;
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-
-            gap: 14px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
         }
 
         .stat-card {
@@ -505,1732 +586,2263 @@
             overflow: hidden;
 
             min-width: 0;
-
-            padding: 18px;
+            padding: 17px;
 
             background: var(--admin-card);
             border: 1px solid var(--admin-border);
-            border-radius: 18px;
+            border-radius: var(--radius);
 
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
 
             transition:
                 transform .2s ease,
+                box-shadow .2s ease,
                 border-color .2s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
-            border-color: rgba(14, 165, 233, .25);
+            box-shadow: var(--shadow);
         }
 
         .stat-card::after {
             content: "";
+
             position: absolute;
-
-            width: 70px;
-            height: 70px;
-
             right: -25px;
             bottom: -30px;
+
+            width: 90px;
+            height: 90px;
 
             border-radius: 50%;
 
             background: var(--stat-soft);
+            opacity: .8;
         }
 
         .stat-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
+
             gap: 10px;
         }
 
         .stat-icon {
-            width: 38px;
-            height: 38px;
+            width: 39px;
+            height: 39px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 11px;
+            border-radius: 13px;
 
             background: var(--stat-soft);
+            color: var(--stat-color);
 
             font-size: 17px;
+            flex: 0 0 39px;
         }
 
         .stat-label {
-            margin-top: 13px;
-
             color: var(--admin-muted);
-
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: .06em;
         }
 
-        .stat-number {
-            margin-top: 3px;
+        .stat-value {
+            margin-top: 12px;
 
             font-size: 25px;
-            font-weight: 850;
-            letter-spacing: -.6px;
+            line-height: 1;
+
+            font-weight: 900;
+            letter-spacing: -.04em;
+        }
+
+        .stat-meta {
+            margin-top: 7px;
+            color: var(--admin-muted);
+            font-size: 10px;
         }
 
         .stat-blue {
+            --stat-color: var(--primary-dark);
             --stat-soft: var(--primary-soft);
         }
 
         .stat-green {
+            --stat-color: var(--green);
             --stat-soft: var(--green-soft);
         }
 
         .stat-purple {
+            --stat-color: var(--purple);
             --stat-soft: var(--purple-soft);
         }
 
         .stat-orange {
+            --stat-color: var(--orange);
             --stat-soft: var(--orange-soft);
         }
 
-        /* =========================================================
-           QUICK MANAGEMENT
-        ========================================================= */
-
-        .management-grid {
-            display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-
-            gap: 15px;
+        .stat-red {
+            --stat-color: var(--red);
+            --stat-soft: var(--red-soft);
         }
 
-        .management-card {
-            position: relative;
+        .stat-pink {
+            --stat-color: var(--pink);
+            --stat-soft: var(--pink-soft);
+        }
 
+        html[data-theme="dark"] .stat-blue {
+            --stat-color: var(--primary);
+        }
+
+        /* =========================================================
+           QUICK ACTIONS
+           ========================================================= */
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .quick-card {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 12px;
 
-            min-height: 205px;
-
-            padding: 21px;
+            min-width: 0;
+            padding: 14px;
 
             background: var(--admin-card);
             border: 1px solid var(--admin-border);
-            border-radius: 19px;
+            border-radius: var(--radius);
 
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
 
-            overflow: hidden;
             transition: .2s ease;
         }
 
-        .management-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(14, 165, 233, .25);
+        .quick-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, .25);
         }
 
-        .management-icon {
-            width: 45px;
-            height: 45px;
+        .quick-icon {
+            width: 43px;
+            height: 43px;
+            flex: 0 0 43px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 13px;
+            border-radius: 14px;
 
-            font-size: 20px;
+            background: var(--quick-bg);
+            color: var(--quick-color);
 
-            background: var(--primary-soft);
+            font-size: 18px;
         }
 
-        .management-card h3 {
-            margin: 15px 0 6px;
-
-            font-size: 16px;
-            letter-spacing: -.2px;
+        .quick-info {
+            min-width: 0;
+            flex: 1;
         }
 
-        .management-card p {
-            margin: 0;
-
-            color: var(--admin-muted);
-
+        .quick-title {
             font-size: 12px;
-            line-height: 1.6;
-
-            max-width: 560px;
+            font-weight: 850;
         }
 
-        .management-footer {
-            margin-top: auto;
-            padding-top: 17px;
+        .quick-description {
+            margin-top: 3px;
+            color: var(--admin-muted);
+            font-size: 10px;
 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .quick-arrow {
+            color: var(--admin-muted);
+            font-size: 15px;
+        }
+
+        .quick-blue {
+            --quick-bg: var(--primary-soft);
+            --quick-color: var(--primary-dark);
+        }
+
+        .quick-purple {
+            --quick-bg: var(--purple-soft);
+            --quick-color: var(--purple);
+        }
+
+        .quick-orange {
+            --quick-bg: var(--orange-soft);
+            --quick-color: var(--orange);
+        }
+
+        .quick-green {
+            --quick-bg: var(--green-soft);
+            --quick-color: var(--green);
+        }
+
+        html[data-theme="dark"] .quick-blue {
+            --quick-color: var(--primary);
+        }
+
+        /* =========================================================
+           MAIN CONTENT GRID
+           ========================================================= */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        .panel {
+            min-width: 0;
+
+            background: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-radius: var(--radius);
+
+            box-shadow: var(--shadow-sm);
+
+            overflow: hidden;
+        }
+
+        .panel-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
+
+            gap: 12px;
+
+            padding: 17px 18px;
+
+            border-bottom: 1px solid var(--admin-border);
         }
 
-        .manage-button {
-            display: inline-flex;
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            font-size: 13px;
+            font-weight: 850;
+        }
+
+        .panel-title-icon {
+            width: 31px;
+            height: 31px;
+
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-
-            padding: 9px 13px;
 
             border-radius: 10px;
 
-            background: var(--primary);
-            color: white;
-
-            text-decoration: none;
-
-            font-size: 11px;
-            font-weight: 800;
-
-            transition: .2s ease;
+            background: var(--primary-soft);
+            color: var(--primary-dark);
         }
 
-        .manage-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
+        html[data-theme="dark"] .panel-title-icon {
+            color: var(--primary);
         }
 
-        .manage-button.purple {
-            background: var(--purple);
-        }
-
-        .manage-button.purple:hover {
-            background: #7c3aed;
-        }
-
-        .manage-button.green {
-            background: var(--green);
-        }
-
-        .manage-button.green:hover {
-            background: #059669;
-        }
-
-        .pending-badge,
-        .ambassador-badge,
-        .verified-badge {
-            display: inline-flex;
-            align-items: center;
-
-            padding: 5px 9px;
+        .panel-count {
+            padding: 5px 8px;
 
             border-radius: 999px;
 
-            font-size: 10px;
+            background: var(--admin-card-soft);
+            color: var(--admin-muted);
+
+            font-size: 9px;
             font-weight: 800;
-        }
-
-        .pending-badge {
-            background: var(--orange-soft);
-            color: #d97706;
-        }
-
-        .ambassador-badge {
-            background: var(--purple-soft);
-            color: var(--purple);
-        }
-
-        .verified-badge {
-            background: var(--green-soft);
-            color: var(--green);
         }
 
         /* =========================================================
            RECENT MEMBERS
-        ========================================================= */
+           ========================================================= */
 
-        .recent-section {
-            margin-top: 28px;
-
-            background: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            border-radius: 20px;
-
-            box-shadow: var(--shadow);
-
-            overflow: hidden;
+        .member-list {
+            display: flex;
+            flex-direction: column;
         }
 
-        .recent-header {
-            padding: 20px 21px 15px;
-
+        .member-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-        }
-
-        .recent-header h2 {
-            margin: 0;
-            font-size: 17px;
-        }
-
-        .recent-header p {
-            margin: 4px 0 0;
-            color: var(--admin-muted);
-            font-size: 11px;
-        }
-
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 680px;
-        }
-
-        th,
-        td {
-            padding: 13px 21px;
-
-            border-top: 1px solid var(--admin-border);
-
-            text-align: left;
-            white-space: nowrap;
-
-            font-size: 12px;
-        }
-
-        th {
-            background: rgba(148, 163, 184, .035);
-
-            color: var(--admin-muted);
-
-            font-size: 10px;
-            font-weight: 800;
-
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-
-        td {
-            color: var(--admin-text);
-        }
-
-        tbody tr {
-            transition: .15s ease;
-        }
-
-        tbody tr:hover {
-            background: var(--primary-soft);
-        }
-
-        .member-name {
-            font-weight: 800;
-        }
-
-        .member-email {
-            color: var(--admin-muted);
-        }
-
-        .empty-state {
-            padding: 40px 20px;
-
-            text-align: center;
-            color: var(--admin-muted);
-
-            font-size: 13px;
-        }
-
-        /* =========================================================
-           SHORTCUTS
-        ========================================================= */
-
-        .shortcuts {
-            margin-top: 18px;
-
-            display: grid;
-            grid-template-columns:
-                repeat(3, minmax(0, 1fr));
 
             gap: 12px;
+
+            padding: 14px 18px;
+
+            border-bottom: 1px solid var(--admin-border);
+
+            transition: background .2s ease;
         }
 
-        .shortcut {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            padding: 13px;
-
-            border: 1px solid var(--admin-border);
-            border-radius: 13px;
-
-            background: var(--admin-card);
-
-            text-decoration: none;
-
-            transition: .2s ease;
+        .member-row:last-child {
+            border-bottom: 0;
         }
 
-        .shortcut:hover {
-            transform: translateY(-2px);
-            border-color: rgba(14, 165, 233, .3);
+        .member-row:hover {
+            background: var(--admin-card-soft);
         }
 
-        .shortcut-icon {
-            width: 35px;
-            height: 35px;
+        .member-avatar {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 10px;
+            border-radius: 50%;
 
             background: var(--primary-soft);
+            color: var(--primary-dark);
 
-            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: 900;
+
+            overflow: hidden;
         }
 
-        .shortcut strong {
-            display: block;
-            font-size: 11px;
+        html[data-theme="dark"] .member-avatar {
+            color: var(--primary);
         }
 
-        .shortcut span {
-            display: block;
-            margin-top: 2px;
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .member-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .member-name {
+            font-size: 12px;
+            font-weight: 850;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .member-email {
+            margin-top: 3px;
+
             color: var(--admin-muted);
             font-size: 10px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .member-meta {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            margin-top: 4px;
+
+            color: var(--admin-muted);
+            font-size: 9px;
+        }
+
+        .member-school {
+            max-width: 130px;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .member-date {
+            white-space: nowrap;
+        }
+
+        .member-arrow {
+            color: var(--admin-muted);
+            font-size: 14px;
+        }
+
+        .empty-state {
+            padding: 35px 18px;
+            text-align: center;
+            color: var(--admin-muted);
+            font-size: 12px;
         }
 
         /* =========================================================
-           MOBILE SIDEBAR
-        ========================================================= */
+           ADMIN MANAGEMENT CARDS
+           ========================================================= */
 
-        .mobile-overlay {
+        .management-list {
+            padding: 8px;
+        }
+
+        .management-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 13px 10px;
+
+            border-radius: 14px;
+
+            transition: .2s ease;
+        }
+
+        .management-item:hover {
+            background: var(--admin-card-soft);
+        }
+
+        .management-icon {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 13px;
+
+            background: var(--manage-bg);
+            color: var(--manage-color);
+
+            font-size: 17px;
+        }
+
+        .management-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .management-title {
+            font-size: 11px;
+            font-weight: 850;
+        }
+
+        .management-description {
+            margin-top: 3px;
+            color: var(--admin-muted);
+            font-size: 9px;
+            line-height: 1.45;
+        }
+
+        .management-number {
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .management-arrow {
+            color: var(--admin-muted);
+            font-size: 13px;
+        }
+
+        .manage-blue {
+            --manage-bg: var(--primary-soft);
+            --manage-color: var(--primary-dark);
+        }
+
+        .manage-purple {
+            --manage-bg: var(--purple-soft);
+            --manage-color: var(--purple);
+        }
+
+        .manage-orange {
+            --manage-bg: var(--orange-soft);
+            --manage-color: var(--orange);
+        }
+
+        .manage-green {
+            --manage-bg: var(--green-soft);
+            --manage-color: var(--green);
+        }
+
+        .manage-red {
+            --manage-bg: var(--red-soft);
+            --manage-color: var(--red);
+        }
+
+        html[data-theme="dark"] .manage-blue {
+            --manage-color: var(--primary);
+        }
+
+        /* =========================================================
+           ACTIVITY SUMMARY
+           ========================================================= */
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            padding: 14px;
+        }
+
+        .activity-box {
+            padding: 14px 12px;
+
+            border-radius: 15px;
+            background: var(--admin-card-soft);
+            border: 1px solid var(--admin-border);
+
+            text-align: center;
+        }
+
+        .activity-icon {
+            font-size: 17px;
+        }
+
+        .activity-value {
+            margin-top: 7px;
+
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: -.04em;
+        }
+
+        .activity-label {
+            margin-top: 3px;
+
+            color: var(--admin-muted);
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        /* =========================================================
+           BOTTOM MOBILE NAV
+           ========================================================= */
+
+        .mobile-bottom-nav {
             display: none;
+
+            position: fixed;
+            left: 10px;
+            right: 10px;
+            bottom: calc(10px + env(safe-area-inset-bottom));
+
+            z-index: 1000;
+
+            height: 62px;
+
+            padding: 5px;
+
+            background: color-mix(
+                in srgb,
+                var(--admin-card) 94%,
+                transparent
+            );
+
+            border: 1px solid var(--admin-border);
+            border-radius: 20px;
+
+            box-shadow: 0 12px 35px rgba(0, 0, 0, .16);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .mobile-bottom-link {
+            flex: 1;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 2px;
+
+            border-radius: 15px;
+
+            color: var(--admin-muted);
+
+            font-size: 9px;
+            font-weight: 750;
+
+            transition: .2s ease;
+        }
+
+        .mobile-bottom-link span:first-child {
+            font-size: 17px;
+            line-height: 20px;
+        }
+
+        .mobile-bottom-link.active {
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+        }
+
+        html[data-theme="dark"] .mobile-bottom-link.active {
+            color: var(--primary);
         }
 
         /* =========================================================
            RESPONSIVE
-        ========================================================= */
+           ========================================================= */
 
-        @media (max-width: 1180px) {
+        @media (max-width: 1150px) {
             .stats-grid {
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .quick-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
-        @media (max-width: 980px) {
+        @media (max-width: 900px) {
+            :root {
+                --sidebar-width: 235px;
+            }
 
-            .admin-layout {
+            .content-grid {
                 grid-template-columns: 1fr;
             }
 
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            .admin-topbar {
+                height: 62px;
+                padding: 0 11px;
+            }
+
+            .mobile-menu {
+                display: flex;
+            }
+
+            .brand-mark {
+                width: 35px;
+                height: 35px;
+                flex-basis: 35px;
+                border-radius: 11px;
+            }
+
+            .brand-title {
+                font-size: 14px;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+
+            .top-action {
+                width: 38px;
+                height: 38px;
+            }
+
             .admin-sidebar {
-                position: fixed;
-
-                top: 72px;
-                left: 0;
-                bottom: 0;
-
-                width: 270px;
-
-                z-index: 999;
-
-                border-radius: 0 20px 20px 0;
-
-                overflow-y: auto;
+                top: 62px;
+                width: min(280px, 86vw);
 
                 transform: translateX(-105%);
-                transition: transform .25s ease;
+
+                box-shadow: 12px 0 35px rgba(0, 0, 0, .12);
             }
 
             .admin-sidebar.open {
                 transform: translateX(0);
             }
 
-            .mobile-menu-btn {
-                display: inline-flex;
-            }
-
-            .mobile-overlay {
-                position: fixed;
-                inset: 72px 0 0;
-
-                background: rgba(0,0,0,.45);
-
-                z-index: 998;
-
-                display: none;
-            }
-
-            .mobile-overlay.show {
-                display: block;
-            }
-
-            .admin-layout {
-                padding-top: 20px;
-            }
-        }
-
-        @media (max-width: 760px) {
-
-            .topbar-inner {
-                padding: 0 13px;
-            }
-
-            .top-brand-subtitle {
-                display: none;
-            }
-
-            .top-action.dashboard-text {
-                display: none;
-            }
-
-            .admin-layout {
+            .admin-main {
+                margin-left: 0;
                 padding:
-                    14px
-                    12px
-                    35px;
+                    77px
+                    11px
+                    calc(88px + env(safe-area-inset-bottom));
             }
 
             .admin-hero {
-                padding: 23px 20px;
+                padding: 21px 17px;
                 border-radius: 20px;
             }
 
             .hero-title {
-                font-size: 25px;
+                font-size: 27px;
             }
 
-            .stats-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-                gap: 10px;
+            .hero-description {
+                font-size: 12px;
+                line-height: 1.6;
             }
 
-            .stat-card {
-                padding: 15px;
+            .hero-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
             }
 
-            .stat-number {
-                font-size: 22px;
-            }
-
-            .management-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .shortcuts {
-                grid-template-columns: 1fr;
+            .hero-button {
+                width: 100%;
+                padding: 0 9px;
+                font-size: 11px;
             }
 
             .section-heading {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 5px;
-            }
-        }
-
-        @media (max-width: 430px) {
-
-            .topbar-inner {
-                gap: 8px;
-            }
-
-            .top-brand-title {
-                font-size: 14px;
-            }
-
-            .top-brand img {
-                width: 38px;
-                height: 38px;
-            }
-
-            .top-actions {
-                gap: 5px;
-            }
-
-            .top-action {
-                padding: 8px 9px;
-                min-height: 37px;
-                border-radius: 10px;
+                margin-top: 22px;
             }
 
             .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 8px;
             }
 
             .stat-card {
-                border-radius: 15px;
                 padding: 13px;
+                border-radius: 16px;
             }
 
             .stat-icon {
-                width: 33px;
-                height: 33px;
+                width: 34px;
+                height: 34px;
+                flex-basis: 34px;
+                border-radius: 11px;
                 font-size: 15px;
             }
 
             .stat-label {
-                font-size: 10px;
+                font-size: 8px;
             }
 
-            .stat-number {
+            .stat-value {
+                font-size: 21px;
+                margin-top: 10px;
+            }
+
+            .stat-meta {
+                font-size: 9px;
+            }
+
+            .quick-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .quick-card {
+                padding: 12px;
+                border-radius: 16px;
+            }
+
+            .quick-icon {
+                width: 39px;
+                height: 39px;
+                flex-basis: 39px;
+            }
+
+            .panel {
+                border-radius: 17px;
+            }
+
+            .panel-header {
+                padding: 14px;
+            }
+
+            .member-row {
+                padding: 12px 14px;
+            }
+
+            .member-avatar {
+                width: 39px;
+                height: 39px;
+                flex-basis: 39px;
+            }
+
+            .member-school {
+                max-width: 100px;
+            }
+
+            .activity-grid {
+                gap: 7px;
+                padding: 10px;
+            }
+
+            .activity-box {
+                padding: 11px 6px;
+            }
+
+            .activity-value {
+                font-size: 17px;
+            }
+
+            .mobile-bottom-nav {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .brand-title {
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .hero-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                gap: 7px;
+            }
+
+            .stat-card {
+                padding: 11px;
+            }
+
+            .stat-value {
                 font-size: 20px;
             }
 
-            .management-card {
-                padding: 17px;
+            .member-meta {
+                display: block;
             }
 
-            .management-footer {
-                align-items: flex-start;
-                flex-direction: column;
+            .member-date {
+                display: block;
+                margin-top: 2px;
             }
 
-            .manage-button {
-                width: 100%;
+            .member-meta .dot {
+                display: none;
             }
+        }
+
+        /* =========================================================
+           ACCESSIBILITY
+           ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+
+        :focus-visible {
+            outline: 3px solid rgba(56, 189, 248, .35);
+            outline-offset: 2px;
         }
     </style>
 </head>
 
 <body>
 
-<!-- =========================================================
-     TOP BAR
-========================================================= -->
+    <!-- =========================================================
+         TOP BAR
+         ========================================================= -->
 
-<header class="admin-topbar">
+    <header class="admin-topbar">
 
-    <div class="topbar-inner">
-
-        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+        <div class="topbar-left">
 
             <button
-                type="button"
-                class="top-action mobile-menu-btn"
+                class="mobile-menu"
                 id="mobileMenuButton"
+                type="button"
                 aria-label="Open admin menu"
-            >
+                aria-controls="adminSidebar"
+                aria-expanded="false">
                 ☰
             </button>
 
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="top-brand"
-            >
-
-                <img
-                    src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
-                    alt="UniCamplink"
-                >
-
-                <span class="top-brand-text">
-
-                    <span class="top-brand-title">
-                        UniCamplink Admin
-                    </span>
-
-                    <span class="top-brand-subtitle">
-                        Administration & Management
-                    </span>
-
-                </span>
-
+            <a href="{{ url_for('admin_dashboard') }}"
+               class="brand-mark"
+               aria-label="UniCamplink Admin">
+                U
             </a>
+
+            <div class="brand-text">
+                <div class="brand-title">
+                    UniCamplink Admin
+                </div>
+
+                <div class="brand-subtitle">
+                    Razor Control Center
+                </div>
+            </div>
 
         </div>
 
-
-        <div class="top-actions">
-
-            <a
-                href="{{ url_for('dashboard') }}"
-                class="top-action primary dashboard-text"
-            >
-                🏠 Platform
-            </a>
+        <div class="topbar-right">
 
             <button
-                type="button"
                 class="top-action"
                 id="themeToggle"
-                title="Toggle theme"
-            >
-                🌙 <span class="theme-label">Theme</span>
+                type="button"
+                aria-label="Toggle theme"
+                title="Toggle light/dark mode">
+                🌙
             </button>
 
-            <form
-                action="{{ url_for('logout') }}"
-                method="POST"
-                style="margin:0;"
-            >
-
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}"
-                >
-
-                <button
-                    type="submit"
-                    class="top-action"
-                >
-                    ↪ Logout
-                </button>
-
-            </form>
+            <a
+                class="top-action"
+                href="{{ url_for('dashboard') }}"
+                aria-label="Open platform"
+                title="Open UniCamplink">
+                ↗
+            </a>
 
         </div>
 
+    </header>
+
+
+    <!-- =========================================================
+         MOBILE OVERLAY
+         ========================================================= -->
+
+    <div
+        class="mobile-overlay"
+        id="mobileOverlay">
     </div>
 
-</header>
 
-
-<div
-    class="mobile-overlay"
-    id="mobileOverlay"
-></div>
-
-
-<!-- =========================================================
-     MAIN ADMIN LAYOUT
-========================================================= -->
-
-<div class="admin-layout">
-
-
-    <!-- =====================================================
+    <!-- =========================================================
          SIDEBAR
-    ====================================================== -->
+         ========================================================= -->
 
     <aside
         class="admin-sidebar"
-        id="adminSidebar"
-    >
+        id="adminSidebar">
 
-        <div class="sidebar-label">
-            Administration
+        <div class="sidebar-section-title">
+            Control Center
         </div>
-
 
         <a
             href="{{ url_for('admin_dashboard') }}"
-            class="sidebar-link active"
-        >
-            <span class="sidebar-icon">📊</span>
-            <span>Overview</span>
-        </a>
+            class="sidebar-link active">
 
+            <span class="sidebar-icon">⌂</span>
+
+            <span class="sidebar-link-text">
+                Overview
+            </span>
+
+        </a>
 
         <a
             href="{{ url_for('admin_members') }}"
-            class="sidebar-link"
-        >
-            <span class="sidebar-icon">👥</span>
-            <span>Members</span>
-        </a>
+            class="sidebar-link">
 
+            <span class="sidebar-icon">👥</span>
+
+            <span class="sidebar-link-text">
+                Members
+            </span>
+
+        </a>
 
         <a
             href="{{ url_for('admin_advertisements') }}"
-            class="sidebar-link"
-        >
-            <span class="sidebar-icon">📢</span>
-            <span>Advertisements</span>
+            class="sidebar-link">
+
+            <span class="sidebar-icon">📣</span>
+
+            <span class="sidebar-link-text">
+                Advertisements
+            </span>
 
             {% if pending_advertisements > 0 %}
-                <span
-                    style="
-                        margin-left:auto;
-                        min-width:20px;
-                        height:20px;
-                        padding:0 6px;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        border-radius:999px;
-                        background:#f59e0b;
-                        color:white;
-                        font-size:9px;
-                        font-weight:800;
-                    "
-                >
+                <span class="sidebar-badge">
                     {{ pending_advertisements }}
                 </span>
             {% endif %}
 
         </a>
 
-
         <a
             href="{{ url_for('admin_campus_ambassadors') }}"
-            class="sidebar-link"
-        >
-            <span class="sidebar-icon">🎓</span>
-            <span>Campus Ambassadors</span>
-        </a>
+            class="sidebar-link">
 
+            <span class="sidebar-icon">🎓</span>
+
+            <span class="sidebar-link-text">
+                Campus Ambassadors
+            </span>
+
+        </a>
 
         <a
             href="{{ url_for('admin_verified_students') }}"
-            class="sidebar-link"
-        >
-            <span class="sidebar-icon">✅</span>
-            <span>Verified Students</span>
+            class="sidebar-link">
+
+            <span class="sidebar-icon">✓</span>
+
+            <span class="sidebar-link-text">
+                Verified Students
+            </span>
+
         </a>
 
 
         <div class="sidebar-divider"></div>
 
-
-        <div class="sidebar-label">
+        <div class="sidebar-section-title">
             Platform
         </div>
 
-
         <a
             href="{{ url_for('dashboard') }}"
-            class="sidebar-link"
-        >
+            class="sidebar-link">
+
             <span class="sidebar-icon">🏠</span>
-            <span>UniCamplink</span>
+
+            <span class="sidebar-link-text">
+                Main Dashboard
+            </span>
+
+        </a>
+
+        <a
+            href="{{ url_for('logout') }}"
+            class="sidebar-link">
+
+            <span class="sidebar-icon">↪</span>
+
+            <span class="sidebar-link-text">
+                Logout
+            </span>
+
         </a>
 
 
-        <div class="sidebar-admin-card">
+        <div class="sidebar-user">
 
-            <strong>
-                🛡️ Administrator
-            </strong>
+            <div class="sidebar-user-label">
+                Administrator
+            </div>
 
-            <span>
-                You are viewing the management
-                dashboard for UniCamplink.
-            </span>
+            <div class="sidebar-user-name">
+                {{ current_user["name"] }}
+            </div>
 
         </div>
 
     </aside>
 
 
-    <!-- =====================================================
+    <!-- =========================================================
          MAIN CONTENT
-    ====================================================== -->
+         ========================================================= -->
 
     <main class="admin-main">
 
-
-        <!-- =================================================
-             HERO
-        ================================================== -->
-
-        <section class="admin-hero">
-
-            <div class="hero-decoration"></div>
-
-            <div class="hero-content">
-
-                <span class="hero-eyebrow">
-                    ⚡ RAZOR ADMIN CENTER
-                </span>
-
-                <h1 class="hero-title">
-                    Welcome back, {{ current_user["name"] }} 👋
-                </h1>
-
-                <p class="hero-description">
-                    Manage UniCamplink members, advertisements,
-                    campus ambassadors, verified students and
-                    platform activity from one central control
-                    center.
-                </p>
-
-                <div class="hero-user">
-                    🛡️
-                    <span>
-                        Administrator Access
-                    </span>
-                </div>
-
-            </div>
-
-        </section>
+        <div class="admin-container">
 
 
-        <!-- =================================================
-             PLATFORM OVERVIEW
-        ================================================== -->
+            <!-- =================================================
+                 HERO
+                 ================================================= -->
 
-        <div class="section-heading">
+            <section class="admin-hero">
 
-            <div>
+                <div class="hero-content">
 
-                <h2>
-                    Platform Overview
-                </h2>
-
-                <p>
-                    A quick snapshot of UniCamplink activity.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <section class="stats-grid">
-
-
-            <!-- Users -->
-
-            <div class="stat-card stat-blue">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        👥
+                    <div class="hero-eyebrow">
+                        ⚡ Razor Admin Center
                     </div>
 
-                </div>
-
-                <div class="stat-label">
-                    Total Users
-                </div>
-
-                <div class="stat-number">
-                    {{ total_users }}
-                </div>
-
-            </div>
-
-
-            <!-- Active -->
-
-            <div class="stat-card stat-green">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        🟢
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Active Now
-                </div>
-
-                <div class="stat-number">
-                    {{ active_members }}
-                </div>
-
-            </div>
-
-
-            <!-- Posts -->
-
-            <div class="stat-card stat-blue">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        📝
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Total Posts
-                </div>
-
-                <div class="stat-number">
-                    {{ total_posts }}
-                </div>
-
-            </div>
-
-
-            <!-- Groups -->
-
-            <div class="stat-card stat-purple">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        👨‍👩‍👧
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Groups
-                </div>
-
-                <div class="stat-number">
-                    {{ total_groups }}
-                </div>
-
-            </div>
-
-
-            <!-- Marketplace -->
-
-            <div class="stat-card stat-orange">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        🛍️
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Marketplace Listings
-                </div>
-
-                <div class="stat-number">
-                    {{ total_products }}
-                </div>
-
-            </div>
-
-
-            <!-- Messages -->
-
-            <div class="stat-card stat-blue">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        💬
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Messages
-                </div>
-
-                <div class="stat-number">
-                    {{ total_messages }}
-                </div>
-
-            </div>
-
-
-            <!-- Friends -->
-
-            <div class="stat-card stat-purple">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        🤝
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Friend Requests
-                </div>
-
-                <div class="stat-number">
-                    {{ total_friend_requests }}
-                </div>
-
-            </div>
-
-
-            <!-- Ads -->
-
-            <div class="stat-card stat-green">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        📢
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Advertisements
-                </div>
-
-                <div class="stat-number">
-                    {{ total_advertisements }}
-                </div>
-
-            </div>
-
-
-            <!-- Pending Ads -->
-
-            <div class="stat-card stat-orange">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        ⏳
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Pending Ads
-                </div>
-
-                <div class="stat-number">
-                    {{ pending_advertisements }}
-                </div>
-
-            </div>
-
-
-            <!-- Ambassadors -->
-
-            <div class="stat-card stat-purple">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        🎓
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Campus Ambassadors
-                </div>
-
-                <div class="stat-number">
-                    {{ total_ambassadors }}
-                </div>
-
-            </div>
-
-
-            <!-- Verified -->
-
-            <div class="stat-card stat-green">
-
-                <div class="stat-top">
-
-                    <div class="stat-icon">
-                        ✅
-                    </div>
-
-                </div>
-
-                <div class="stat-label">
-                    Verified Students
-                </div>
-
-                <div class="stat-number">
-                    {{ total_verified_students }}
-                </div>
-
-            </div>
-
-
-        </section>
-
-
-        <!-- =================================================
-             MANAGEMENT
-        ================================================== -->
-
-        <div class="section-heading">
-
-            <div>
-
-                <h2>
-                    Quick Management
-                </h2>
-
-                <p>
-                    Access the main administrative tools.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <section class="management-grid">
-
-
-            <!-- Advertisements -->
-
-            <article class="management-card">
-
-                <div class="management-icon">
-                    📢
-                </div>
-
-                <h3>
-                    Advertisement Management
-                </h3>
-
-                <p>
-                    Review advertising requests submitted
-                    by businesses, organizations and students.
-                </p>
-
-                <div class="management-footer">
-
-                    {% if pending_advertisements > 0 %}
-
-                        <span class="pending-badge">
-                            ⏳ {{ pending_advertisements }}
-                            pending
+                    <h1 class="hero-title">
+                        Welcome back,
+                        <span>
+                            {{ current_user["name"] }}
                         </span>
+                    </h1>
 
-                    {% else %}
+                    <p class="hero-description">
+                        Manage UniCamplink from one place.
+                        Monitor members, community activity,
+                        advertisements, Campus Ambassadors and
+                        verified students.
+                    </p>
 
-                        <span class="verified-badge">
-                            ✓ No pending requests
-                        </span>
+                    <div class="hero-actions">
 
-                    {% endif %}
+                        <a
+                            href="{{ url_for('admin_members') }}"
+                            class="hero-button">
+                            👥 Manage Members
+                        </a>
 
-                    <a
-                        href="{{ url_for('admin_advertisements') }}"
-                        class="manage-button"
-                    >
-                        Manage Ads →
-                    </a>
+                        <a
+                            href="{{ url_for('admin_advertisements') }}"
+                            class="hero-button secondary">
+                            📣 Advertisements
+                        </a>
 
-                </div>
-
-            </article>
-
-
-            <!-- Members -->
-
-            <article class="management-card">
-
-                <div class="management-icon">
-                    👥
-                </div>
-
-                <h3>
-                    Member Management
-                </h3>
-
-                <p>
-                    Search registered UniCamplink students,
-                    review member accounts and monitor platform
-                    activity.
-                </p>
-
-                <div class="management-footer">
-
-                    <span class="verified-badge">
-                        {{ total_users }} members
-                    </span>
-
-                    <a
-                        href="{{ url_for('admin_members') }}"
-                        class="manage-button"
-                    >
-                        View Members →
-                    </a>
+                    </div>
 
                 </div>
 
-            </article>
+            </section>
 
 
-            <!-- Ambassadors -->
+            <!-- =================================================
+                 PLATFORM OVERVIEW
+                 ================================================= -->
 
-            <article class="management-card">
-
-                <div
-                    class="management-icon"
-                    style="
-                        background:var(--purple-soft);
-                    "
-                >
-                    🎓
-                </div>
-
-                <h3>
-                    Campus Ambassador Management
-                </h3>
-
-                <p>
-                    Appoint official UniCamplink Campus
-                    Ambassadors, assign their campus or school,
-                    view active ambassadors and remove status.
-                </p>
-
-                <div class="management-footer">
-
-                    {% if total_ambassadors > 0 %}
-
-                        <span class="ambassador-badge">
-                            🎓 {{ total_ambassadors }}
-                            active
-                        </span>
-
-                    {% else %}
-
-                        <span class="pending-badge">
-                            No ambassadors
-                        </span>
-
-                    {% endif %}
-
-                    <a
-                        href="{{ url_for('admin_campus_ambassadors') }}"
-                        class="manage-button purple"
-                    >
-                        Manage →
-                    </a>
-
-                </div>
-
-            </article>
-
-
-            <!-- Verified Students -->
-
-            <article class="management-card">
-
-                <div
-                    class="management-icon"
-                    style="
-                        background:var(--green-soft);
-                    "
-                >
-                    ✅
-                </div>
-
-                <h3>
-                    Verified Students
-                </h3>
-
-                <p>
-                    Manage official Verified Student status
-                    for registered UniCamplink students.
-                </p>
-
-                <div class="management-footer">
-
-                    <span class="verified-badge">
-                        ✓ {{ total_verified_students }}
-                        verified
-                    </span>
-
-                    <a
-                        href="{{ url_for('admin_verified_students') }}"
-                        class="manage-button green"
-                    >
-                        Manage →
-                    </a>
-
-                </div>
-
-            </article>
-
-
-        </section>
-
-
-        <!-- =================================================
-             RECENT MEMBERS
-        ================================================== -->
-
-        <section class="recent-section">
-
-            <div class="recent-header">
+            <div class="section-heading">
 
                 <div>
-
                     <h2>
-                        🆕 Recent Members
+                        Platform overview
                     </h2>
 
                     <p>
-                        The latest students to join UniCamplink.
+                        A quick look at UniCamplink activity.
                     </p>
-
                 </div>
-
-                <a
-                    href="{{ url_for('admin_members') }}"
-                    class="section-link"
-                >
-                    View all →
-                </a>
 
             </div>
 
 
-            {% if recent_users %}
-
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Member
-                                </th>
-
-                                <th>
-                                    Email
-                                </th>
-
-                                <th>
-                                    University
-                                </th>
-
-                                <th>
-                                    Joined
-                                </th>
-
-                            </tr>
-
-                        </thead>
+            <section class="stats-grid">
 
 
-                        <tbody>
+                <!-- USERS -->
+
+                <div class="stat-card stat-blue">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Total Members
+                        </div>
+
+                        <div class="stat-icon">
+                            👥
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_users }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Registered accounts
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIVE -->
+
+                <div class="stat-card stat-green">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Active Members
+                        </div>
+
+                        <div class="stat-icon">
+                            ●
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ active_members }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Recent activity
+                    </div>
+
+                </div>
+
+
+                <!-- POSTS -->
+
+                <div class="stat-card stat-purple">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Posts
+                        </div>
+
+                        <div class="stat-icon">
+                            ✍
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_posts }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Community content
+                    </div>
+
+                </div>
+
+
+                <!-- GROUPS -->
+
+                <div class="stat-card stat-orange">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Groups
+                        </div>
+
+                        <div class="stat-icon">
+                            👥
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_groups }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Campus communities
+                    </div>
+
+                </div>
+
+
+                <!-- PRODUCTS -->
+
+                <div class="stat-card stat-blue">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Marketplace
+                        </div>
+
+                        <div class="stat-icon">
+                            🛍
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_products }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Listed products
+                    </div>
+
+                </div>
+
+
+                <!-- MESSAGES -->
+
+                <div class="stat-card stat-purple">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Messages
+                        </div>
+
+                        <div class="stat-icon">
+                            💬
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_messages }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Platform conversations
+                    </div>
+
+                </div>
+
+
+                <!-- FRIEND REQUESTS -->
+
+                <div class="stat-card stat-pink">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Friend Requests
+                        </div>
+
+                        <div class="stat-icon">
+                            🤝
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_friend_requests }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Social connections
+                    </div>
+
+                </div>
+
+
+                <!-- ADS -->
+
+                <div class="stat-card stat-orange">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Advertisements
+                        </div>
+
+                        <div class="stat-icon">
+                            📣
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_advertisements }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Total ad submissions
+                    </div>
+
+                </div>
+
+
+                <!-- PENDING ADS -->
+
+                <div class="stat-card stat-red">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Pending Ads
+                        </div>
+
+                        <div class="stat-icon">
+                            ⏳
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ pending_advertisements }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Waiting for review
+                    </div>
+
+                </div>
+
+
+                <!-- AMBASSADORS -->
+
+                <div class="stat-card stat-purple">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Ambassadors
+                        </div>
+
+                        <div class="stat-icon">
+                            🎓
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_ambassadors }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Official ambassadors
+                    </div>
+
+                </div>
+
+
+                <!-- VERIFIED -->
+
+                <div class="stat-card stat-green">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Verified Students
+                        </div>
+
+                        <div class="stat-icon">
+                            ✓
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_verified_students }}
+                    </div>
+
+                    <div class="stat-meta">
+                        Verified community members
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =================================================
+                 QUICK ACTIONS
+                 ================================================= -->
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>
+                        Quick actions
+                    </h2>
+
+                    <p>
+                        Jump directly into important admin tools.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <section class="quick-grid">
+
+
+                <a
+                    href="{{ url_for('admin_members') }}"
+                    class="quick-card">
+
+                    <div class="quick-icon quick-blue">
+                        👥
+                    </div>
+
+                    <div class="quick-info">
+
+                        <div class="quick-title">
+                            Manage Members
+                        </div>
+
+                        <div class="quick-description">
+                            Search and manage registered students
+                        </div>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_campus_ambassadors') }}"
+                    class="quick-card">
+
+                    <div class="quick-icon quick-purple">
+                        🎓
+                    </div>
+
+                    <div class="quick-info">
+
+                        <div class="quick-title">
+                            Campus Ambassadors
+                        </div>
+
+                        <div class="quick-description">
+                            Appoint and manage official ambassadors
+                        </div>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_verified_students') }}"
+                    class="quick-card">
+
+                    <div class="quick-icon quick-green">
+                        ✓
+                    </div>
+
+                    <div class="quick-info">
+
+                        <div class="quick-title">
+                            Verified Students
+                        </div>
+
+                        <div class="quick-description">
+                            Manage student verification
+                        </div>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_advertisements') }}"
+                    class="quick-card">
+
+                    <div class="quick-icon quick-orange">
+                        📣
+                    </div>
+
+                    <div class="quick-info">
+
+                        <div class="quick-title">
+                            Advertisements
+                        </div>
+
+                        <div class="quick-description">
+                            Review and manage platform ads
+                        </div>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+
+            </section>
+
+
+            <!-- =================================================
+                 ACTIVITY + MANAGEMENT
+                 ================================================= -->
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>
+                        Community activity
+                    </h2>
+
+                    <p>
+                        Core activity across the platform.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <section class="content-grid">
+
+
+                <!-- =============================================
+                     RECENT MEMBERS
+                     ============================================= -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div class="panel-title">
+
+                            <div class="panel-title-icon">
+                                👥
+                            </div>
+
+                            Recent members
+
+                        </div>
+
+                        <div class="panel-count">
+                            Latest registrations
+                        </div>
+
+                    </div>
+
+
+                    <div class="member-list">
+
+                        {% if recent_users %}
 
                             {% for user in recent_users %}
 
-                                <tr>
+                                <div class="member-row">
 
-                                    <td>
+                                    <div class="member-avatar">
+
+                                        {% if user["profile_picture"] %}
+                                            <img
+                                                src="{{ user['profile_picture'] }}"
+                                                alt="{{ user['name'] }}">
+                                        {% else %}
+                                            {{ user["name"][0]|upper }}
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div class="member-info">
 
                                         <div class="member-name">
                                             {{ user["name"] }}
                                         </div>
 
-                                    </td>
-
-
-                                    <td>
-
-                                        <span class="member-email">
+                                        <div class="member-email">
                                             {{ user["email"] }}
-                                        </span>
+                                        </div>
 
-                                    </td>
+                                        <div class="member-meta">
+
+                                            <span class="member-school">
+                                                🎓 {{ user["university"] or "University not set" }}
+                                            </span>
+
+                                            <span class="dot">
+                                                •
+                                            </span>
+
+                                            <span class="member-date">
+                                                {{ user["joined_at"] or "—" }}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
 
 
-                                    <td>
-                                        {{ user["university"] or "—" }}
-                                    </td>
+                                    <div class="member-arrow">
+                                        ›
+                                    </div>
 
-
-                                    <td>
-                                        {{ user["joined_at"] or "—" }}
-                                    </td>
-
-                                </tr>
+                                </div>
 
                             {% endfor %}
 
-                        </tbody>
+                        {% else %}
 
-                    </table>
+                            <div class="empty-state">
+                                No recent members available.
+                            </div>
 
-                </div>
+                        {% endif %}
 
-            {% else %}
-
-                <div class="empty-state">
-
-                    👥 No members found yet.
+                    </div>
 
                 </div>
 
-            {% endif %}
 
-        </section>
+                <!-- =============================================
+                     MANAGEMENT
+                     ============================================= -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div class="panel-title">
+
+                            <div class="panel-title-icon">
+                                ⚙
+                            </div>
+
+                            Management
+
+                        </div>
+
+                    </div>
 
 
-        <!-- =================================================
-             SHORTCUTS
-        ================================================== -->
+                    <div class="management-list">
 
-        <div class="section-heading">
 
-            <div>
+                        <!-- AMBASSADORS -->
 
-                <h2>
-                    Admin Shortcuts
-                </h2>
+                        <a
+                            href="{{ url_for('admin_campus_ambassadors') }}"
+                            class="management-item">
 
-                <p>
-                    Frequently used UniCamplink areas.
-                </p>
+                            <div class="management-icon manage-purple">
+                                🎓
+                            </div>
+
+                            <div class="management-info">
+
+                                <div class="management-title">
+                                    Campus Ambassadors
+                                </div>
+
+                                <div class="management-description">
+                                    Official UniCamplink representatives
+                                </div>
+
+                            </div>
+
+                            <div class="management-number">
+                                {{ total_ambassadors }}
+                            </div>
+
+                            <div class="management-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                        <!-- VERIFIED -->
+
+                        <a
+                            href="{{ url_for('admin_verified_students') }}"
+                            class="management-item">
+
+                            <div class="management-icon manage-green">
+                                ✓
+                            </div>
+
+                            <div class="management-info">
+
+                                <div class="management-title">
+                                    Verified Students
+                                </div>
+
+                                <div class="management-description">
+                                    Student verification management
+                                </div>
+
+                            </div>
+
+                            <div class="management-number">
+                                {{ total_verified_students }}
+                            </div>
+
+                            <div class="management-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                        <!-- ADS -->
+
+                        <a
+                            href="{{ url_for('admin_advertisements') }}"
+                            class="management-item">
+
+                            <div class="management-icon manage-orange">
+                                📣
+                            </div>
+
+                            <div class="management-info">
+
+                                <div class="management-title">
+                                    Advertisements
+                                </div>
+
+                                <div class="management-description">
+                                    Review submitted advertisements
+                                </div>
+
+                            </div>
+
+                            <div class="management-number">
+                                {{ total_advertisements }}
+                            </div>
+
+                            <div class="management-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                        <!-- PENDING -->
+
+                        <a
+                            href="{{ url_for('admin_advertisements') }}"
+                            class="management-item">
+
+                            <div class="management-icon manage-red">
+                                ⏳
+                            </div>
+
+                            <div class="management-info">
+
+                                <div class="management-title">
+                                    Pending Reviews
+                                </div>
+
+                                <div class="management-description">
+                                    Advertisements awaiting action
+                                </div>
+
+                            </div>
+
+                            <div class="management-number">
+                                {{ pending_advertisements }}
+                            </div>
+
+                            <div class="management-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                        <!-- MEMBERS -->
+
+                        <a
+                            href="{{ url_for('admin_members') }}"
+                            class="management-item">
+
+                            <div class="management-icon manage-blue">
+                                👥
+                            </div>
+
+                            <div class="management-info">
+
+                                <div class="management-title">
+                                    Member Directory
+                                </div>
+
+                                <div class="management-description">
+                                    Search and manage platform users
+                                </div>
+
+                            </div>
+
+                            <div class="management-number">
+                                {{ total_users }}
+                            </div>
+
+                            <div class="management-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =================================================
+                 ACTIVITY SUMMARY
+                 ================================================= -->
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>
+                        At a glance
+                    </h2>
+
+                    <p>
+                        A compact snapshot of the UniCamplink ecosystem.
+                    </p>
+                </div>
 
             </div>
 
+
+            <section class="panel">
+
+                <div class="activity-grid">
+
+                    <div class="activity-box">
+
+                        <div class="activity-icon">
+                            👥
+                        </div>
+
+                        <div class="activity-value">
+                            {{ total_users }}
+                        </div>
+
+                        <div class="activity-label">
+                            Members
+                        </div>
+
+                    </div>
+
+
+                    <div class="activity-box">
+
+                        <div class="activity-icon">
+                            ✍
+                        </div>
+
+                        <div class="activity-value">
+                            {{ total_posts }}
+                        </div>
+
+                        <div class="activity-label">
+                            Posts
+                        </div>
+
+                    </div>
+
+
+                    <div class="activity-box">
+
+                        <div class="activity-icon">
+                            💬
+                        </div>
+
+                        <div class="activity-value">
+                            {{ total_messages }}
+                        </div>
+
+                        <div class="activity-label">
+                            Messages
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
         </div>
-
-
-        <section class="shortcuts">
-
-
-            <a
-                href="{{ url_for('dashboard') }}"
-                class="shortcut"
-            >
-
-                <div class="shortcut-icon">
-                    🏠
-                </div>
-
-                <div>
-
-                    <strong>
-                        Platform Dashboard
-                    </strong>
-
-                    <span>
-                        Return to UniCamplink
-                    </span>
-
-                </div>
-
-            </a>
-
-
-            <a
-                href="{{ url_for('admin_members') }}"
-                class="shortcut"
-            >
-
-                <div class="shortcut-icon">
-                    🔎
-                </div>
-
-                <div>
-
-                    <strong>
-                        Search Members
-                    </strong>
-
-                    <span>
-                        Find registered students
-                    </span>
-
-                </div>
-
-            </a>
-
-
-            <a
-                href="{{ url_for('admin_advertisements') }}"
-                class="shortcut"
-            >
-
-                <div class="shortcut-icon">
-                    📢
-                </div>
-
-                <div>
-
-                    <strong>
-                        Review Advertisements
-                    </strong>
-
-                    <span>
-                        Approve or reject requests
-                    </span>
-
-                </div>
-
-            </a>
-
-
-        </section>
-
 
     </main>
 
-</div>
+
+    <!-- =========================================================
+         MOBILE BOTTOM NAV
+         ========================================================= -->
+
+    <nav class="mobile-bottom-nav">
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="mobile-bottom-link active">
+
+            <span>⌂</span>
+            <span>Home</span>
+
+        </a>
+
+        <a
+            href="{{ url_for('admin_members') }}"
+            class="mobile-bottom-link">
+
+            <span>👥</span>
+            <span>Members</span>
+
+        </a>
+
+        <a
+            href="{{ url_for('admin_advertisements') }}"
+            class="mobile-bottom-link">
+
+            <span>📣</span>
+            <span>Ads</span>
+
+        </a>
+
+        <a
+            href="{{ url_for('admin_campus_ambassadors') }}"
+            class="mobile-bottom-link">
+
+            <span>🎓</span>
+            <span>Ambassadors</span>
+
+        </a>
+
+        <a
+            href="{{ url_for('admin_verified_students') }}"
+            class="mobile-bottom-link">
+
+            <span>✓</span>
+            <span>Verified</span>
+
+        </a>
+
+    </nav>
 
 
-<!-- =========================================================
-     JAVASCRIPT
-========================================================= -->
+    <!-- =========================================================
+         JAVASCRIPT
+         ========================================================= -->
 
-<script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-(function () {
+            const html = document.documentElement;
 
-    const html = document.documentElement;
+            const themeToggle =
+                document.getElementById("themeToggle");
 
-    const themeToggle =
-        document.getElementById("themeToggle");
+            const mobileMenuButton =
+                document.getElementById("mobileMenuButton");
 
-    const mobileMenuButton =
-        document.getElementById("mobileMenuButton");
+            const adminSidebar =
+                document.getElementById("adminSidebar");
 
-    const adminSidebar =
-        document.getElementById("adminSidebar");
-
-    const mobileOverlay =
-        document.getElementById("mobileOverlay");
-
-
-    /* =====================================================
-       THEME
-    ===================================================== */
-
-    function applyTheme(theme) {
-
-        html.setAttribute("data-theme", theme);
-
-        localStorage.setItem(
-            "unicamplink-theme",
-            theme
-        );
-
-        if (themeToggle) {
-
-            themeToggle.innerHTML =
-                theme === "dark"
-                    ? "☀️ <span class='theme-label'>Light</span>"
-                    : "🌙 <span class='theme-label'>Dark</span>";
-
-        }
-
-    }
+            const mobileOverlay =
+                document.getElementById("mobileOverlay");
 
 
-    const savedTheme =
-        localStorage.getItem("unicamplink-theme");
+            /* =====================================================
+               THEME
+               ===================================================== */
+
+            function applyTheme(theme) {
+
+                html.setAttribute("data-theme", theme);
+
+                if (themeToggle) {
+
+                    themeToggle.textContent =
+                        theme === "dark" ? "☀️" : "🌙";
+
+                    themeToggle.setAttribute(
+                        "aria-label",
+                        theme === "dark"
+                            ? "Switch to light mode"
+                            : "Switch to dark mode"
+                    );
+
+                    themeToggle.setAttribute(
+                        "title",
+                        theme === "dark"
+                            ? "Switch to light mode"
+                            : "Switch to dark mode"
+                    );
+                }
+            }
 
 
-    if (savedTheme === "light") {
-
-        applyTheme("light");
-
-    } else {
-
-        applyTheme("dark");
-
-    }
+            let savedTheme =
+                localStorage.getItem("unicamplink-theme");
 
 
-    if (themeToggle) {
+            if (
+                savedTheme !== "light" &&
+                savedTheme !== "dark"
+            ) {
+                savedTheme = "dark";
+            }
 
-        themeToggle.addEventListener(
-            "click",
-            function () {
 
-                const current =
-                    html.getAttribute("data-theme");
+            applyTheme(savedTheme);
 
-                applyTheme(
-                    current === "dark"
-                        ? "light"
-                        : "dark"
+
+            if (themeToggle) {
+
+                themeToggle.addEventListener(
+                    "click",
+                    function () {
+
+                        const currentTheme =
+                            html.getAttribute("data-theme");
+
+                        const newTheme =
+                            currentTheme === "dark"
+                                ? "light"
+                                : "dark";
+
+                        localStorage.setItem(
+                            "unicamplink-theme",
+                            newTheme
+                        );
+
+                        applyTheme(newTheme);
+                    }
                 );
 
             }
-        );
-
-    }
 
 
-    /* =====================================================
-       MOBILE SIDEBAR
-    ===================================================== */
+            /* =====================================================
+               MOBILE SIDEBAR
+               ===================================================== */
 
-    function openSidebar() {
+            function openSidebar() {
 
-        if (!adminSidebar) return;
+                if (!adminSidebar) return;
 
-        adminSidebar.classList.add("open");
+                adminSidebar.classList.add("open");
 
-        if (mobileOverlay) {
-            mobileOverlay.classList.add("show");
-        }
-
-    }
-
-
-    function closeSidebar() {
-
-        if (!adminSidebar) return;
-
-        adminSidebar.classList.remove("open");
-
-        if (mobileOverlay) {
-            mobileOverlay.classList.remove("show");
-        }
-
-    }
-
-
-    if (mobileMenuButton) {
-
-        mobileMenuButton.addEventListener(
-            "click",
-            function () {
-
-                if (
-                    adminSidebar &&
-                    adminSidebar.classList.contains("open")
-                ) {
-
-                    closeSidebar();
-
-                } else {
-
-                    openSidebar();
-
+                if (mobileOverlay) {
+                    mobileOverlay.classList.add("active");
                 }
 
+                if (mobileMenuButton) {
+                    mobileMenuButton.setAttribute(
+                        "aria-expanded",
+                        "true"
+                    );
+
+                    mobileMenuButton.textContent = "✕";
+                }
+
+                document.body.style.overflow = "hidden";
             }
-        );
-
-    }
 
 
-    if (mobileOverlay) {
+            function closeSidebar() {
 
-        mobileOverlay.addEventListener(
-            "click",
-            closeSidebar
-        );
+                if (!adminSidebar) return;
 
-    }
+                adminSidebar.classList.remove("open");
+
+                if (mobileOverlay) {
+                    mobileOverlay.classList.remove("active");
+                }
+
+                if (mobileMenuButton) {
+                    mobileMenuButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                    mobileMenuButton.textContent = "☰";
+                }
+
+                document.body.style.overflow = "";
+            }
 
 
-    document
-        .querySelectorAll(".admin-sidebar a")
-        .forEach(function (link) {
+            if (mobileMenuButton) {
 
-            link.addEventListener(
-                "click",
+                mobileMenuButton.addEventListener(
+                    "click",
+                    function () {
+
+                        if (
+                            adminSidebar &&
+                            adminSidebar.classList.contains("open")
+                        ) {
+                            closeSidebar();
+                        } else {
+                            openSidebar();
+                        }
+
+                    }
+                );
+
+            }
+
+
+            if (mobileOverlay) {
+
+                mobileOverlay.addEventListener(
+                    "click",
+                    closeSidebar
+                );
+
+            }
+
+
+            /* =====================================================
+               CLOSE SIDEBAR WHEN A LINK IS SELECTED ON MOBILE
+               ===================================================== */
+
+            if (adminSidebar) {
+
+                adminSidebar
+                    .querySelectorAll("a")
+                    .forEach(function (link) {
+
+                        link.addEventListener(
+                            "click",
+                            function () {
+
+                                if (
+                                    window.innerWidth <= 720
+                                ) {
+                                    closeSidebar();
+                                }
+
+                            }
+                        );
+
+                    });
+
+            }
+
+
+            /* =====================================================
+               ESCAPE KEY
+               ===================================================== */
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (event.key === "Escape") {
+                        closeSidebar();
+                    }
+
+                }
+            );
+
+
+            /* =====================================================
+               RESPONSIVE SAFETY
+               ===================================================== */
+
+            window.addEventListener(
+                "resize",
                 function () {
 
-                    if (
-                        window.innerWidth <= 980
-                    ) {
+                    if (window.innerWidth > 720) {
                         closeSidebar();
                     }
 
@@ -2238,23 +2850,7 @@
             );
 
         });
-
-
-    window.addEventListener(
-        "resize",
-        function () {
-
-            if (window.innerWidth > 980) {
-                closeSidebar();
-            }
-
-        }
-    );
-
-
-})();
-
-</script>
+    </script>
 
 </body>
 </html>

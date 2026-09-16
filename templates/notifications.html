@@ -1,1070 +1,670 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>My Products — UniCamplink</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta
+        name="description"
+        content="UniCamplink Notifications — stay updated with activity around your campus community."
+    >
+
+    <title>Notifications | UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
     <style>
-        :root {
-            --razor-primary: #38bdf8;
-            --razor-primary-dark: #0ea5e9;
-            --razor-bg: #0b1120;
-            --razor-card: #111827;
-            --razor-card-2: #172033;
-            --razor-border: rgba(148, 163, 184, 0.15);
-            --razor-text: #f8fafc;
-            --razor-muted: #94a3b8;
-            --razor-success: #22c55e;
-            --razor-warning: #f59e0b;
-            --razor-danger: #ef4444;
-            --razor-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+
+        /* =========================================================
+           RAZOR NOTIFICATIONS
+        ========================================================= */
+
+        .notifications-page {
+            width: min(720px, calc(100% - 24px));
+            margin: 24px auto 80px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .notifications-header {
+            margin-bottom: 16px;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 32%),
-                radial-gradient(circle at top right, rgba(14, 165, 233, 0.05), transparent 28%),
-                var(--razor-bg);
-            color: var(--razor-text);
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Arial,
-                sans-serif;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        button,
-        input,
-        select {
-            font: inherit;
-        }
-
-        /* =========================================
-           NAVBAR
-        ========================================= */
-
-        .razor-navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-
-            width: 100%;
-
-            background: rgba(11, 17, 32, 0.88);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-
-            border-bottom: 1px solid var(--razor-border);
-        }
-
-        .navbar-inner {
-            width: min(1180px, 94%);
-            min-height: 68px;
-            margin: auto;
-
+        .notifications-title-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 18px;
+            gap: 12px;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
+        .notifications-title-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
 
-        .brand-logo {
-            width: 42px;
-            height: 42px;
-            border-radius: 13px;
-            object-fit: cover;
-
-            box-shadow:
-                0 6px 18px rgba(56, 189, 248, 0.22);
-        }
-
-        .brand-name {
-            font-size: 19px;
-            font-weight: 800;
-            letter-spacing: -0.4px;
-        }
-
-        .brand-name span {
-            color: var(--razor-primary);
-        }
-
-        .navbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-        }
-
-        .nav-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-
-            min-height: 40px;
-            padding: 8px 14px;
-
-            border-radius: 12px;
-
-            color: var(--razor-muted);
-            font-size: 14px;
-            font-weight: 700;
-
-            transition:
-                background 0.2s ease,
-                color 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .nav-link:hover {
-            background: rgba(56, 189, 248, 0.09);
-            color: var(--razor-primary);
-            transform: translateY(-1px);
-        }
-
-        .back-link {
-            color: var(--razor-primary);
-            background: rgba(56, 189, 248, 0.08);
-            border: 1px solid rgba(56, 189, 248, 0.12);
-        }
-
-        /* =========================================
-           PAGE
-        ========================================= */
-
-        .page {
-            width: min(1180px, 94%);
-            margin: 0 auto;
-            padding: 38px 0 70px;
-        }
-
-        .page-header {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 25px;
-
-            margin-bottom: 28px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .header-icon {
-            width: 54px;
-            height: 54px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 17px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(56, 189, 248, 0.18),
-                    rgba(14, 165, 233, 0.05)
-                );
-
-            border: 1px solid rgba(56, 189, 248, 0.15);
-
-            font-size: 25px;
-        }
-
-        .page-header h1 {
-            font-size: clamp(26px, 4vw, 34px);
-            line-height: 1.1;
-            letter-spacing: -1px;
-            margin-bottom: 7px;
-        }
-
-        .page-header p {
-            color: var(--razor-muted);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .sell-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-
-            padding: 12px 18px;
-
-            border-radius: 13px;
-
-            background: linear-gradient(
-                135deg,
-                var(--razor-primary),
-                var(--razor-primary-dark)
-            );
-
-            color: #00111b;
-
-            font-size: 14px;
-            font-weight: 800;
-
-            box-shadow:
-                0 8px 22px rgba(56, 189, 248, 0.18);
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .sell-button:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 12px 28px rgba(56, 189, 248, 0.25);
-        }
-
-        /* =========================================
-           PRODUCTS GRID
-        ========================================= */
-
-        .products {
             display: grid;
-            grid-template-columns:
-                repeat(auto-fill, minmax(260px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            position: relative;
-            overflow: hidden;
+            place-items: center;
 
             background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,0.035),
-                    rgba(255,255,255,0.015)
-                ),
-                var(--razor-card);
+                rgba(56, 189, 248, .12);
 
-            border: 1px solid var(--razor-border);
-            border-radius: 20px;
-
-            box-shadow: var(--razor-shadow);
-
-            transition:
-                transform 0.22s ease,
-                border-color 0.22s ease,
-                box-shadow 0.22s ease;
-        }
-
-        .product-card:hover {
-            transform: translateY(-4px);
-
-            border-color:
-                rgba(56, 189, 248, 0.25);
-
-            box-shadow:
-                0 18px 42px rgba(0, 0, 0, 0.28);
-        }
-
-        /* =========================================
-           IMAGE
-        ========================================= */
-
-        .product-media {
-            position: relative;
-            height: 225px;
-
-            overflow: hidden;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #172033,
-                    #0f172a
-                );
-        }
-
-        .product-image {
-            width: 100%;
-            height: 100%;
-
-            display: block;
-
-            object-fit: cover;
-
-            transition:
-                transform 0.35s ease;
-        }
-
-        .product-card:hover .product-image {
-            transform: scale(1.045);
-        }
-
-        .no-image {
-            width: 100%;
-            height: 100%;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            color: var(--razor-muted);
-
-            background:
-                radial-gradient(
-                    circle at center,
-                    rgba(56, 189, 248, 0.07),
-                    transparent 60%
-                );
-        }
-
-        .no-image-icon {
-            font-size: 35px;
-            margin-bottom: 7px;
-            opacity: 0.8;
-        }
-
-        .no-image span {
-            font-size: 13px;
-        }
-
-        /* =========================================
-           STATUS BADGE
-        ========================================= */
-
-        .status-badge {
-            position: absolute;
-            top: 13px;
-            right: 13px;
-
-            padding: 7px 10px;
-
-            border-radius: 999px;
-
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 0.3px;
-
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .available {
-            color: #bbf7d0;
-            background: rgba(22, 163, 74, 0.82);
-            border: 1px solid rgba(134, 239, 172, 0.2);
-        }
-
-        .sold {
-            color: #fecaca;
-            background: rgba(185, 28, 28, 0.85);
-            border: 1px solid rgba(252, 165, 165, 0.18);
-        }
-
-        /* =========================================
-           PRODUCT INFO
-        ========================================= */
-
-        .product-info {
-            padding: 18px;
-        }
-
-        .product-title {
-            margin-bottom: 9px;
-
-            font-size: 18px;
-            font-weight: 800;
-            line-height: 1.3;
-
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .price {
-            margin-bottom: 12px;
-
-            color: var(--razor-primary);
+            border:
+                1px solid rgba(56, 189, 248, .25);
 
             font-size: 21px;
+        }
+
+        .notifications-header h1 {
+            margin: 0;
+
+            font-size: 1.35rem;
             font-weight: 900;
-            letter-spacing: -0.4px;
+
+            color: var(--text);
         }
 
-        .category {
-            display: inline-flex;
-            align-items: center;
+        .notifications-header p {
+            margin: 5px 0 0;
 
-            padding: 6px 10px;
+            color: var(--muted);
 
-            margin-bottom: 11px;
-
-            border-radius: 999px;
-
-            color: #7dd3fc;
-            background: rgba(56, 189, 248, 0.08);
-
-            border: 1px solid rgba(56, 189, 248, 0.12);
-
-            font-size: 11px;
-            font-weight: 800;
+            font-size: .86rem;
         }
 
-        .location {
+
+        /* =========================================================
+           NOTIFICATION LIST
+        ========================================================= */
+
+        .notification-list {
             display: flex;
-            align-items: center;
-            gap: 6px;
-
-            margin-bottom: 16px;
-
-            color: var(--razor-muted);
-
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        /* =========================================
-           BUTTONS
-        ========================================= */
-
-        .buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            flex-direction: column;
             gap: 8px;
         }
 
-        .action-button {
-            min-height: 42px;
 
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+        /* =========================================================
+           NOTIFICATION CARD
+        ========================================================= */
 
-            padding: 9px 10px;
-
-            border: 1px solid transparent;
-            border-radius: 11px;
-
-            font-size: 12px;
-            font-weight: 800;
-
-            cursor: pointer;
-
-            transition:
-                transform 0.18s ease,
-                background 0.18s ease,
-                border-color 0.18s ease;
-        }
-
-        .action-button:hover {
-            transform: translateY(-1px);
-        }
-
-        .view-btn {
-            background: rgba(56, 189, 248, 0.1);
-            color: #7dd3fc;
-            border-color: rgba(56, 189, 248, 0.14);
-        }
-
-        .view-btn:hover {
-            background: rgba(56, 189, 248, 0.17);
-        }
-
-        .sold-btn {
-            background: rgba(245, 158, 11, 0.1);
-            color: #fbbf24;
-            border-color: rgba(245, 158, 11, 0.14);
-        }
-
-        .sold-btn:hover {
-            background: rgba(245, 158, 11, 0.17);
-        }
-
-        .delete-btn {
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
-            border-color: rgba(239, 68, 68, 0.14);
-        }
-
-        .delete-btn:hover {
-            background: rgba(239, 68, 68, 0.17);
-        }
-
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        .action-form {
-            margin: 0;
-        }
-
-        .action-form button {
-            width: 100%;
-        }
-
-        /* =========================================
-           EMPTY STATE
-        ========================================= */
-
-        .empty {
-            padding: 65px 25px;
-
-            text-align: center;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,0.035),
-                    rgba(255,255,255,0.015)
-                ),
-                var(--razor-card);
-
-            border: 1px solid var(--razor-border);
-            border-radius: 22px;
-
-            box-shadow: var(--razor-shadow);
-        }
-
-        .empty-icon {
-            width: 72px;
-            height: 72px;
-
-            margin: 0 auto 17px;
+        .notification-card {
+            position: relative;
 
             display: flex;
             align-items: center;
-            justify-content: center;
 
-            border-radius: 22px;
+            gap: 12px;
 
-            background:
-                rgba(56, 189, 248, 0.08);
+            width: 100%;
+            box-sizing: border-box;
 
-            border: 1px solid rgba(56, 189, 248, 0.12);
+            padding: 13px 14px;
 
-            font-size: 32px;
-        }
+            border-radius: 15px;
 
-        .empty h2 {
-            margin-bottom: 9px;
-
-            font-size: 21px;
-        }
-
-        .empty p {
-            max-width: 480px;
-            margin: 0 auto 23px;
-
-            color: var(--razor-muted);
-
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        /* =========================================
-           LIGHT MODE
-        ========================================= */
-
-        body.light-mode {
-            --razor-bg: #f4f7fb;
-            --razor-card: #ffffff;
-            --razor-card-2: #f8fafc;
-            --razor-border: rgba(15, 23, 42, 0.09);
-            --razor-text: #0f172a;
-            --razor-muted: #64748b;
-            --razor-shadow:
-                0 10px 30px rgba(15, 23, 42, 0.08);
+            text-decoration: none;
 
             background:
-                radial-gradient(
-                    circle at top left,
-                    rgba(56, 189, 248, 0.08),
-                    transparent 30%
-                ),
-                var(--razor-bg);
+                var(--surface);
+
+            border:
+                1px solid var(--border);
+
+            color: var(--text);
+
+            transition:
+                transform .16s ease,
+                background .16s ease,
+                border-color .16s ease,
+                box-shadow .16s ease;
         }
 
-        body.light-mode .razor-navbar {
-            background: rgba(255, 255, 255, 0.88);
-        }
+        .notification-card:hover {
+            transform: translateY(-1px);
 
-        body.light-mode .product-card,
-        body.light-mode .empty {
-            background: #ffffff;
-        }
-
-        body.light-mode .product-media {
             background:
-                linear-gradient(
-                    145deg,
-                    #e8f3f9,
-                    #f8fafc
-                );
+                var(--surface-2);
+
+            border-color:
+                rgba(56, 189, 248, .35);
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, .08);
         }
 
-        body.light-mode .no-image {
+
+        /* =========================================================
+           AVATAR
+        ========================================================= */
+
+        .notification-avatar {
+            flex:
+                0 0 44px;
+
+            width: 44px;
+            height: 44px;
+
+            border-radius: 50%;
+
+            overflow: hidden;
+
+            display: grid;
+            place-items: center;
+
             background:
-                radial-gradient(
-                    circle at center,
-                    rgba(56, 189, 248, 0.08),
-                    transparent 60%
-                );
+                var(--surface-2);
+
+            border:
+                1px solid var(--border);
+
+            color:
+                var(--primary);
+
+            font-weight: 900;
+
+            font-size: .95rem;
         }
 
-        /* =========================================
-           RESPONSIVE
-        ========================================= */
+        .notification-avatar img {
+            width: 100%;
+            height: 100%;
 
-        @media (max-width: 760px) {
+            object-fit: cover;
 
-            .navbar-inner {
-                min-height: 62px;
-                width: 94%;
+            display: block;
+        }
+
+
+        /* =========================================================
+           NOTIFICATION ICON
+        ========================================================= */
+
+        .notification-icon {
+            flex:
+                0 0 34px;
+
+            width: 34px;
+            height: 34px;
+
+            border-radius: 50%;
+
+            display: grid;
+            place-items: center;
+
+            background:
+                rgba(56, 189, 248, .10);
+
+            border:
+                1px solid rgba(56, 189, 248, .16);
+
+            font-size: 16px;
+        }
+
+
+        /* =========================================================
+           BODY
+        ========================================================= */
+
+        .notification-body {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .notification-message {
+            margin: 0;
+
+            color:
+                var(--text);
+
+            font-size: .90rem;
+
+            line-height: 1.42;
+
+            overflow-wrap: anywhere;
+        }
+
+        .notification-message strong {
+            font-weight: 850;
+        }
+
+        .notification-time {
+            display: block;
+
+            margin-top: 4px;
+
+            color:
+                var(--muted);
+
+            font-size: .72rem;
+        }
+
+
+        /* =========================================================
+           ARROW
+        ========================================================= */
+
+        .notification-arrow {
+            flex:
+                0 0 auto;
+
+            color:
+                var(--muted);
+
+            font-size: 24px;
+
+            line-height: 1;
+
+            transition:
+                transform .16s ease,
+                color .16s ease;
+        }
+
+        .notification-card:hover
+        .notification-arrow {
+            transform:
+                translateX(2px);
+
+            color:
+                var(--primary);
+        }
+
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
+
+        .notifications-empty {
+            padding: 48px 22px;
+
+            text-align: center;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 18px;
+
+            background:
+                var(--surface);
+        }
+
+        .notifications-empty-icon {
+            width: 62px;
+            height: 62px;
+
+            margin:
+                0 auto 15px;
+
+            border-radius: 50%;
+
+            display: grid;
+            place-items: center;
+
+            background:
+                rgba(56, 189, 248, .10);
+
+            border:
+                1px solid rgba(56, 189, 248, .20);
+
+            font-size: 27px;
+        }
+
+        .notifications-empty h2 {
+            margin: 0;
+
+            color:
+                var(--text);
+
+            font-size: 1.05rem;
+        }
+
+        .notifications-empty p {
+            max-width: 430px;
+
+            margin:
+                7px auto 0;
+
+            color:
+                var(--muted);
+
+            font-size: .82rem;
+
+            line-height: 1.5;
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 600px) {
+
+            .notifications-page {
+                width:
+                    calc(100% - 16px);
+
+                margin-top:
+                    14px;
             }
 
-            .brand-name {
-                font-size: 17px;
+            .notifications-title-icon {
+                width: 42px;
+                height: 42px;
             }
 
-            .brand-logo {
-                width: 38px;
-                height: 38px;
+            .notifications-header h1 {
+                font-size:
+                    1.15rem;
             }
 
-            .nav-link {
-                min-height: 38px;
-                padding: 7px 11px;
-                font-size: 12px;
+            .notifications-header p {
+                font-size:
+                    .78rem;
             }
 
-            .page {
-                width: 94%;
-                padding-top: 27px;
+            .notification-card {
+                gap: 9px;
+                padding: 11px;
+                border-radius: 14px;
             }
 
-            .page-header {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 17px;
+            .notification-avatar {
+                flex-basis: 40px;
+
+                width: 40px;
+                height: 40px;
             }
 
-            .sell-button {
-                width: 100%;
+            .notification-icon {
+                flex-basis: 30px;
+
+                width: 30px;
+                height: 30px;
+
+                font-size: 14px;
             }
 
-            .products {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-                gap: 13px;
+            .notification-message {
+                font-size:
+                    .84rem;
             }
 
-            .product-media {
-                height: 185px;
+            .notification-time {
+                font-size:
+                    .68rem;
             }
 
-            .product-info {
-                padding: 14px;
-            }
-
-            .product-title {
-                font-size: 16px;
-            }
-
-            .price {
-                font-size: 18px;
-            }
-
-            .buttons {
-                grid-template-columns: 1fr;
-            }
-
-            .full-width {
-                grid-column: auto;
+            .notification-arrow {
+                font-size:
+                    20px;
             }
         }
 
-        @media (max-width: 500px) {
-
-            .navbar-inner {
-                width: 96%;
-            }
-
-            .brand-name {
-                display: none;
-            }
-
-            .navbar-actions {
-                margin-left: auto;
-            }
-
-            .back-link {
-                padding: 8px 12px;
-            }
-
-            .page {
-                width: 94%;
-            }
-
-            .header-icon {
-                width: 48px;
-                height: 48px;
-                border-radius: 15px;
-                font-size: 22px;
-            }
-
-            .page-header h1 {
-                font-size: 26px;
-            }
-
-            .products {
-                grid-template-columns: 1fr;
-            }
-
-            .product-media {
-                height: 220px;
-            }
-
-            .empty {
-                padding: 50px 18px;
-            }
-        }
     </style>
+
 </head>
+
 
 <body>
 
-    <!-- =========================================
-         NAVBAR
-    ========================================== -->
 
-    <nav class="razor-navbar">
+<!-- ============================================================
+     RAZOR NAVIGATION
+============================================================ -->
 
-        <div class="navbar-inner">
+<header class="navbar">
+
+    <div class="nav-container">
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="nav-brand"
+        >
+            <span>UniCamplink</span>
+        </a>
+
+
+        <nav class="nav-links">
 
             <a
-                href="{{ url_for('marketplace') }}"
-                class="brand"
-                aria-label="UniCamplink Marketplace"
+                href="{{ url_for('dashboard') }}"
             >
-
-                <img
-                    src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
-                    alt="UniCamplink"
-                    class="brand-logo"
-                >
-
-                <div class="brand-name">
-                    Uni<span>Camplink</span>
-                </div>
-
+                🏠 Dashboard
             </a>
 
+            <a
+                href="{{ url_for('feed') }}"
+            >
+                📰 Feed
+            </a>
 
-            <div class="navbar-actions">
+            <a
+                href="{{ url_for('notifications') }}"
+                class="active"
+            >
+                🔔 Notifications
+            </a>
 
-                <a
-                    href="{{ url_for('marketplace') }}"
-                    class="nav-link back-link"
-                >
-                    ← Marketplace
-                </a>
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<!-- ============================================================
+     NOTIFICATIONS
+============================================================ -->
+
+<main class="notifications-page">
+
+
+    <section class="notifications-header">
+
+        <div class="notifications-title-row">
+
+            <div class="notifications-title-icon">
+                🔔
+            </div>
+
+            <div>
+
+                <h1>
+                    Notifications
+                </h1>
+
+                <p>
+                    Stay updated with activity around your UniCamplink account.
+                </p>
 
             </div>
 
         </div>
 
-    </nav>
+    </section>
 
 
-    <!-- =========================================
-         MAIN
-    ========================================== -->
 
-    <main class="page">
+    {% if notifications %}
 
-        <!-- PAGE HEADER -->
+        <section class="notification-list">
 
-        <header class="page-header">
+            {% for notification in notifications %}
 
-            <div class="header-left">
+                {% set notification_type = notification["type"] %}
+                {% set notification_message = notification["message"] %}
+                {% set notification_link = notification["link"] %}
+                {% set notification_time = notification["created_at"] %}
+                {% set sender_name = notification["sender_name"] or "UniCamplink" %}
+                {% set sender_picture = notification["sender_picture"] %}
 
-                <div class="header-icon">
-                    📦
-                </div>
-
-                <div>
-
-                    <h1>
-                        My Products
-                    </h1>
-
-                    <p>
-                        Manage the products you have listed on UniCamplink.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <a
-                href="{{ url_for('add_product') }}"
-                class="sell-button"
-            >
-                ＋ Sell Product
-            </a>
-
-        </header>
-
-
-        <!-- =========================================
-             PRODUCTS
-        ========================================== -->
-
-        {% if products %}
-
-            <section class="products">
-
-                {% for product in products %}
-
-                    <article class="product-card">
-
-                        <!-- IMAGE -->
-
-                        <div class="product-media">
-
-                            {% if product['image'] %}
-
-                                <img
-                                    src="{{ url_for('static', filename='uploads/' + product['image']) }}"
-                                    alt="{{ product['name'] }}"
-                                    class="product-image"
-                                    loading="lazy"
-                                >
-
-                            {% else %}
-
-                                <div class="no-image">
-
-                                    <div class="no-image-icon">
-                                        🖼️
-                                    </div>
-
-                                    <span>
-                                        No image available
-                                    </span>
-
-                                </div>
-
-                            {% endif %}
-
-
-                            <!-- STATUS -->
-
-                            {% if product['status'] == 'sold' %}
-
-                                <span class="status-badge sold">
-                                    SOLD
-                                </span>
-
-                            {% else %}
-
-                                <span class="status-badge available">
-                                    AVAILABLE
-                                </span>
-
-                            {% endif %}
-
-                        </div>
-
-
-                        <!-- PRODUCT INFORMATION -->
-
-                        <div class="product-info">
-
-                            <h2 class="product-title">
-                                {{ product['name'] }}
-                            </h2>
-
-
-                            <div class="price">
-                                ₦{{ "{:,.2f}".format(product['price']) }}
-                            </div>
-
-
-                            {% if product['category'] %}
-
-                                <span class="category">
-                                    {{ product['category'] }}
-                                </span>
-
-                            {% endif %}
-
-
-                            {% if product['location'] %}
-
-                                <div class="location">
-
-                                    <span>📍</span>
-
-                                    <span>
-                                        {{ product['location'] }}
-                                    </span>
-
-                                </div>
-
-                            {% endif %}
-
-
-                            <!-- ACTION BUTTONS -->
-
-                            <div class="buttons">
-
-                                <!-- VIEW -->
-
-                                <a
-                                    href="{{ url_for('product_detail', product_id=product['id']) }}"
-                                    class="action-button view-btn"
-                                >
-                                    👁 View
-                                </a>
-
-
-                                <!-- MARK SOLD -->
-
-                                {% if product['status'] != 'sold' %}
-
-                                    <form
-                                        method="POST"
-                                        action="{{ url_for('mark_product_sold', product_id=product['id']) }}"
-                                        class="action-form"
-                                    >
-
-                                        <input
-                                            type="hidden"
-                                            name="csrf_token"
-                                            value="{{ csrf_token() }}"
-                                        >
-
-                                        <button
-                                            type="submit"
-                                            class="action-button sold-btn"
-                                            onclick="return confirm('Mark this product as sold?')"
-                                        >
-                                            ✓ Mark Sold
-                                        </button>
-
-                                    </form>
-
-                                {% endif %}
-
-
-                                <!-- DELETE -->
-
-                                <form
-                                    method="POST"
-                                    action="{{ url_for('delete_product', product_id=product['id']) }}"
-                                    class="action-form {% if product['status'] == 'sold' %}full-width{% endif %}"
-                                >
-
-                                    <input
-                                        type="hidden"
-                                        name="csrf_token"
-                                        value="{{ csrf_token() }}"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="action-button delete-btn"
-                                        onclick="return confirm('Are you sure you want to delete this product?')"
-                                    >
-                                        🗑 Delete
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </div>
-
-                    </article>
-
-                {% endfor %}
-
-            </section>
-
-        {% else %}
-
-            <!-- =========================================
-                 EMPTY STATE
-            ========================================== -->
-
-            <section class="empty">
-
-                <div class="empty-icon">
-                    🛍️
-                </div>
-
-                <h2>
-                    You haven't listed any products yet.
-                </h2>
-
-                <p>
-                    Start selling products to other students on campus.
-                    Your listings can help other UniCamplink students
-                    find what they need.
-                </p>
 
                 <a
-                    href="{{ url_for('add_product') }}"
-                    class="sell-button"
+                    class="notification-card"
+                    href="{{
+                        notification_link
+                        if notification_link
+                        else url_for('notifications')
+                    }}"
                 >
-                    ＋ Sell Your First Product
+
+
+                    <!-- AVATAR -->
+
+                    <div class="notification-avatar">
+
+                        {% if sender_picture %}
+
+                            <img
+                                src="{{ url_for(
+                                    'static',
+                                    filename='uploads/' ~ sender_picture
+                                ) }}"
+                                alt="{{ sender_name }}"
+                            >
+
+                        {% else %}
+
+                            {{ sender_name[:1]|upper }}
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- TYPE ICON -->
+
+                    <div class="notification-icon">
+
+                        {% if notification_type == "like" %}
+
+                            ❤️
+
+                        {% elif notification_type == "comment" %}
+
+                            💬
+
+                        {% elif notification_type == "reply" %}
+
+                            ↩️
+
+                        {% elif notification_type == "message" %}
+
+                            💌
+
+                        {% elif notification_type == "post" %}
+
+                            📝
+
+                        {% elif notification_type == "marketplace" %}
+
+                            🛍️
+
+                        {% elif notification_type == "group" %}
+
+                            👥
+
+                        {% elif notification_type == "friend_request" %}
+
+                            🤝
+
+                        {% elif notification_type == "friend_accepted" %}
+
+                            💙
+
+                        {% else %}
+
+                            🔔
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- MESSAGE -->
+
+                    <div class="notification-body">
+
+                        <p class="notification-message">
+                            {{ notification_message }}
+                        </p>
+
+
+                        {% if notification_time %}
+
+                            <span class="notification-time">
+                                {{ notification_time }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- ARROW -->
+
+                    <span class="notification-arrow">
+                        ›
+                    </span>
+
+
                 </a>
 
-            </section>
+            {% endfor %}
 
-        {% endif %}
-
-    </main>
+        </section>
 
 
-    <!-- EXISTING THEME SYSTEM -->
+    {% else %}
 
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+        <!-- EMPTY -->
+
+        <section class="notifications-empty">
+
+            <div class="notifications-empty-icon">
+                🔔
+            </div>
+
+            <h2>
+                You're all caught up
+            </h2>
+
+            <p>
+                Likes, comments, replies, messages,
+                marketplace activity and group updates
+                will appear here.
+            </p>
+
+        </section>
+
+
+    {% endif %}
+
+
+</main>
+
+
+
+<script
+    src="{{ url_for('static', filename='js/theme.js') }}"
+></script>
+
 
 </body>
+
 </html>
