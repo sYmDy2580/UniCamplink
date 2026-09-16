@@ -1,378 +1,998 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>{{ user["name"] }} - UniCamplink</title>
+    <title>{{ user["name"] }} - UniCamplink</title>
 
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}"
->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
-<style>
+    <style>
 
-    /* ================================================= */
-    /* PROFILE PAGE */
-    /* ================================================= */
+        /* =========================================================
+           RAZOR PROFILE
+           ========================================================= */
 
-    .profile-container {
-        width: 90%;
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 20px;
-    }
-
-
-    /* ================================================= */
-    /* PROFILE CARD */
-    /* ================================================= */
-
-    .profile-card {
-        background: var(--card);
-        color: var(--text);
-        border-radius: 16px;
-        padding: 30px;
-        text-align: center;
-        border: 1px solid var(--border);
-        margin-bottom: 30px;
-        box-shadow: var(--shadow);
-    }
-
-
-    /* ================================================= */
-    /* PROFILE IMAGE */
-    /* ================================================= */
-
-    .profile-picture,
-    .profile-avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        margin: 0 auto 20px;
-    }
-
-    .profile-picture {
-        object-fit: cover;
-        display: block;
-        border: 3px solid var(--primary);
-    }
-
-    .profile-avatar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--bg-secondary);
-        border: 2px solid var(--border);
-        font-size: 55px;
-    }
-
-
-    /* ================================================= */
-    /* NAME */
-    /* ================================================= */
-
-    .profile-card h1 {
-        margin-bottom: 10px;
-        color: var(--primary);
-        font-size: 30px;
-    }
-
-
-    /* ================================================= */
-    /* PROFILE INFORMATION */
-    /* ================================================= */
-
-    .profile-card p {
-        margin: 8px 0;
-        color: var(--text-secondary);
-    }
-
-    .profile-bio {
-        max-width: 600px;
-        margin: 15px auto;
-        color: var(--text-secondary);
-        line-height: 1.7;
-    }
-
-
-    /* ================================================= */
-    /* CAMPUS AMBASSADOR */
-    /* ================================================= */
-
-    .campus-ambassador-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        margin: 8px auto 12px;
-        padding: 10px 16px;
-        border-radius: 999px;
-        background: linear-gradient(
-            135deg,
-            #f59e0b,
-            #f97316
-        );
-        color: white;
-        font-size: 14px;
-        font-weight: 800;
-        box-shadow:
-            0 5px 18px rgba(245, 158, 11, 0.28);
-        text-align: center;
-    }
-
-    .campus-ambassador-details {
-        max-width: 430px;
-        margin: 4px auto 18px;
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: rgba(245, 158, 11, 0.08);
-        border: 1px solid rgba(245, 158, 11, 0.25);
-        text-align: center;
-    }
-
-    .campus-ambassador-details p {
-        margin: 4px 0;
-        font-size: 14px;
-    }
-
-    .campus-ambassador-details strong {
-        color: #f59e0b;
-    }
-
-
-    /* ================================================= */
-    /* MESSAGE BUTTON */
-    /* ================================================= */
-
-    .message-button {
-        display: inline-block;
-        margin-top: 15px;
-        padding: 12px 22px;
-        background: var(--primary-dark);
-        color: white;
-        text-decoration: none;
-        border-radius: 10px;
-        font-weight: bold;
-        transition: 0.2s ease;
-    }
-
-    .message-button:hover {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
-    }
-
-
-    /* ================================================= */
-    /* FRIEND BUTTON */
-    /* ================================================= */
-
-    .friend-button {
-        display: inline-block;
-        padding: 12px 22px;
-        background: var(--success);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-weight: bold;
-        cursor: pointer;
-        text-decoration: none;
-        transition: 0.2s ease;
-    }
-
-    .friend-button:hover {
-        background: #16a34a;
-        transform: translateY(-1px);
-    }
-
-
-    /* ================================================= */
-    /* FRIENDSHIP STATUS */
-    /* ================================================= */
-
-    .friend-status {
-        display: inline-block;
-        padding: 12px 22px;
-        margin-top: 15px;
-        border-radius: 10px;
-        font-weight: bold;
-    }
-
-    .friends-status {
-        background: rgba(34, 197, 94, 0.15);
-        color: #4ade80;
-        border: 1px solid rgba(34, 197, 94, 0.35);
-    }
-
-    .pending-status {
-        background: rgba(234, 179, 8, 0.15);
-        color: #facc15;
-        border: 1px solid rgba(234, 179, 8, 0.35);
-    }
-
-    .respond-button {
-        background: #7c3aed;
-    }
-
-    .respond-button:hover {
-        background: #6d28d9;
-    }
-
-
-    /* ================================================= */
-    /* EDIT PROFILE BUTTON */
-    /* ================================================= */
-
-    .edit-profile-button {
-        display: inline-block;
-        margin-top: 15px;
-        padding: 12px 22px;
-        background: var(--primary-dark);
-        color: white;
-        text-decoration: none;
-        border-radius: 10px;
-        font-weight: bold;
-        transition: 0.2s ease;
-    }
-
-    .edit-profile-button:hover {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
-    }
-
-
-    /* ================================================= */
-    /* BACK BUTTON */
-    /* ================================================= */
-
-    .back-button {
-        display: inline-block;
-        margin-bottom: 25px;
-        padding: 10px 18px;
-        border-radius: 8px;
-        text-decoration: none;
-        border: 1px solid var(--border);
-        color: var(--primary);
-        background: var(--card);
-        transition: 0.2s ease;
-    }
-
-    .back-button:hover {
-        background: var(--card-hover);
-        border-color: var(--primary);
-    }
-
-
-    /* ================================================= */
-    /* POSTS */
-    /* ================================================= */
-
-    .posts-section {
-        margin-top: 30px;
-    }
-
-    .posts-section h2 {
-        color: var(--primary);
-        margin-bottom: 20px;
-    }
-
-    .post-card {
-        background: var(--card);
-        color: var(--text);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 15px;
-        box-shadow: var(--shadow);
-    }
-
-    .post-card p {
-        margin: 0 0 10px;
-        color: var(--text-secondary);
-    }
-
-    .post-date {
-        font-size: 13px;
-        color: var(--muted);
-    }
-
-    .no-posts {
-        background: var(--card);
-        border: 1px solid var(--border);
-        color: var(--muted);
-        padding: 25px;
-        text-align: center;
-        border-radius: 10px;
-    }
-
-
-    /* ================================================= */
-    /* MOBILE */
-    /* ================================================= */
-
-    @media (max-width: 600px) {
-
-        .profile-container {
-            width: 94%;
-            margin: 25px auto;
-            padding: 10px;
-        }
-
-        .profile-card {
-            padding: 20px;
-        }
-
-        .profile-card h1 {
-            font-size: 26px;
-        }
-
-        .message-button,
-        .friend-button,
-        .friend-status,
-        .edit-profile-button {
-            display: block;
-            width: 100%;
+        * {
             box-sizing: border-box;
-            text-align: center;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+
+        /* =========================================================
+           NAVBAR
+           ========================================================= */
+
+        .profile-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 12px 4%;
+
+            background: rgba(7, 17, 31, 0.88);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .profile-navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            color: #fff;
+            font-weight: 800;
+            font-size: 19px;
+        }
+
+        .profile-navbar .logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 11px;
+        }
+
+        .profile-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .profile-nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+        .profile-nav-links a,
+        .profile-nav-links button {
+            white-space: nowrap;
+
+            padding: 9px 12px;
+
+            border-radius: 10px;
+
+            color: #cbd5e1;
+
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 650;
+
+            transition: 0.2s ease;
+        }
+
+        .profile-nav-links a:hover,
+        .profile-nav-links button:hover {
+            background: rgba(56, 189, 248, 0.10);
+            color: #fff;
+        }
+
+        .profile-nav-links .active {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.10);
+        }
+
+        .profile-nav-links button {
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+
+
+        /* =========================================================
+           PAGE
+           ========================================================= */
+
+        .profile-page {
+            width: min(1050px, 94%);
+            margin: 28px auto 70px;
+        }
+
+
+        /* =========================================================
+           BACK
+           ========================================================= */
+
+        .profile-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            margin-bottom: 18px;
+
+            padding: 9px 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 11px;
+
+            background: var(--card);
+            color: var(--text-secondary);
+
+            font-size: 13px;
+            font-weight: 650;
+
+            transition: 0.2s ease;
+        }
+
+        .profile-back:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateX(-2px);
+        }
+
+
+        /* =========================================================
+           PROFILE HERO
+           ========================================================= */
+
+        .profile-hero {
+            position: relative;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: 24px;
+
+            background: var(--card);
+
+            box-shadow: var(--shadow);
+        }
+
+        .profile-cover {
+            height: 180px;
+
+            background:
+                radial-gradient(
+                    circle at 20% 20%,
+                    rgba(125, 211, 252, 0.30),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(14, 165, 233, 0.24),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    135deg,
+                    #0f2942,
+                    #07111f 60%,
+                    #0b2034
+                );
+
+            position: relative;
+        }
+
+        .profile-cover::after {
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            background:
+                linear-gradient(
+                    120deg,
+                    transparent 0%,
+                    rgba(255,255,255,0.03) 45%,
+                    transparent 70%
+                );
+        }
+
+        .cover-brand {
+            position: absolute;
+            right: 28px;
+            bottom: 24px;
+
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            color: rgba(255,255,255,0.55);
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .cover-brand img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            opacity: 0.75;
+        }
+
+
+        /* =========================================================
+           PROFILE MAIN
+           ========================================================= */
+
+        .profile-main {
+            position: relative;
+
+            padding: 0 32px 30px;
+        }
+
+
+        /* =========================================================
+           AVATAR
+           ========================================================= */
+
+        .profile-avatar-wrap {
+            position: relative;
+
+            width: 132px;
+            height: 132px;
+
+            margin-top: -66px;
+            margin-bottom: 16px;
         }
 
         .profile-picture,
         .profile-avatar {
-            width: 105px;
-            height: 105px;
+            width: 132px;
+            height: 132px;
+
+            border-radius: 50%;
+
+            border: 5px solid var(--card);
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .profile-picture {
+            display: block;
+            object-fit: cover;
+            background: var(--bg-secondary);
         }
 
         .profile-avatar {
-            font-size: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56,189,248,0.15),
+                    var(--bg-secondary)
+                );
+
+            font-size: 58px;
+        }
+
+        .online-indicator {
+            position: absolute;
+            right: 7px;
+            bottom: 8px;
+
+            width: 22px;
+            height: 22px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+            border: 4px solid var(--card);
+
+            display: none;
+        }
+
+
+        /* =========================================================
+           PROFILE HEADER
+           ========================================================= */
+
+        .profile-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 25px;
+        }
+
+        .profile-heading-info {
+            min-width: 0;
+        }
+
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .profile-name-row h1 {
+            margin: 0;
+
+            color: var(--text);
+
+            font-size: 30px;
+            line-height: 1.15;
+
+            letter-spacing: -0.7px;
+        }
+
+        .verified-dot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 20px;
+            height: 20px;
+
+            border-radius: 50%;
+
+            background: #38bdf8;
+            color: #03111f;
+
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .profile-university {
+            margin-top: 8px;
+
+            color: var(--text-secondary);
+
+            font-size: 14px;
+        }
+
+        .profile-email {
+            margin-top: 5px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        /* =========================================================
+           ACTIONS
+           ========================================================= */
+
+        .profile-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+
+            gap: 9px;
+        }
+
+        .profile-action,
+        .profile-action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            min-height: 42px;
+
+            padding: 10px 17px;
+
+            border-radius: 12px;
+
+            border: 1px solid var(--border);
+
+            background: var(--bg-secondary);
+            color: var(--text);
+
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 750;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .profile-action:hover,
+        .profile-action-button:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .primary-action {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #03111f;
+        }
+
+        .primary-action:hover {
+            background: var(--primary-hover);
+        }
+
+        .friend-action {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #fff;
+        }
+
+        .friend-action:hover {
+            background: #16a34a;
+            border-color: #16a34a;
+        }
+
+
+        /* =========================================================
+           FRIEND STATUS
+           ========================================================= */
+
+        .friend-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            min-height: 42px;
+
+            padding: 10px 17px;
+
+            border-radius: 12px;
+
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .friends-status {
+            color: #4ade80;
+
+            background: rgba(34, 197, 94, 0.10);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+        }
+
+        .pending-status {
+            color: #facc15;
+
+            background: rgba(234, 179, 8, 0.10);
+            border: 1px solid rgba(234, 179, 8, 0.25);
+        }
+
+        .respond-action {
+            background: #7c3aed;
+            border-color: #7c3aed;
+            color: #fff;
+        }
+
+        .respond-action:hover {
+            background: #6d28d9;
+        }
+
+
+        /* =========================================================
+           CAMPUS AMBASSADOR
+           ========================================================= */
+
+        .ambassador-section {
+            margin-top: 20px;
         }
 
         .campus-ambassador-badge {
-            font-size: 13px;
-            padding: 9px 13px;
-            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 9px 14px;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f59e0b,
+                    #f97316
+                );
+
+            color: white;
+
+            font-size: 12px;
+            font-weight: 850;
+
+            box-shadow:
+                0 7px 20px rgba(245,158,11,0.20);
         }
 
-    }
+        .campus-ambassador-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
 
-</style>
+            margin-top: 10px;
+        }
+
+        .ambassador-detail {
+            padding: 8px 12px;
+
+            border-radius: 10px;
+
+            background: rgba(245,158,11,0.07);
+            border: 1px solid rgba(245,158,11,0.18);
+
+            color: var(--text-secondary);
+
+            font-size: 12px;
+        }
+
+        .ambassador-detail strong {
+            color: #f59e0b;
+        }
+
+
+        /* =========================================================
+           BIO
+           ========================================================= */
+
+        .profile-bio {
+            max-width: 700px;
+
+            margin-top: 20px;
+
+            color: var(--text-secondary);
+
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+
+        /* =========================================================
+           STATS
+           ========================================================= */
+
+        .profile-stats {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+
+            gap: 0;
+
+            margin-top: 25px;
+
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-stat {
+            min-width: 130px;
+
+            padding: 16px 20px;
+
+            border-right: 1px solid var(--border);
+
+            text-align: center;
+        }
+
+        .profile-stat:last-child {
+            border-right: 0;
+        }
+
+        .profile-stat strong {
+            display: block;
+
+            color: var(--text);
+
+            font-size: 19px;
+            font-weight: 850;
+        }
+
+        .profile-stat span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+
+        /* =========================================================
+           POSTS AREA
+           ========================================================= */
+
+        .posts-section {
+            margin-top: 28px;
+        }
+
+        .posts-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 15px;
+        }
+
+        .posts-header h2 {
+            margin: 0;
+
+            color: var(--text);
+
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .posts-header span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+
+        /* =========================================================
+           POST CARD
+           ========================================================= */
+
+        .post-card {
+            position: relative;
+
+            margin-bottom: 14px;
+            padding: 20px;
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+
+            background: var(--card);
+
+            box-shadow: var(--shadow);
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56,189,248,0.25);
+        }
+
+        .post-top {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            margin-bottom: 14px;
+        }
+
+        .post-mini-avatar {
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+
+            overflow: hidden;
+
+            font-size: 17px;
+        }
+
+        .post-mini-avatar img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+        .post-author-name {
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .post-date {
+            margin-top: 2px;
+
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .post-content {
+            color: var(--text-secondary);
+
+            font-size: 14px;
+            line-height: 1.7;
+
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =========================================================
+           EMPTY POSTS
+           ========================================================= */
+
+        .no-posts {
+            padding: 45px 20px;
+
+            border: 1px dashed var(--border);
+            border-radius: 18px;
+
+            background: var(--card);
+
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .no-posts strong {
+            display: block;
+
+            color: var(--text);
+
+            font-size: 15px;
+        }
+
+        .no-posts p {
+            margin: 7px 0 0;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        /* =========================================================
+           LIGHT MODE
+           ========================================================= */
+
+        body.light-mode .profile-navbar {
+            background: rgba(255,255,255,0.88);
+            border-color: rgba(15,23,42,0.08);
+        }
+
+        body.light-mode .profile-navbar .logo {
+            color: #0f172a;
+        }
+
+        body.light-mode .profile-nav-links a,
+        body.light-mode .profile-nav-links button {
+            color: #475569;
+        }
+
+        body.light-mode .profile-nav-links a:hover,
+        body.light-mode .profile-nav-links button:hover {
+            color: #0284c7;
+        }
+
+        body.light-mode .profile-cover {
+            background:
+                radial-gradient(
+                    circle at 20% 20%,
+                    rgba(56,189,248,0.25),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #dff6ff,
+                    #eaf6fb
+                );
+        }
+
+
+        /* =========================================================
+           MOBILE
+           ========================================================= */
+
+        @media (max-width: 760px) {
+
+            .profile-navbar {
+                padding: 10px 14px;
+            }
+
+            .profile-navbar .logo span {
+                display: none;
+            }
+
+            .profile-nav-links {
+                max-width: calc(100% - 50px);
+            }
+
+            .profile-page {
+                width: 94%;
+                margin-top: 18px;
+            }
+
+            .profile-cover {
+                height: 135px;
+            }
+
+            .profile-main {
+                padding: 0 18px 23px;
+            }
+
+            .profile-avatar-wrap {
+                width: 105px;
+                height: 105px;
+                margin-top: -52px;
+            }
+
+            .profile-picture,
+            .profile-avatar {
+                width: 105px;
+                height: 105px;
+                border-width: 4px;
+            }
+
+            .profile-avatar {
+                font-size: 46px;
+            }
+
+            .profile-heading {
+                display: block;
+            }
+
+            .profile-name-row h1 {
+                font-size: 25px;
+            }
+
+            .profile-actions {
+                justify-content: flex-start;
+                margin-top: 18px;
+            }
+
+            .profile-action,
+            .profile-action-button,
+            .friend-status {
+                flex: 1;
+                min-width: 130px;
+            }
+
+            .profile-stats {
+                margin-top: 20px;
+            }
+
+            .profile-stat {
+                flex: 1;
+                min-width: 33.33%;
+                padding: 13px 8px;
+            }
+
+            .profile-stat strong {
+                font-size: 17px;
+            }
+
+            .profile-stat span {
+                font-size: 10px;
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .profile-page {
+                width: 96%;
+            }
+
+            .profile-cover {
+                height: 115px;
+            }
+
+            .profile-main {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .profile-name-row h1 {
+                font-size: 23px;
+            }
+
+            .profile-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .profile-action,
+            .profile-action-button,
+            .friend-status {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .campus-ambassador-badge {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+                border-radius: 12px;
+            }
+
+            .campus-ambassador-details {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .profile-stat {
+                padding: 12px 5px;
+            }
+
+            .profile-stat strong {
+                font-size: 15px;
+            }
+
+            .post-card {
+                padding: 16px;
+                border-radius: 15px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
 
-<!-- ================================================= -->
-<!-- NAVIGATION -->
-<!-- ================================================= -->
 
-<nav class="navbar">
+<!-- =========================================================
+     NAVIGATION
+     ========================================================= -->
+
+<nav class="profile-navbar">
 
     <a
         href="/dashboard"
@@ -394,7 +1014,7 @@
     </a>
 
 
-    <div class="nav-links">
+    <div class="profile-nav-links">
 
         <a href="/dashboard">
             Dashboard
@@ -404,34 +1024,35 @@
             Feed
         </a>
 
-        <a href="/profile">
+        <a href="/profile" class="active">
             Profile
         </a>
 
         <a href="/friends">
-            Friends 👥
+            Friends
         </a>
 
         <a href="/groups">
-            Groups 👥
+            Groups
         </a>
 
         <a href="/search">
-            Search 🔍
+            Search
         </a>
 
         <a href="/messages">
-            Messages 💬
+            Messages
         </a>
 
         <a href="/marketplace">
-            Marketplace 🛒
+            Marketplace
         </a>
+
 
         <form
             action="{{ url_for('logout') }}"
             method="POST"
-            style="display: inline;"
+            style="display:inline;"
         >
 
             <input
@@ -440,19 +1061,7 @@
                 value="{{ csrf_token() }}"
             >
 
-            <button
-                type="submit"
-                style="
-                    background: none;
-                    border: none;
-                    color: #333;
-                    font-weight: 500;
-                    cursor: pointer;
-                    font-family: inherit;
-                    font-size: inherit;
-                    padding: 0;
-                "
-            >
+            <button type="submit">
                 Logout
             </button>
 
@@ -463,239 +1072,340 @@
 </nav>
 
 
-<!-- ================================================= -->
-<!-- MAIN PROFILE -->
-<!-- ================================================= -->
+<!-- =========================================================
+     MAIN
+     ========================================================= -->
 
-<main class="profile-container">
+<main class="profile-page">
 
 
-    <!-- BACK BUTTON -->
+    <!-- BACK -->
 
     <a
         href="{{ url_for('search') }}"
-        class="back-button"
+        class="profile-back"
     >
         ← Back to Search
     </a>
 
 
-    <!-- ================================================= -->
-    <!-- PROFILE CARD -->
-    <!-- ================================================= -->
+    <!-- =========================================================
+         PROFILE HERO
+         ========================================================= -->
 
-    <section class="profile-card">
+    <section class="profile-hero">
 
 
-        <!-- PROFILE PICTURE -->
+        <!-- COVER -->
 
-        {% if user["profile_picture"] %}
+        <div class="profile-cover">
 
-            <img
-                src="{{ url_for(
-                    'static',
-                    filename='uploads/' + user['profile_picture']
-                ) }}"
-                alt="{{ user['name'] }}"
-                class="profile-picture"
-            >
+            <div class="cover-brand">
 
-        {% else %}
-
-            <div class="profile-avatar">
-                👤
-            </div>
-
-        {% endif %}
-
-
-        <!-- NAME -->
-
-        <h1>
-            {{ user["name"] }}
-        </h1>
-
-
-        <!-- CAMPUS AMBASSADOR BADGE -->
-
-        {% if campus_ambassador %}
-
-            <div class="campus-ambassador-badge">
-                🏅 Official UniCamplink Campus Ambassador
-            </div>
-
-            <div class="campus-ambassador-details">
-
-                {% if campus_ambassador["campus"] %}
-
-                    <p>
-                        📍
-                        <strong>Campus:</strong>
-                        {{ campus_ambassador["campus"] }}
-                    </p>
-
-                {% endif %}
-
-
-                {% if campus_ambassador["school"] %}
-
-                    <p>
-                        🏫
-                        <strong>School:</strong>
-                        {{ campus_ambassador["school"] }}
-                    </p>
-
-                {% endif %}
-
-            </div>
-
-        {% endif %}
-
-
-        <!-- UNIVERSITY -->
-
-        <p>
-            🏫 {{ user["university"] }}
-        </p>
-
-
-        <!-- EMAIL -->
-
-        <p>
-            📧 {{ user["email"] }}
-        </p>
-
-
-        <!-- BIO -->
-
-        {% if user["bio"] %}
-
-            <p class="profile-bio">
-                {{ user["bio"] }}
-            </p>
-
-        {% endif %}
-
-
-        <!-- ================================================= -->
-        <!-- PROFILE ACTIONS -->
-        <!-- ================================================= -->
-
-        {% if user["id"] == current_user_id %}
-
-
-            <!-- OWN PROFILE -->
-
-            <a
-                href="{{ url_for('profile') }}"
-                class="edit-profile-button"
-            >
-                ✏️ Edit My Profile
-            </a>
-
-
-        {% else %}
-
-
-            <!-- MESSAGE USER -->
-
-            <a
-                href="{{ url_for(
-                    'chat',
-                    user_id=user['id']
-                ) }}"
-                class="message-button"
-            >
-                💬 Message {{ user["name"] }}
-            </a>
-
-
-            <!-- ================================================= -->
-            <!-- FRIENDSHIP STATUS -->
-            <!-- ================================================= -->
-
-            {% if is_friend %}
-
-
-                <!-- ALREADY FRIENDS -->
-
-                <div class="friend-status friends-status">
-                    ❤️ Friends
-                </div>
-
-
-            {% elif request_sent %}
-
-
-                <!-- REQUEST ALREADY SENT -->
-
-                <div class="friend-status pending-status">
-                    ⏳ Friend Request Sent
-                </div>
-
-
-            {% elif request_received %}
-
-
-                <!-- THEY SENT YOU A REQUEST -->
-
-                <a
-                    href="{{ url_for('friend_requests') }}"
-                    class="friend-button respond-button"
-                >
-                    🤝 Respond to Friend Request
-                </a>
-
-
-            {% else %}
-
-
-                <!-- NO FRIENDSHIP -->
-
-                <form
-                    action="{{ url_for(
-                        'send_friend_request',
-                        user_id=user['id']
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='images/unicamplink-logo.png'
                     ) }}"
-                    method="POST"
-                    style="display: inline-block; margin-top: 15px;"
+                    alt=""
                 >
 
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
+                UniCamplink Community
+
+            </div>
+
+        </div>
+
+
+        <!-- PROFILE CONTENT -->
+
+        <div class="profile-main">
+
+
+            <!-- AVATAR -->
+
+            <div class="profile-avatar-wrap">
+
+                {% if user["profile_picture"] %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/' + user['profile_picture']
+                        ) }}"
+                        alt="{{ user['name'] }}"
+                        class="profile-picture"
                     >
 
-                    <button
-                        type="submit"
-                        class="friend-button"
-                    >
-                        ➕ Add Friend
-                    </button>
+                {% else %}
 
-                </form>
+                    <div class="profile-avatar">
+                        👤
+                    </div>
+
+                {% endif %}
+
+                <span class="online-indicator"></span>
+
+            </div>
 
 
-            {% endif %}
+            <!-- PROFILE HEADING -->
+
+            <div class="profile-heading">
 
 
-        {% endif %}
+                <div class="profile-heading-info">
 
+                    <div class="profile-name-row">
+
+                        <h1>
+                            {{ user["name"] }}
+                        </h1>
+
+                    </div>
+
+
+                    <div class="profile-university">
+
+                        🎓 {{ user["university"] }}
+
+                    </div>
+
+
+                    <div class="profile-email">
+
+                        📧 {{ user["email"] }}
+
+                    </div>
+
+
+                    <!-- CAMPUS AMBASSADOR -->
+
+                    {% if campus_ambassador %}
+
+                        <div class="ambassador-section">
+
+                            <div class="campus-ambassador-badge">
+
+                                🏅
+                                Official UniCamplink Campus Ambassador
+
+                            </div>
+
+
+                            <div class="campus-ambassador-details">
+
+                                {% if campus_ambassador["campus"] %}
+
+                                    <div class="ambassador-detail">
+
+                                        📍
+                                        <strong>Campus:</strong>
+                                        {{ campus_ambassador["campus"] }}
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if campus_ambassador["school"] %}
+
+                                    <div class="ambassador-detail">
+
+                                        🏫
+                                        <strong>School:</strong>
+                                        {{ campus_ambassador["school"] }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- BIO -->
+
+                    {% if user["bio"] %}
+
+                        <div class="profile-bio">
+
+                            {{ user["bio"] }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="profile-actions">
+
+
+                    {% if user["id"] == current_user_id %}
+
+
+                        <!-- OWN PROFILE -->
+
+                        <a
+                            href="{{ url_for('edit_profile') }}"
+                            class="profile-action primary-action"
+                        >
+                            ✏️ Edit Profile
+                        </a>
+
+
+                    {% else %}
+
+
+                        <!-- MESSAGE -->
+
+                        <a
+                            href="{{ url_for(
+                                'chat',
+                                user_id=user['id']
+                            ) }}"
+                            class="profile-action primary-action"
+                        >
+                            💬 Message
+                        </a>
+
+
+                        <!-- FRIENDSHIP -->
+
+                        {% if is_friend %}
+
+                            <div class="friend-status friends-status">
+                                ❤️ Friends
+                            </div>
+
+
+                        {% elif request_sent %}
+
+                            <div class="friend-status pending-status">
+                                ⏳ Request Sent
+                            </div>
+
+
+                        {% elif request_received %}
+
+                            <a
+                                href="{{ url_for('friend_requests') }}"
+                                class="profile-action respond-action"
+                            >
+                                🤝 Respond
+                            </a>
+
+
+                        {% else %}
+
+                            <form
+                                action="{{ url_for(
+                                    'send_friend_request',
+                                    user_id=user['id']
+                                ) }}"
+                                method="POST"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="profile-action-button friend-action"
+                                >
+                                    ➕ Add Friend
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 PROFILE STATS
+                 ===================================================== -->
+
+            <div class="profile-stats">
+
+                <div class="profile-stat">
+
+                    <strong>
+                        {{ posts|length }}
+                    </strong>
+
+                    <span>
+                        Posts
+                    </span>
+
+                </div>
+
+
+                <div class="profile-stat">
+
+                    <strong>
+                        {{ total_likes }}
+                    </strong>
+
+                    <span>
+                        Likes
+                    </span>
+
+                </div>
+
+
+                <div class="profile-stat">
+
+                    <strong>
+                        {{ user["university"] }}
+                    </strong>
+
+                    <span>
+                        University
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </section>
 
 
-    <!-- ================================================= -->
-    <!-- USER POSTS -->
-    <!-- ================================================= -->
+    <!-- =========================================================
+         POSTS
+         ========================================================= -->
 
     <section class="posts-section">
 
 
-        <h2>
-            {{ user["name"] }}'s Posts
-        </h2>
+        <div class="posts-header">
+
+            <h2>
+                {{ user["name"] }}'s Posts
+            </h2>
+
+            <span>
+                {{ posts|length }} post{% if posts|length != 1 %}s{% endif %}
+            </span>
+
+        </div>
 
 
         {% if posts %}
@@ -705,16 +1415,56 @@
 
                 <article class="post-card">
 
-                    <p>
-                        {{ post["content"] }}
-                    </p>
 
-                    <div class="post-date">
+                    <div class="post-top">
 
-                        Posted:
-                        {{ post["created_at"]|nigeria_time }}
+
+                        <div class="post-mini-avatar">
+
+                            {% if user["profile_picture"] %}
+
+                                <img
+                                    src="{{ url_for(
+                                        'static',
+                                        filename='uploads/' + user['profile_picture']
+                                    ) }}"
+                                    alt="{{ user['name'] }}"
+                                >
+
+                            {% else %}
+
+                                👤
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div>
+
+                            <div class="post-author-name">
+
+                                {{ user["name"] }}
+
+                            </div>
+
+                            <div class="post-date">
+
+                                {{ post["created_at"]|nigeria_time }}
+
+                            </div>
+
+                        </div>
 
                     </div>
+
+
+                    <div class="post-content">
+
+                        {{ post["content"] }}
+
+                    </div>
+
 
                 </article>
 
@@ -725,6 +1475,14 @@
 
 
             <div class="no-posts">
+
+                <div class="empty-icon">
+                    📝
+                </div>
+
+                <strong>
+                    No posts yet
+                </strong>
 
                 <p>
                     {{ user["name"] }} hasn't made any posts yet.
@@ -740,6 +1498,16 @@
 
 
 </main>
+
+
+<!-- =========================================================
+     THEME
+     ========================================================= -->
+
+<script
+    src="{{ url_for('static', filename='js/theme.js') }}"
+></script>
+
 
 </body>
 

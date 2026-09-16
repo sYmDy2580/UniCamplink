@@ -19,15 +19,752 @@
         href="{{ url_for('static', filename='style.css') }}"
     >
 
+    <style>
+
+        /* =========================================================
+           RAZOR GROUP DETAIL
+           ========================================================= */
+
+        .group-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 28px 16px 60px;
+        }
+
+
+        /* =========================================================
+           NAVBAR
+           ========================================================= */
+
+        .navbar {
+            background: #38bdf8;
+            min-height: 68px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow:
+                0 4px 18px rgba(14, 165, 233, 0.22);
+
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            color: white !important;
+            text-decoration: none;
+
+            font-size: 23px;
+            font-weight: 800;
+
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            flex: 1;
+            min-width: 0;
+
+            overflow-x: auto;
+            overflow-y: hidden;
+
+            scrollbar-width: none;
+
+            padding: 5px 0;
+        }
+
+        .nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-links a,
+        .nav-links button {
+            color: white !important;
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 650;
+
+            padding: 9px 11px;
+
+            border-radius: 9px;
+
+            white-space: nowrap;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links button:hover {
+            background:
+                rgba(255, 255, 255, 0.18);
+
+            transform:
+                translateY(-1px);
+        }
+
+        .nav-logout {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+
+        .nav-logout button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+
+        /* =========================================================
+           GROUP HERO
+           ========================================================= */
+
+        .group-info-card {
+            position: relative;
+
+            padding: 30px 26px;
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, 0.16),
+                    rgba(56, 189, 248, 0.035)
+                );
+
+            border:
+                1px solid
+                rgba(56, 189, 248, 0.2);
+
+            box-shadow:
+                0 10px 35px rgba(15, 23, 42, 0.07);
+
+            overflow: hidden;
+
+            margin-bottom: 18px;
+        }
+
+        .group-info-card::before {
+            content: "";
+
+            position: absolute;
+
+            left: 0;
+            right: 0;
+            top: 0;
+
+            height: 5px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+        }
+
+        .group-icon {
+            width: 58px;
+            height: 58px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 15px;
+
+            border-radius: 16px;
+
+            background:
+                rgba(56, 189, 248, 0.14);
+
+            font-size: 28px;
+        }
+
+        .group-info-card h1 {
+            margin: 0 0 10px;
+
+            font-size:
+                clamp(26px, 5vw, 38px);
+
+            line-height: 1.2;
+
+            font-weight: 850;
+
+            letter-spacing:
+                -0.7px;
+        }
+
+        .group-description {
+            margin: 0 0 15px;
+
+            font-size: 15px;
+            line-height: 1.7;
+
+            opacity: 0.75;
+        }
+
+        .group-creator {
+            margin: 0;
+
+            font-size: 13px;
+
+            opacity: 0.7;
+        }
+
+        .group-creator strong {
+            color: #0ea5e9;
+        }
+
+
+        /* =========================================================
+           JOIN AREA
+           ========================================================= */
+
+        .group-action-card {
+            padding: 20px;
+
+            margin-bottom: 20px;
+
+            border-radius: 18px;
+
+            background:
+                var(
+                    --card-bg,
+                    rgba(255, 255, 255, 0.96)
+                );
+
+            border:
+                1px solid
+                var(
+                    --border-color,
+                    rgba(148, 163, 184, 0.25)
+                );
+
+            box-shadow:
+                0 7px 25px
+                rgba(15, 23, 42, 0.06);
+        }
+
+        .join-group-button {
+            width: 100%;
+
+            min-height: 46px;
+
+            border: none;
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+
+            color: white;
+
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 7px 18px
+                rgba(14, 165, 233, 0.2);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .join-group-button:hover {
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 10px 24px
+                rgba(14, 165, 233, 0.28);
+        }
+
+
+        /* =========================================================
+           CREATE POST
+           ========================================================= */
+
+        .create-group-post {
+            margin-bottom: 24px;
+
+            padding: 22px;
+
+            border-radius: 18px;
+
+            background:
+                var(
+                    --card-bg,
+                    rgba(255, 255, 255, 0.96)
+                );
+
+            border:
+                1px solid
+                var(
+                    --border-color,
+                    rgba(148, 163, 184, 0.25)
+                );
+
+            box-shadow:
+                0 7px 25px
+                rgba(15, 23, 42, 0.06);
+        }
+
+        .create-group-post h2 {
+            margin: 0 0 15px;
+
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .group-post-textarea {
+            width: 100%;
+
+            min-height: 110px;
+
+            box-sizing: border-box;
+
+            padding: 14px;
+
+            border:
+                1px solid
+                rgba(148, 163, 184, 0.3);
+
+            border-radius: 13px;
+
+            background:
+                var(
+                    --input-bg,
+                    rgba(148, 163, 184, 0.06)
+                );
+
+            color:
+                var(
+                    --text-color,
+                    inherit
+                );
+
+            font-family: inherit;
+
+            font-size: 14px;
+
+            resize: vertical;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .group-post-textarea:focus {
+            border-color: #38bdf8;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(56, 189, 248, 0.12);
+        }
+
+        .group-post-submit {
+            margin-top: 12px;
+
+            min-height: 43px;
+
+            padding: 0 18px;
+
+            border: none;
+            border-radius: 11px;
+
+            background: #38bdf8;
+
+            color: white;
+
+            font-family: inherit;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .group-post-submit:hover {
+            background: #0ea5e9;
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        /* =========================================================
+           POSTS SECTION
+           ========================================================= */
+
+        .group-posts-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 14px;
+        }
+
+        .group-posts-header h2 {
+            margin: 0;
+
+            font-size: 21px;
+            font-weight: 850;
+        }
+
+        .group-posts-label {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+
+        /* =========================================================
+           POST CARD
+           ========================================================= */
+
+        .group-post-card {
+            margin-bottom: 15px;
+
+            padding: 18px;
+
+            border-radius: 18px;
+
+            background:
+                var(
+                    --card-bg,
+                    rgba(255, 255, 255, 0.96)
+                );
+
+            border:
+                1px solid
+                var(
+                    --border-color,
+                    rgba(148, 163, 184, 0.25)
+                );
+
+            box-shadow:
+                0 6px 22px
+                rgba(15, 23, 42, 0.055);
+
+            transition:
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .group-post-card:hover {
+            border-color:
+                rgba(56, 189, 248, 0.22);
+
+            box-shadow:
+                0 9px 28px
+                rgba(15, 23, 42, 0.08);
+        }
+
+
+        /* =========================================================
+           POST AUTHOR
+           ========================================================= */
+
+        .post-author {
+            display: flex;
+            align-items: center;
+
+            gap: 11px;
+
+            margin-bottom: 14px;
+        }
+
+        .post-avatar {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+
+            color: white;
+
+            font-size: 18px;
+            font-weight: 800;
+
+            overflow: hidden;
+        }
+
+        .post-avatar img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+        .post-author-info {
+            min-width: 0;
+        }
+
+        .post-author-name {
+            display: block;
+
+            color: inherit;
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .post-author-name:hover {
+            color: #0ea5e9;
+        }
+
+        .post-time {
+            display: block;
+
+            margin-top: 2px;
+
+            font-size: 11px;
+
+            opacity: 0.55;
+        }
+
+
+        /* =========================================================
+           POST CONTENT
+           ========================================================= */
+
+        .group-post-content {
+            margin: 0 0 15px;
+
+            font-size: 15px;
+
+            line-height: 1.7;
+
+            white-space: pre-wrap;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =========================================================
+           LIKE BUTTON
+           ========================================================= */
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+
+            padding-top: 12px;
+
+            border-top:
+                1px solid
+                rgba(148, 163, 184, 0.16);
+        }
+
+        .like-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            min-height: 36px;
+
+            padding: 0 12px;
+
+            border: none;
+            border-radius: 9px;
+
+            background:
+                rgba(239, 68, 68, 0.07);
+
+            color:
+                inherit;
+
+            font-family: inherit;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .like-btn:hover {
+            background:
+                rgba(239, 68, 68, 0.13);
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        /* =========================================================
+           EMPTY STATE
+           ========================================================= */
+
+        .no-posts {
+            margin: 0;
+
+            padding: 45px 20px;
+
+            text-align: center;
+
+            border-radius: 18px;
+
+            border:
+                1px dashed
+                rgba(148, 163, 184, 0.35);
+
+            opacity: 0.7;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================================================
+           MOBILE
+           ========================================================= */
+
+        @media (max-width: 800px) {
+
+            .navbar {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .group-page {
+                padding:
+                    20px 13px 45px;
+            }
+
+            .group-info-card {
+                padding: 25px 20px;
+            }
+
+            .create-group-post,
+            .group-action-card,
+            .group-post-card {
+                border-radius: 15px;
+            }
+
+        }
+
+
+        @media (max-width: 520px) {
+
+            .logo span {
+                display: none;
+            }
+
+            .nav-links {
+                gap: 3px;
+            }
+
+            .nav-links a,
+            .nav-links button {
+                font-size: 13px;
+                padding: 8px 9px;
+            }
+
+            .group-info-card h1 {
+                font-size: 27px;
+            }
+
+            .group-post-submit {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
+
+    <!-- =========================================================
+         NAVIGATION
+         ========================================================= -->
+
     <nav class="navbar">
 
-        <div class="logo">
-            UniCamplink 🎓
-        </div>
+        <a
+            href="/dashboard"
+            class="logo"
+            aria-label="UniCamplink Dashboard"
+        >
+
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='images/unicamplink-logo.png'
+                ) }}"
+                alt="UniCamplink Logo"
+            >
+
+            <span>
+                UniCamplink
+            </span>
+
+        </a>
+
 
         <div class="nav-links">
 
@@ -39,82 +776,168 @@
                 Feed
             </a>
 
-            <a href="/groups">
-                Groups
-            </a>
-
             <a href="/profile">
                 Profile
             </a>
+
+            <a href="/groups">
+                Groups 👥
+            </a>
+
+            <a href="/search">
+                Search 🔍
+            </a>
+
+            <a href="/messages">
+                Messages 💬
+            </a>
+
+            <a href="/marketplace">
+                Marketplace 🛒
+            </a>
+
+
+            <form
+                action="{{ url_for('logout') }}"
+                method="POST"
+                class="nav-logout"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button type="submit">
+                    Logout
+                </button>
+
+            </form>
 
         </div>
 
     </nav>
 
 
-    <main class="group-page-container">
 
-        <!-- GROUP INFORMATION -->
+    <!-- =========================================================
+         MAIN GROUP PAGE
+         ========================================================= -->
+
+    <main class="group-page">
+
+
+        <!-- =====================================================
+             GROUP INFORMATION
+             ===================================================== -->
 
         <section class="group-info-card">
+
+            <div class="group-icon">
+                👥
+            </div>
+
 
             <h1>
                 {{ group["name"] }}
             </h1>
 
-            <p>
-                {{ group["description"] }}
+
+            <p class="group-description">
+
+                {{ group["description"]
+                   or "This group has no description yet." }}
+
             </p>
 
-            <small>
+
+            <p class="group-creator">
+
                 Created by
-                {{ group["creator_name"] }}
-            </small>
+
+                <strong>
+                    {{ group["creator_name"] }}
+                </strong>
+
+            </p>
 
         </section>
 
 
-        <!-- JOIN BUTTON -->
+
+        <!-- =====================================================
+             GROUP ACTION
+             ===================================================== -->
 
         {% if not is_member %}
 
-            <form
-                action="{{ url_for(
-                    'join_group',
-                    group_id=group['id']
-                ) }}"
-                method="POST"
-            >
+            <section class="group-action-card">
 
-                <button
-                    type="submit"
-                    class="join-group-button"
+                <form
+                    action="{{ url_for(
+                        'join_group',
+                        group_id=group['id']
+                    ) }}"
+                    method="POST"
                 >
-                    Join Group to Participate
-                </button>
 
-            </form>
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="join-group-button"
+                    >
+                        👥 Join Group to Participate
+                    </button>
+
+                </form>
+
+            </section>
 
         {% else %}
 
-            <!-- CREATE POST -->
+
+            <!-- =================================================
+                 CREATE GROUP POST
+                 ================================================= -->
 
             <section class="create-group-post">
 
                 <h2>
-                    Create a Group Post
+                    Share with this group
                 </h2>
 
-                <form method="POST">
+
+                <form
+                    method="POST"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
 
                     <textarea
                         name="content"
+                        class="group-post-textarea"
                         placeholder="Share something with this group..."
+                        maxlength="5000"
                         required
                     ></textarea>
 
-                    <button type="submit">
-                        Post to Group
+
+                    <button
+                        type="submit"
+                        class="group-post-submit"
+                    >
+                        🚀 Post to Group
                     </button>
 
                 </form>
@@ -124,69 +947,137 @@
         {% endif %}
 
 
-        <!-- GROUP POSTS -->
+
+        <!-- =====================================================
+             GROUP POSTS
+             ===================================================== -->
 
         <section class="group-posts">
 
-            <h2>
-                Group Posts
-            </h2>
+
+            <div class="group-posts-header">
+
+                <h2>
+                    Group Posts
+                </h2>
+
+                <span class="group-posts-label">
+                    Community conversation
+                </span>
+
+            </div>
+
 
 
             {% if posts %}
 
                 {% for post in posts %}
 
-                    <div class="post-card">
-
-                        <h3>
-
-                            <a
-                                href="{{ url_for(
-                                    'public_profile',
-                                    user_id=post['user_id']
-                                ) }}"
-                                class="user-profile-link"
-                            >
-
-                                {{ post["name"] }}
-
-                            </a>
-
-                        </h3>
+                    <article class="group-post-card">
 
 
-                        <p>
+                        <!-- AUTHOR -->
+
+                        <div class="post-author">
+
+
+                            <div class="post-avatar">
+
+                                {% if post["profile_picture"] %}
+
+                                    <img
+                                        src="{{ url_for(
+                                            'static',
+                                            filename='uploads/' + post['profile_picture']
+                                        ) }}"
+                                        alt="{{ post['name'] }}"
+                                    >
+
+                                {% else %}
+
+                                    {{ post["name"][0]|upper
+                                       if post["name"]
+                                       else "U" }}
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="post-author-info">
+
+                                <a
+                                    href="{{ url_for(
+                                        'public_profile',
+                                        user_id=post['user_id']
+                                    ) }}"
+                                    class="post-author-name"
+                                >
+                                    {{ post["name"] }}
+                                </a>
+
+
+                                <span class="post-time">
+
+                                    {{ post["created_at"]|nigeria_time }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- CONTENT -->
+
+                        <p class="group-post-content">
+
                             {{ post["content"] }}
+
                         </p>
 
 
-                        <small>
-                            {{ post["created_at"]|nigeria_time }}
-                        </small>
 
+                        <!-- ACTIONS -->
 
-                        <form
-                            action="{{ url_for(
-                                'like_post',
-                                post_id=post['id']
-                            ) }}"
-                            method="POST"
-                        >
+                        <div class="post-actions">
 
-                            <button
-                                type="submit"
-                                class="like-btn"
+                            <form
+                                action="{{ url_for(
+                                    'like_post',
+                                    post_id=post['id']
+                                ) }}"
+                                method="POST"
                             >
 
-                                ❤️ Like
-                                ({{ post["like_count"] }})
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
 
-                            </button>
+                                <button
+                                    type="submit"
+                                    class="like-btn"
+                                >
 
-                        </form>
+                                    ❤️
 
-                    </div>
+                                    Like
+
+                                    <span>
+                                        ({{ post["like_count"] }})
+                                    </span>
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+
+                    </article>
 
                 {% endfor %}
 
@@ -195,15 +1086,21 @@
                 <p class="no-posts">
 
                     No posts in this group yet.
+
+                    <br>
+
                     Start the conversation! 🎉
 
                 </p>
 
             {% endif %}
 
+
         </section>
 
+
     </main>
+
 
 </body>
 

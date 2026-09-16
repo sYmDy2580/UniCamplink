@@ -4,242 +4,761 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>My Products - UniCamplink</title>
+    <title>My Products — UniCamplink</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <style>
+        :root {
+            --razor-primary: #38bdf8;
+            --razor-primary-dark: #0ea5e9;
+            --razor-bg: #0b1120;
+            --razor-card: #111827;
+            --razor-card-2: #172033;
+            --razor-border: rgba(148, 163, 184, 0.15);
+            --razor-text: #f8fafc;
+            --razor-muted: #94a3b8;
+            --razor-success: #22c55e;
+            --razor-warning: #f59e0b;
+            --razor-danger: #ef4444;
+            --razor-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            background: #f4f6f8;
-            color: #222;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 32%),
+                radial-gradient(circle at top right, rgba(14, 165, 233, 0.05), transparent 28%),
+                var(--razor-bg);
+            color: var(--razor-text);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
         }
 
-        /* NAVBAR */
-        .navbar {
-            background: #1877f2;
-            color: white;
-            padding: 15px 6%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .navbar a {
-            color: white;
+        a {
+            color: inherit;
             text-decoration: none;
-            font-weight: bold;
         }
 
-        .navbar a:hover {
-            text-decoration: underline;
+        button,
+        input,
+        select {
+            font: inherit;
         }
 
-        /* CONTAINER */
-        .container {
-            width: 90%;
-            max-width: 1100px;
-            margin: 35px auto;
+        /* =========================================
+           NAVBAR
+        ========================================= */
+
+        .razor-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            width: 100%;
+
+            background: rgba(11, 17, 32, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border-bottom: 1px solid var(--razor-border);
+        }
+
+        .navbar-inner {
+            width: min(1180px, 94%);
+            min-height: 68px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            object-fit: cover;
+
+            box-shadow:
+                0 6px 18px rgba(56, 189, 248, 0.22);
+        }
+
+        .brand-name {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+        }
+
+        .brand-name span {
+            color: var(--razor-primary);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 40px;
+            padding: 8px 14px;
+
+            border-radius: 12px;
+
+            color: var(--razor-muted);
+            font-size: 14px;
+            font-weight: 700;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(56, 189, 248, 0.09);
+            color: var(--razor-primary);
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            color: var(--razor-primary);
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.12);
+        }
+
+        /* =========================================
+           PAGE
+        ========================================= */
+
+        .page {
+            width: min(1180px, 94%);
+            margin: 0 auto;
+            padding: 38px 0 70px;
         }
 
         .page-header {
-            text-align: center;
-            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 25px;
+
+            margin-bottom: 28px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .header-icon {
+            width: 54px;
+            height: 54px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 17px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(56, 189, 248, 0.18),
+                    rgba(14, 165, 233, 0.05)
+                );
+
+            border: 1px solid rgba(56, 189, 248, 0.15);
+
+            font-size: 25px;
         }
 
         .page-header h1 {
-            font-size: 30px;
-            margin-bottom: 8px;
+            font-size: clamp(26px, 4vw, 34px);
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 7px;
         }
 
         .page-header p {
-            color: #666;
+            color: var(--razor-muted);
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        /* PRODUCTS */
+        .sell-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            padding: 12px 18px;
+
+            border-radius: 13px;
+
+            background: linear-gradient(
+                135deg,
+                var(--razor-primary),
+                var(--razor-primary-dark)
+            );
+
+            color: #00111b;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            box-shadow:
+                0 8px 22px rgba(56, 189, 248, 0.18);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .sell-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 28px rgba(56, 189, 248, 0.25);
+        }
+
+        /* =========================================
+           PRODUCTS GRID
+        ========================================= */
+
         .products {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns:
+                repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
         }
 
         .product-card {
-            background: white;
-            border-radius: 10px;
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.035),
+                    rgba(255,255,255,0.015)
+                ),
+                var(--razor-card);
+
+            border: 1px solid var(--razor-border);
+            border-radius: 20px;
+
+            box-shadow: var(--razor-shadow);
+
+            transition:
+                transform 0.22s ease,
+                border-color 0.22s ease,
+                box-shadow 0.22s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+
+            border-color:
+                rgba(56, 189, 248, 0.25);
+
+            box-shadow:
+                0 18px 42px rgba(0, 0, 0, 0.28);
+        }
+
+        /* =========================================
+           IMAGE
+        ========================================= */
+
+        .product-media {
+            position: relative;
+            height: 225px;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #172033,
+                    #0f172a
+                );
         }
 
         .product-image {
             width: 100%;
-            height: 210px;
+            height: 100%;
+
+            display: block;
+
             object-fit: cover;
-            background: #eee;
+
+            transition:
+                transform 0.35s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.045);
         }
 
         .no-image {
             width: 100%;
-            height: 210px;
-            background: #e9ecef;
+            height: 100%;
+
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            color: #777;
+            justify-content: center;
+
+            color: var(--razor-muted);
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(56, 189, 248, 0.07),
+                    transparent 60%
+                );
         }
 
-        .product-info {
-            padding: 15px;
+        .no-image-icon {
+            font-size: 35px;
+            margin-bottom: 7px;
+            opacity: 0.8;
         }
 
-        .product-info h2 {
-            font-size: 19px;
-            margin-bottom: 8px;
+        .no-image span {
+            font-size: 13px;
         }
 
-        .price {
-            color: #1877f2;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+        /* =========================================
+           STATUS BADGE
+        ========================================= */
 
-        .category {
-            display: inline-block;
-            background: #eef4ff;
-            color: #1877f2;
-            padding: 5px 9px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
+        .status-badge {
+            position: absolute;
+            top: 13px;
+            right: 13px;
 
-        .location {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
+            padding: 7px 10px;
 
-        /* STATUS */
-        .status {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 15px;
+            border-radius: 999px;
+
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.3px;
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .available {
-            background: #d4edda;
-            color: #155724;
+            color: #bbf7d0;
+            background: rgba(22, 163, 74, 0.82);
+            border: 1px solid rgba(134, 239, 172, 0.2);
         }
 
         .sold {
-            background: #f8d7da;
-            color: #721c24;
+            color: #fecaca;
+            background: rgba(185, 28, 28, 0.85);
+            border: 1px solid rgba(252, 165, 165, 0.18);
         }
 
-        /* BUTTONS */
-        .buttons {
+        /* =========================================
+           PRODUCT INFO
+        ========================================= */
+
+        .product-info {
+            padding: 18px;
+        }
+
+        .product-title {
+            margin-bottom: 9px;
+
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.3;
+
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .price {
+            margin-bottom: 12px;
+
+            color: var(--razor-primary);
+
+            font-size: 21px;
+            font-weight: 900;
+            letter-spacing: -0.4px;
+        }
+
+        .category {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 6px 10px;
+
+            margin-bottom: 11px;
+
+            border-radius: 999px;
+
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.08);
+
+            border: 1px solid rgba(56, 189, 248, 0.12);
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .location {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+
+            margin-bottom: 16px;
+
+            color: var(--razor-muted);
+
+            font-size: 13px;
+            line-height: 1.4;
         }
 
-        .buttons a,
-        .buttons button {
-            flex: 1;
-            min-width: 100px;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            text-decoration: none;
-            border: none;
+        /* =========================================
+           BUTTONS
+        ========================================= */
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .action-button {
+            min-height: 42px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+
+            padding: 9px 10px;
+
+            border: 1px solid transparent;
+            border-radius: 11px;
+
+            font-size: 12px;
+            font-weight: 800;
+
             cursor: pointer;
-            font-weight: bold;
+
+            transition:
+                transform 0.18s ease,
+                background 0.18s ease,
+                border-color 0.18s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
         }
 
         .view-btn {
-            background: #1877f2;
-            color: white;
+            background: rgba(56, 189, 248, 0.1);
+            color: #7dd3fc;
+            border-color: rgba(56, 189, 248, 0.14);
+        }
+
+        .view-btn:hover {
+            background: rgba(56, 189, 248, 0.17);
         }
 
         .sold-btn {
-            background: #ffc107;
-            color: #222;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-            color: white;
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.14);
         }
 
         .sold-btn:hover {
-            background: #e0a800;
+            background: rgba(245, 158, 11, 0.17);
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.14);
         }
 
         .delete-btn:hover {
-            background: #c82333;
+            background: rgba(239, 68, 68, 0.17);
         }
 
-        /* EMPTY */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .action-form {
+            margin: 0;
+        }
+
+        .action-form button {
+            width: 100%;
+        }
+
+        /* =========================================
+           EMPTY STATE
+        ========================================= */
+
         .empty {
-            background: white;
-            padding: 50px 20px;
-            border-radius: 10px;
+            padding: 65px 25px;
+
             text-align: center;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.035),
+                    rgba(255,255,255,0.015)
+                ),
+                var(--razor-card);
+
+            border: 1px solid var(--razor-border);
+            border-radius: 22px;
+
+            box-shadow: var(--razor-shadow);
+        }
+
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+
+            margin: 0 auto 17px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 22px;
+
+            background:
+                rgba(56, 189, 248, 0.08);
+
+            border: 1px solid rgba(56, 189, 248, 0.12);
+
+            font-size: 32px;
         }
 
         .empty h2 {
-            margin-bottom: 10px;
+            margin-bottom: 9px;
+
+            font-size: 21px;
         }
 
         .empty p {
-            color: #666;
-            margin-bottom: 20px;
+            max-width: 480px;
+            margin: 0 auto 23px;
+
+            color: var(--razor-muted);
+
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        .sell-btn {
-            display: inline-block;
-            padding: 12px 20px;
-            background: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 7px;
-            font-weight: bold;
+        /* =========================================
+           LIGHT MODE
+        ========================================= */
+
+        body.light-mode {
+            --razor-bg: #f4f7fb;
+            --razor-card: #ffffff;
+            --razor-card-2: #f8fafc;
+            --razor-border: rgba(15, 23, 42, 0.09);
+            --razor-text: #0f172a;
+            --razor-muted: #64748b;
+            --razor-shadow:
+                0 10px 30px rgba(15, 23, 42, 0.08);
+
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(56, 189, 248, 0.08),
+                    transparent 30%
+                ),
+                var(--razor-bg);
         }
 
-        /* MOBILE */
-        @media (max-width: 600px) {
+        body.light-mode .razor-navbar {
+            background: rgba(255, 255, 255, 0.88);
+        }
 
-            .navbar {
-                padding: 15px 4%;
+        body.light-mode .product-card,
+        body.light-mode .empty {
+            background: #ffffff;
+        }
+
+        body.light-mode .product-media {
+            background:
+                linear-gradient(
+                    145deg,
+                    #e8f3f9,
+                    #f8fafc
+                );
+        }
+
+        body.light-mode .no-image {
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(56, 189, 248, 0.08),
+                    transparent 60%
+                );
+        }
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 760px) {
+
+            .navbar-inner {
+                min-height: 62px;
+                width: 94%;
             }
 
-            .container {
+            .brand-name {
+                font-size: 17px;
+            }
+
+            .brand-logo {
+                width: 38px;
+                height: 38px;
+            }
+
+            .nav-link {
+                min-height: 38px;
+                padding: 7px 11px;
+                font-size: 12px;
+            }
+
+            .page {
                 width: 94%;
+                padding-top: 27px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 17px;
+            }
+
+            .sell-button {
+                width: 100%;
+            }
+
+            .products {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+                gap: 13px;
+            }
+
+            .product-media {
+                height: 185px;
+            }
+
+            .product-info {
+                padding: 14px;
+            }
+
+            .product-title {
+                font-size: 16px;
+            }
+
+            .price {
+                font-size: 18px;
+            }
+
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .navbar-inner {
+                width: 96%;
+            }
+
+            .brand-name {
+                display: none;
+            }
+
+            .navbar-actions {
+                margin-left: auto;
+            }
+
+            .back-link {
+                padding: 8px 12px;
+            }
+
+            .page {
+                width: 94%;
+            }
+
+            .header-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 15px;
+                font-size: 22px;
+            }
+
+            .page-header h1 {
+                font-size: 26px;
             }
 
             .products {
                 grid-template-columns: 1fr;
             }
 
-            .buttons {
-                flex-direction: column;
+            .product-media {
+                height: 220px;
             }
 
-            .buttons a,
-            .buttons button {
-                width: 100%;
+            .empty {
+                padding: 50px 18px;
             }
         }
     </style>
@@ -247,64 +766,156 @@
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
+    <!-- =========================================
+         NAVBAR
+    ========================================== -->
 
-        <div class="logo">
-            UniCamplink
+    <nav class="razor-navbar">
+
+        <div class="navbar-inner">
+
+            <a
+                href="{{ url_for('marketplace') }}"
+                class="brand"
+                aria-label="UniCamplink Marketplace"
+            >
+
+                <img
+                    src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                    alt="UniCamplink"
+                    class="brand-logo"
+                >
+
+                <div class="brand-name">
+                    Uni<span>Camplink</span>
+                </div>
+
+            </a>
+
+
+            <div class="navbar-actions">
+
+                <a
+                    href="{{ url_for('marketplace') }}"
+                    class="nav-link back-link"
+                >
+                    ← Marketplace
+                </a>
+
+            </div>
+
         </div>
-
-        <a href="{{ url_for('marketplace') }}">
-            ← Marketplace
-        </a>
 
     </nav>
 
 
-    <!-- MAIN -->
-    <main class="container">
+    <!-- =========================================
+         MAIN
+    ========================================== -->
 
-        <div class="page-header">
+    <main class="page">
 
-            <h1>📦 My Products</h1>
+        <!-- PAGE HEADER -->
 
-            <p>
-                Manage the products you have listed on UniCamplink.
-            </p>
+        <header class="page-header">
 
-        </div>
+            <div class="header-left">
 
+                <div class="header-icon">
+                    📦
+                </div>
+
+                <div>
+
+                    <h1>
+                        My Products
+                    </h1>
+
+                    <p>
+                        Manage the products you have listed on UniCamplink.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('add_product') }}"
+                class="sell-button"
+            >
+                ＋ Sell Product
+            </a>
+
+        </header>
+
+
+        <!-- =========================================
+             PRODUCTS
+        ========================================== -->
 
         {% if products %}
 
-            <div class="products">
+            <section class="products">
 
                 {% for product in products %}
 
-                    <div class="product-card">
+                    <article class="product-card">
 
                         <!-- IMAGE -->
-                        {% if product['image'] %}
 
-                            <img
-                                src="{{ url_for('static', filename='uploads/' + product['image']) }}"
-                                alt="{{ product['name'] }}"
-                                class="product-image"
-                            >
+                        <div class="product-media">
 
-                        {% else %}
+                            {% if product['image'] %}
 
-                            <div class="no-image">
-                                No Image
-                            </div>
+                                <img
+                                    src="{{ url_for('static', filename='uploads/' + product['image']) }}"
+                                    alt="{{ product['name'] }}"
+                                    class="product-image"
+                                    loading="lazy"
+                                >
 
-                        {% endif %}
+                            {% else %}
+
+                                <div class="no-image">
+
+                                    <div class="no-image-icon">
+                                        🖼️
+                                    </div>
+
+                                    <span>
+                                        No image available
+                                    </span>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- STATUS -->
+
+                            {% if product['status'] == 'sold' %}
+
+                                <span class="status-badge sold">
+                                    SOLD
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge available">
+                                    AVAILABLE
+                                </span>
+
+                            {% endif %}
+
+                        </div>
 
 
                         <!-- PRODUCT INFORMATION -->
+
                         <div class="product-info">
 
-                            <h2>
+                            <h2 class="product-title">
                                 {{ product['name'] }}
                             </h2>
 
@@ -326,50 +937,42 @@
                             {% if product['location'] %}
 
                                 <div class="location">
-                                    📍 {{ product['location'] }}
+
+                                    <span>📍</span>
+
+                                    <span>
+                                        {{ product['location'] }}
+                                    </span>
+
                                 </div>
 
                             {% endif %}
 
 
-                            <!-- STATUS -->
-                            {% if product['status'] == 'sold' %}
+                            <!-- ACTION BUTTONS -->
 
-                                <span class="status sold">
-                                    SOLD
-                                </span>
-
-                            {% else %}
-
-                                <span class="status available">
-                                    AVAILABLE
-                                </span>
-
-                            {% endif %}
-
-
-                            <!-- BUTTONS -->
                             <div class="buttons">
 
                                 <!-- VIEW -->
+
                                 <a
                                     href="{{ url_for('product_detail', product_id=product['id']) }}"
-                                    class="view-btn"
+                                    class="action-button view-btn"
                                 >
-                                    View
+                                    👁 View
                                 </a>
 
 
                                 <!-- MARK SOLD -->
+
                                 {% if product['status'] != 'sold' %}
 
                                     <form
                                         method="POST"
                                         action="{{ url_for('mark_product_sold', product_id=product['id']) }}"
-                                        style="flex: 1;"
+                                        class="action-form"
                                     >
 
-                                        <!-- CSRF PROTECTION -->
                                         <input
                                             type="hidden"
                                             name="csrf_token"
@@ -378,11 +981,10 @@
 
                                         <button
                                             type="submit"
-                                            class="sold-btn"
-                                            style="width: 100%;"
+                                            class="action-button sold-btn"
                                             onclick="return confirm('Mark this product as sold?')"
                                         >
-                                            Mark Sold
+                                            ✓ Mark Sold
                                         </button>
 
                                     </form>
@@ -391,13 +993,13 @@
 
 
                                 <!-- DELETE -->
+
                                 <form
                                     method="POST"
                                     action="{{ url_for('delete_product', product_id=product['id']) }}"
-                                    style="flex: 1;"
+                                    class="action-form {% if product['status'] == 'sold' %}full-width{% endif %}"
                                 >
 
-                                    <!-- CSRF PROTECTION -->
                                     <input
                                         type="hidden"
                                         name="csrf_token"
@@ -406,11 +1008,10 @@
 
                                     <button
                                         type="submit"
-                                        class="delete-btn"
-                                        style="width: 100%;"
+                                        class="action-button delete-btn"
                                         onclick="return confirm('Are you sure you want to delete this product?')"
                                     >
-                                        Delete
+                                        🗑 Delete
                                     </button>
 
                                 </form>
@@ -419,34 +1020,51 @@
 
                         </div>
 
-                    </div>
+                    </article>
 
                 {% endfor %}
 
-            </div>
+            </section>
 
         {% else %}
 
-            <div class="empty">
+            <!-- =========================================
+                 EMPTY STATE
+            ========================================== -->
 
-                <h2>You haven't listed any products yet.</h2>
+            <section class="empty">
+
+                <div class="empty-icon">
+                    🛍️
+                </div>
+
+                <h2>
+                    You haven't listed any products yet.
+                </h2>
 
                 <p>
                     Start selling products to other students on campus.
+                    Your listings can help other UniCamplink students
+                    find what they need.
                 </p>
 
                 <a
                     href="{{ url_for('add_product') }}"
-                    class="sell-btn"
+                    class="sell-button"
                 >
-                    + Sell Your First Product
+                    ＋ Sell Your First Product
                 </a>
 
-            </div>
+            </section>
 
         {% endif %}
 
     </main>
+
+
+    <!-- EXISTING THEME SYSTEM -->
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 
 </body>
 </html>

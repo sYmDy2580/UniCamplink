@@ -4,92 +4,1045 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login - UniCamplink</title>
+    <title>Login | UniCamplink</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        /* =========================================================
+           UNICAMPLINK RAZOR LOGIN
+           Frontend only — no backend changes required
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at 15% 15%,
+                    rgba(56, 189, 248, 0.13),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(14, 165, 233, 0.10),
+                    transparent 35%
+                ),
+                var(--bg, #020617);
+            color: var(--text, #f8fafc);
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .login-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 14px 5%;
+
+            background: rgba(2, 6, 23, 0.82);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .login-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            color: #f8fafc;
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .login-logo img {
+            width: 42px;
+            height: 42px;
+
+            object-fit: contain;
+
+            border-radius: 12px;
+
+            filter:
+                drop-shadow(
+                    0 4px 14px rgba(56, 189, 248, 0.25)
+                );
+        }
+
+        .login-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-nav a {
+            padding: 9px 15px;
+
+            color: #cbd5e1;
+
+            font-size: 0.92rem;
+            font-weight: 600;
+
+            border-radius: 10px;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .login-nav a:hover {
+            color: #ffffff;
+            background: rgba(56, 189, 248, 0.10);
+        }
+
+        .login-nav .join-btn {
+            color: #ffffff;
+            background: #0284c7;
+            box-shadow:
+                0 8px 22px rgba(2, 132, 199, 0.22);
+        }
+
+        .login-nav .join-btn:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        /* ================= MAIN ================= */
+
+        .login-page {
+            min-height: calc(100vh - 71px);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 50px 20px 70px;
+        }
+
+        .login-layout {
+            width: min(1050px, 100%);
+
+            display: grid;
+            grid-template-columns: 1fr 430px;
+            gap: 70px;
+
+            align-items: center;
+        }
+
+        /* ================= LEFT SIDE ================= */
+
+        .login-intro {
+            max-width: 560px;
+        }
+
+        .login-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            margin-bottom: 20px;
+
+            border: 1px solid rgba(56, 189, 248, 0.20);
+            border-radius: 999px;
+
+            background: rgba(56, 189, 248, 0.08);
+
+            color: #7dd3fc;
+
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .login-badge span {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #38bdf8;
+
+            box-shadow:
+                0 0 12px rgba(56, 189, 248, 0.8);
+        }
+
+        .login-intro h1 {
+            margin-bottom: 18px;
+
+            color: #f8fafc;
+
+            font-size: clamp(2.4rem, 5vw, 4.5rem);
+            line-height: 1.02;
+            letter-spacing: -0.045em;
+            font-weight: 900;
+        }
+
+        .login-intro h1 .highlight {
+            color: #38bdf8;
+        }
+
+        .login-intro > p {
+            max-width: 500px;
+
+            color: #94a3b8;
+
+            font-size: 1.08rem;
+            line-height: 1.75;
+        }
+
+        .login-benefits {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            gap: 13px;
+
+            margin-top: 30px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            padding: 13px;
+
+            border: 1px solid rgba(148, 163, 184, 0.10);
+            border-radius: 14px;
+
+            background: rgba(15, 23, 42, 0.55);
+
+            color: #cbd5e1;
+
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .benefit-icon {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+            place-items: center;
+
+            flex-shrink: 0;
+
+            border-radius: 10px;
+
+            background: rgba(56, 189, 248, 0.10);
+
+            font-size: 1rem;
+        }
+
+        /* ================= LOGIN CARD ================= */
+
+        .auth-card {
+            width: 100%;
+
+            padding: 32px;
+
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15, 23, 42, 0.94),
+                    rgba(2, 6, 23, 0.94)
+                );
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(56, 189, 248, 0.025);
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .auth-logo {
+            width: 62px;
+            height: 62px;
+
+            display: grid;
+            place-items: center;
+
+            margin-bottom: 20px;
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, 0.15),
+                    rgba(14, 165, 233, 0.04)
+                );
+
+            border: 1px solid rgba(56, 189, 248, 0.18);
+        }
+
+        .auth-logo img {
+            width: 45px;
+            height: 45px;
+
+            object-fit: contain;
+        }
+
+        .auth-card h2 {
+            color: #f8fafc;
+
+            font-size: 1.65rem;
+            font-weight: 800;
+
+            margin-bottom: 7px;
+        }
+
+        .auth-subtitle {
+            color: #94a3b8;
+
+            font-size: 0.92rem;
+            line-height: 1.6;
+
+            margin-bottom: 25px;
+        }
+
+        /* ================= FORM ================= */
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field label {
+            color: #cbd5e1;
+
+            font-size: 0.83rem;
+            font-weight: 700;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #64748b;
+
+            pointer-events: none;
+
+            font-size: 1rem;
+        }
+
+        .login-form input {
+            width: 100%;
+
+            padding: 13px 14px 13px 42px;
+
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 13px;
+
+            outline: none;
+
+            background: rgba(15, 23, 42, 0.75);
+
+            color: #f8fafc;
+
+            font-size: 0.94rem;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .login-form input::placeholder {
+            color: #64748b;
+        }
+
+        .login-form input:focus {
+            border-color: #38bdf8;
+
+            background: rgba(15, 23, 42, 0.95);
+
+            box-shadow:
+                0 0 0 3px rgba(56, 189, 248, 0.10);
+        }
+
+        .password-toggle {
+            position: absolute;
+
+            right: 11px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            border: none;
+            background: transparent;
+
+            color: #64748b;
+
+            cursor: pointer;
+
+            padding: 6px;
+
+            font-size: 0.9rem;
+        }
+
+        .password-toggle:hover {
+            color: #38bdf8;
+        }
+
+        .login-submit {
+            width: 100%;
+
+            margin-top: 4px;
+
+            padding: 14px 18px;
+
+            border: none;
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0ea5e9,
+                    #0284c7
+                );
+
+            color: #ffffff;
+
+            font-size: 0.95rem;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 12px 28px rgba(14, 165, 233, 0.20);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                filter 0.2s ease;
+        }
+
+        .login-submit:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 16px 34px rgba(14, 165, 233, 0.28);
+
+            filter: brightness(1.05);
+        }
+
+        .login-submit:active {
+            transform: translateY(0);
+        }
+
+        /* ================= DIVIDER ================= */
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin: 23px 0 20px;
+
+            color: #64748b;
+
+            font-size: 0.76rem;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: "";
+
+            flex: 1;
+
+            height: 1px;
+
+            background: rgba(148, 163, 184, 0.12);
+        }
+
+        /* ================= SIGNUP ================= */
+
+        .signup-prompt {
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 0.88rem;
+        }
+
+        .signup-prompt a {
+            color: #38bdf8;
+
+            font-weight: 800;
+        }
+
+        .signup-prompt a:hover {
+            text-decoration: underline;
+        }
+
+        /* ================= SECURITY NOTE ================= */
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            margin-top: 19px;
+
+            color: #64748b;
+
+            font-size: 0.73rem;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 850px) {
+
+            .login-layout {
+                grid-template-columns: 1fr;
+
+                gap: 35px;
+
+                max-width: 520px;
+            }
+
+            .login-intro {
+                text-align: center;
+                max-width: none;
+            }
+
+            .login-intro > p {
+                margin-inline: auto;
+            }
+
+            .login-badge {
+                margin-bottom: 15px;
+            }
+
+            .login-intro h1 {
+                font-size: clamp(2.4rem, 10vw, 3.4rem);
+            }
+
+            .login-benefits {
+                text-align: left;
+            }
+
+            .auth-card {
+                padding: 27px;
+            }
+        }
+
+        @media (max-width: 520px) {
+
+            .login-navbar {
+                padding: 11px 15px;
+            }
+
+            .login-logo {
+                font-size: 1rem;
+            }
+
+            .login-logo img {
+                width: 37px;
+                height: 37px;
+            }
+
+            .login-nav {
+                gap: 3px;
+            }
+
+            .login-nav a {
+                padding: 8px 10px;
+
+                font-size: 0.8rem;
+            }
+
+            .login-nav a:first-child {
+                display: none;
+            }
+
+            .login-page {
+                padding: 35px 15px 50px;
+            }
+
+            .login-benefits {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-card {
+                padding: 22px 18px;
+
+                border-radius: 20px;
+            }
+
+            .auth-logo {
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        /* ================= LIGHT MODE ================= */
+
+        body.light-mode {
+            background:
+                radial-gradient(
+                    circle at 15% 15%,
+                    rgba(14, 165, 233, 0.10),
+                    transparent 35%
+                ),
+                #f8fafc;
+
+            color: #0f172a;
+        }
+
+        body.light-mode .login-navbar {
+            background: rgba(255, 255, 255, 0.88);
+
+            border-bottom-color: rgba(15, 23, 42, 0.08);
+        }
+
+        body.light-mode .login-logo {
+            color: #0f172a;
+        }
+
+        body.light-mode .login-nav a {
+            color: #475569;
+        }
+
+        body.light-mode .login-nav a:hover {
+            color: #0284c7;
+            background: rgba(14, 165, 233, 0.08);
+        }
+
+        body.light-mode .login-intro h1 {
+            color: #0f172a;
+        }
+
+        body.light-mode .login-intro > p {
+            color: #64748b;
+        }
+
+        body.light-mode .benefit {
+            background: rgba(255, 255, 255, 0.85);
+
+            border-color: rgba(15, 23, 42, 0.08);
+
+            color: #334155;
+        }
+
+        body.light-mode .auth-card {
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.98),
+                    rgba(248, 250, 252, 0.98)
+                );
+
+            border-color: rgba(15, 23, 42, 0.08);
+
+            box-shadow:
+                0 25px 70px rgba(15, 23, 42, 0.10);
+        }
+
+        body.light-mode .auth-card h2 {
+            color: #0f172a;
+        }
+
+        body.light-mode .auth-subtitle {
+            color: #64748b;
+        }
+
+        body.light-mode .field label {
+            color: #334155;
+        }
+
+        body.light-mode .login-form input {
+            background: #ffffff;
+
+            color: #0f172a;
+
+            border-color: rgba(15, 23, 42, 0.10);
+        }
+
+        body.light-mode .login-form input:focus {
+            background: #ffffff;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
+    <!-- ================= NAVIGATION ================= -->
 
-        <a href="/" class="logo">
+    <nav class="login-navbar">
+
+        <a href="/" class="login-logo">
+
             <img
                 src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
                 alt="UniCamplink Logo"
             >
+
             <span>UniCamplink</span>
+
         </a>
 
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/signup">Join Now</a>
+        <div class="login-nav">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/signup" class="join-btn">
+                Join Now
+            </a>
+
         </div>
 
     </nav>
 
 
-    <!-- Login Section -->
-    <section class="auth-section">
+    <!-- ================= LOGIN PAGE ================= -->
 
-        <div class="auth-card">
+    <main class="login-page">
 
-            <h1>Welcome Back 👋</h1>
-
-            <p>
-                Login to continue to UniCamplink.
-            </p>
+        <div class="login-layout">
 
 
-            <form action="/login" method="POST">
-<input
-    type="hidden"
-    name="csrf_token"
-    value="{{ csrf_token() }}"
->
-                <!-- CSRF Protection -->
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}"
+            <!-- ================= INTRO ================= -->
+
+            <section class="login-intro">
+
+                <div class="login-badge">
+                    <span></span>
+                    Your campus community
+                </div>
+
+                <h1>
+                    Welcome back to
+                    <span class="highlight">
+                        UniCamplink.
+                    </span>
+                </h1>
+
+                <p>
+                    Connect with students, discover campus communities,
+                    chat with friends, explore opportunities and stay
+                    connected with what is happening around you.
+                </p>
+
+
+                <div class="login-benefits">
+
+                    <div class="benefit">
+
+                        <div class="benefit-icon">
+                            💬
+                        </div>
+
+                        <span>
+                            Connect with students
+                        </span>
+
+                    </div>
+
+
+                    <div class="benefit">
+
+                        <div class="benefit-icon">
+                            👥
+                        </div>
+
+                        <span>
+                            Join campus groups
+                        </span>
+
+                    </div>
+
+
+                    <div class="benefit">
+
+                        <div class="benefit-icon">
+                            🛍️
+                        </div>
+
+                        <span>
+                            Explore Marketplace
+                        </span>
+
+                    </div>
+
+
+                    <div class="benefit">
+
+                        <div class="benefit-icon">
+                            🔔
+                        </div>
+
+                        <span>
+                            Stay updated
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================= LOGIN CARD ================= -->
+
+            <section class="auth-card">
+
+                <div class="auth-logo">
+
+                    <img
+                        src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                        alt="UniCamplink"
+                    >
+
+                </div>
+
+
+                <h2>
+                    Sign in
+                </h2>
+
+                <p class="auth-subtitle">
+                    Enter your account details to continue.
+                </p>
+
+
+                <!-- LOGIN FORM -->
+
+                <form
+                    action="/login"
+                    method="POST"
+                    class="login-form"
                 >
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    required
-                >
-
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    required
-                >
-
-                <button type="submit">
-                    Login
-                </button>
-
-            </form>
+                    <!-- CSRF Protection -->
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
 
 
-            <p class="auth-link">
+                    <!-- EMAIL -->
 
-                Don't have an account?
+                    <div class="field">
 
-                <a href="/signup">
-                    Create one
-                </a>
+                        <label for="email">
+                            Email address
+                        </label>
 
-            </p>
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                ✉
+                            </span>
+
+                            <input
+                                id="email"
+                                type="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                autocomplete="email"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="field">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                🔒
+                            </span>
+
+                            <input
+                                id="password"
+                                type="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="togglePassword"
+                                aria-label="Show password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        class="login-submit"
+                        id="loginButton"
+                    >
+                        Login to UniCamplink 🚀
+                    </button>
+
+                </form>
+
+
+                <div class="login-divider">
+                    <span>UniCamplink Community</span>
+                </div>
+
+
+                <!-- SIGNUP -->
+
+                <p class="signup-prompt">
+
+                    Don't have an account?
+
+                    <a href="/signup">
+                        Create one
+                    </a>
+
+                </p>
+
+
+                <div class="security-note">
+                    🔐 Secure account access
+                </div>
+
+            </section>
 
         </div>
 
-    </section>
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+        /* Password visibility */
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const togglePassword =
+            document.getElementById("togglePassword");
+
+        if (passwordInput && togglePassword) {
+
+            togglePassword.addEventListener(
+                "click",
+                function () {
+
+                    const isPassword =
+                        passwordInput.type === "password";
+
+                    passwordInput.type =
+                        isPassword ? "text" : "password";
+
+                    togglePassword.textContent =
+                        isPassword ? "🙈" : "👁";
+
+                    togglePassword.setAttribute(
+                        "aria-label",
+                        isPassword
+                            ? "Hide password"
+                            : "Show password"
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* Prevent accidental double submission */
+
+        const loginForm =
+            document.querySelector(".login-form");
+
+        const loginButton =
+            document.getElementById("loginButton");
+
+        if (loginForm && loginButton) {
+
+            loginForm.addEventListener(
+                "submit",
+                function () {
+
+                    loginButton.disabled = true;
+
+                    loginButton.textContent =
+                        "Signing in...";
+
+                }
+            );
+
+        }
+
+    </script>
 
 </body>
 </html>

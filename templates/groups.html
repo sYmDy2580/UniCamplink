@@ -17,22 +17,500 @@
         href="{{ url_for('static', filename='style.css') }}"
     >
 
+    <style>
+
+        /* =========================================================
+           RAZOR GROUPS PAGE
+           ========================================================= */
+
+        .groups-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+
+        /* =========================
+           NAVBAR
+           ========================= */
+
+        .navbar {
+            background: #38bdf8;
+            min-height: 68px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 18px rgba(14, 165, 233, 0.22);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white !important;
+            text-decoration: none;
+            font-size: 23px;
+            font-weight: 800;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            min-width: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            padding: 5px 0;
+        }
+
+        .nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-links a,
+        .nav-links button {
+            color: white !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 650;
+            padding: 9px 11px;
+            border-radius: 9px;
+            white-space: nowrap;
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links button:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
+        }
+
+        .nav-logout {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+
+        .nav-logout button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+
+        /* =========================
+           PAGE HEADER
+           ========================= */
+
+        .groups-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            margin-bottom: 30px;
+            padding: 24px;
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, 0.16),
+                    rgba(56, 189, 248, 0.04)
+                );
+
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .groups-heading h1 {
+            margin: 0 0 8px;
+            font-size: clamp(26px, 4vw, 36px);
+            font-weight: 850;
+            letter-spacing: -0.6px;
+        }
+
+        .groups-heading p {
+            margin: 0;
+            opacity: 0.72;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           CREATE GROUP BUTTON
+           ========================= */
+
+        .create-group-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            min-height: 46px;
+            padding: 0 18px;
+
+            background: #38bdf8;
+            color: white !important;
+
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 800;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 8px 20px rgba(56, 189, 248, 0.25);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .create-group-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 25px rgba(56, 189, 248, 0.32);
+        }
+
+
+        /* =========================
+           GROUP GRID
+           ========================= */
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+
+        /* =========================
+           GROUP CARD
+           ========================= */
+
+        .group-card {
+            position: relative;
+
+            padding: 23px;
+
+            border-radius: 18px;
+
+            background: var(
+                --card-bg,
+                rgba(255, 255, 255, 0.96)
+            );
+
+            border: 1px solid var(
+                --border-color,
+                rgba(148, 163, 184, 0.25)
+            );
+
+            box-shadow:
+                0 8px 30px rgba(15, 23, 42, 0.07);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+
+            overflow: hidden;
+        }
+
+        .group-card::before {
+            content: "";
+            position: absolute;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 4px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+        }
+
+        .group-card:hover {
+            transform: translateY(-4px);
+
+            box-shadow:
+                0 14px 35px rgba(15, 23, 42, 0.11);
+
+            border-color:
+                rgba(56, 189, 248, 0.35);
+        }
+
+
+        /* =========================
+           GROUP TITLE
+           ========================= */
+
+        .group-card h2 {
+            margin: 0 0 12px;
+            font-size: 20px;
+            line-height: 1.35;
+        }
+
+        .group-card h2 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .group-card h2 a:hover {
+            color: #0ea5e9;
+        }
+
+
+        /* =========================
+           DESCRIPTION
+           ========================= */
+
+        .group-description {
+            margin: 0 0 18px;
+
+            font-size: 14px;
+            line-height: 1.65;
+
+            opacity: 0.72;
+
+            min-height: 45px;
+        }
+
+
+        /* =========================
+           CREATOR
+           ========================= */
+
+        .group-creator {
+            margin: 0 0 12px;
+
+            font-size: 13px;
+
+            opacity: 0.7;
+        }
+
+        .group-creator strong {
+            color: #0ea5e9;
+        }
+
+
+        /* =========================
+           MEMBER COUNT
+           ========================= */
+
+        .member-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            margin: 0 0 18px;
+
+            padding: 7px 11px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(56, 189, 248, 0.1);
+
+            color: #0284c7;
+
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+
+        /* =========================
+           JOIN BUTTON
+           ========================= */
+
+        .join-group-form {
+            margin: 0;
+        }
+
+        .join-group-button {
+            width: 100%;
+
+            min-height: 43px;
+
+            border: none;
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+
+            color: white;
+
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 7px 18px rgba(14, 165, 233, 0.2);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .join-group-button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 10px 23px rgba(14, 165, 233, 0.28);
+        }
+
+        .join-group-button:active {
+            transform: translateY(0);
+        }
+
+
+        /* =========================
+           EMPTY STATE
+           ========================= */
+
+        .no-groups {
+            grid-column: 1 / -1;
+
+            margin: 0;
+
+            padding: 50px 25px;
+
+            text-align: center;
+
+            border-radius: 18px;
+
+            border: 1px dashed
+                rgba(148, 163, 184, 0.35);
+
+            opacity: 0.75;
+
+            font-size: 15px;
+        }
+
+
+        /* =========================
+           MOBILE
+           ========================= */
+
+        @media (max-width: 800px) {
+
+            .navbar {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .groups-page {
+                padding:
+                    20px 14px 45px;
+            }
+
+            .groups-header {
+                align-items: stretch;
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .create-group-button {
+                width: 100%;
+            }
+
+        }
+
+
+        @media (max-width: 520px) {
+
+            .logo span {
+                display: none;
+            }
+
+            .nav-links {
+                gap: 3px;
+            }
+
+            .nav-links a,
+            .nav-links button {
+                font-size: 13px;
+                padding: 8px 9px;
+            }
+
+            .groups-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .group-card {
+                padding: 20px;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-    <!-- Navigation -->
+
+    <!-- =========================================================
+         NAVIGATION
+         ========================================================= -->
 
     <nav class="navbar">
 
-        <a href="/dashboard" class="logo">
+        <a
+            href="/dashboard"
+            class="logo"
+            aria-label="UniCamplink Dashboard"
+        >
 
             <img
-                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                src="{{ url_for(
+                    'static',
+                    filename='images/unicamplink-logo.png'
+                ) }}"
                 alt="UniCamplink Logo"
             >
 
-            <span>UniCamplink</span>
+            <span>
+                UniCamplink
+            </span>
 
         </a>
 
@@ -68,45 +546,41 @@
             </a>
 
             <form
-    action="{{ url_for('logout') }}"
-    method="POST"
-    style="display: inline;"
->
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
-    >
+                action="{{ url_for('logout') }}"
+                method="POST"
+                class="nav-logout"
+            >
 
-    <button
-        type="submit"
-        style="
-            background: none;
-            border: none;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-        "
-    >
-        Logout
-    </button>
-</form>
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button type="submit">
+                    Logout
+                </button>
+
+            </form>
 
         </div>
 
     </nav>
 
 
-    <main class="groups-container">
 
-        <div class="groups-header">
+    <!-- =========================================================
+         MAIN
+         ========================================================= -->
 
-            <div>
+    <main class="groups-page">
+
+
+        <!-- PAGE HEADER -->
+
+        <section class="groups-header">
+
+            <div class="groups-heading">
 
                 <h1>
                     Student Communities 👥
@@ -114,7 +588,8 @@
 
                 <p>
                     Connect with students who share
-                    your interests.
+                    your interests, school, goals and
+                    communities.
                 </p>
 
             </div>
@@ -124,11 +599,14 @@
                 href="/create-group"
                 class="create-group-button"
             >
-                + Create Group
+                ＋ Create Group
             </a>
 
-        </div>
+        </section>
 
+
+
+        <!-- GROUPS -->
 
         <section class="groups-grid">
 
@@ -136,7 +614,8 @@
 
                 {% for group in groups %}
 
-                    <div class="group-card">
+                    <article class="group-card">
+
 
                         <h2>
 
@@ -152,12 +631,14 @@
                         </h2>
 
 
+
                         <p class="group-description">
 
                             {{ group["description"]
                                or "No description yet." }}
 
                         </p>
+
 
 
                         <p class="group-creator">
@@ -171,13 +652,21 @@
                         </p>
 
 
+
                         <p class="member-count">
 
                             👥
+
                             {{ group["member_count"] }}
-                            Members
+
+                            {% if group["member_count"] == 1 %}
+                                Member
+                            {% else %}
+                                Members
+                            {% endif %}
 
                         </p>
+
 
 
                         <form
@@ -186,9 +675,9 @@
                                 group_id=group['id']
                             ) }}"
                             method="POST"
+                            class="join-group-form"
                         >
 
-                            <!-- CSRF Protection -->
                             <input
                                 type="hidden"
                                 name="csrf_token"
@@ -204,24 +693,30 @@
 
                         </form>
 
-                    </div>
+
+                    </article>
 
                 {% endfor %}
 
             {% else %}
 
-                <p class="no-groups">
+                <div class="no-groups">
 
                     No groups yet.
+
+                    <br>
+
                     Be the first student to create one! 🎉
 
-                </p>
+                </div>
 
             {% endif %}
 
         </section>
 
+
     </main>
+
 
 </body>
 

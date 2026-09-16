@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -18,11 +16,14 @@
     >
 
     <style>
+        /* =========================================================
+           SEARCH PAGE
+        ========================================================= */
 
         .search-container {
-            max-width: 1100px;
+            width: min(1100px, calc(100% - 32px));
             margin: 40px auto;
-            padding: 20px;
+            padding-bottom: 60px;
         }
 
         .search-header {
@@ -31,128 +32,506 @@
         }
 
         .search-header h1 {
-            margin-bottom: 10px;
+            margin: 0 0 10px;
+            font-size: clamp(26px, 4vw, 38px);
+            font-weight: 800;
         }
+
+        .search-header p {
+            margin: 0;
+            opacity: 0.72;
+            font-size: 15px;
+        }
+
+        /* =========================================================
+           SEARCH FORM
+        ========================================================= */
 
         .search-form {
             display: flex;
+            align-items: center;
             gap: 10px;
-            max-width: 700px;
-            margin: 0 auto 40px;
+            width: min(700px, 100%);
+            margin: 0 auto 42px;
         }
 
         .search-form input {
             flex: 1;
-            padding: 14px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
+            min-width: 0;
+            height: 52px;
+            padding: 0 18px;
+
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 14px;
+
+            background: var(--card-bg, #ffffff);
+            color: var(--text-color, #111827);
+
+            font-size: 15px;
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .search-form input:focus {
+            border-color: #38bdf8;
+
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.12);
         }
 
         .search-form button {
-            padding: 14px 25px;
+            height: 52px;
+            padding: 0 24px;
+
             border: none;
-            border-radius: 8px;
+            border-radius: 14px;
+
+            background: #38bdf8;
+            color: #082f49;
+
+            font-size: 15px;
+            font-weight: 800;
+
             cursor: pointer;
-            font-size: 16px;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .search-form button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 22px rgba(56, 189, 248, 0.25);
+        }
+
+        .search-form button:active {
+            transform: translateY(0);
+        }
+
+        /* =========================================================
+           SEARCH RESULTS
+        ========================================================= */
+
+        .search-results {
+            margin-top: 10px;
+        }
+
+        .search-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            margin-bottom: 20px;
         }
 
         .search-results h2 {
-            margin-bottom: 20px;
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .result-count {
+            font-size: 13px;
+            opacity: 0.65;
         }
 
         .student-grid {
             display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(260px, 1fr)
-            );
-            gap: 20px;
+
+            grid-template-columns:
+                repeat(auto-fill, minmax(300px, 1fr));
+
+            gap: 18px;
         }
+
+        /* =========================================================
+           STUDENT CARD
+        ========================================================= */
 
         .student-card {
             display: flex;
-            gap: 15px;
             align-items: center;
-            padding: 20px;
-            border-radius: 12px;
+            gap: 15px;
+
+            min-width: 0;
+
+            padding: 18px;
+
+            border-radius: 18px;
+
             text-decoration: none;
             color: inherit;
-            background: white;
-            border: 1px solid #ddd;
-            transition: 0.2s ease;
+
+            background:
+                var(--card-bg, #ffffff);
+
+            border:
+                1px solid rgba(148, 163, 184, 0.22);
+
+            box-shadow:
+                0 8px 30px rgba(15, 23, 42, 0.05);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
         }
 
         .student-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+
+            border-color:
+                rgba(56, 189, 248, 0.45);
+
+            box-shadow:
+                0 14px 35px rgba(15, 23, 42, 0.10);
         }
+
+        /* =========================================================
+           AVATARS
+        ========================================================= */
 
         .student-image,
         .student-avatar {
-            width: 65px;
-            height: 65px;
+            width: 64px;
+            height: 64px;
+
+            flex: 0 0 64px;
+
             border-radius: 50%;
-            flex-shrink: 0;
         }
 
         .student-image {
+            display: block;
+
             object-fit: cover;
+
+            border:
+                2px solid rgba(56, 189, 248, 0.18);
         }
 
         .student-avatar {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #eee;
-            font-size: 30px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #e0f2fe,
+                    #bae6fd
+                );
+
+            color: #0369a1;
+
+            font-size: 27px;
+        }
+
+        /* =========================================================
+           STUDENT INFORMATION
+        ========================================================= */
+
+        .student-info {
+            min-width: 0;
         }
 
         .student-info h3 {
-            margin: 0 0 8px;
+            margin: 0 0 6px;
+
+            font-size: 17px;
+            font-weight: 800;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .student-info p {
-            margin: 5px 0;
-            color: #666;
+            margin: 4px 0;
+
+            font-size: 13px;
+
+            opacity: 0.72;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .student-bio {
-            font-size: 14px;
+            font-size: 13px !important;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+
+            white-space: normal !important;
+
+            overflow: hidden;
         }
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
 
         .no-results {
             text-align: center;
-            padding: 30px;
-            background: #f5f5f5;
-            border-radius: 10px;
+
+            padding: 45px 20px;
+
+            border-radius: 18px;
+
+            background:
+                var(--card-bg, #ffffff);
+
+            border:
+                1px solid rgba(148, 163, 184, 0.22);
+
+            box-shadow:
+                0 8px 30px rgba(15, 23, 42, 0.04);
+
+            opacity: 0.85;
         }
+
+        /* =========================================================
+           NAVBAR FIX
+           This prevents the logo from blocking Search.
+        ========================================================= */
+
+        .navbar {
+            display: flex !important;
+            align-items: center !important;
+
+            width: 100%;
+            min-width: 0;
+
+            gap: 20px;
+
+            padding: 10px 18px;
+
+            box-sizing: border-box;
+
+            overflow: hidden;
+        }
+
+        .navbar .logo {
+            display: flex !important;
+            align-items: center !important;
+
+            flex: 0 0 auto;
+
+            min-width: 0;
+
+            gap: 9px;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+        }
+
+        .navbar .logo img {
+            width: 42px;
+            height: 42px;
+
+            flex: 0 0 42px;
+
+            display: block;
+
+            object-fit: contain;
+        }
+
+        .navbar .logo span {
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex !important;
+            align-items: center !important;
+
+            gap: 6px;
+
+            flex: 1 1 auto;
+
+            min-width: 0;
+
+            overflow-x: auto;
+            overflow-y: hidden;
+
+            scrollbar-width: none;
+
+            white-space: nowrap;
+        }
+
+        .nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-links > a,
+        .nav-links > form {
+            flex: 0 0 auto;
+        }
+
+        .nav-links > a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 38px;
+
+            padding: 8px 10px;
+
+            border-radius: 10px;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .nav-links > a:hover {
+            background:
+                rgba(56, 189, 248, 0.10);
+        }
+
+        /* =========================================================
+           MOBILE NAVBAR
+        ========================================================= */
+
+        @media (max-width: 900px) {
+
+            .navbar {
+                gap: 12px;
+                padding: 9px 12px;
+            }
+
+            .navbar .logo span {
+                display: none;
+            }
+
+            .navbar .logo img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .nav-links {
+                gap: 4px;
+            }
+
+            .nav-links > a {
+                padding: 8px 9px;
+                font-size: 13px;
+            }
+        }
+
+        /* =========================================================
+           MOBILE SEARCH
+        ========================================================= */
 
         @media (max-width: 600px) {
 
+            .search-container {
+                width: min(100% - 20px, 700px);
+                margin-top: 28px;
+            }
+
+            .search-header {
+                margin-bottom: 24px;
+            }
+
+            .search-header h1 {
+                font-size: 28px;
+            }
+
+            .search-header p {
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
             .search-form {
                 flex-direction: column;
+                align-items: stretch;
+
+                gap: 10px;
+
+                margin-bottom: 30px;
+            }
+
+            .search-form input,
+            .search-form button {
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .search-form button {
-                width: 100%;
+                height: 50px;
             }
 
+            .student-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .student-card {
+                padding: 15px;
+            }
+
+            .student-image,
+            .student-avatar {
+                width: 58px;
+                height: 58px;
+                flex-basis: 58px;
+            }
         }
 
+        @media (max-width: 380px) {
+
+            .navbar {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .navbar .logo img {
+                width: 36px;
+                height: 36px;
+            }
+
+            .nav-links > a {
+                font-size: 12px;
+                padding: 7px 8px;
+            }
+
+            .search-container {
+                width: calc(100% - 16px);
+            }
+        }
     </style>
 
 </head>
 
-
 <body>
 
-
-    <!-- Navigation -->
+    <!-- =========================================================
+         NAVIGATION
+    ========================================================== -->
 
     <nav class="navbar">
 
-        <a href="/dashboard" class="logo">
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="logo"
+            aria-label="UniCamplink Dashboard"
+        >
 
             <img
                 src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
@@ -166,69 +545,76 @@
 
         <div class="nav-links">
 
-            <a href="/dashboard">
+            <a href="{{ url_for('dashboard') }}">
                 Dashboard
             </a>
 
-            <a href="/feed">
+            <a href="{{ url_for('feed') }}">
                 Feed
             </a>
 
-            <a href="/profile">
+            <a href="{{ url_for('profile') }}">
                 Profile
             </a>
 
-            <a href="/groups">
+            <a href="{{ url_for('groups') }}">
                 Groups 👥
             </a>
 
-            <a href="/search">
+            <a href="{{ url_for('search_students') }}">
                 Search 🔍
             </a>
 
-            <a href="/messages">
+            <a href="{{ url_for('messages') }}">
                 Messages 💬
             </a>
 
-            <a href="/marketplace">
+            <a href="{{ url_for('marketplace') }}">
                 Marketplace 🛒
             </a>
 
             <form
-    action="{{ url_for('logout') }}"
-    method="POST"
-    style="display: inline;"
->
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
-    >
+                action="{{ url_for('logout') }}"
+                method="POST"
+                style="display:inline; flex:0 0 auto;"
+            >
 
-    <button
-        type="submit"
-        style="
-            background: none;
-            border: none;
-            color: #333;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: inherit;
-            padding: 0;
-        "
-    >
-        Logout
-    </button>
-</form>
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    style="
+                        background: none;
+                        border: none;
+                        color: inherit;
+                        font-weight: 500;
+                        cursor: pointer;
+                        font-family: inherit;
+                        font-size: inherit;
+                        padding: 8px 10px;
+                        border-radius: 10px;
+                        white-space: nowrap;
+                    "
+                >
+                    Logout
+                </button>
+
+            </form>
 
         </div>
 
     </nav>
 
 
-    <main class="search-container">
+    <!-- =========================================================
+         SEARCH CONTENT
+    ========================================================== -->
 
+    <main class="search-container">
 
         <section class="search-header">
 
@@ -244,6 +630,8 @@
         </section>
 
 
+        <!-- Search Form -->
+
         <form
             action="{{ url_for('search_students') }}"
             method="GET"
@@ -251,10 +639,12 @@
         >
 
             <input
-                type="text"
+                type="search"
                 name="q"
                 value="{{ query }}"
                 placeholder="Search name, email or university..."
+                autocomplete="off"
+                aria-label="Search students"
             >
 
             <button type="submit">
@@ -268,15 +658,24 @@
 
             <section class="search-results">
 
-                <h2>
-                    Search Results
-                </h2>
+                <div class="search-results-header">
+
+                    <h2>
+                        Search Results
+                    </h2>
+
+                    {% if users %}
+                        <span class="result-count">
+                            {{ users|length }} student{% if users|length != 1 %}s{% endif %}
+                        </span>
+                    {% endif %}
+
+                </div>
 
 
                 {% if users %}
 
                     <div class="student-grid">
-
 
                         {% for user in users %}
 
@@ -288,7 +687,6 @@
                                 class="student-card"
                             >
 
-
                                 {% if user["profile_picture"] %}
 
                                     <img
@@ -298,6 +696,7 @@
                                         ) }}"
                                         alt="{{ user['name'] }}"
                                         class="student-image"
+                                        loading="lazy"
                                     >
 
                                 {% else %}
@@ -316,10 +715,8 @@
                                     </h3>
 
                                     <p>
-                                        🏫
-                                        {{ user["university"] }}
+                                        🏫 {{ user["university"] }}
                                     </p>
-
 
                                     {% if user["bio"] %}
 
@@ -331,35 +728,38 @@
 
                                 </div>
 
-
                             </a>
 
                         {% endfor %}
 
-
                     </div>
-
 
                 {% else %}
 
-                    <p class="no-results">
+                    <div class="no-results">
 
-                        No students found for
-                        "{{ query }}".
+                        <div style="font-size: 40px; margin-bottom: 10px;">
+                            🔎
+                        </div>
 
-                    </p>
+                        <strong>
+                            No students found
+                        </strong>
+
+                        <p>
+                            Try searching with another name,
+                            email, or university.
+                        </p>
+
+                    </div>
 
                 {% endif %}
-
 
             </section>
 
         {% endif %}
 
-
     </main>
 
-
 </body>
-
 </html>

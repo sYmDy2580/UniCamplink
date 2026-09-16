@@ -10,299 +10,1177 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="theme-color"
+        content="#38bdf8"
+    >
+
     <title>UniCamplink Marketplace</title>
 
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
     <style>
+
+        /* =========================================================
+           RAZOR MARKETPLACE
+        ========================================================= */
+
+        :root {
+            --market-primary: #38bdf8;
+            --market-primary-dark: #0ea5e9;
+
+            --market-bg: #050b14;
+            --market-surface: #0f172a;
+            --market-surface-2: #111c2e;
+
+            --market-border: rgba(148, 163, 184, 0.12);
+
+            --market-text: #f8fafc;
+            --market-muted: #94a3b8;
+            --market-soft: #cbd5e1;
+
+            --market-success: #22c55e;
+
+            --market-shadow:
+                0 20px 55px rgba(0, 0, 0, 0.25);
+        }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            background: #f4f6f8;
-            color: #222;
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            color: var(--market-text);
+
+            background:
+                radial-gradient(
+                    circle at 10% 0%,
+                    rgba(56, 189, 248, 0.10),
+                    transparent 25%
+                ),
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(14, 165, 233, 0.07),
+                    transparent 25%
+                ),
+                linear-gradient(
+                    135deg,
+                    #020617,
+                    #07111f 55%,
+                    #030712
+                );
+
+            overflow-x: hidden;
         }
 
-        /* NAVBAR */
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-        .navbar {
-            background: #1877f2;
-            color: white;
-            padding: 15px 6%;
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
+
+        .market-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            width: 100%;
+
+            background:
+                rgba(2, 6, 23, 0.82);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border-bottom:
+                1px solid var(--market-border);
+        }
+
+        .navbar-inner {
+            width:
+                min(
+                    1200px,
+                    calc(100% - 30px)
+                );
+
+            min-height: 70px;
+
+            margin: auto;
+
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            justify-content: space-between;
+
+            gap: 20px;
         }
 
-        .logo {
+        .market-logo {
+            flex-shrink: 0;
+
             display: flex;
             align-items: center;
             gap: 10px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-decoration: none;
+
+            font-size: 1.05rem;
+            font-weight: 850;
+
+            white-space: nowrap;
         }
 
-        .logo img {
-            width: 45px;
-            height: 45px;
+        .market-logo img {
+            width: 40px;
+            height: 40px;
+
             object-fit: contain;
-            display: block;
+
+            border-radius: 11px;
+
+            filter:
+                drop-shadow(
+                    0 5px 15px
+                    rgba(56, 189, 248, 0.25)
+                );
         }
 
-        .nav-links {
+        .market-logo span {
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #bae6fd
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .market-nav-links {
             display: flex;
-            gap: 15px;
             align-items: center;
+            gap: 4px;
+
+            min-width: 0;
         }
 
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
+        .market-nav-links > a,
+        .market-logout-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 38px;
+
+            padding: 8px 11px;
+
+            border-radius: 10px;
+
+            color: #cbd5e1;
+
+            font-size: 0.82rem;
+            font-weight: 700;
+
+            white-space: nowrap;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
         }
 
-        .nav-links a:hover {
-            text-decoration: underline;
+        .market-nav-links > a:hover,
+        .market-logout-btn:hover {
+            color: #ffffff;
+
+            background:
+                rgba(56, 189, 248, 0.09);
+
+            transform: translateY(-1px);
         }
 
-        /* HEADER */
+        .market-nav-links .active {
+            color: #38bdf8;
 
-        .header {
-            padding: 30px 6%;
-            background: white;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
+            background:
+                rgba(56, 189, 248, 0.10);
         }
 
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 8px;
+        .market-logout-form {
+            margin: 0;
+            padding: 0;
         }
 
-        .header p {
-            color: #666;
+        .market-logout-btn {
+            border: 0;
+            background: transparent;
+            cursor: pointer;
         }
 
-        /* SEARCH AREA */
+        /* =========================================================
+           PAGE HEADER
+        ========================================================= */
+
+        .market-header {
+            width:
+                min(
+                    1200px,
+                    calc(100% - 30px)
+                );
+
+            margin: auto;
+
+            padding:
+                55px 0
+                25px;
+
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+
+            gap: 25px;
+        }
+
+        .header-copy {
+            max-width: 700px;
+        }
+
+        .market-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            margin-bottom: 12px;
+
+            color: #38bdf8;
+
+            font-size: 0.74rem;
+            font-weight: 850;
+
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .market-eyebrow span {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #38bdf8;
+
+            box-shadow:
+                0 0 12px
+                rgba(56, 189, 248, 0.8);
+        }
+
+        .market-header h1 {
+            margin-bottom: 12px;
+
+            font-size:
+                clamp(
+                    2rem,
+                    5vw,
+                    3.7rem
+                );
+
+            line-height: 1.03;
+
+            letter-spacing: -0.055em;
+
+            font-weight: 900;
+        }
+
+        .market-header h1 .blue {
+            color: #38bdf8;
+        }
+
+        .market-header p {
+            max-width: 650px;
+
+            color: var(--market-muted);
+
+            line-height: 1.75;
+
+            font-size: 0.96rem;
+        }
+
+        .market-header-badge {
+            flex-shrink: 0;
+
+            padding: 11px 15px;
+
+            border:
+                1px solid
+                rgba(56, 189, 248, 0.15);
+
+            border-radius: 14px;
+
+            background:
+                rgba(56, 189, 248, 0.06);
+
+            color: #bae6fd;
+
+            font-size: 0.78rem;
+            font-weight: 750;
+        }
+
+        /* =========================================================
+           SEARCH PANEL
+        ========================================================= */
 
         .search-section {
-            width: 88%;
-            max-width: 1100px;
-            margin: 25px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            width:
+                min(
+                    1200px,
+                    calc(100% - 30px)
+                );
+
+            margin:
+                10px auto
+                22px;
+        }
+
+        .search-panel {
+            padding: 16px;
+
+            border:
+                1px solid
+                var(--market-border);
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15, 23, 42, 0.88),
+                    rgba(15, 23, 42, 0.60)
+                );
+
+            box-shadow:
+                var(--market-shadow);
         }
 
         .search-form {
-            display: flex;
+            display: grid;
+
+            grid-template-columns:
+                minmax(200px, 1fr)
+                210px
+                120px;
+
             gap: 10px;
-            flex-wrap: wrap;
+        }
+
+        .search-input-wrap {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+
+            left: 14px;
+            top: 50%;
+
+            transform:
+                translateY(-50%);
+
+            color: #64748b;
+
+            pointer-events: none;
         }
 
         .search-form input,
         .search-form select {
-            flex: 1;
-            min-width: 200px;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
+            width: 100%;
+
+            min-height: 48px;
+
+            border:
+                1px solid
+                rgba(148, 163, 184, 0.13);
+
+            border-radius: 12px;
+
+            outline: none;
+
+            background:
+                rgba(2, 6, 23, 0.55);
+
+            color: #f8fafc;
+
+            padding:
+                0 14px;
+
+            font-size: 0.88rem;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
-        .search-form button {
-            background: #1877f2;
-            color: white;
-            border: none;
-            padding: 12px 22px;
-            border-radius: 6px;
+        .search-input-wrap input {
+            padding-left: 42px;
+        }
+
+        .search-form input::placeholder {
+            color: #64748b;
+        }
+
+        .search-form input:focus,
+        .search-form select:focus {
+            border-color:
+                rgba(56, 189, 248, 0.55);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(56, 189, 248, 0.08);
+        }
+
+        .search-form select option {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        .search-btn {
+            min-height: 48px;
+
+            border: 0;
+
+            border-radius: 12px;
+
             cursor: pointer;
-            font-weight: bold;
+
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+
+            font-size: 0.88rem;
+            font-weight: 850;
+
+            box-shadow:
+                0 10px 25px
+                rgba(14, 165, 233, 0.20);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
-        .search-form button:hover {
-            background: #0d65d9;
+        .search-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 15px 32px
+                rgba(14, 165, 233, 0.30);
         }
 
-        /* ACTIONS */
+        /* =========================================================
+           ACTIONS
+        ========================================================= */
 
         .actions {
-            width: 88%;
-            max-width: 1100px;
-            margin: 0 auto 25px;
+            width:
+                min(
+                    1200px,
+                    calc(100% - 30px)
+                );
+
+            margin:
+                0 auto
+                25px;
+
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+
+            gap: 15px;
+        }
+
+        .actions-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
             flex-wrap: wrap;
         }
 
-        .add-btn,
-        .my-products-btn {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
+        .market-action-btn {
+            min-height: 43px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            padding: 0 15px;
+
+            border-radius: 11px;
+
+            font-size: 0.82rem;
+            font-weight: 800;
+
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease;
         }
 
-        .add-btn {
-            background: #28a745;
-            color: white;
+        .market-action-btn:hover {
+            transform: translateY(-2px);
         }
 
-        .my-products-btn {
-            background: #333;
-            color: white;
+        .sell-btn {
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #22c55e,
+                    #16a34a
+                );
+
+            box-shadow:
+                0 8px 20px
+                rgba(34, 197, 94, 0.17);
         }
 
-        /* PRODUCTS */
+        .products-btn {
+            color: #cbd5e1;
+
+            border:
+                1px solid
+                rgba(148, 163, 184, 0.14);
+
+            background:
+                rgba(15, 23, 42, 0.65);
+        }
+
+        .products-btn:hover {
+            background:
+                rgba(30, 41, 59, 0.90);
+        }
+
+        .market-count {
+            color: #64748b;
+
+            font-size: 0.78rem;
+            font-weight: 650;
+        }
+
+        /* =========================================================
+           PRODUCTS
+        ========================================================= */
 
         .products-container {
-            width: 88%;
-            max-width: 1100px;
+            width:
+                min(
+                    1200px,
+                    calc(100% - 30px)
+                );
+
             margin: auto;
-            padding-bottom: 40px;
+
+            padding-bottom: 70px;
         }
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(
-                auto-fill,
-                minmax(230px, 1fr)
-            );
-            gap: 20px;
+
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(225px, 1fr)
+                );
+
+            gap: 18px;
         }
 
         .product-card {
-            background: white;
-            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s;
+
+            min-width: 0;
+
+            border:
+                1px solid
+                var(--market-border);
+
+            border-radius: 19px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15, 23, 42, 0.92),
+                    rgba(15, 23, 42, 0.68)
+                );
+
+            box-shadow:
+                0 15px 45px
+                rgba(0, 0, 0, 0.18);
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
         }
 
         .product-card:hover {
-            transform: translateY(-4px);
+            transform:
+                translateY(-6px);
+
+            border-color:
+                rgba(56, 189, 248, 0.25);
+
+            box-shadow:
+                0 25px 60px
+                rgba(0, 0, 0, 0.28);
+        }
+
+        /* =========================================================
+           PRODUCT IMAGE
+        ========================================================= */
+
+        .product-media {
+            position: relative;
+
+            height: 215px;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a,
+                    #1e293b
+                );
         }
 
         .product-image {
             width: 100%;
-            height: 200px;
+            height: 100%;
+
+            display: block;
+
             object-fit: cover;
-            background: #eee;
+
+            transition:
+                transform 0.4s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.045);
         }
 
         .no-image {
             width: 100%;
-            height: 200px;
-            background: #e9ecef;
+            height: 100%;
+
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            color: #777;
+            justify-content: center;
+
+            gap: 7px;
+
+            color: #64748b;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(56, 189, 248, 0.08),
+                    transparent 60%
+                );
         }
 
+        .no-image-icon {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .no-image span {
+            font-size: 0.72rem;
+            font-weight: 650;
+        }
+
+        .category-badge {
+            position: absolute;
+
+            left: 11px;
+            top: 11px;
+
+            padding: 6px 9px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.10);
+
+            border-radius: 999px;
+
+            background:
+                rgba(2, 6, 23, 0.72);
+
+            backdrop-filter:
+                blur(10px);
+
+            color: #e0f2fe;
+
+            font-size: 0.67rem;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+           PRODUCT INFO
+        ========================================================= */
+
         .product-info {
-            padding: 15px;
+            padding: 16px;
         }
 
         .product-info h3 {
             margin-bottom: 8px;
-            font-size: 19px;
+
+            overflow: hidden;
+
+            color: #f8fafc;
+
+            font-size: 1rem;
+            font-weight: 800;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
         .price {
-            color: #1877f2;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+            margin-bottom: 9px;
 
-        .category {
-            display: inline-block;
-            background: #eef4ff;
-            color: #1877f2;
-            padding: 5px 9px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin-bottom: 10px;
+            color: #38bdf8;
+
+            font-size: 1.22rem;
+            font-weight: 900;
         }
 
         .location {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            min-height: 24px;
+
+            margin-bottom: 13px;
+
+            overflow: hidden;
+
+            color: #64748b;
+
+            font-size: 0.74rem;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
         .view-btn {
-            display: block;
-            text-align: center;
-            background: #1877f2;
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
+            min-height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border:
+                1px solid
+                rgba(56, 189, 248, 0.16);
+
+            border-radius: 10px;
+
+            color: #bae6fd;
+
+            background:
+                rgba(56, 189, 248, 0.07);
+
+            font-size: 0.78rem;
+            font-weight: 800;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
         }
 
         .view-btn:hover {
-            background: #0d65d9;
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
         }
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
 
         .empty {
+            padding:
+                70px 25px;
+
             text-align: center;
-            background: white;
-            padding: 50px 20px;
-            border-radius: 10px;
-            color: #666;
+
+            border:
+                1px solid
+                var(--market-border);
+
+            border-radius: 22px;
+
+            background:
+                rgba(15, 23, 42, 0.65);
         }
 
-        /* MOBILE */
+        .empty-icon {
+            width: 65px;
+            height: 65px;
 
-        @media (max-width: 600px) {
+            display: grid;
+            place-items: center;
 
-            .navbar {
-                flex-direction: column;
-                text-align: center;
-            }
+            margin:
+                0 auto
+                18px;
 
-            .header h1 {
-                font-size: 26px;
-            }
+            border-radius: 20px;
 
-            .search-section,
-            .products-container,
-            .actions {
-                width: 94%;
+            background:
+                rgba(56, 189, 248, 0.08);
+
+            font-size: 1.8rem;
+        }
+
+        .empty h2 {
+            margin-bottom: 9px;
+
+            font-size: 1.25rem;
+        }
+
+        .empty p {
+            max-width: 450px;
+
+            margin: auto;
+
+            color: #64748b;
+
+            line-height: 1.7;
+
+            font-size: 0.84rem;
+        }
+
+        /* =========================================================
+           LIGHT MODE
+        ========================================================= */
+
+        body.light-mode {
+            --market-bg: #f4f8fc;
+            --market-surface: #ffffff;
+            --market-surface-2: #f8fafc;
+
+            --market-border:
+                rgba(15, 23, 42, 0.10);
+
+            --market-text: #0f172a;
+            --market-muted: #64748b;
+            --market-soft: #334155;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fbff,
+                    #eef7fd
+                );
+
+            color: #0f172a;
+        }
+
+        body.light-mode .market-navbar {
+            background:
+                rgba(255, 255, 255, 0.86);
+        }
+
+        body.light-mode .market-logo span {
+            background:
+                linear-gradient(
+                    90deg,
+                    #0f172a,
+                    #0369a1
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        body.light-mode .market-nav-links > a,
+        body.light-mode .market-logout-btn {
+            color: #475569;
+        }
+
+        body.light-mode .market-nav-links > a:hover,
+        body.light-mode .market-logout-btn:hover {
+            color: #0369a1;
+            background: #e0f2fe;
+        }
+
+        body.light-mode .market-header p,
+        body.light-mode .market-count {
+            color: #64748b;
+        }
+
+        body.light-mode .search-panel,
+        body.light-mode .product-card,
+        body.light-mode .empty {
+            background:
+                rgba(255, 255, 255, 0.88);
+
+            box-shadow:
+                0 15px 45px
+                rgba(15, 23, 42, 0.07);
+        }
+
+        body.light-mode .search-form input,
+        body.light-mode .search-form select {
+            color: #0f172a;
+            background: #f8fafc;
+            border-color:
+                rgba(15, 23, 42, 0.10);
+        }
+
+        body.light-mode .search-form select option {
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        body.light-mode .product-info h3,
+        body.light-mode .empty h2 {
+            color: #0f172a;
+        }
+
+        body.light-mode .products-btn {
+            color: #334155;
+            background: #f8fafc;
+            border-color:
+                rgba(15, 23, 42, 0.10);
+        }
+
+        body.light-mode .products-btn:hover {
+            background: #e2e8f0;
+        }
+
+        body.light-mode .location,
+        body.light-mode .empty p {
+            color: #64748b;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 950px) {
+
+            .market-nav-links > a:nth-child(1),
+            .market-nav-links > a:nth-child(2) {
+                display: none;
             }
 
             .search-form {
+                grid-template-columns:
+                    1fr
+                    180px
+                    110px;
+            }
+
+            .market-header {
+                align-items: flex-start;
                 flex-direction: column;
             }
 
-            .search-form input,
-            .search-form select,
-            .search-form button {
-                width: 100%;
+        }
+
+        @media (max-width: 700px) {
+
+            .navbar-inner {
+                width:
+                    calc(100% - 18px);
+
+                min-height: 62px;
+
+                gap: 8px;
+            }
+
+            .market-logo span {
+                display: none;
+            }
+
+            .market-logo img {
+                width: 38px;
+                height: 38px;
+            }
+
+            .market-nav-links {
+                overflow-x: auto;
+
+                scrollbar-width: none;
+
+                max-width: calc(100% - 48px);
+            }
+
+            .market-nav-links::-webkit-scrollbar {
+                display: none;
+            }
+
+            .market-nav-links > a,
+            .market-logout-btn {
+                min-height: 35px;
+
+                padding:
+                    7px 9px;
+
+                font-size: 0.72rem;
+            }
+
+            .market-header,
+            .search-section,
+            .actions,
+            .products-container {
+                width:
+                    calc(100% - 20px);
+            }
+
+            .market-header {
+                padding-top: 38px;
+            }
+
+            .market-header h1 {
+                font-size: 2.35rem;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
             }
 
             .actions {
-                flex-direction: column;
                 align-items: stretch;
+                flex-direction: column;
             }
 
-            .add-btn,
-            .my-products-btn {
+            .actions-left {
+                width: 100%;
+            }
+
+            .market-action-btn {
+                flex: 1;
+            }
+
+            .market-count {
                 text-align: center;
+            }
+
+            .products-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+
+                gap: 10px;
+            }
+
+            .product-media {
+                height: 165px;
+            }
+
+            .product-info {
+                padding: 12px;
+            }
+
+            .product-info h3 {
+                font-size: 0.88rem;
+            }
+
+            .price {
+                font-size: 1rem;
+            }
+
+            .location {
+                font-size: 0.68rem;
+            }
+
+            .view-btn {
+                min-height: 37px;
+                font-size: 0.7rem;
+            }
+
+        }
+
+        @media (max-width: 420px) {
+
+            .market-nav-links > a:nth-child(3) {
+                display: none;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .product-media {
+                height: 145px;
+            }
+
+            .category-badge {
+                font-size: 0.6rem;
+                padding: 5px 7px;
+            }
+
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition: none !important;
             }
 
         }
@@ -317,71 +1195,80 @@
 
 <!-- ============================================================
      NAVIGATION
-============================================================ -->
+============================================================= -->
 
-<nav class="navbar">
+<nav class="market-navbar">
 
-    <a href="{{ url_for('dashboard') }}" class="logo">
+    <div class="navbar-inner">
 
-        <img
-            src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
-            alt="UniCamplink Logo"
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="market-logo"
         >
 
-        <span>UniCamplink</span>
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='images/unicamplink-logo.png'
+                ) }}"
+                alt="UniCamplink Logo"
+            >
 
-    </a>
+            <span>
+                UniCamplink
+            </span>
 
-
-    <div class="nav-links">
-
-        <a href="{{ url_for('dashboard') }}">
-            Dashboard
         </a>
 
-        <a href="{{ url_for('feed') }}">
-            Feed
-        </a>
 
-        <a href="{{ url_for('groups') }}">
-            Groups
-        </a>
+        <div class="market-nav-links">
 
-        <a href="{{ url_for('marketplace') }}">
-            Marketplace
-        </a>
+            <a href="{{ url_for('dashboard') }}">
+                🏠 Dashboard
+            </a>
 
-        <a href="/profile">
-            Profile
-        </a>
+            <a href="{{ url_for('feed') }}">
+                📰 Feed
+            </a>
 
-        <form
-    action="{{ url_for('logout') }}"
-    method="POST"
-    style="display: inline;"
->
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
-    >
+            <a href="{{ url_for('groups') }}">
+                👥 Groups
+            </a>
 
-    <button
-        type="submit"
-        style="
-            background: none;
-            border: none;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-size: 16px;
-            padding: 0;
-        "
-    >
-        Logout
-    </button>
-</form>
+            <a
+                href="{{ url_for('marketplace') }}"
+                class="active"
+            >
+                🛍️ Marketplace
+            </a>
+
+            <a href="/profile">
+                👤 Profile
+            </a>
+
+
+            <form
+                action="{{ url_for('logout') }}"
+                method="POST"
+                class="market-logout-form"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="market-logout-btn"
+                >
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
 
@@ -390,18 +1277,44 @@
 
 
 <!-- ============================================================
-     PAGE HEADER
-============================================================ -->
+     HEADER
+============================================================= -->
 
-<section class="header">
+<section class="market-header">
 
-    <h1>
-        🛍️ UniCamplink Marketplace
-    </h1>
+    <div class="header-copy">
 
-    <p>
-        Buy and sell products within your campus community.
-    </p>
+        <div class="market-eyebrow">
+
+            <span></span>
+
+            Student Marketplace
+
+        </div>
+
+
+        <h1>
+            Buy. Sell.
+            <span class="blue">
+                Connect.
+            </span>
+        </h1>
+
+
+        <p>
+            Discover products, services and opportunities
+            from students and campus businesses within the
+            UniCamplink community.
+        </p>
+
+    </div>
+
+
+    <div class="market-header-badge">
+
+        🛍️ Campus-powered marketplace
+
+    </div>
 
 </section>
 
@@ -409,133 +1322,171 @@
 
 <!-- ============================================================
      SEARCH
-============================================================ -->
+============================================================= -->
 
 <section class="search-section">
 
-    <form
-        method="GET"
-        action="{{ url_for('marketplace') }}"
-        class="search-form"
-    >
+    <div class="search-panel">
 
-        <input
-            type="text"
-            name="search"
-            placeholder="Search products..."
-            value="{{ search or '' }}"
+        <form
+            method="GET"
+            action="{{ url_for('marketplace') }}"
+            class="search-form"
         >
 
+            <div class="search-input-wrap">
 
-        <select name="category">
+                <span class="search-icon">
+                    🔍
+                </span>
 
-            <option value="">
-                All Categories
-            </option>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search products, services..."
+                    value="{{ search or '' }}"
+                    autocomplete="off"
+                >
+
+            </div>
 
 
-            <option
-                value="Electronics"
-                {% if category == 'Electronics' %}
-                    selected
-                {% endif %}
+            <select name="category">
+
+                <option value="">
+                    All Categories
+                </option>
+
+
+                <option
+                    value="Electronics"
+                    {% if category == 'Electronics' %}
+                        selected
+                    {% endif %}
+                >
+                    Electronics
+                </option>
+
+
+                <option
+                    value="Fashion"
+                    {% if category == 'Fashion' %}
+                        selected
+                    {% endif %}
+                >
+                    Fashion
+                </option>
+
+
+                <option
+                    value="Books"
+                    {% if category == 'Books' %}
+                        selected
+                    {% endif %}
+                >
+                    Books
+                </option>
+
+
+                <option
+                    value="Hostel"
+                    {% if category == 'Hostel' %}
+                        selected
+                    {% endif %}
+                >
+                    Hostel Items
+                </option>
+
+
+                <option
+                    value="Food"
+                    {% if category == 'Food' %}
+                        selected
+                    {% endif %}
+                >
+                    Food
+                </option>
+
+
+                <option
+                    value="Services"
+                    {% if category == 'Services' %}
+                        selected
+                    {% endif %}
+                >
+                    Services
+                </option>
+
+
+                <option
+                    value="Other"
+                    {% if category == 'Other' %}
+                        selected
+                    {% endif %}
+                >
+                    Other
+                </option>
+
+            </select>
+
+
+            <button
+                type="submit"
+                class="search-btn"
             >
-                Electronics
-            </option>
+                Search
+            </button>
 
+        </form>
 
-            <option
-                value="Fashion"
-                {% if category == 'Fashion' %}
-                    selected
-                {% endif %}
-            >
-                Fashion
-            </option>
-
-
-            <option
-                value="Books"
-                {% if category == 'Books' %}
-                    selected
-                {% endif %}
-            >
-                Books
-            </option>
-
-
-            <option
-                value="Hostel"
-                {% if category == 'Hostel' %}
-                    selected
-                {% endif %}
-            >
-                Hostel Items
-            </option>
-
-
-            <option
-                value="Food"
-                {% if category == 'Food' %}
-                    selected
-                {% endif %}
-            >
-                Food
-            </option>
-
-
-            <option
-                value="Services"
-                {% if category == 'Services' %}
-                    selected
-                {% endif %}
-            >
-                Services
-            </option>
-
-
-            <option
-                value="Other"
-                {% if category == 'Other' %}
-                    selected
-                {% endif %}
-            >
-                Other
-            </option>
-
-        </select>
-
-
-        <button type="submit">
-            Search
-        </button>
-
-    </form>
+    </div>
 
 </section>
 
 
 
 <!-- ============================================================
-     ACTION BUTTONS
-============================================================ -->
+     ACTIONS
+============================================================= -->
 
 <div class="actions">
 
-    <a
-        href="{{ url_for('add_product') }}"
-        class="add-btn"
-    >
-        + Sell a Product
-    </a>
+    <div class="actions-left">
+
+        <a
+            href="{{ url_for('add_product') }}"
+            class="market-action-btn sell-btn"
+        >
+            ＋ Sell a Product
+        </a>
 
 
-    <a
-        href="{{ url_for('my_products') }}"
-        class="my-products-btn"
-    >
-        My Products
-    </a>
+        <a
+            href="{{ url_for('my_products') }}"
+            class="market-action-btn products-btn"
+        >
+            📦 My Products
+        </a>
+
+    </div>
+
+
+    {% if products %}
+
+        <div class="market-count">
+
+            {{ products|length }}
+            product{% if products|length != 1 %}s{% endif %}
+
+            {% if search or category %}
+                found
+            {% else %}
+                available
+            {% endif %}
+
+        </div>
+
+    {% endif %}
 
 </div>
 
@@ -543,7 +1494,7 @@
 
 <!-- ============================================================
      PRODUCTS
-============================================================ -->
+============================================================= -->
 
 <main class="products-container">
 
@@ -553,63 +1504,99 @@
 
             {% for product in products %}
 
-                <div class="product-card">
+                <article class="product-card">
 
 
-                    {% if product['image'] %}
+                    <!-- PRODUCT IMAGE -->
 
-                        <img
-                            src="{{ url_for(
-                                'static',
-                                filename='uploads/' + product['image']
-                            ) }}"
-                            alt="{{ product['name'] }}"
-                            class="product-image"
-                        >
+                    <div class="product-media">
 
-                    {% else %}
+                        {% if product['image'] %}
 
-                        <div class="no-image">
-                            No Image
-                        </div>
+                            <img
+                                src="{{ url_for(
+                                    'static',
+                                    filename='uploads/' + product['image']
+                                ) }}"
+                                alt="{{ product['name'] }}"
+                                class="product-image"
+                                loading="lazy"
+                            >
 
-                    {% endif %}
+                        {% else %}
+
+                            <div class="no-image">
+
+                                <div class="no-image-icon">
+                                    🛍️
+                                </div>
+
+                                <span>
+                                    No image available
+                                </span>
+
+                            </div>
+
+                        {% endif %}
 
 
+                        {% if product['category'] %}
+
+                            <span class="category-badge">
+                                {{ product['category'] }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- PRODUCT INFORMATION -->
 
                     <div class="product-info">
 
-                        <h3>
+                        <h3
+                            title="{{ product['name'] }}"
+                        >
                             {{ product['name'] }}
                         </h3>
 
 
                         <div class="price">
 
-                            ₦{{ "{:,.2f}".format(
-                                product['price']
-                            ) }}
+                            ₦{{
+                                "{:,.2f}".format(
+                                    product['price']
+                                )
+                            }}
 
                         </div>
 
 
-                        {% if product['category'] %}
-
-                            <span class="category">
-
-                                {{ product['category'] }}
-
-                            </span>
-
-                        {% endif %}
-
-
                         {% if product['location'] %}
 
+                            <div
+                                class="location"
+                                title="{{ product['location'] }}"
+                            >
+
+                                <span>
+                                    📍
+                                </span>
+
+                                <span>
+                                    {{ product['location'] }}
+                                </span>
+
+                            </div>
+
+                        {% else %}
+
                             <div class="location">
-
-                                📍 {{ product['location'] }}
-
+                                <span>
+                                    📍 Campus
+                                </span>
                             </div>
 
                         {% endif %}
@@ -622,12 +1609,12 @@
                             ) }}"
                             class="view-btn"
                         >
-                            View Product
+                            View Product →
                         </a>
 
                     </div>
 
-                </div>
+                </article>
 
             {% endfor %}
 
@@ -638,13 +1625,18 @@
 
         <div class="empty">
 
+            <div class="empty-icon">
+                🔍
+            </div>
+
             <h2>
                 No products found
             </h2>
 
             <p>
-                There are currently no products
-                matching your search.
+                There are currently no products matching
+                your search or category. Try another search
+                or be the first student to list something.
             </p>
 
         </div>
@@ -652,6 +1644,45 @@
     {% endif %}
 
 </main>
+
+
+
+<script>
+
+    /*
+     * Small UX enhancement:
+     * preserve the search button state while the form submits.
+     */
+
+    const searchForm =
+        document.querySelector(".search-form");
+
+    if (searchForm) {
+
+        searchForm.addEventListener(
+            "submit",
+            function () {
+
+                const button =
+                    searchForm.querySelector(
+                        ".search-btn"
+                    );
+
+                if (button) {
+
+                    button.textContent =
+                        "Searching...";
+
+                    button.disabled = true;
+
+                }
+
+            }
+        );
+
+    }
+
+</script>
 
 
 </body>

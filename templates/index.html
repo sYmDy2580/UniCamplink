@@ -4,115 +4,1592 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>UniCamplink - Connect Your Campus</title>
+    <meta name="theme-color" content="#38bdf8">
+    <meta
+        name="description"
+        content="UniCamplink connects students, campus communities, opportunities and marketplaces in one place."
+    >
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>UniCamplink — Connect Your Campus</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+        /* =========================================================
+           RAZOR LANDING PAGE
+        ========================================================= */
+
+        :root {
+            --landing-primary: #38bdf8;
+            --landing-primary-dark: #0ea5e9;
+            --landing-bg: #050b14;
+            --landing-card: rgba(15, 23, 42, 0.78);
+            --landing-card-border: rgba(148, 163, 184, 0.12);
+            --landing-text: #f8fafc;
+            --landing-muted: #94a3b8;
+            --landing-soft: #e2e8f0;
+            --landing-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            color: var(--landing-text);
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(56, 189, 248, 0.16),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(14, 165, 233, 0.11),
+                    transparent 25%
+                ),
+                linear-gradient(
+                    135deg,
+                    #020617 0%,
+                    #07111f 48%,
+                    #030712 100%
+                );
+
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
+
+        .landing-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            width: 100%;
+
+            background: rgba(2, 6, 23, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+        }
+
+        .navbar-inner {
+            width: min(1180px, calc(100% - 32px));
+            min-height: 72px;
+            margin: 0 auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .landing-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+
+            font-size: 1.12rem;
+            font-weight: 850;
+            letter-spacing: -0.02em;
+
+            white-space: nowrap;
+        }
+
+        .landing-logo img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 12px;
+
+            filter: drop-shadow(
+                0 5px 16px rgba(56, 189, 248, 0.28)
+            );
+        }
+
+        .landing-logo span {
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #bae6fd
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .landing-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .landing-nav-links a {
+            padding: 10px 14px;
+            border-radius: 11px;
+
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            font-weight: 650;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .landing-nav-links a:hover {
+            color: #ffffff;
+            background: rgba(56, 189, 248, 0.10);
+            transform: translateY(-1px);
+        }
+
+        .landing-nav-links .landing-signup {
+            color: #ffffff;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--landing-primary),
+                    var(--landing-primary-dark)
+                );
+
+            box-shadow:
+                0 8px 24px rgba(14, 165, 233, 0.25);
+        }
+
+        .landing-nav-links .landing-signup:hover {
+            color: #ffffff;
+            background:
+                linear-gradient(
+                    135deg,
+                    #7dd3fc,
+                    #0ea5e9
+                );
+
+            transform: translateY(-2px);
+        }
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+
+        .landing-hero {
+            position: relative;
+            isolation: isolate;
+
+            width: min(1180px, calc(100% - 32px));
+            min-height: 690px;
+
+            margin: 0 auto;
+
+            display: grid;
+            grid-template-columns: 1.08fr 0.92fr;
+            align-items: center;
+            gap: 55px;
+
+            padding: 80px 0 75px;
+        }
+
+        .hero-glow {
+            position: absolute;
+            z-index: -1;
+
+            width: 430px;
+            height: 430px;
+
+            border-radius: 50%;
+
+            background: rgba(56, 189, 248, 0.10);
+            filter: blur(70px);
+
+            pointer-events: none;
+        }
+
+        .hero-glow.one {
+            top: 80px;
+            left: -180px;
+        }
+
+        .hero-glow.two {
+            right: -180px;
+            bottom: 0;
+            background: rgba(14, 165, 233, 0.08);
+        }
+
+        .hero-content {
+            max-width: 690px;
+        }
+
+        .hero-badge {
+            width: fit-content;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 13px;
+            margin-bottom: 23px;
+
+            border: 1px solid rgba(56, 189, 248, 0.20);
+            border-radius: 999px;
+
+            background: rgba(56, 189, 248, 0.08);
+
+            color: #bae6fd;
+            font-size: 0.82rem;
+            font-weight: 750;
+        }
+
+        .hero-badge-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #38bdf8;
+            box-shadow: 0 0 12px #38bdf8;
+        }
+
+        .hero-content h1 {
+            max-width: 680px;
+
+            font-size: clamp(3rem, 6vw, 5.8rem);
+            line-height: 0.98;
+            letter-spacing: -0.065em;
+            font-weight: 900;
+
+            margin-bottom: 25px;
+        }
+
+        .hero-content h1 .blue {
+            color: var(--landing-primary);
+        }
+
+        .hero-content > p {
+            max-width: 610px;
+
+            color: var(--landing-muted);
+
+            font-size: clamp(1rem, 2vw, 1.18rem);
+            line-height: 1.8;
+
+            margin-bottom: 32px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-primary-btn,
+        .hero-secondary-btn {
+            min-height: 50px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            padding: 0 21px;
+
+            border-radius: 13px;
+
+            font-size: 0.94rem;
+            font-weight: 800;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .hero-primary-btn {
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+
+            box-shadow:
+                0 13px 32px rgba(14, 165, 233, 0.24);
+        }
+
+        .hero-primary-btn:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 18px 40px rgba(14, 165, 233, 0.32);
+        }
+
+        .hero-secondary-btn {
+            color: #e2e8f0;
+
+            border: 1px solid rgba(148, 163, 184, 0.18);
+
+            background: rgba(15, 23, 42, 0.58);
+        }
+
+        .hero-secondary-btn:hover {
+            transform: translateY(-3px);
+            background: rgba(30, 41, 59, 0.80);
+        }
+
+        /* =========================================================
+           HERO VISUAL
+        ========================================================= */
+
+        .hero-visual {
+            position: relative;
+
+            min-height: 470px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .phone-frame {
+            position: relative;
+
+            width: min(320px, 82vw);
+            height: 520px;
+
+            padding: 9px;
+
+            border: 1px solid rgba(148, 163, 184, 0.20);
+            border-radius: 34px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(30, 41, 59, 0.95),
+                    rgba(2, 6, 23, 0.98)
+                );
+
+            box-shadow:
+                0 35px 90px rgba(0, 0, 0, 0.52),
+                0 0 70px rgba(56, 189, 248, 0.10);
+
+            transform: rotate(2deg);
+        }
+
+        .phone-notch {
+            position: absolute;
+            z-index: 5;
+
+            top: 9px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 100px;
+            height: 22px;
+
+            border-radius: 0 0 16px 16px;
+
+            background: #020617;
+        }
+
+        .phone-screen {
+            height: 100%;
+            overflow: hidden;
+
+            border-radius: 27px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #0f172a,
+                    #020617
+                );
+        }
+
+        .mock-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 30px 15px 14px;
+
+            border-bottom: 1px solid rgba(148, 163, 184, 0.09);
+        }
+
+        .mock-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            font-size: 0.84rem;
+            font-weight: 850;
+        }
+
+        .mock-brand-icon {
+            width: 28px;
+            height: 28px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 8px;
+
+            background: rgba(56, 189, 248, 0.14);
+            color: #38bdf8;
+
+            font-size: 0.8rem;
+        }
+
+        .mock-notification {
+            width: 29px;
+            height: 29px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background: rgba(148, 163, 184, 0.08);
+            color: #cbd5e1;
+
+            font-size: 0.8rem;
+        }
+
+        .mock-feed {
+            padding: 13px;
+        }
+
+        .mock-card {
+            margin-bottom: 12px;
+            padding: 13px;
+
+            border: 1px solid rgba(148, 163, 184, 0.08);
+            border-radius: 15px;
+
+            background: rgba(15, 23, 42, 0.80);
+        }
+
+        .mock-user {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            margin-bottom: 12px;
+        }
+
+        .mock-avatar {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #2563eb
+                );
+
+            color: white;
+            font-size: 0.78rem;
+            font-weight: 850;
+        }
+
+        .mock-user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .mock-user-info strong {
+            font-size: 0.72rem;
+        }
+
+        .mock-user-info span {
+            color: #64748b;
+            font-size: 0.58rem;
+        }
+
+        .mock-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+
+            margin-bottom: 13px;
+        }
+
+        .mock-line {
+            height: 7px;
+            border-radius: 999px;
+            background: #1e293b;
+        }
+
+        .mock-line.short {
+            width: 64%;
+        }
+
+        .mock-image {
+            height: 125px;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, 0.28),
+                    rgba(37, 99, 235, 0.12)
+                );
+        }
+
+        .mock-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+
+            margin-top: 11px;
+
+            color: #64748b;
+            font-size: 0.66rem;
+        }
+
+        .mock-actions span:first-child {
+            color: #38bdf8;
+        }
+
+        /* Floating cards */
+
+        .floating-card {
+            position: absolute;
+            z-index: 10;
+
+            padding: 13px 15px;
+
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            border-radius: 15px;
+
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.32);
+        }
+
+        .floating-card strong {
+            display: block;
+
+            color: #f8fafc;
+            font-size: 0.82rem;
+        }
+
+        .floating-card span {
+            color: #64748b;
+            font-size: 0.68rem;
+        }
+
+        .floating-card.members {
+            left: -10px;
+            bottom: 74px;
+        }
+
+        .floating-card.market {
+            right: -20px;
+            top: 92px;
+        }
+
+        /* =========================================================
+           STATS
+        ========================================================= */
+
+        .landing-stats {
+            width: min(900px, calc(100% - 32px));
+
+            margin: -5px auto 80px;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            border: 1px solid rgba(148, 163, 184, 0.10);
+            border-radius: 20px;
+
+            background: rgba(15, 23, 42, 0.50);
+            backdrop-filter: blur(15px);
+        }
+
+        .stat-item {
+            padding: 24px 18px;
+
+            text-align: center;
+        }
+
+        .stat-item + .stat-item {
+            border-left: 1px solid rgba(148, 163, 184, 0.10);
+        }
+
+        .stat-item strong {
+            display: block;
+
+            color: #f8fafc;
+
+            font-size: 1.6rem;
+            font-weight: 900;
+        }
+
+        .stat-item span {
+            display: block;
+
+            margin-top: 5px;
+
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 650;
+        }
+
+        /* =========================================================
+           FEATURES
+        ========================================================= */
+
+        .landing-features {
+            width: min(1180px, calc(100% - 32px));
+
+            margin: 0 auto;
+
+            padding: 35px 0 100px;
+        }
+
+        .section-heading {
+            max-width: 700px;
+
+            margin: 0 auto 42px;
+
+            text-align: center;
+        }
+
+        .section-heading .eyebrow {
+            display: inline-block;
+
+            margin-bottom: 11px;
+
+            color: #38bdf8;
+
+            font-size: 0.75rem;
+            font-weight: 850;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        .section-heading h2 {
+            margin-bottom: 13px;
+
+            color: #f8fafc;
+
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.08;
+            letter-spacing: -0.04em;
+        }
+
+        .section-heading p {
+            color: #64748b;
+            line-height: 1.7;
+        }
+
+        .feature-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .feature-card {
+            position: relative;
+            overflow: hidden;
+
+            min-height: 260px;
+
+            padding: 28px;
+
+            border: 1px solid var(--landing-card-border);
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15, 23, 42, 0.86),
+                    rgba(15, 23, 42, 0.48)
+                );
+
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.18);
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .feature-card::after {
+            content: "";
+
+            position: absolute;
+
+            width: 150px;
+            height: 150px;
+
+            top: -75px;
+            right: -75px;
+
+            border-radius: 50%;
+
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-7px);
+
+            border-color: rgba(56, 189, 248, 0.24);
+
+            box-shadow:
+                0 28px 70px rgba(0, 0, 0, 0.28);
+        }
+
+        .feature-icon {
+            width: 54px;
+            height: 54px;
+
+            display: grid;
+            place-items: center;
+
+            margin-bottom: 22px;
+
+            border-radius: 16px;
+
+            background: rgba(56, 189, 248, 0.10);
+
+            font-size: 1.45rem;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 10px;
+
+            color: #f8fafc;
+
+            font-size: 1.18rem;
+            font-weight: 850;
+        }
+
+        .feature-card p {
+            color: #64748b;
+
+            line-height: 1.75;
+            font-size: 0.92rem;
+        }
+
+        /* =========================================================
+           CTA
+        ========================================================= */
+
+        .landing-cta {
+            width: min(1080px, calc(100% - 32px));
+
+            margin: 0 auto 85px;
+            padding: 55px 35px;
+
+            position: relative;
+            overflow: hidden;
+
+            text-align: center;
+
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            border-radius: 28px;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(56, 189, 248, 0.15),
+                    transparent 55%
+                ),
+                rgba(15, 23, 42, 0.72);
+        }
+
+        .landing-cta h2 {
+            margin-bottom: 12px;
+
+            font-size: clamp(2rem, 4vw, 3rem);
+            letter-spacing: -0.04em;
+        }
+
+        .landing-cta p {
+            max-width: 600px;
+
+            margin: 0 auto 25px;
+
+            color: #64748b;
+            line-height: 1.7;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        .landing-footer {
+            border-top: 1px solid rgba(148, 163, 184, 0.09);
+
+            background: rgba(2, 6, 23, 0.70);
+        }
+
+        .footer-inner {
+            width: min(1180px, calc(100% - 32px));
+            min-height: 90px;
+
+            margin: 0 auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+
+        .footer-brand img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        .footer-inner p {
+            color: #475569;
+            font-size: 0.78rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-links a {
+            color: #64748b;
+            font-size: 0.78rem;
+        }
+
+        .footer-links a:hover {
+            color: #38bdf8;
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 900px) {
+
+            .landing-hero {
+                grid-template-columns: 1fr;
+                gap: 30px;
+
+                min-height: auto;
+
+                padding-top: 65px;
+            }
+
+            .hero-content {
+                max-width: 760px;
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            .hero-badge {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-content > p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                min-height: 530px;
+            }
+
+            .feature-container {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 640px) {
+
+            .navbar-inner {
+                min-height: 65px;
+                width: min(100% - 20px, 1180px);
+            }
+
+            .landing-logo span {
+                display: none;
+            }
+
+            .landing-logo img {
+                width: 39px;
+                height: 39px;
+            }
+
+            .landing-nav-links {
+                gap: 2px;
+            }
+
+            .landing-nav-links a {
+                padding: 9px 9px;
+                font-size: 0.78rem;
+            }
+
+            .landing-nav-links .landing-home {
+                display: none;
+            }
+
+            .landing-hero {
+                width: min(100% - 22px, 1180px);
+                padding-top: 52px;
+                padding-bottom: 45px;
+            }
+
+            .hero-content h1 {
+                font-size: clamp(2.7rem, 13vw, 4rem);
+            }
+
+            .hero-content > p {
+                font-size: 0.95rem;
+                line-height: 1.7;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .hero-primary-btn,
+            .hero-secondary-btn {
+                width: 100%;
+            }
+
+            .hero-visual {
+                min-height: 490px;
+            }
+
+            .phone-frame {
+                width: 270px;
+                height: 455px;
+            }
+
+            .floating-card.members {
+                left: 0;
+                bottom: 38px;
+            }
+
+            .floating-card.market {
+                right: 0;
+                top: 55px;
+            }
+
+            .landing-stats {
+                width: min(100% - 22px, 900px);
+                margin-bottom: 55px;
+            }
+
+            .stat-item {
+                padding: 18px 8px;
+            }
+
+            .stat-item strong {
+                font-size: 1.15rem;
+            }
+
+            .stat-item span {
+                font-size: 0.65rem;
+            }
+
+            .landing-features {
+                width: min(100% - 22px, 1180px);
+                padding-bottom: 65px;
+            }
+
+            .landing-cta {
+                width: min(100% - 22px, 1080px);
+                padding: 42px 20px;
+                margin-bottom: 60px;
+            }
+
+            .footer-inner {
+                min-height: 120px;
+
+                flex-direction: column;
+                justify-content: center;
+
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
+    <!-- =========================================================
+         NAVIGATION
+    ========================================================== -->
 
-        <a href="/" class="logo">
-            <img
-                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
-                alt="UniCamplink Logo"
-            >
-            <span>UniCamplink</span>
-        </a>
+    <nav class="landing-navbar">
 
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/login">Login</a>
-            <a href="/signup" class="signup-btn">Join Now</a>
+        <div class="navbar-inner">
+
+            <a href="/" class="landing-logo">
+
+                <img
+                    src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                    alt="UniCamplink Logo"
+                >
+
+                <span>UniCamplink</span>
+
+            </a>
+
+            <div class="landing-nav-links">
+
+                <a href="/" class="landing-home">
+                    Home
+                </a>
+
+                <a href="/login">
+                    Login
+                </a>
+
+                <a href="/signup" class="landing-signup">
+                    Join Now
+                </a>
+
+            </div>
+
         </div>
 
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
 
-        <div class="hero-content">
+    <!-- =========================================================
+         HERO
+    ========================================================== -->
 
-            <h1>
-                Your Campus.<br>
-                Your Community.
-            </h1>
+    <main>
+
+        <section class="landing-hero">
+
+            <div class="hero-glow one"></div>
+            <div class="hero-glow two"></div>
+
+
+            <div class="hero-content">
+
+                <div class="hero-badge">
+
+                    <span class="hero-badge-dot"></span>
+
+                    Built for students. Powered by community.
+
+                </div>
+
+
+                <h1>
+                    Your Campus.<br>
+                    Your <span class="blue">Community.</span>
+                </h1>
+
+
+                <p>
+                    UniCamplink brings students together to connect,
+                    discover communities, share opportunities, chat,
+                    explore campus life and buy or sell within their
+                    student community — all in one place.
+                </p>
+
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="/signup"
+                        class="hero-primary-btn"
+                    >
+                        🚀 Join UniCamplink
+                    </a>
+
+                    <a
+                        href="/login"
+                        class="hero-secondary-btn"
+                    >
+                        🔐 Login
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 PHONE PREVIEW
+            ================================================== -->
+
+            <div class="hero-visual">
+
+                <div class="phone-frame">
+
+                    <div class="phone-notch"></div>
+
+                    <div class="phone-screen">
+
+                        <div class="mock-header">
+
+                            <div class="mock-brand">
+
+                                <div class="mock-brand-icon">
+                                    U
+                                </div>
+
+                                UniCamplink
+
+                            </div>
+
+                            <div class="mock-notification">
+                                🔔
+                            </div>
+
+                        </div>
+
+
+                        <div class="mock-feed">
+
+                            <div class="mock-card">
+
+                                <div class="mock-user">
+
+                                    <div class="mock-avatar">
+                                        JD
+                                    </div>
+
+                                    <div class="mock-user-info">
+
+                                        <strong>
+                                            Campus Student
+                                        </strong>
+
+                                        <span>
+                                            Just now
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="mock-lines">
+
+                                    <div class="mock-line"></div>
+
+                                    <div class="mock-line short"></div>
+
+                                </div>
+
+
+                                <div class="mock-image"></div>
+
+
+                                <div class="mock-actions">
+
+                                    <span>♥ Like</span>
+                                    <span>💬 Comment</span>
+                                    <span>↗ Share</span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="mock-card">
+
+                                <div class="mock-user">
+
+                                    <div class="mock-avatar">
+                                        UC
+                                    </div>
+
+                                    <div class="mock-user-info">
+
+                                        <strong>
+                                            UniCamplink Community
+                                        </strong>
+
+                                        <span>
+                                            5 min ago
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="mock-lines">
+
+                                    <div class="mock-line"></div>
+
+                                    <div class="mock-line short"></div>
+
+                                </div>
+
+
+                                <div class="mock-actions">
+
+                                    <span>♥ 24</span>
+                                    <span>💬 8</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="floating-card members">
+
+                    <strong>👥 Student Community</strong>
+
+                    <span>Connect with your campus</span>
+
+                </div>
+
+
+                <div class="floating-card market">
+
+                    <strong>🛒 Marketplace</strong>
+
+                    <span>Buy & sell on campus</span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             QUICK STATS
+        ====================================================== -->
+
+        <section class="landing-stats">
+
+            <div class="stat-item">
+
+                <strong>1</strong>
+
+                <span>Student Platform</span>
+
+            </div>
+
+
+            <div class="stat-item">
+
+                <strong>∞</strong>
+
+                <span>Campus Connections</span>
+
+            </div>
+
+
+            <div class="stat-item">
+
+                <strong>24/7</strong>
+
+                <span>Community Access</span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FEATURES
+        ====================================================== -->
+
+        <section class="landing-features">
+
+            <div class="section-heading">
+
+                <span class="eyebrow">
+                    The UniCamplink Experience
+                </span>
+
+                <h2>
+                    Everything Students Need.
+                </h2>
+
+                <p>
+                    From conversations and communities to campus
+                    opportunities and marketplace activity,
+                    UniCamplink keeps your student life connected.
+                </p>
+
+            </div>
+
+
+            <div class="feature-container">
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        👥
+                    </div>
+
+                    <h3>
+                        Connect
+                    </h3>
+
+                    <p>
+                        Discover students, connect with friends,
+                        explore profiles and build meaningful
+                        connections within your campus community.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        💬
+                    </div>
+
+                    <h3>
+                        Communities
+                    </h3>
+
+                    <p>
+                        Join groups around departments,
+                        interests, activities and campus life.
+                        Share ideas and participate in conversations.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        🛒
+                    </div>
+
+                    <h3>
+                        Marketplace
+                    </h3>
+
+                    <p>
+                        Buy, sell and discover products and
+                        services from students and campus businesses
+                        in one convenient marketplace.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        📢
+                    </div>
+
+                    <h3>
+                        Discover
+                    </h3>
+
+                    <p>
+                        Stay connected with campus announcements,
+                        opportunities, sponsored updates and
+                        interesting student conversations.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        🤝
+                    </div>
+
+                    <h3>
+                        Student Network
+                    </h3>
+
+                    <p>
+                        Build connections beyond your immediate
+                        circle and discover students from different
+                        schools and communities.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        🔔
+                    </div>
+
+                    <h3>
+                        Stay Updated
+                    </h3>
+
+                    <p>
+                        Get notifications for interactions,
+                        messages, friend activity and important
+                        community updates.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             CALL TO ACTION
+        ====================================================== -->
+
+        <section class="landing-cta">
+
+            <h2>
+                Your campus is already here.
+            </h2>
 
             <p>
-                UniCamplink connects students, communities,
-                groups, opportunities and campus marketplaces
-                all in one place.
+                Create your UniCamplink account and start
+                connecting with the people, communities and
+                opportunities around your student life.
             </p>
 
-            <div class="hero-buttons">
+            <a
+                href="/signup"
+                class="hero-primary-btn"
+            >
+                🚀 Create Your Account
+            </a>
 
-                <a href="/signup" class="primary-btn">
-                    Join UniCamplink
-                </a>
+        </section>
 
-                <a href="/login" class="secondary-btn">
+    </main>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <footer class="landing-footer">
+
+        <div class="footer-inner">
+
+            <a href="/" class="footer-brand">
+
+                <img
+                    src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
+                    alt="UniCamplink"
+                >
+
+                <span>UniCamplink</span>
+
+            </a>
+
+
+            <p>
+                © 2026 UniCamplink.
+                Connecting Students Everywhere.
+            </p>
+
+
+            <div class="footer-links">
+
+                <a href="/login">
                     Login
                 </a>
 
+                <a href="/signup">
+                    Join
+                </a>
+
             </div>
 
         </div>
-
-    </section>
-
-    <!-- Features Section -->
-    <section class="features">
-
-        <h2>Everything Students Need in One Place</h2>
-
-        <div class="feature-container">
-
-            <div class="feature-card">
-                <div class="icon">👥</div>
-
-                <h3>Connect</h3>
-
-                <p>
-                    Meet and interact with students
-                    across your campus.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="icon">💬</div>
-
-                <h3>Communities</h3>
-
-                <p>
-                    Join groups based on departments,
-                    interests and activities.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="icon">🛒</div>
-
-                <h3>Marketplace</h3>
-
-                <p>
-                    Buy, sell and promote products
-                    and services within your campus.
-                </p>
-            </div>
-
-        </div>
-
-    </section>
-
-    <!-- Footer -->
-    <footer>
-
-        <p>
-            © 2026 UniCamplink. Connecting Students Everywhere.
-        </p>
 
     </footer>
 

@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Messages - UniCamplink</title>
+    <title>Messages | UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
     <style>
+        /* =========================================================
+           UNICAMPLINK RAZOR — MESSAGES
+        ========================================================= */
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -19,247 +26,889 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #222;
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(56, 189, 248, 0.08),
+                    transparent 32%
+                ),
+                var(--bg, #020617);
+
+            color: var(--text, #f8fafc);
         }
 
-        nav {
-            background: #ffffff;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-links a {
+        a {
             text-decoration: none;
-            color: #333;
-            font-weight: 500;
         }
 
-        .nav-links a:hover {
-            color: #2563eb;
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
+
+        .messages-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 12px 4%;
+
+            background: rgba(2, 6, 23, 0.82);
+
+            border-bottom:
+                1px solid rgba(148, 163, 184, 0.12);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
 
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
+        .messages-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            color: #f8fafc;
+
+            font-size: 1.1rem;
+            font-weight: 850;
+
+            flex-shrink: 0;
         }
 
-        .page-title {
-            margin-bottom: 20px;
+        .messages-brand img {
+            width: 40px;
+            height: 40px;
+
+            object-fit: contain;
+
+            border-radius: 11px;
+
+            filter:
+                drop-shadow(
+                    0 4px 12px rgba(56, 189, 248, 0.22)
+                );
         }
 
-        .page-title h1 {
-            font-size: 30px;
-            margin-bottom: 5px;
+        .messages-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            overflow-x: auto;
+            scrollbar-width: none;
         }
 
-        .page-title p {
-            color: #666;
+        .messages-nav-links::-webkit-scrollbar {
+            display: none;
         }
+
+        .messages-nav-links a,
+        .logout-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 9px 11px;
+
+            border-radius: 10px;
+
+            color: #94a3b8;
+
+            font-size: 0.82rem;
+            font-weight: 650;
+
+            white-space: nowrap;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .messages-nav-links a:hover,
+        .logout-button:hover {
+            color: #f8fafc;
+
+            background:
+                rgba(56, 189, 248, 0.09);
+        }
+
+        .messages-nav-links .active {
+            color: #7dd3fc;
+
+            background:
+                rgba(56, 189, 248, 0.11);
+        }
+
+        .logout-form {
+            display: inline;
+        }
+
+        .logout-button {
+            border: none;
+            background: transparent;
+
+            font-family: inherit;
+
+            cursor: pointer;
+        }
+
+        /* =========================================================
+           PAGE
+        ========================================================= */
+
+        .messages-page {
+            width: min(1000px, 100%);
+
+            margin: 0 auto;
+
+            padding:
+                42px 20px
+                70px;
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .messages-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 24px;
+        }
+
+        .messages-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .messages-heading-icon {
+            width: 52px;
+            height: 52px;
+
+            display: grid;
+            place-items: center;
+
+            flex-shrink: 0;
+
+            border-radius: 16px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, 0.16),
+                    rgba(14, 165, 233, 0.05)
+                );
+
+            border:
+                1px solid rgba(56, 189, 248, 0.16);
+
+            font-size: 1.45rem;
+        }
+
+        .messages-header h1 {
+            color: #f8fafc;
+
+            font-size:
+                clamp(1.8rem, 4vw, 2.5rem);
+
+            line-height: 1.1;
+
+            letter-spacing: -0.035em;
+
+            margin-bottom: 6px;
+        }
+
+        .messages-header p {
+            color: #64748b;
+
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .message-count {
+            padding: 8px 12px;
+
+            border:
+                1px solid rgba(56, 189, 248, 0.14);
+
+            border-radius: 999px;
+
+            background:
+                rgba(56, 189, 248, 0.07);
+
+            color: #7dd3fc;
+
+            font-size: 0.78rem;
+            font-weight: 750;
+
+            white-space: nowrap;
+        }
+
+        /* =========================================================
+           MESSAGES CARD
+        ========================================================= */
 
         .messages-box {
-            background: #ffffff;
-            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+            border:
+                1px solid rgba(148, 163, 184, 0.12);
+
+            border-radius: 22px;
+
+            background:
+                rgba(15, 23, 42, 0.72);
+
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, 0.20);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
+
+        /* =========================================================
+           CONVERSATION
+        ========================================================= */
 
         .conversation {
+            position: relative;
+
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 18px 20px;
-            text-decoration: none;
-            color: #222;
-            border-bottom: 1px solid #eeeeee;
-            transition: background 0.2s;
-        }
 
-        .conversation:hover {
-            background: #f5f8ff;
+            gap: 14px;
+
+            padding: 17px 19px;
+
+            color: #e2e8f0;
+
+            border-bottom:
+                1px solid rgba(148, 163, 184, 0.09);
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
         }
 
         .conversation:last-child {
             border-bottom: none;
         }
 
-        .profile-picture {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #e5e7eb;
+        .conversation:hover {
+            background:
+                rgba(56, 189, 248, 0.055);
+        }
+
+        /* =========================================================
+           AVATAR
+        ========================================================= */
+
+        .avatar-wrapper {
+            position: relative;
+
             flex-shrink: 0;
+        }
+
+        .profile-picture,
+        .default-picture {
+            width: 56px;
+            height: 56px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            flex-shrink: 0;
+        }
+
+        .profile-picture {
+            display: block;
+
+            background:
+                #1e293b;
+
+            border:
+                2px solid rgba(148, 163, 184, 0.10);
         }
 
         .default-picture {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: #2563eb;
-            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            font-weight: bold;
-            flex-shrink: 0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0ea5e9,
+                    #0369a1
+                );
+
+            color: #ffffff;
+
+            font-size: 1.25rem;
+            font-weight: 800;
+
+            border:
+                2px solid rgba(56, 189, 248, 0.18);
         }
+
+        .online-dot {
+            position: absolute;
+
+            right: 1px;
+            bottom: 2px;
+
+            width: 12px;
+            height: 12px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            border:
+                2px solid #0f172a;
+
+            box-shadow:
+                0 0 8px rgba(34, 197, 94, 0.45);
+        }
+
+        /* =========================================================
+           CONVERSATION INFO
+        ========================================================= */
 
         .conversation-info {
-            flex: 1;
             min-width: 0;
+
+            flex: 1;
         }
 
-        .conversation-name {
-            font-size: 17px;
-            font-weight: bold;
+        .conversation-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+
             margin-bottom: 5px;
         }
 
-        .last-message {
-            color: #777;
-            white-space: nowrap;
+        .conversation-name {
             overflow: hidden;
+
+            color: #f8fafc;
+
+            font-size: 0.98rem;
+            font-weight: 800;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .last-message {
+            overflow: hidden;
+
+            color: #64748b;
+
+            font-size: 0.86rem;
+            line-height: 1.45;
+
+            white-space: nowrap;
             text-overflow: ellipsis;
         }
 
         .message-time {
-            color: #999;
-            font-size: 12px;
+            color: #64748b;
+
+            font-size: 0.72rem;
+
             white-space: nowrap;
+
+            align-self: flex-start;
+
+            padding-top: 2px;
         }
 
+        .conversation-arrow {
+            color: #475569;
+
+            font-size: 1rem;
+
+            transition:
+                color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .conversation:hover .conversation-arrow {
+            color: #38bdf8;
+
+            transform: translateX(2px);
+        }
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
+
         .empty {
+            padding:
+                75px
+                25px;
+
             text-align: center;
-            padding: 60px 20px;
-            color: #777;
         }
 
         .empty-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
+            width: 78px;
+            height: 78px;
+
+            display: grid;
+            place-items: center;
+
+            margin:
+                0 auto
+                20px;
+
+            border-radius: 24px;
+
+            background:
+                rgba(56, 189, 248, 0.08);
+
+            border:
+                1px solid rgba(56, 189, 248, 0.12);
+
+            font-size: 2.1rem;
         }
 
         .empty h2 {
-            color: #333;
+            color: #f8fafc;
+
+            font-size: 1.25rem;
+
             margin-bottom: 8px;
         }
 
-        @media (max-width: 700px) {
+        .empty p {
+            max-width: 390px;
 
-            nav {
-                padding: 15px;
-                flex-direction: column;
-                gap: 12px;
+            margin: 0 auto;
+
+            color: #64748b;
+
+            font-size: 0.88rem;
+            line-height: 1.65;
+        }
+
+        .empty-action {
+            display: inline-flex;
+
+            margin-top: 20px;
+
+            padding:
+                10px 16px;
+
+            border-radius: 11px;
+
+            background:
+                rgba(56, 189, 248, 0.10);
+
+            color: #38bdf8;
+
+            font-size: 0.82rem;
+            font-weight: 750;
+
+            border:
+                1px solid rgba(56, 189, 248, 0.13);
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .empty-action:hover {
+            background:
+                rgba(56, 189, 248, 0.16);
+
+            transform: translateY(-1px);
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 850px) {
+
+            .messages-navbar {
+                padding: 10px 14px;
+
+                gap: 10px;
             }
 
-            .nav-links {
-                width: 100%;
-                justify-content: center;
-                gap: 12px;
-                flex-wrap: wrap;
+            .messages-brand span {
+                display: none;
             }
 
-            .container {
-                margin: 25px auto;
-                padding: 0 12px;
+            .messages-nav-links {
+                flex: 1;
+
+                justify-content: flex-end;
             }
 
-            .page-title h1 {
-                font-size: 25px;
+            .messages-nav-links a,
+            .logout-button {
+                padding:
+                    8px 9px;
+
+                font-size: 0.76rem;
+            }
+
+            .messages-page {
+                padding:
+                    30px 14px
+                    55px;
+            }
+        }
+
+        @media (max-width: 620px) {
+
+            .messages-header {
+                align-items: flex-start;
+            }
+
+            .message-count {
+                display: none;
+            }
+
+            .messages-heading-icon {
+                width: 45px;
+                height: 45px;
+
+                border-radius: 14px;
+
+                font-size: 1.2rem;
+            }
+
+            .messages-header h1 {
+                font-size: 1.7rem;
+            }
+
+            .messages-header p {
+                font-size: 0.83rem;
+            }
+
+            .messages-box {
+                border-radius: 18px;
             }
 
             .conversation {
-                padding: 15px;
+                gap: 12px;
+
+                padding:
+                    14px 13px;
             }
 
             .profile-picture,
             .default-picture {
-                width: 48px;
-                height: 48px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .online-dot {
+                width: 11px;
+                height: 11px;
+            }
+
+            .conversation-name {
+                font-size: 0.9rem;
+            }
+
+            .last-message {
+                font-size: 0.79rem;
             }
 
             .message-time {
                 display: none;
             }
+
+            .conversation-arrow {
+                font-size: 0.85rem;
+            }
+
+            .empty {
+                padding:
+                    60px 18px;
+            }
+        }
+
+        @media (max-width: 460px) {
+
+            .messages-nav-links a:nth-child(1),
+            .messages-nav-links a:nth-child(2),
+            .messages-nav-links a:nth-child(3) {
+                display: none;
+            }
+
+            .messages-brand img {
+                width: 37px;
+                height: 37px;
+            }
+
+            .messages-page {
+                padding-top: 24px;
+            }
+        }
+
+        /* =========================================================
+           LIGHT MODE
+        ========================================================= */
+
+        body.light-mode {
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(14, 165, 233, 0.08),
+                    transparent 32%
+                ),
+                #f8fafc;
+
+            color: #0f172a;
+        }
+
+        body.light-mode .messages-navbar {
+            background:
+                rgba(255, 255, 255, 0.88);
+
+            border-bottom-color:
+                rgba(15, 23, 42, 0.08);
+        }
+
+        body.light-mode .messages-brand {
+            color: #0f172a;
+        }
+
+        body.light-mode .messages-nav-links a,
+        body.light-mode .logout-button {
+            color: #64748b;
+        }
+
+        body.light-mode .messages-nav-links a:hover,
+        body.light-mode .logout-button:hover {
+            color: #0284c7;
+
+            background:
+                rgba(14, 165, 233, 0.07);
+        }
+
+        body.light-mode .messages-header h1 {
+            color: #0f172a;
+        }
+
+        body.light-mode .messages-header p {
+            color: #64748b;
+        }
+
+        body.light-mode .messages-box {
+            background:
+                rgba(255, 255, 255, 0.90);
+
+            border-color:
+                rgba(15, 23, 42, 0.08);
+
+            box-shadow:
+                0 20px 55px rgba(15, 23, 42, 0.08);
+        }
+
+        body.light-mode .conversation {
+            color: #0f172a;
+
+            border-bottom-color:
+                rgba(15, 23, 42, 0.07);
+        }
+
+        body.light-mode .conversation:hover {
+            background:
+                rgba(14, 165, 233, 0.045);
+        }
+
+        body.light-mode .conversation-name {
+            color: #0f172a;
+        }
+
+        body.light-mode .last-message,
+        body.light-mode .message-time {
+            color: #64748b;
+        }
+
+        body.light-mode .online-dot {
+            border-color: #ffffff;
+        }
+
+        body.light-mode .empty h2 {
+            color: #0f172a;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="nav-links">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/feed">Feed</a>
-    <a href="/profile">Profile</a>
-    <a href="/groups">Groups 👥</a>
-    <a href="/search">Search 🔍</a>
-    <a href="/messages">Messages 💬</a>
-    <a href="/marketplace">Marketplace 🛒</a>
-    <form
-    action="{{ url_for('logout') }}"
-    method="POST"
-    style="display: inline;"
->
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
-    >
+    <!-- =========================================================
+         NAVIGATION
+    ========================================================= -->
 
-    <button
-        type="submit"
-        style="
-            background: none;
-            border: none;
-            color: #333;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: inherit;
-            padding: 0;
-        "
-    >
-        Logout
-    </button>
-</form>
-</div>
+    <nav class="messages-navbar">
+
+        <a
+            href="/dashboard"
+            class="messages-brand"
+        >
+
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='images/unicamplink-logo.png'
+                ) }}"
+                alt="UniCamplink Logo"
+            >
+
+            <span>
+                UniCamplink
+            </span>
+
+        </a>
 
 
-    <main class="container">
+        <div class="messages-nav-links">
 
-        <div class="page-title">
+            <a href="/dashboard">
+                🏠 Dashboard
+            </a>
 
-            <h1>
+            <a href="/feed">
+                📰 Feed
+            </a>
+
+            <a href="/profile">
+                👤 Profile
+            </a>
+
+            <a href="/groups">
+                👥 Groups
+            </a>
+
+            <a href="/search">
+                🔍 Search
+            </a>
+
+            <a
+                href="/messages"
+                class="active"
+            >
                 💬 Messages
-            </h1>
+            </a>
 
-            <p>
-                Chat privately with other students.
-            </p>
+            <a href="/marketplace">
+                🛒 Marketplace
+            </a>
+
+
+            <form
+                action="{{ url_for('logout') }}"
+                method="POST"
+                class="logout-form"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="logout-button"
+                >
+                    Logout
+                </button>
+
+            </form>
 
         </div>
 
+    </nav>
 
-        <div class="messages-box">
+
+    <!-- =========================================================
+         MAIN
+    ========================================================= -->
+
+    <main class="messages-page">
+
+        <!-- HEADER -->
+
+        <header class="messages-header">
+
+            <div class="messages-heading">
+
+                <div class="messages-heading-icon">
+                    💬
+                </div>
+
+                <div>
+
+                    <h1>
+                        Messages
+                    </h1>
+
+                    <p>
+                        Chat privately with other students.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if conversations %}
+
+                <div class="message-count">
+
+                    {{ conversations|length }}
+
+                    {% if conversations|length == 1 %}
+                        conversation
+                    {% else %}
+                        conversations
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </header>
+
+
+        <!-- CONVERSATIONS -->
+
+        <section class="messages-box">
 
             {% if conversations %}
 
@@ -273,43 +922,68 @@
                         ) }}"
                     >
 
-                        {% if conversation['profile_picture'] %}
+                        <!-- AVATAR -->
 
-                            <img
-                                class="profile-picture"
-                                src="{{ url_for(
-                                    'static',
-                                    filename='uploads/' + conversation['profile_picture']
-                                ) }}"
-                                alt="{{ conversation['name'] }}"
-                            >
+                        <div class="avatar-wrapper">
 
-                        {% else %}
+                            {% if conversation['profile_picture'] %}
 
-                            <div class="default-picture">
-                                {{ conversation['name'][0]|upper }}
-                            </div>
+                                <img
+                                    class="profile-picture"
+                                    src="{{ url_for(
+                                        'static',
+                                        filename='uploads/' + conversation['profile_picture']
+                                    ) }}"
+                                    alt="{{ conversation['name'] }}"
+                                >
 
-                        {% endif %}
+                            {% else %}
 
+                                <div class="default-picture">
+
+                                    {{ conversation['name'][0]|upper }}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- MESSAGE INFO -->
 
                         <div class="conversation-info">
 
-                            <div class="conversation-name">
-                                {{ conversation['name'] }}
+                            <div class="conversation-top">
+
+                                <div class="conversation-name">
+
+                                    {{ conversation['name'] }}
+
+                                </div>
+
+                                <div class="message-time">
+
+                                    {{ conversation['created_at']|nigeria_time }}
+
+                                </div>
+
                             </div>
 
+
                             <div class="last-message">
+
                                 {{ conversation['message'] }}
+
                             </div>
 
                         </div>
 
 
-                        <div class="message-time">
+                        <!-- ARROW -->
 
-                            {{ conversation['created_at']|nigeria_time }}
-
+                        <div class="conversation-arrow">
+                            ›
                         </div>
 
                     </a>
@@ -317,6 +991,8 @@
                 {% endfor %}
 
             {% else %}
+
+                <!-- EMPTY STATE -->
 
                 <div class="empty">
 
@@ -329,17 +1005,24 @@
                     </h2>
 
                     <p>
-                        Search for a student and start your first conversation.
+                        Search for a student and start your first
+                        conversation on UniCamplink.
                     </p>
+
+                    <a
+                        href="/search"
+                        class="empty-action"
+                    >
+                        🔍 Find Students
+                    </a>
 
                 </div>
 
             {% endif %}
 
-        </div>
+        </section>
 
     </main>
 
 </body>
-
 </html>
