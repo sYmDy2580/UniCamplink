@@ -83,7 +83,7 @@ html[data-theme="dark"] .composer-option:hover {
     background: var(--surface-2, rgba(148,163,184,.12));
 }
 /* RAZOR POST IMAGE UI */
-.image-upload-area{margin-top:12px}.image-upload-button{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border-color,rgba(148,163,184,.25));border-radius:12px;cursor:pointer;font-weight:700;color:var(--text-color,inherit);background:var(--card-color,rgba(255,255,255,.04));transition:.2s}.image-upload-button:hover{transform:translateY(-1px);border-color:#38bdf8}.post-image-preview{position:relative;margin-top:12px;max-width:420px}.post-image-preview img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:14px}.remove-post-image{position:absolute;top:8px;right:8px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:24px;cursor:pointer}.post-media{margin:12px 0 4px;overflow:hidden;border-radius:14px;background:rgba(148,163,184,.08);display:flex;justify-content:center;max-width:100%}.post-media img{display:block;width:auto;max-width:100%;height:auto;max-height:500px;object-fit:contain;cursor:zoom-in}@media(max-width:900px){.post-media img{max-height:440px}}.post-image-lightbox{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.88)}.post-image-lightbox.visible{display:flex}.post-image-lightbox img{max-width:min(1100px,95vw);max-height:90vh;object-fit:contain;border-radius:12px}.post-avatar,.comment-avatar-image,.composer-avatar img{cursor:zoom-in}.post-avatar-link,.comment-avatar-link{cursor:pointer}.lightbox-close{position:absolute;top:18px;right:22px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:30px;cursor:pointer}@media(max-width:640px){.post-media{border-radius:12px}.post-media img{max-height:380px;width:100%;object-fit:cover}.post-image-preview{max-width:100%}}
+.image-upload-area{margin-top:12px}.image-upload-button{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border-color,rgba(148,163,184,.25));border-radius:12px;cursor:pointer;font-weight:700;color:var(--text-color,inherit);background:var(--card-color,rgba(255,255,255,.04));transition:.2s}.image-upload-button:hover{transform:translateY(-1px);border-color:#38bdf8}.post-image-preview{position:relative;margin-top:12px;max-width:420px}.post-image-preview img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:14px}.remove-post-image{position:absolute;top:8px;right:8px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:24px;cursor:pointer}.post-media{margin:12px 0 4px;overflow:hidden;border-radius:14px;background:rgba(148,163,184,.08);display:flex;justify-content:center;max-width:100%}.post-media img{display:block;width:auto;max-width:100%;height:auto;max-height:500px;object-fit:contain;cursor:zoom-in}@media(max-width:900px){.post-media img{max-height:440px}}.post-image-lightbox{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.88)}.post-image-lightbox.visible{display:flex}.post-image-lightbox img{max-width:min(1100px,95vw);max-height:90vh;object-fit:contain;border-radius:12px}.lightbox-close{position:absolute;top:18px;right:22px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:30px;cursor:pointer}@media(max-width:640px){.post-media{border-radius:12px}.post-media img{max-height:380px;width:100%;object-fit:cover}.post-image-preview{max-width:100%}}
 </style>
 
 </head>
@@ -212,9 +212,7 @@ html[data-theme="dark"] .composer-option:hover {
                         filename='uploads/' +
                         session.get('profile_picture')
                     ) }}"
-                    alt="Your profile picture"
-                    class="composer-profile-picture"
-                    onclick="openProfileImage(this.src); event.preventDefault(); event.stopPropagation();"
+                    alt=""
                 >
 
             {% else %}
@@ -397,8 +395,6 @@ html[data-theme="dark"] .composer-option:hover {
                             ) }}"
                             alt=""
                             class="post-avatar"
-                            onclick="openProfileImage(this.src); event.preventDefault(); event.stopPropagation();"
-                            title="View profile picture"
                             onerror="
                                 this.style.display='none';
                                 this.nextElementSibling.style.display='flex';
@@ -1420,18 +1416,6 @@ function addCommentToList(
         image.className =
             "comment-avatar-image";
 
-        image.title =
-            "View profile picture";
-
-        image.addEventListener(
-            "click",
-            function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                openProfileImage(this.src);
-            }
-        );
-
 
         image.addEventListener(
             "error",
@@ -2031,19 +2015,27 @@ function prepareReply(commentId) {
 
 
     /*
-     * Focus without moving the feed.
-     * This keeps the Facebook-style feed position stable.
+     * Scroll to input once.
      */
-    try {
-        input.focus({ preventScroll: true });
-    } catch (error) {
-        input.focus();
-    }
+
+    input.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
 
     /*
-     * Give the active reply form a subtle visual state.
+     * Focus after scrolling.
      */
-    form.classList.add("replying");
+
+    setTimeout(
+        function() {
+
+            input.focus();
+
+        },
+        350
+    );
 }
 
 
@@ -2095,10 +2087,10 @@ function cancelReply(input) {
 
 
     if (cancelButton) {
-        cancelButton.style.display = "none";
-    }
 
-    form.classList.remove("replying");
+        cancelButton.style.display =
+            "none";
+    }
 }
 
 
@@ -2221,7 +2213,7 @@ function insertNewRazorPost(postData) {
         );
 
     post.className =
-        "razor-post new-post-enter";
+        "razor-post";
 
     post.id =
         `post-${postData.id}`;
@@ -2278,18 +2270,6 @@ function insertNewRazorPost(postData) {
 
         image.className =
             "post-avatar";
-
-        image.title =
-            "View profile picture";
-
-        image.addEventListener(
-            "click",
-            function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                openProfileImage(this.src);
-            }
-        );
 
 
         const placeholder =
@@ -3131,11 +3111,6 @@ if (removePostImageButton) {
         if (postImagePreviewImg) postImagePreviewImg.src = "";
         if (postImagePreview) postImagePreview.hidden = true;
     });
-}
-
-function openProfileImage(src) {
-    if (!src) return;
-    openPostImage(src);
 }
 
 function openPostImage(src) {
