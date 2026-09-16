@@ -14,7 +14,8 @@ from flask import (
     render_template,
     request,
     session,
-    url_for
+    url_for,
+    jsonify
 )
 
 from flask_wtf.csrf import (
@@ -978,52 +979,10 @@ def update_users_table():
             ALTER TABLE users
             ADD COLUMN joined_at TIMESTAMP
         """)
-
     if not column_exists("users", "last_seen"):
-
         conn.execute("""
             ALTER TABLE users
             ADD COLUMN last_seen TIMESTAMP
-        """)
-
-    # ============================================================
-    # SAFE MIGRATION — VERIFIED STUDENTS
-    # ============================================================
-
-    if not column_exists("users", "is_verified_student"):
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN is_verified_student INTEGER DEFAULT 0
-        """)
-
-        # Existing UniCamplink users are treated as already verified.
-        conn.execute("""
-            UPDATE users
-            SET is_verified_student = 1
-            WHERE is_verified_student = 0
-        """)
-
-    if not column_exists("users", "verified_at"):
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN verified_at TIMESTAMP
-        """)
-
-        # Give existing users a verification timestamp.
-        conn.execute("""
-            UPDATE users
-            SET verified_at = CURRENT_TIMESTAMP
-            WHERE is_verified_student = 1
-            AND verified_at IS NULL
-        """)
-
-    if not column_exists("users", "verified_by"):
-
-        conn.execute("""
-            ALTER TABLE users
-            ADD COLUMN verified_by INTEGER
         """)
 
     conn.commit()
@@ -1039,6 +998,15 @@ def update_posts_table():
         conn.execute("""
             ALTER TABLE posts
             ADD COLUMN group_id INTEGER
+        """)
+
+    # Additive migration for Razor image posts.
+    # Existing posts are preserved and receive an empty image value.
+    if not column_exists("posts", "image"):
+
+        conn.execute("""
+            ALTER TABLE posts
+            ADD COLUMN image TEXT DEFAULT ''
         """)
 
     conn.commit()
@@ -1684,7 +1652,10 @@ def login():
 def dashboard():
 
     if "user_id" not in session:
-        return redirect(url_for("login"))
+
+        return redirect(
+            url_for("login")
+        )
 
     conn = get_db_connection()
 
@@ -1694,26 +1665,24 @@ def dashboard():
         FROM users
         WHERE id = ?
         """,
-        (session["user_id"],)
+        (
+            session["user_id"],
+        )
     ).fetchone()
 
     conn.close()
 
     if not user:
-        session.clear()
-        return redirect(url_for("login"))
 
-    # Check whether the logged-in user is the configured admin.
-    is_admin = bool(
-        ADMIN_EMAIL
-        and user["email"]
-        and user["email"].lower() == ADMIN_EMAIL
-    )
+        session.clear()
+
+        return redirect(
+            url_for("login")
+        )
 
     return render_template(
         "dashboard.html",
-        user=user,
-        is_admin=is_admin
+        user=user
     )
 
 
@@ -1791,24 +1760,59 @@ def create_post():
 
     if "user_id" not in session:
 
-        return redirect(
-            url_for("login")
-        )
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({
+                "success": False,
+                "error": "Please log in."
+            }), 401
+
+        return redirect(url_for("login"))
 
     content = clean_text(
         request.form.get("content"),
         MAX_POST_LENGTH
     )
 
-    if not content:
+    image = request.files.get("image")
 
-        return (
-            "Post cannot be empty and must not exceed "
-            "5000 characters."
-        ), 400
+    if not content and not (image and image.filename):
+        message = "Post cannot be empty. Add text or an image."
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": False, "error": message}), 400
+        return message, 400
+
+    if content is None:
+        message = "Post text is too long. Maximum length is 5000 characters."
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": False, "error": message}), 400
+        return message, 400
+
+    image_filename = ""
+
+    if image and image.filename:
+        if not validate_image(image):
+            message = (
+                "Invalid image. Please upload a genuine PNG, JPG, JPEG "
+                "or GIF image under 4096x4096 pixels."
+            )
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({"success": False, "error": message}), 400
+            return message, 400
+
+        extension = image.filename.rsplit(".", 1)[1].lower()
+        image_filename = "post_" + str(uuid4()) + "." + extension
+
+        try:
+            image.save(safe_upload_path(image_filename))
+        except OSError:
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({
+                    "success": False,
+                    "error": "The image could not be saved. Please try again."
+                }), 500
+            return "The image could not be saved. Please try again.", 500
 
     conn = get_db_connection()
-
     current_user_id = session["user_id"]
 
     cursor = conn.execute(
@@ -1816,32 +1820,27 @@ def create_post():
         INSERT INTO posts
         (
             user_id,
-            content
+            content,
+            image
         )
-        VALUES (?, ?)
+        VALUES (?, ?, ?)
         """,
         (
             current_user_id,
-            content
+            content or "",
+            image_filename
         )
     )
 
     post_id = cursor.lastrowid
 
-    # --------------------------------------------------------
-    # NOTIFY RELEVANT STUDENTS
-    # --------------------------------------------------------
-    # A normal campus update is shared with the author's
-    # confirmed friends. The author is excluded automatically.
     author = conn.execute(
         """
-        SELECT name
+        SELECT id, name, university, profile_picture
         FROM users
         WHERE id = ?
         """,
-        (
-            current_user_id,
-        )
+        (current_user_id,)
     ).fetchone()
 
     author_name = author["name"] if author else "A student"
@@ -1852,13 +1851,10 @@ def create_post():
         FROM friends
         WHERE user_id = ?
         """,
-        (
-            current_user_id,
-        )
+        (current_user_id,)
     ).fetchall()
 
     for friend in friends:
-
         conn.execute(
             """
             INSERT INTO notifications
@@ -1883,9 +1879,26 @@ def create_post():
     conn.commit()
     conn.close()
 
-    return redirect(
-        url_for("feed")
-    )
+    post_data = {
+        "id": post_id,
+        "user_id": current_user_id,
+        "author_name": author["name"] if author else "UniCamplink User",
+        "author_university": author["university"] if author else "",
+        "profile_picture": author["profile_picture"] if author else "",
+        "content": content or "",
+        "image": image_filename,
+        "like_count": 0,
+        "comment_count": 0,
+        "user_liked": False
+    }
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({
+            "success": True,
+            "post": post_data
+        }), 201
+
+    return redirect(url_for("feed"))
 
 
 # ============================================================
@@ -1900,9 +1913,14 @@ def like_post(post_id):
 
     if "user_id" not in session:
 
-        return redirect(
-            url_for("login")
-        )
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or \
+           "application/json" in request.headers.get("Accept", "").lower():
+            return jsonify({
+                "success": False,
+                "error": "Please log in again."
+            }), 401
+
+        return redirect(url_for("login"))
 
     conn = get_db_connection()
 
@@ -2005,7 +2023,33 @@ def like_post(post_id):
             )
 
     conn.commit()
+
+    like_count = conn.execute(
+        "SELECT COUNT(*) FROM likes WHERE post_id = ?",
+        (post_id,)
+    ).fetchone()[0]
+
+    user_liked = conn.execute(
+        """
+        SELECT 1
+        FROM likes
+        WHERE post_id = ?
+        AND user_id = ?
+        LIMIT 1
+        """,
+        (post_id, session["user_id"])
+    ).fetchone() is not None
+
     conn.close()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest" or \
+       request.headers.get("Accept", "").lower().find("application/json") >= 0:
+        return jsonify({
+            "success": True,
+            "post_id": post_id,
+            "like_count": like_count,
+            "user_liked": user_liked
+        })
 
     return redirect(
         url_for("feed")
@@ -2022,11 +2066,18 @@ def like_post(post_id):
 )
 def comment(post_id):
 
-    if "user_id" not in session:
+    is_ajax = (
+        request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("Accept", "").lower()
+    )
 
-        return redirect(
-            url_for("login")
-        )
+    if "user_id" not in session:
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "error": "Please log in again."
+            }), 401
+        return redirect(url_for("login"))
 
     content = clean_text(
         request.form.get("content"),
@@ -2034,63 +2085,68 @@ def comment(post_id):
     )
 
     if not content:
+        message = "Comment cannot be empty and must not exceed 2000 characters."
+        if is_ajax:
+            return jsonify({"success": False, "error": message}), 400
+        return message, 400
 
-        return (
-            "Comment cannot be empty and must not exceed "
-            "2000 characters."
-        ), 400
+    parent_raw = request.form.get("parent_comment_id", "").strip()
+    parent_comment_id = None
+
+    if parent_raw:
+        try:
+            parent_comment_id = int(parent_raw)
+        except ValueError:
+            if is_ajax:
+                return jsonify({"success": False, "error": "Invalid reply target."}), 400
+            return "Invalid reply target.", 400
 
     conn = get_db_connection()
 
     post_owner = conn.execute(
-        """
-        SELECT user_id
-        FROM posts
-        WHERE id = ?
-        """,
-        (
-            post_id,
-        )
+        "SELECT user_id FROM posts WHERE id = ?",
+        (post_id,)
     ).fetchone()
 
     if not post_owner:
-
         conn.close()
-
+        if is_ajax:
+            return jsonify({"success": False, "error": "Post not found."}), 404
         return "Post not found.", 404
 
-    conn.execute(
+    if parent_comment_id is not None:
+        parent = conn.execute(
+            """
+            SELECT id, post_id, user_id
+            FROM comments
+            WHERE id = ? AND post_id = ?
+            """,
+            (parent_comment_id, post_id)
+        ).fetchone()
+
+        if not parent:
+            conn.close()
+            if is_ajax:
+                return jsonify({"success": False, "error": "The comment you are replying to was not found."}), 404
+            return "The comment you are replying to was not found.", 404
+
+    cursor = conn.execute(
         """
         INSERT INTO comments
-        (
-            post_id,
-            user_id,
-            content
-        )
-        VALUES (?, ?, ?)
+        (post_id, user_id, content, parent_comment_id)
+        VALUES (?, ?, ?, ?)
         """,
-        (
-            post_id,
-            session["user_id"],
-            content
-        )
+        (post_id, session["user_id"], content, parent_comment_id)
     )
 
-    if (
-        post_owner["user_id"]
-        != session["user_id"]
-    ):
+    comment_id = cursor.lastrowid
 
+    # Notify the post owner for top-level comments.
+    if post_owner["user_id"] != session["user_id"]:
         conn.execute(
             """
             INSERT INTO notifications
-            (
-                user_id,
-                sender_id,
-                type,
-                message,
-                link
-            )
+            (user_id, sender_id, type, message, link)
             VALUES (?, ?, ?, ?, ?)
             """,
             (
@@ -2102,12 +2158,118 @@ def comment(post_id):
             )
         )
 
+    # Notify the parent-comment author for replies, when different.
+    if parent_comment_id is not None:
+        parent_user = conn.execute(
+            "SELECT user_id FROM comments WHERE id = ?",
+            (parent_comment_id,)
+        ).fetchone()
+
+        if parent_user and parent_user["user_id"] != session["user_id"]:
+            conn.execute(
+                """
+                INSERT INTO notifications
+                (user_id, sender_id, type, message, link)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    parent_user["user_id"],
+                    session["user_id"],
+                    "reply",
+                    "replied to your comment 💬",
+                    "/feed"
+                )
+            )
+
     conn.commit()
+
+    comment_row = conn.execute(
+        """
+        SELECT
+            c.id,
+            c.post_id,
+            c.user_id,
+            c.content,
+            c.created_at,
+            c.parent_comment_id,
+            u.name,
+            u.profile_picture
+        FROM comments c
+        JOIN users u ON u.id = c.user_id
+        WHERE c.id = ?
+        """,
+        (comment_id,)
+    ).fetchone()
+
+    comment_count = conn.execute(
+        "SELECT COUNT(*) FROM comments WHERE post_id = ?",
+        (post_id,)
+    ).fetchone()[0]
+
     conn.close()
 
-    return redirect(
-        url_for("feed")
-    )
+    if is_ajax:
+        return jsonify({
+            "success": True,
+            "comment_count": comment_count,
+            "comment": dict(comment_row) if comment_row else None
+        })
+
+    return redirect(url_for("feed"))
+
+
+# ============================================================
+# COMMENTS API — LOAD EXISTING COMMENTS
+# ============================================================
+
+@app.route("/comments/<int:post_id>", methods=["GET"])
+def get_comments(post_id):
+
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Please log in again."
+        }), 401
+
+    conn = get_db_connection()
+
+    post = conn.execute(
+        "SELECT id FROM posts WHERE id = ?",
+        (post_id,)
+    ).fetchone()
+
+    if not post:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "error": "Post not found."
+        }), 404
+
+    rows = conn.execute(
+        """
+        SELECT
+            c.id,
+            c.post_id,
+            c.user_id,
+            c.content,
+            c.created_at,
+            c.parent_comment_id,
+            u.name,
+            u.profile_picture
+        FROM comments c
+        JOIN users u ON u.id = c.user_id
+        WHERE c.post_id = ?
+        ORDER BY c.created_at ASC, c.id ASC
+        """,
+        (post_id,)
+    ).fetchall()
+
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "comments": [dict(row) for row in rows]
+    })
 
 
 # ============================================================
@@ -4760,7 +4922,6 @@ def admin_dashboard():
         WHERE active = 1
         """
     ).fetchone()[0]
-    total_verified_students = conn.execute( """ SELECT COUNT(*) FROM users WHERE is_verified_student = 1 """ ).fetchone()[0]
 
     recent_users = conn.execute(
         """
@@ -4788,10 +4949,8 @@ def admin_dashboard():
         total_friend_requests=total_friend_requests,
         total_advertisements=total_advertisements,
         pending_advertisements=pending_advertisements,
-
-    total_ambassadors=total_ambassadors,
-    total_verified_students=total_verified_students,
-    recent_users=recent_users
+        total_ambassadors=total_ambassadors,
+        recent_users=recent_users
     )
 
 # ============================================================
@@ -4822,11 +4981,11 @@ def admin_advertisements():
     SELECT
         id,
         user_id,
-        name AS advertiser_name,
+        advertiser_name,
         business_name,
         email,
-        advertising_type AS category,
-        advertising_type AS subject,
+        category,
+        subject,
         message,
         status,
         created_at
@@ -4978,10 +5137,6 @@ def admin_members():
         conn.close()
         return "Access denied.", 403
 
-    # -----------------------------
-    # MEMBER STATISTICS
-    # -----------------------------
-
     total_users = conn.execute(
         "SELECT COUNT(*) FROM users"
     ).fetchone()[0]
@@ -4995,21 +5150,8 @@ def admin_members():
         """
     ).fetchone()[0]
 
-    campus_ambassadors = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM campus_ambassadors
-        WHERE active = 1
-        """
-    ).fetchone()[0]
-
-    # -----------------------------
-    # MEMBER LIST
-    # -----------------------------
-
     if search:
         pattern = f"%{search}%"
-
         users = conn.execute(
             """
             SELECT
@@ -5020,14 +5162,12 @@ def admin_members():
                 profile_picture,
                 joined_at,
                 last_seen,
-
                 CASE
                     WHEN last_seen IS NOT NULL
                     AND last_seen >= datetime('now', '-15 minutes')
                     THEN 1
                     ELSE 0
                 END AS is_active,
-
                 CASE
                     WHEN EXISTS (
                         SELECT 1
@@ -5038,24 +5178,17 @@ def admin_members():
                     THEN 1
                     ELSE 0
                 END AS is_campus_ambassador
-
             FROM users
-
             WHERE
                 LOWER(name) LIKE LOWER(?)
                 OR LOWER(email) LIKE LOWER(?)
                 OR LOWER(COALESCE(university, '')) LIKE LOWER(?)
-
             ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
+                COALESCE(joined_at, '9999-12-31 23:59:59') DESC,
                 id DESC
             """,
             (pattern, pattern, pattern)
         ).fetchall()
-
     else:
         users = conn.execute(
             """
@@ -5067,14 +5200,12 @@ def admin_members():
                 profile_picture,
                 joined_at,
                 last_seen,
-
                 CASE
                     WHEN last_seen IS NOT NULL
                     AND last_seen >= datetime('now', '-15 minutes')
                     THEN 1
                     ELSE 0
                 END AS is_active,
-
                 CASE
                     WHEN EXISTS (
                         SELECT 1
@@ -5085,20 +5216,12 @@ def admin_members():
                     THEN 1
                     ELSE 0
                 END AS is_campus_ambassador
-
             FROM users
-
             ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
+                COALESCE(joined_at, '9999-12-31 23:59:59') DESC,
                 id DESC
             """
         ).fetchall()
-
-    # Number of members currently displayed
-    result_count = len(users)
 
     conn.close()
 
@@ -5107,11 +5230,8 @@ def admin_members():
         users=users,
         total_users=total_users,
         active_members=active_members,
-        campus_ambassadors=campus_ambassadors,
-        result_count=result_count,
         search=search
     )
-
 
 # ============================================================
 # ADMIN — CAMPUS AMBASSADORS
@@ -5137,175 +5257,6 @@ def _require_admin():
         return None, ("Access denied.", 403)
 
     return current_user, conn
-
-# ============================================================
-
-# ADMIN — VERIFIED STUDENTS
-
-# ============================================================
-
-@app.route("/admin/verified-students")
-def admin_verified_students():
-    current_user, result = _require_admin()
-
-    if current_user is None:
-        return result
-
-    conn = result
-
-    search = clean_text(
-        request.args.get("q"),
-        MAX_SEARCH_LENGTH
-    )
-
-    if search is None:
-        conn.close()
-        return (
-            "Search query is too long. Maximum length is 100 characters."
-        ), 400
-
-    search = search or ""
-
-    if search:
-        pattern = f"%{search}%"
-
-        users = conn.execute(
-            """
-            SELECT
-                id,
-                name,
-                email,
-                university,
-                is_verified_student,
-                verified_at,
-                verified_by
-            FROM users
-            WHERE
-                LOWER(name) LIKE LOWER(?)
-                OR LOWER(email) LIKE LOWER(?)
-                OR LOWER(COALESCE(university, '')) LIKE LOWER(?)
-            ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
-                id DESC
-            """,
-            (pattern, pattern, pattern)
-        ).fetchall()
-    else:
-        users = conn.execute(
-            """
-            SELECT
-                id,
-                name,
-                email,
-                university,
-                is_verified_student,
-                verified_at,
-                verified_by
-            FROM users
-            ORDER BY
-                COALESCE(
-                    joined_at,
-                    '9999-12-31 23:59:59'
-                ) DESC,
-                id DESC
-            """
-        ).fetchall()
-
-    conn.close()
-
-    return render_template(
-        "admin_verified_students.html",
-        current_user=current_user,
-        users=users,
-        search=search
-    )
-
-
-@app.route("/admin/verified-students/<int:user_id>/verify", methods=["POST"])
-def admin_verify_student(user_id):
-    current_user, result = _require_admin()
-
-    if current_user is None:
-        return result
-
-    conn = result
-
-    user = conn.execute(
-        """
-        SELECT id, name
-        FROM users
-        WHERE id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-    if not user:
-        conn.close()
-        return "Student not found.", 404
-
-    conn.execute(
-        """
-        UPDATE users
-        SET
-            is_verified_student = 1,
-            verified_at = CURRENT_TIMESTAMP,
-            verified_by = ?
-        WHERE id = ?
-        """,
-        (current_user["id"], user_id)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect(
-        url_for("admin_verified_students")
-    )
-
-
-@app.route("/admin/verified-students/<int:user_id>/unverify", methods=["POST"])
-def admin_unverify_student(user_id):
-    current_user, result = _require_admin()
-
-    if current_user is None:
-        return result
-
-    conn = result
-
-    user = conn.execute(
-        """
-        SELECT id, name
-        FROM users
-        WHERE id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-    if not user:
-        conn.close()
-        return "Student not found.", 404
-
-    conn.execute(
-        """
-        UPDATE users
-        SET
-            is_verified_student = 0,
-            verified_at = NULL,
-            verified_by = NULL
-        WHERE id = ?
-        """,
-        (user_id,)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect(
-        url_for("admin_verified_students")
-    )
 
 
 @app.route("/admin/campus-ambassadors")
@@ -5536,9 +5487,7 @@ def admin_remove_campus_ambassador(user_id):
 def advertise_with_us():
 
     if "user_id" not in session:
-        return redirect(
-            url_for("login")
-        )
+        return redirect(url_for("login"))
 
     if request.method == "POST":
 
@@ -5568,10 +5517,6 @@ def advertise_with_us():
             MAX_MESSAGE_LENGTH
         )
 
-        # --------------------------------------------------------
-        # VALIDATION
-        # --------------------------------------------------------
-
         if (
             not name
             or not business_name
@@ -5580,84 +5525,40 @@ def advertise_with_us():
         ):
             return render_template(
                 "advertise_with_us.html",
-                error="Please fill in all required fields."
+                error="Please fill in all required fields.",
+                form_data=request.form
             ), 400
 
         if not valid_email(email):
             return render_template(
                 "advertise_with_us.html",
-                error="Please enter a valid email address."
+                error="Please enter a valid email address.",
+                form_data=request.form
             ), 400
 
-        # --------------------------------------------------------
-        # SAVE ADVERTISEMENT REQUEST
-        # --------------------------------------------------------
+        # WhatsApp number for UniCamplink advertising
+        whatsapp_number = "2349161162607"
 
-        conn = get_db_connection()
-
-        try:
-
-            conn.execute(
-                """
-                INSERT INTO advertisement_requests
-                (
-                    user_id,
-                    advertiser_name,
-                    business_name,
-                    email,
-                    category,
-                    subject,
-                    message,
-                    status,
-                    name,
-                    advertising_type
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
-                """,
-                (
-                    session["user_id"],
-                    name,
-                    business_name,
-                    email,
-                    advertising_type,
-                    business_name,
-                    message,
-                    name,
-                    advertising_type
-                )
-            )
-
-            conn.commit()
-
-        except Exception:
-            conn.rollback()
-            app.logger.exception(
-                "Failed to save UniCamplink advertising request."
-            )
-
-            return render_template(
-                "advertise_with_us.html",
-                error=(
-                    "We could not submit your advertising request "
-                    "right now. Please try again."
-                )
-            ), 500
-
-        finally:
-            conn.close()
-
-        # --------------------------------------------------------
-        # SUCCESS
-        # --------------------------------------------------------
-
-        return render_template(
-            "advertise_with_us.html",
-            success=(
-                "Your advertising request has been submitted "
-                "successfully. Our team will review it and get "
-                "back to you soon."
-            )
+        whatsapp_message = (
+            "Hello UniCamplink 👋\n\n"
+            "I want to advertise on UniCamplink.\n\n"
+            f"Name: {name}\n"
+            f"Email: {email}\n"
+            f"Business Name: {business_name}\n"
+            f"Advertising Type: {advertising_type}\n\n"
+            f"Message:\n{message}"
         )
+
+        from urllib.parse import quote
+
+        whatsapp_url = (
+            "https://wa.me/"
+            + whatsapp_number
+            + "?text="
+            + quote(whatsapp_message)
+        )
+
+        return redirect(whatsapp_url)
 
     return render_template(
         "advertise_with_us.html"
