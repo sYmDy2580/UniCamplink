@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -18,7 +17,6 @@
     >
 
     <style>
-
         /* =========================================================
            RAZOR PROFILE
            ========================================================= */
@@ -45,7 +43,6 @@
             text-decoration: none;
         }
 
-
         /* =========================================================
            NAVBAR
            ========================================================= */
@@ -54,18 +51,13 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-
             width: 100%;
-
             display: flex;
             align-items: center;
             justify-content: space-between;
-
             padding: 12px 4%;
-
             background: rgba(7, 17, 31, 0.88);
             border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
         }
@@ -74,7 +66,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-
             color: #fff;
             font-weight: 800;
             font-size: 19px;
@@ -91,7 +82,6 @@
             display: flex;
             align-items: center;
             gap: 4px;
-
             overflow-x: auto;
             scrollbar-width: none;
         }
@@ -103,17 +93,12 @@
         .profile-nav-links a,
         .profile-nav-links button {
             white-space: nowrap;
-
             padding: 9px 12px;
-
             border-radius: 10px;
-
             color: #cbd5e1;
-
             font-family: inherit;
             font-size: 13px;
             font-weight: 650;
-
             transition: 0.2s ease;
         }
 
@@ -134,7 +119,6 @@
             cursor: pointer;
         }
 
-
         /* =========================================================
            PAGE
            ========================================================= */
@@ -144,7 +128,6 @@
             margin: 28px auto 70px;
         }
 
-
         /* =========================================================
            BACK
            ========================================================= */
@@ -153,20 +136,14 @@
             display: inline-flex;
             align-items: center;
             gap: 7px;
-
             margin-bottom: 18px;
-
             padding: 9px 14px;
-
             border: 1px solid var(--border);
             border-radius: 11px;
-
             background: var(--card);
             color: var(--text-secondary);
-
             font-size: 13px;
             font-weight: 650;
-
             transition: 0.2s ease;
         }
 
@@ -176,27 +153,21 @@
             transform: translateX(-2px);
         }
 
-
         /* =========================================================
            PROFILE HERO
            ========================================================= */
 
         .profile-hero {
             position: relative;
-
             overflow: hidden;
-
             border: 1px solid var(--border);
             border-radius: 24px;
-
             background: var(--card);
-
             box-shadow: var(--shadow);
         }
 
         .profile-cover {
             height: 180px;
-
             background:
                 radial-gradient(
                     circle at 20% 20%,
@@ -214,16 +185,13 @@
                     #07111f 60%,
                     #0b2034
                 );
-
             position: relative;
         }
 
         .profile-cover::after {
             content: "";
-
             position: absolute;
             inset: 0;
-
             background:
                 linear-gradient(
                     120deg,
@@ -237,13 +205,10 @@
             position: absolute;
             right: 28px;
             bottom: 24px;
-
             display: flex;
             align-items: center;
             gap: 8px;
-
             color: rgba(255,255,255,0.55);
-
             font-size: 12px;
             font-weight: 700;
         }
@@ -255,17 +220,14 @@
             opacity: 0.75;
         }
 
-
         /* =========================================================
            PROFILE MAIN
            ========================================================= */
 
         .profile-main {
             position: relative;
-
             padding: 0 32px 30px;
         }
-
 
         /* =========================================================
            AVATAR
@@ -273,10 +235,8 @@
 
         .profile-avatar-wrap {
             position: relative;
-
             width: 132px;
             height: 132px;
-
             margin-top: -66px;
             margin-bottom: 16px;
         }
@@ -285,11 +245,8 @@
         .profile-avatar {
             width: 132px;
             height: 132px;
-
             border-radius: 50%;
-
             border: 5px solid var(--card);
-
             box-shadow:
                 0 10px 30px rgba(0, 0, 0, 0.25);
         }
@@ -304,14 +261,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-
             background:
                 linear-gradient(
                     135deg,
                     rgba(56,189,248,0.15),
                     var(--bg-secondary)
                 );
-
             font-size: 58px;
         }
 
@@ -319,18 +274,13 @@
             position: absolute;
             right: 7px;
             bottom: 8px;
-
             width: 22px;
             height: 22px;
-
             border-radius: 50%;
-
             background: #22c55e;
             border: 4px solid var(--card);
-
             display: none;
         }
-
 
         /* =========================================================
            PROFILE HEADER
@@ -340,7 +290,6 @@
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-
             gap: 25px;
         }
 
@@ -357,48 +306,23 @@
 
         .profile-name-row h1 {
             margin: 0;
-
             color: var(--text);
-
             font-size: 30px;
             line-height: 1.15;
-
             letter-spacing: -0.7px;
-        }
-
-        .verified-dot {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-
-            width: 20px;
-            height: 20px;
-
-            border-radius: 50%;
-
-            background: #38bdf8;
-            color: #03111f;
-
-            font-size: 11px;
-            font-weight: 900;
         }
 
         .profile-university {
             margin-top: 8px;
-
             color: var(--text-secondary);
-
             font-size: 14px;
         }
 
         .profile-email {
             margin-top: 5px;
-
             color: var(--muted);
-
             font-size: 12px;
         }
-
 
         /* =========================================================
            ACTIONS
@@ -409,7 +333,6 @@
             align-items: center;
             flex-wrap: wrap;
             justify-content: flex-end;
-
             gap: 9px;
         }
 
@@ -419,24 +342,16 @@
             align-items: center;
             justify-content: center;
             gap: 7px;
-
             min-height: 42px;
-
             padding: 10px 17px;
-
             border-radius: 12px;
-
             border: 1px solid var(--border);
-
             background: var(--bg-secondary);
             color: var(--text);
-
             font-family: inherit;
             font-size: 13px;
             font-weight: 750;
-
             cursor: pointer;
-
             transition:
                 transform 0.2s ease,
                 background 0.2s ease,
@@ -470,7 +385,6 @@
             border-color: #16a34a;
         }
 
-
         /* =========================================================
            FRIEND STATUS
            ========================================================= */
@@ -480,27 +394,21 @@
             align-items: center;
             justify-content: center;
             gap: 7px;
-
             min-height: 42px;
-
             padding: 10px 17px;
-
             border-radius: 12px;
-
             font-size: 13px;
             font-weight: 750;
         }
 
         .friends-status {
             color: #4ade80;
-
             background: rgba(34, 197, 94, 0.10);
             border: 1px solid rgba(34, 197, 94, 0.25);
         }
 
         .pending-status {
             color: #facc15;
-
             background: rgba(234, 179, 8, 0.10);
             border: 1px solid rgba(234, 179, 8, 0.25);
         }
@@ -515,7 +423,6 @@
             background: #6d28d9;
         }
 
-
         /* =========================================================
            CAMPUS AMBASSADOR
            ========================================================= */
@@ -528,23 +435,17 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-
             padding: 9px 14px;
-
             border-radius: 999px;
-
             background:
                 linear-gradient(
                     135deg,
                     #f59e0b,
                     #f97316
                 );
-
             color: white;
-
             font-size: 12px;
             font-weight: 850;
-
             box-shadow:
                 0 7px 20px rgba(245,158,11,0.20);
         }
@@ -553,20 +454,15 @@
             display: flex;
             flex-wrap: wrap;
             gap: 9px;
-
             margin-top: 10px;
         }
 
         .ambassador-detail {
             padding: 8px 12px;
-
             border-radius: 10px;
-
             background: rgba(245,158,11,0.07);
             border: 1px solid rgba(245,158,11,0.18);
-
             color: var(--text-secondary);
-
             font-size: 12px;
         }
 
@@ -574,22 +470,18 @@
             color: #f59e0b;
         }
 
-
         /* =========================================================
            BIO
            ========================================================= */
 
         .profile-bio {
             max-width: 700px;
-
             margin-top: 20px;
-
             color: var(--text-secondary);
-
             font-size: 14px;
             line-height: 1.75;
+            white-space: pre-wrap;
         }
-
 
         /* =========================================================
            STATS
@@ -599,22 +491,16 @@
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-
             gap: 0;
-
             margin-top: 25px;
-
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
         }
 
         .profile-stat {
             min-width: 130px;
-
             padding: 16px 20px;
-
             border-right: 1px solid var(--border);
-
             text-align: center;
         }
 
@@ -624,23 +510,17 @@
 
         .profile-stat strong {
             display: block;
-
             color: var(--text);
-
             font-size: 19px;
             font-weight: 850;
         }
 
         .profile-stat span {
             display: block;
-
             margin-top: 3px;
-
             color: var(--muted);
-
             font-size: 11px;
         }
-
 
         /* =========================================================
            POSTS AREA
@@ -654,15 +534,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-
             margin-bottom: 15px;
         }
 
         .posts-header h2 {
             margin: 0;
-
             color: var(--text);
-
             font-size: 20px;
             font-weight: 800;
         }
@@ -672,24 +549,18 @@
             font-size: 12px;
         }
 
-
         /* =========================================================
            POST CARD
            ========================================================= */
 
         .post-card {
             position: relative;
-
             margin-bottom: 14px;
             padding: 20px;
-
             border: 1px solid var(--border);
             border-radius: 18px;
-
             background: var(--card);
-
             box-shadow: var(--shadow);
-
             transition:
                 transform 0.2s ease,
                 border-color 0.2s ease;
@@ -704,33 +575,25 @@
             display: flex;
             align-items: center;
             gap: 11px;
-
             margin-bottom: 14px;
         }
 
         .post-mini-avatar {
             width: 38px;
             height: 38px;
-
             display: grid;
             place-items: center;
-
             flex-shrink: 0;
-
             border-radius: 50%;
-
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-
             overflow: hidden;
-
             font-size: 17px;
         }
 
         .post-mini-avatar img {
             width: 100%;
             height: 100%;
-
             object-fit: cover;
         }
 
@@ -742,21 +605,27 @@
 
         .post-date {
             margin-top: 2px;
-
             color: var(--muted);
             font-size: 11px;
         }
 
         .post-content {
             color: var(--text-secondary);
-
             font-size: 14px;
             line-height: 1.7;
-
             white-space: pre-wrap;
             overflow-wrap: anywhere;
         }
 
+        .post-image {
+            display: block;
+            width: 100%;
+            max-height: 620px;
+            margin-top: 14px;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+        }
 
         /* =========================================================
            EMPTY POSTS
@@ -764,12 +633,9 @@
 
         .no-posts {
             padding: 45px 20px;
-
             border: 1px dashed var(--border);
             border-radius: 18px;
-
             background: var(--card);
-
             text-align: center;
         }
 
@@ -780,20 +646,15 @@
 
         .no-posts strong {
             display: block;
-
             color: var(--text);
-
             font-size: 15px;
         }
 
         .no-posts p {
             margin: 7px 0 0;
-
             color: var(--muted);
-
             font-size: 12px;
         }
-
 
         /* =========================================================
            LIGHT MODE
@@ -831,7 +692,6 @@
                     #eaf6fb
                 );
         }
-
 
         /* =========================================================
            MOBILE
@@ -918,9 +778,7 @@
             .profile-stat span {
                 font-size: 10px;
             }
-
         }
-
 
         @media (max-width: 480px) {
 
@@ -977,16 +835,11 @@
                 padding: 16px;
                 border-radius: 15px;
             }
-
         }
-
     </style>
-
 </head>
 
-
 <body>
-
 
 <!-- =========================================================
      NAVIGATION
@@ -995,10 +848,9 @@
 <nav class="profile-navbar">
 
     <a
-        href="/dashboard"
+        href="{{ url_for('dashboard') }}"
         class="logo"
     >
-
         <img
             src="{{ url_for(
                 'static',
@@ -1007,54 +859,48 @@
             alt="UniCamplink Logo"
         >
 
-        <span>
-            UniCamplink
-        </span>
-
+        <span>UniCamplink</span>
     </a>
-
 
     <div class="profile-nav-links">
 
-        <a href="/dashboard">
+        <a href="{{ url_for('dashboard') }}">
             Dashboard
         </a>
 
-        <a href="/feed">
+        <a href="{{ url_for('feed') }}">
             Feed
         </a>
 
-        <a href="/profile" class="active">
+        <a href="{{ url_for('profile') }}" class="active">
             Profile
         </a>
 
-        <a href="/friends">
+        <a href="{{ url_for('friends') }}">
             Friends
         </a>
 
-        <a href="/groups">
+        <a href="{{ url_for('groups') }}">
             Groups
         </a>
 
-        <a href="/search">
+        <a href="{{ url_for('search') }}">
             Search
         </a>
 
-        <a href="/messages">
+        <a href="{{ url_for('messages') }}">
             Messages
         </a>
 
-        <a href="/marketplace">
+        <a href="{{ url_for('marketplace') }}">
             Marketplace
         </a>
-
 
         <form
             action="{{ url_for('logout') }}"
             method="POST"
             style="display:inline;"
         >
-
             <input
                 type="hidden"
                 name="csrf_token"
@@ -1064,7 +910,6 @@
             <button type="submit">
                 Logout
             </button>
-
         </form>
 
     </div>
@@ -1078,9 +923,6 @@
 
 <main class="profile-page">
 
-
-    <!-- BACK -->
-
     <a
         href="{{ url_for('search') }}"
         class="profile-back"
@@ -1089,14 +931,11 @@
     </a>
 
 
-    <!-- =========================================================
+    <!-- =====================================================
          PROFILE HERO
-         ========================================================= -->
+         ===================================================== -->
 
     <section class="profile-hero">
-
-
-        <!-- COVER -->
 
         <div class="profile-cover">
 
@@ -1117,10 +956,7 @@
         </div>
 
 
-        <!-- PROFILE CONTENT -->
-
         <div class="profile-main">
-
 
             <!-- AVATAR -->
 
@@ -1154,7 +990,6 @@
 
             <div class="profile-heading">
 
-
                 <div class="profile-heading-info">
 
                     <div class="profile-name-row">
@@ -1167,16 +1002,12 @@
 
 
                     <div class="profile-university">
-
                         🎓 {{ user["university"] }}
-
                     </div>
 
 
                     <div class="profile-email">
-
                         📧 {{ user["email"] }}
-
                     </div>
 
 
@@ -1187,12 +1018,9 @@
                         <div class="ambassador-section">
 
                             <div class="campus-ambassador-badge">
-
                                 🏅
                                 Official UniCamplink Campus Ambassador
-
                             </div>
-
 
                             <div class="campus-ambassador-details">
 
@@ -1201,7 +1029,11 @@
                                     <div class="ambassador-detail">
 
                                         📍
-                                        <strong>Campus:</strong>
+
+                                        <strong>
+                                            Campus:
+                                        </strong>
+
                                         {{ campus_ambassador["campus"] }}
 
                                     </div>
@@ -1214,7 +1046,11 @@
                                     <div class="ambassador-detail">
 
                                         🏫
-                                        <strong>School:</strong>
+
+                                        <strong>
+                                            School:
+                                        </strong>
+
                                         {{ campus_ambassador["school"] }}
 
                                     </div>
@@ -1233,9 +1069,7 @@
                     {% if user["bio"] %}
 
                         <div class="profile-bio">
-
                             {{ user["bio"] }}
-
                         </div>
 
                     {% endif %}
@@ -1247,9 +1081,7 @@
 
                 <div class="profile-actions">
 
-
                     {% if user["id"] == current_user_id %}
-
 
                         <!-- OWN PROFILE -->
 
@@ -1260,9 +1092,7 @@
                             ✏️ Edit Profile
                         </a>
 
-
                     {% else %}
-
 
                         <!-- MESSAGE -->
 
@@ -1285,13 +1115,11 @@
                                 ❤️ Friends
                             </div>
 
-
                         {% elif request_sent %}
 
                             <div class="friend-status pending-status">
                                 ⏳ Request Sent
                             </div>
-
 
                         {% elif request_received %}
 
@@ -1301,7 +1129,6 @@
                             >
                                 🤝 Respond
                             </a>
-
 
                         {% else %}
 
@@ -1337,9 +1164,7 @@
             </div>
 
 
-            <!-- =====================================================
-                 PROFILE STATS
-                 ===================================================== -->
+            <!-- PROFILE STATS -->
 
             <div class="profile-stats">
 
@@ -1388,12 +1213,11 @@
     </section>
 
 
-    <!-- =========================================================
+    <!-- =====================================================
          POSTS
-         ========================================================= -->
+         ===================================================== -->
 
     <section class="posts-section">
-
 
         <div class="posts-header">
 
@@ -1402,7 +1226,8 @@
             </h2>
 
             <span>
-                {{ posts|length }} post{% if posts|length != 1 %}s{% endif %}
+                {{ posts|length }}
+                post{% if posts|length != 1 %}s{% endif %}
             </span>
 
         </div>
@@ -1410,14 +1235,11 @@
 
         {% if posts %}
 
-
             {% for post in posts %}
 
                 <article class="post-card">
 
-
                     <div class="post-top">
-
 
                         <div class="post-mini-avatar">
 
@@ -1443,15 +1265,11 @@
                         <div>
 
                             <div class="post-author-name">
-
                                 {{ user["name"] }}
-
                             </div>
 
                             <div class="post-date">
-
                                 {{ post["created_at"]|nigeria_time }}
-
                             </div>
 
                         </div>
@@ -1459,20 +1277,34 @@
                     </div>
 
 
-                    <div class="post-content">
+                    {% if post["content"] %}
 
-                        {{ post["content"] }}
+                        <div class="post-content">
+                            {{ post["content"] }}
+                        </div>
 
-                    </div>
+                    {% endif %}
 
+
+                    {% if post["image"] %}
+
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/' + post['image']
+                            ) }}"
+                            alt="Post image"
+                            class="post-image"
+                            loading="lazy"
+                        >
+
+                    {% endif %}
 
                 </article>
 
             {% endfor %}
 
-
         {% else %}
-
 
             <div class="no-posts">
 
@@ -1490,25 +1322,16 @@
 
             </div>
 
-
         {% endif %}
-
 
     </section>
 
-
 </main>
 
-
-<!-- =========================================================
-     THEME
-     ========================================================= -->
 
 <script
     src="{{ url_for('static', filename='js/theme.js') }}"
 ></script>
 
-
 </body>
-
 </html>
