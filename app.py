@@ -3211,21 +3211,37 @@ def create_group_post(group_id):
 @app.route("/marketplace")
 def marketplace():
 
+    # --------------------------------------------------------
+    # LOGIN REQUIRED
+    # --------------------------------------------------------
+
     if "user_id" not in session:
 
         return redirect(
             url_for("login")
         )
 
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
     search = clean_text(
         request.args.get("search"),
         MAX_SEARCH_LENGTH
     )
 
+    # --------------------------------------------------------
+    # CATEGORY
+    # --------------------------------------------------------
+
     category = clean_text(
         request.args.get("category"),
         MAX_NAME_LENGTH
     )
+
+    # --------------------------------------------------------
+    # VALIDATE SEARCH
+    # --------------------------------------------------------
 
     if search is None:
 
@@ -3233,12 +3249,17 @@ def marketplace():
             "Marketplace search query is too long."
         ), 400
 
+    # --------------------------------------------------------
+    # VALIDATE CATEGORY
+    # --------------------------------------------------------
+
     if category is None:
 
         return (
             "Invalid marketplace category."
         ), 400
 
+    # Ignore unknown categories rather than crashing.
     if (
         category
         and
@@ -3247,13 +3268,21 @@ def marketplace():
 
         category = ""
 
+    # --------------------------------------------------------
+    # DATABASE
+    # --------------------------------------------------------
+
     conn = get_db_connection()
 
     sql = """
         SELECT
             products.*,
+
             users.name AS seller_name,
-            users.university AS seller_university
+
+            users.university AS seller_university,
+
+            users.profile_picture AS seller_profile_picture
 
         FROM products
 
@@ -3265,19 +3294,31 @@ def marketplace():
 
     parameters = []
 
+    # --------------------------------------------------------
+    # SEARCH FILTER
+    # --------------------------------------------------------
+
     if search:
 
         sql += """
             AND (
                 products.name LIKE ?
                 OR products.description LIKE ?
+                OR products.location LIKE ?
             )
         """
 
+        search_pattern = "%" + search + "%"
+
         parameters.extend([
-            "%" + search + "%",
-            "%" + search + "%"
+            search_pattern,
+            search_pattern,
+            search_pattern
         ])
+
+    # --------------------------------------------------------
+    # CATEGORY FILTER
+    # --------------------------------------------------------
 
     if category:
 
@@ -3285,7 +3326,13 @@ def marketplace():
             AND products.category = ?
         """
 
-        parameters.append(category)
+        parameters.append(
+            category
+        )
+
+    # --------------------------------------------------------
+    # NEWEST PRODUCTS FIRST
+    # --------------------------------------------------------
 
     sql += """
         ORDER BY products.created_at DESC
@@ -3298,17 +3345,25 @@ def marketplace():
 
     conn.close()
 
+    # --------------------------------------------------------
+    # MARKETPLACE PAGE
+    # --------------------------------------------------------
+
     return render_template(
         "marketplace.html",
+
         products=products,
+
         categories=MARKETPLACE_CATEGORIES,
+
         query=search or "",
+
         selected_category=category
     )
 
 
 # ============================================================
-# ADD PRODUCT
+# ADD / SELL PRODUCT
 # ============================================================
 
 @app.route(
@@ -3317,146 +3372,234 @@ def marketplace():
 )
 def add_product():
 
+    # --------------------------------------------------------
+    # LOGIN REQUIRED
+    # --------------------------------------------------------
+
     if "user_id" not in session:
 
         return redirect(
             url_for("login")
         )
 
-    if request.method == "POST":
+    # ========================================================
+    # GET
+    # ========================================================
+    #
+    # Facebook/TikTok-style Marketplace:
+    # Clicking "Sell Product" opens the product creation page.
+    #
+    # ========================================================
 
-        name = clean_text(
-            request.form.get("name"),
-            MAX_PRODUCT_NAME_LENGTH
+    if request.method == "GET":
+
+        return render_template(
+            "add_product.html",
+
+            categories=MARKETPLACE_CATEGORIES
         )
 
-        description = clean_text(
-            request.form.get("description"),
-            MAX_PRODUCT_DESCRIPTION_LENGTH
+    # ========================================================
+    # POST
+    # ========================================================
+
+    # --------------------------------------------------------
+    # PRODUCT NAME
+    # --------------------------------------------------------
+
+    name = clean_text(
+        request.form.get("name"),
+        MAX_PRODUCT_NAME_LENGTH
+    )
+
+    # --------------------------------------------------------
+    # DESCRIPTION
+    # --------------------------------------------------------
+
+    description = clean_text(
+        request.form.get("description"),
+        MAX_PRODUCT_DESCRIPTION_LENGTH
+    )
+
+    # --------------------------------------------------------
+    # PRICE
+    # --------------------------------------------------------
+
+    price_text = request.form.get(
+        "price",
+        ""
+    ).strip()
+
+    # --------------------------------------------------------
+    # CATEGORY
+    # --------------------------------------------------------
+
+    category = clean_text(
+        request.form.get("category"),
+        MAX_NAME_LENGTH
+    )
+
+    # --------------------------------------------------------
+    # LOCATION
+    # --------------------------------------------------------
+
+    location = clean_text(
+        request.form.get("location"),
+        MAX_LOCATION_LENGTH
+    )
+
+    # --------------------------------------------------------
+    # IMAGE
+    # --------------------------------------------------------
+
+    image = request.files.get(
+        "image"
+    )
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    if not name:
+
+        return (
+            "Product name is required and must not exceed "
+            "150 characters."
+        ), 400
+
+    if not description:
+
+        return (
+            "Product description is required and must not "
+            "exceed 3000 characters."
+        ), 400
+
+    if not price_text:
+
+        return (
+            "Product price is required."
+        ), 400
+
+    if not category:
+
+        return (
+            "Please select a category."
+        ), 400
+
+    if category not in MARKETPLACE_CATEGORIES:
+
+        return (
+            "Invalid marketplace category."
+        ), 400
+
+    if not location:
+
+        return (
+            "Location is required and must not exceed "
+            "150 characters."
+        ), 400
+
+    # ========================================================
+    # PRICE VALIDATION
+    # ========================================================
+
+    try:
+
+        price = float(
+            price_text
         )
 
-        price_text = request.form.get(
-            "price",
-            ""
-        ).strip()
-
-        category = clean_text(
-            request.form.get("category"),
-            MAX_NAME_LENGTH
-        )
-
-        location = clean_text(
-            request.form.get("location"),
-            MAX_LOCATION_LENGTH
-        )
-
-        image = request.files.get(
-            "image"
-        )
-
-        if not name:
-
-            return (
-                "Product name is required and must not exceed "
-                "150 characters."
-            ), 400
-
-        if not description:
-
-            return (
-                "Product description is required and must not "
-                "exceed 3000 characters."
-            ), 400
-
-        if not price_text:
-
-            return (
-                "Product price is required."
-            ), 400
-
-        if not category:
-
-            return (
-                "Please select a category."
-            ), 400
-
-        if category not in MARKETPLACE_CATEGORIES:
-
-            return (
-                "Invalid marketplace category."
-            ), 400
-
-        if not location:
-
-            return (
-                "Location is required and must not exceed "
-                "150 characters."
-            ), 400
-
-        # ----------------------------------------------------
-        # SAFE PRICE VALIDATION
-        # ----------------------------------------------------
-
-        try:
-
-            price = float(price_text)
-
-            if not math.isfinite(price):
-
-                return (
-                    "Please enter a valid price."
-                ), 400
-
-            if price < 0:
-
-                return (
-                    "Price cannot be negative."
-                ), 400
-
-            if price > MAX_PRICE:
-
-                return (
-                    "Price is too high."
-                ), 400
-
-        except (ValueError, OverflowError):
+        if not math.isfinite(price):
 
             return (
                 "Please enter a valid price."
             ), 400
 
-        image_filename = ""
+        if price < 0:
 
-        if image and image.filename:
+            return (
+                "Price cannot be negative."
+            ), 400
 
-            if not validate_image(image):
+        if price > MAX_PRICE:
 
-                return (
-                    "Invalid image. "
-                    "Please upload a genuine "
-                    "PNG, JPG, JPEG or GIF image "
-                    "under 4096x4096 pixels."
-                ), 400
+            return (
+                "Price is too high."
+            ), 400
 
-            extension = image.filename.rsplit(
-                ".",
-                1
-            )[1].lower()
+    except (
+        ValueError,
+        OverflowError
+    ):
 
-            image_filename = (
-                "product_"
-                + str(uuid4())
-                + "."
-                + extension
+        return (
+            "Please enter a valid price."
+        ), 400
+
+    # ========================================================
+    # IMAGE UPLOAD
+    # ========================================================
+
+    image_filename = ""
+
+    if image and image.filename:
+
+        # ----------------------------------------------------
+        # SECURITY VALIDATION
+        # ----------------------------------------------------
+
+        if not validate_image(image):
+
+            return (
+                "Invalid image. "
+                "Please upload a genuine "
+                "PNG, JPG, JPEG or GIF image "
+                "under 4096x4096 pixels."
+            ), 400
+
+        # ----------------------------------------------------
+        # EXTENSION
+        # ----------------------------------------------------
+
+        extension = image.filename.rsplit(
+            ".",
+            1
+        )[1].lower()
+
+        # ----------------------------------------------------
+        # UNIQUE FILE NAME
+        # ----------------------------------------------------
+
+        image_filename = (
+            "product_"
+            + str(uuid4())
+            + "."
+            + extension
+        )
+
+        # ----------------------------------------------------
+        # SAVE IMAGE
+        # ----------------------------------------------------
+
+        image.save(
+            safe_upload_path(
+                image_filename
             )
+        )
 
-            image.save(
-                safe_upload_path(image_filename)
-            )
+    # ========================================================
+    # DATABASE CONNECTION
+    # ========================================================
 
-        conn = get_db_connection()
+    conn = get_db_connection()
 
-        conn.execute(
+    try:
+
+        # ====================================================
+        # CREATE PRODUCT
+        # ====================================================
+
+        cursor = conn.execute(
             """
             INSERT INTO products
             (
@@ -3482,43 +3625,60 @@ def add_product():
                 "available"
             )
         )
-        # --------------------------------------------------------
-        # NOTIFY FRIENDS ABOUT NEW MARKETPLACE LISTING
-        # --------------------------------------------------------
+
+        # ====================================================
+        # EXACT NEW PRODUCT ID
+        # ====================================================
+
+        new_product_id = cursor.lastrowid
+
+        # ====================================================
+        # GET SELLER
+        # ====================================================
 
         seller = conn.execute(
             """
-            SELECT name
+            SELECT
+                id,
+                name
             FROM users
             WHERE id = ?
             """,
-            (session["user_id"],)
+            (
+                session["user_id"],
+            )
         ).fetchone()
 
-        seller_name = seller["name"] if seller else "A student"
+        seller_name = (
+            seller["name"]
+            if seller
+            else "A student"
+        )
+
+        # ====================================================
+        # GET FRIENDS
+        # ====================================================
 
         friends = conn.execute(
             """
-            SELECT friend_id
+            SELECT
+                friend_id
             FROM friends
             WHERE user_id = ?
             """,
-            (session["user_id"],)
+            (
+                session["user_id"],
+            )
         ).fetchall()
 
-        new_product_id = conn.execute(
-            """
-            SELECT id
-            FROM products
-            WHERE seller_id = ?
-            ORDER BY id DESC
-            LIMIT 1
-            """,
-            (session["user_id"],)
-        ).fetchone()
+        # ====================================================
+        # NOTIFY FRIENDS
+        # ====================================================
 
         if new_product_id:
+
             for friend in friends:
+
                 conn.execute(
                     """
                     INSERT INTO notifications
@@ -3533,19 +3693,50 @@ def add_product():
                     """,
                     (
                         friend["friend_id"],
+
                         session["user_id"],
+
                         "marketplace",
-                        f"{seller_name} listed {name} on Marketplace 🛍️",
-                        f"/marketplace/product/{new_product_id['id']}"
+
+                        (
+                            f"{seller_name} listed "
+                            f"{name} on Marketplace 🛍️"
+                        ),
+
+                        (
+                            f"/marketplace/product/"
+                            f"{new_product_id}"
+                        )
                     )
                 )
 
+        # ====================================================
+        # SAVE PRODUCT + NOTIFICATIONS
+        # ====================================================
+
         conn.commit()
+
+    except Exception:
+
+        # ----------------------------------------------------
+        # Roll back database changes if something fails.
+        # ----------------------------------------------------
+
+        conn.rollback()
+
+        raise
+
+    finally:
+
         conn.close()
 
-        return redirect(
-            url_for("marketplace")
-        )
+    # ========================================================
+    # SUCCESS
+    # ========================================================
+
+    return redirect(
+        url_for("marketplace")
+    )
 
 
 # ============================================================

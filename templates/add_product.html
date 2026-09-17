@@ -1,272 +1,989 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Sell a Product - UniCamplink</title>
+<title>Sell Product • UniCamplink</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
+<style>
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    :root {
+        --primary: #38bdf8;
+        --primary-dark: #0ea5e9;
+
+        --bg: #f0f2f5;
+        --card: #ffffff;
+
+        --text: #172033;
+        --muted: #667085;
+
+        --border: #e4e7ec;
+
+        --danger: #ef4444;
+
+        --shadow:
+            0 8px 30px rgba(15, 23, 42, 0.08);
+
+        --radius: 18px;
+    }
+
+    body {
+        min-height: 100vh;
+
+        background:
+            linear-gradient(
+                180deg,
+                #eef7ff 0%,
+                #f5f7fa 45%,
+                #eef1f5 100%
+            );
+
+        color: var(--text);
+
+        font-family:
+            Inter,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Arial,
+            sans-serif;
+    }
+
+    /* =====================================================
+       TOP BAR
+    ===================================================== */
+
+    .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+
+        height: 64px;
+
+        background: rgba(255,255,255,0.94);
+
+        backdrop-filter: blur(16px);
+
+        border-bottom:
+            1px solid rgba(0,0,0,0.06);
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding:
+            0 clamp(14px, 4vw, 60px);
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        text-decoration: none;
+        color: var(--text);
+    }
+
+    .brand-logo {
+        width: 40px;
+        height: 40px;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: white;
+
+        font-size: 19px;
+        font-weight: 900;
+
+        box-shadow:
+            0 5px 15px rgba(14,165,233,0.25);
+    }
+
+    .brand-name {
+        font-size: 19px;
+        font-weight: 800;
+        letter-spacing: -0.4px;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        padding: 9px 14px;
+
+        border-radius: 999px;
+
+        background: #f2f4f7;
+
+        color: #344054;
+
+        text-decoration: none;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        transition: 0.2s ease;
+    }
+
+    .back-button:hover {
+        background: #e4e7ec;
+        transform: translateY(-1px);
+    }
+
+    /* =====================================================
+       PAGE
+    ===================================================== */
+
+    .page {
+        width: min(760px, calc(100% - 28px));
+
+        margin:
+            28px auto 60px;
+    }
+
+    /* =====================================================
+       HERO
+    ===================================================== */
+
+    .hero {
+        text-align: center;
+
+        margin-bottom: 20px;
+    }
+
+    .hero-icon {
+        width: 58px;
+        height: 58px;
+
+        margin: 0 auto 12px;
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #38bdf8,
+                #0ea5e9
+            );
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 27px;
+
+        box-shadow:
+            0 10px 25px rgba(14,165,233,0.25);
+    }
+
+    .hero h1 {
+        font-size:
+            clamp(25px, 5vw, 34px);
+
+        letter-spacing: -1px;
+
+        margin-bottom: 6px;
+    }
+
+    .hero p {
+        color: var(--muted);
+
+        font-size: 14px;
+
+        line-height: 1.5;
+    }
+
+    /* =====================================================
+       FORM CARD
+    ===================================================== */
+
+    .card {
+        background: var(--card);
+
+        border:
+            1px solid rgba(15,23,42,0.06);
+
+        border-radius: var(--radius);
+
+        box-shadow: var(--shadow);
+
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 20px 22px;
+
+        border-bottom:
+            1px solid var(--border);
+    }
+
+    .card-header h2 {
+        font-size: 17px;
+    }
+
+    .card-header p {
+        color: var(--muted);
+
+        font-size: 13px;
+
+        margin-top: 4px;
+    }
+
+    .form {
+        padding: 22px;
+    }
+
+    /* =====================================================
+       FORM GROUPS
+    ===================================================== */
+
+    .form-group {
+        margin-bottom: 19px;
+    }
+
+    label {
+        display: block;
+
+        margin-bottom: 7px;
+
+        font-size: 14px;
+
+        font-weight: 750;
+
+        color: #344054;
+    }
+
+    .required {
+        color: var(--danger);
+    }
+
+    input,
+    textarea,
+    select {
+
+        width: 100%;
+
+        border:
+            1px solid var(--border);
+
+        background: #fff;
+
+        color: var(--text);
+
+        border-radius: 12px;
+
+        padding: 13px 14px;
+
+        font-size: 15px;
+
+        outline: none;
+
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #98a2b3;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+
+        border-color:
+            var(--primary);
+
+        box-shadow:
+            0 0 0 4px
+            rgba(56,189,248,0.12);
+    }
+
+    textarea {
+        min-height: 135px;
+
+        resize: vertical;
+
+        line-height: 1.5;
+    }
+
+    /* =====================================================
+       TWO COLUMN AREA
+    ===================================================== */
+
+    .two-columns {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 14px;
+    }
+
+    /* =====================================================
+       IMAGE UPLOAD
+    ===================================================== */
+
+    .upload-box {
+
+        border:
+            2px dashed #cbd5e1;
+
+        border-radius: 15px;
+
+        padding: 25px 18px;
+
+        text-align: center;
+
+        background:
+            #f8fafc;
+
+        cursor: pointer;
+
+        transition: 0.2s ease;
+    }
+
+    .upload-box:hover {
+
+        border-color:
+            var(--primary);
+
+        background:
+            #f0f9ff;
+    }
+
+    .upload-icon {
+
+        font-size: 32px;
+
+        margin-bottom: 8px;
+    }
+
+    .upload-title {
+
+        font-size: 14px;
+
+        font-weight: 750;
+
+        color: #344054;
+    }
+
+    .upload-hint {
+
+        margin-top: 5px;
+
+        color: var(--muted);
+
+        font-size: 12px;
+
+        line-height: 1.4;
+    }
+
+    .upload-box input[type="file"] {
+
+        display: none;
+    }
+
+    .file-name {
+
+        margin-top: 9px;
+
+        color:
+            var(--primary-dark);
+
+        font-size: 12px;
+
+        font-weight: 700;
+    }
+
+    /* =====================================================
+       PREVIEW
+    ===================================================== */
+
+    .preview {
+
+        display: none;
+
+        margin-top: 12px;
+
+        border-radius: 14px;
+
+        overflow: hidden;
+
+        background: #f2f4f7;
+
+        position: relative;
+    }
+
+    .preview img {
+
+        width: 100%;
+
+        max-height: 330px;
+
+        object-fit: cover;
+
+        display: block;
+    }
+
+    /* =====================================================
+       INFO
+    ===================================================== */
+
+    .info-box {
+
+        display: flex;
+
+        gap: 10px;
+
+        align-items: flex-start;
+
+        padding: 13px 14px;
+
+        margin-bottom: 20px;
+
+        border-radius: 12px;
+
+        background: #eff8ff;
+
+        border:
+            1px solid #d0efff;
+
+        color: #344054;
+
+        font-size: 13px;
+
+        line-height: 1.5;
+    }
+
+    .info-icon {
+        font-size: 17px;
+    }
+
+    /* =====================================================
+       BUTTONS
+    ===================================================== */
+
+    .actions {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1.7fr;
+
+        gap: 10px;
+
+        margin-top: 7px;
+    }
+
+    .button {
+
+        border: none;
+
+        border-radius: 12px;
+
+        padding: 14px;
+
+        font-size: 15px;
+
+        font-weight: 800;
+
+        cursor: pointer;
+
+        text-decoration: none;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 7px;
+
+        transition: 0.2s ease;
+    }
+
+    .cancel {
+
+        background: #f2f4f7;
+
+        color: #344054;
+    }
+
+    .cancel:hover {
+
+        background: #e4e7ec;
+    }
+
+    .publish {
+
+        color: white;
+
+        background:
+            linear-gradient(
+                135deg,
+                #38bdf8,
+                #0ea5e9
+            );
+
+        box-shadow:
+            0 8px 20px
+            rgba(14,165,233,0.22);
+    }
+
+    .publish:hover {
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 11px 25px
+            rgba(14,165,233,0.28);
+    }
+
+    .publish:active,
+    .cancel:active {
+
+        transform: translateY(0);
+    }
+
+    /* =====================================================
+       MOBILE
+    ===================================================== */
+
+    @media (max-width: 600px) {
+
+        .topbar {
+
+            height: 58px;
+
+            padding:
+                0 12px;
+        }
+
+        .brand-name {
+
+            font-size: 17px;
+        }
+
+        .brand-logo {
+
+            width: 36px;
+            height: 36px;
+
+            border-radius: 10px;
+        }
+
+        .back-button {
+
+            padding: 8px 11px;
+
+            font-size: 13px;
+        }
+
+        .page {
+
+            width:
+                calc(100% - 18px);
+
+            margin-top: 18px;
+        }
+
+        .hero {
+
+            margin-bottom: 15px;
+        }
+
+        .hero-icon {
+
+            width: 50px;
+            height: 50px;
+
+            border-radius: 15px;
+
+            font-size: 23px;
+        }
+
+        .form {
+
+            padding: 17px;
+        }
+
+        .card-header {
+
+            padding: 17px;
+        }
+
+        .two-columns {
+
+            grid-template-columns: 1fr;
+
+            gap: 0;
+        }
+
+        .actions {
+
+            grid-template-columns: 1fr;
+
+        }
+
+        .publish {
+
+            order: -1;
+        }
+    }
+
+    /* =====================================================
+       DARK MODE
+    ===================================================== */
+
+    @media (prefers-color-scheme: dark) {
+
+        :root {
+
+            --bg: #080d14;
+
+            --card: #101720;
+
+            --text: #f8fafc;
+
+            --muted: #94a3b8;
+
+            --border: #263241;
         }
 
         body {
-            background: #f4f6f8;
-            color: #222;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #07111d,
+                    #080d14
+                );
+
+            color: var(--text);
         }
 
-        /* NAVBAR */
-        .navbar {
-            background: #1877f2;
+        .topbar {
+
+            background:
+                rgba(16,23,32,0.94);
+
+            border-bottom:
+                1px solid #263241;
+        }
+
+        .brand {
+
             color: white;
-            padding: 15px 6%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
+        .back-button {
+
+            background: #1b2633;
+
+            color: #dbeafe;
         }
 
-        .back-link {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
+        .back-button:hover {
+
+            background: #263241;
         }
 
-        .back-link:hover {
-            text-decoration: underline;
+        .card {
+
+            background: var(--card);
+
+            border-color:
+                #263241;
         }
 
-        /* CONTAINER */
-        .container {
-            width: 90%;
-            max-width: 700px;
-            margin: 40px auto;
-        }
+        .card-header {
 
-        .form-card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-        }
-
-        .form-card h1 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        /* FORM */
-        .form-group {
-            margin-bottom: 20px;
+            border-color:
+                #263241;
         }
 
         label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 7px;
+
+            color: #dbe4ee;
         }
 
         input,
         textarea,
         select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 7px;
-            font-size: 15px;
+
+            background: #0b121b;
+
+            color: #f8fafc;
+
+            border-color:
+                #334155;
         }
 
-        textarea {
-            min-height: 130px;
-            resize: vertical;
+        .upload-box {
+
+            background: #0b121b;
+
+            border-color:
+                #334155;
         }
 
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: #1877f2;
+        .upload-box:hover {
+
+            background: #0d1b28;
+
+            border-color:
+                var(--primary);
         }
 
-        .hint {
-            display: block;
-            margin-top: 5px;
-            color: #777;
-            font-size: 13px;
+        .upload-title {
+
+            color: #e2e8f0;
         }
 
-        /* BUTTON */
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: #28a745;
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 7px;
-            cursor: pointer;
+        .info-box {
+
+            background: #0c2435;
+
+            border-color: #164e63;
+
+            color: #cbd5e1;
         }
 
-        .submit-btn:hover {
-            background: #218838;
+        .cancel {
+
+            background: #1b2633;
+
+            color: #e2e8f0;
         }
 
-        .cancel-btn {
-            display: block;
-            width: 100%;
-            text-align: center;
-            padding: 12px;
-            margin-top: 10px;
-            background: #eee;
-            color: #333;
-            text-decoration: none;
-            border-radius: 7px;
-            font-weight: bold;
+        .cancel:hover {
+
+            background: #263241;
         }
+    }
 
-        .cancel-btn:hover {
-            background: #ddd;
-        }
+</style>
 
-        /* MOBILE */
-        @media (max-width: 600px) {
-
-            .navbar {
-                padding: 15px 4%;
-            }
-
-            .container {
-                width: 94%;
-                margin: 25px auto;
-            }
-
-            .form-card {
-                padding: 20px;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
+<!-- =====================================================
+     TOP BAR
+====================================================== -->
 
-        <div class="logo">
+<header class="topbar">
+
+    <a
+        href="{{ url_for('marketplace') }}"
+        class="brand"
+    >
+
+        <span class="brand-logo">
+            U
+        </span>
+
+        <span class="brand-name">
             UniCamplink
+        </span>
+
+    </a>
+
+    <a
+        href="{{ url_for('marketplace') }}"
+        class="back-button"
+    >
+        ← Marketplace
+    </a>
+
+</header>
+
+
+<!-- =====================================================
+     PAGE
+====================================================== -->
+
+<main class="page">
+
+    <section class="hero">
+
+        <div class="hero-icon">
+            🛍️
         </div>
 
-        <a
-            href="{{ url_for('marketplace') }}"
-            class="back-link"
-        >
-            ← Marketplace
-        </a>
+        <h1>
+            Sell on UniCamplink
+        </h1>
 
-    </nav>
+        <p>
+            Turn your unused items into opportunities
+            and connect with students around you.
+        </p>
+
+    </section>
 
 
-    <!-- FORM -->
-    <div class="container">
+    <!-- =================================================
+         FORM CARD
+    ================================================== -->
 
-        <div class="form-card">
+    <section class="card">
 
-            <h1>🛒 Sell a Product</h1>
+        <div class="card-header">
 
-            <p class="subtitle">
-                List your product and connect with students on campus.
+            <h2>
+                Create Marketplace Listing
+            </h2>
+
+            <p>
+                Add clear details so students can
+                easily find and contact you.
             </p>
 
+        </div>
 
-            <form
-                method="POST"
-                action="{{ url_for('add_product') }}"
-                enctype="multipart/form-data"
+
+        <form
+            class="form"
+            method="POST"
+            action="{{ url_for('add_product') }}"
+            enctype="multipart/form-data"
+        >
+
+            <!-- =========================================
+                 CSRF
+            ========================================== -->
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
             >
 
-                <!-- CSRF PROTECTION -->
+
+            <!-- =========================================
+                 PRODUCT NAME
+            ========================================== -->
+
+            <div class="form-group">
+
+                <label for="name">
+
+                    Product Name
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </label>
+
                 <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}"
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="e.g. HP EliteBook 840 G5"
+                    maxlength="150"
+                    required
                 >
 
-
-                <!-- PRODUCT NAME -->
-                <div class="form-group">
-
-                    <label for="name">
-                        Product Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        placeholder="e.g. HP Laptop"
-                        required
-                    >
-
-                </div>
+            </div>
 
 
-                <!-- DESCRIPTION -->
-                <div class="form-group">
+            <!-- =========================================
+                 DESCRIPTION
+            ========================================== -->
 
-                    <label for="description">
-                        Description
-                    </label>
+            <div class="form-group">
 
-                    <textarea
-                        id="description"
-                        name="description"
-                        placeholder="Describe your product..."
-                        required
-                    ></textarea>
+                <label for="description">
 
-                </div>
+                    Description
+
+                    <span class="required">
+                        *
+                    </span>
+
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    maxlength="3000"
+                    placeholder="Tell students about the condition, features, size, color, age, or anything else they should know..."
+                    required
+                ></textarea>
+
+            </div>
 
 
-                <!-- PRICE -->
+            <!-- =========================================
+                 PRICE + CATEGORY
+            ========================================== -->
+
+            <div class="two-columns">
+
                 <div class="form-group">
 
                     <label for="price">
+
                         Price (₦)
+
+                        <span class="required">
+                            *
+                        </span>
+
                     </label>
 
                     <input
                         type="number"
                         id="price"
                         name="price"
-                        placeholder="e.g. 150000"
                         min="0"
                         step="0.01"
+                        placeholder="150000"
                         required
                     >
 
                 </div>
 
 
-                <!-- CATEGORY -->
                 <div class="form-group">
 
                     <label for="category">
+
                         Category
+
+                        <span class="required">
+                            *
+                        </span>
+
                     </label>
 
                     <select
@@ -276,70 +993,87 @@
                     >
 
                         <option value="">
-                            Select a category
+                            Select category
                         </option>
 
-                        <option value="Electronics">
-                            Electronics
-                        </option>
+                        {% for category in categories %}
 
-                        <option value="Fashion">
-                            Fashion
-                        </option>
+                            <option
+                                value="{{ category }}"
+                            >
+                                {{ category }}
+                            </option>
 
-                        <option value="Books">
-                            Books
-                        </option>
-
-                        <option value="Hostel">
-                            Hostel Items
-                        </option>
-
-                        <option value="Food">
-                            Food
-                        </option>
-
-                        <option value="Services">
-                            Services
-                        </option>
-
-                        <option value="Other">
-                            Other
-                        </option>
+                        {% endfor %}
 
                     </select>
 
                 </div>
 
+            </div>
 
-                <!-- LOCATION -->
-                <div class="form-group">
 
-                    <label for="location">
-                        Location
-                    </label>
+            <!-- =========================================
+                 LOCATION
+            ========================================== -->
 
-                    <input
-                        type="text"
-                        id="location"
-                        name="location"
-                        placeholder="e.g. ESUT Agbani Campus"
-                        required
-                    >
+            <div class="form-group">
 
-                    <span class="hint">
-                        Tell buyers where they can meet you.
+                <label for="location">
+
+                    Pickup / Meeting Location
+
+                    <span class="required">
+                        *
                     </span>
 
-                </div>
+                </label>
+
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    maxlength="150"
+                    placeholder="e.g. ESUT Agbani Campus"
+                    required
+                >
+
+            </div>
 
 
-                <!-- IMAGE -->
-                <div class="form-group">
+            <!-- =========================================
+                 IMAGE
+            ========================================== -->
 
-                    <label for="image">
-                        Product Image
-                    </label>
+            <div class="form-group">
+
+                <label>
+                    Product Image
+                    <span class="required">*</span>
+                </label>
+
+                <label
+                    for="image"
+                    class="upload-box"
+                >
+
+                    <div class="upload-icon">
+                        📸
+                    </div>
+
+                    <div class="upload-title">
+                        Add a product photo
+                    </div>
+
+                    <div class="upload-hint">
+                        JPG, JPEG, PNG or GIF
+                        · Maximum 4096×4096
+                    </div>
+
+                    <div
+                        class="file-name"
+                        id="fileName"
+                    ></div>
 
                     <input
                         type="file"
@@ -349,35 +1083,149 @@
                         required
                     >
 
-                    <span class="hint">
-                        Allowed formats: JPG, JPEG, PNG and GIF.
-                    </span>
+                </label>
+
+
+                <!-- IMAGE PREVIEW -->
+
+                <div
+                    class="preview"
+                    id="preview"
+                >
+
+                    <img
+                        id="previewImage"
+                        src=""
+                        alt="Product preview"
+                    >
 
                 </div>
 
-
-                <!-- SUBMIT -->
-                <button
-                    type="submit"
-                    class="submit-btn"
-                >
-                    🚀 Publish Product
-                </button>
+            </div>
 
 
-                <!-- CANCEL -->
+            <!-- =========================================
+                 INFORMATION
+            ========================================== -->
+
+            <div class="info-box">
+
+                <div class="info-icon">
+                    💡
+                </div>
+
+                <div>
+
+                    <strong>
+                        Marketplace tip
+                    </strong>
+
+                    <br>
+
+                    Use a clear product image and
+                    accurate information. Your friends
+                    will also receive a notification
+                    when you publish a new listing.
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 ACTIONS
+            ========================================== -->
+
+            <div class="actions">
+
                 <a
                     href="{{ url_for('marketplace') }}"
-                    class="cancel-btn"
+                    class="button cancel"
                 >
                     Cancel
                 </a>
 
-            </form>
+                <button
+                    type="submit"
+                    class="button publish"
+                >
+                    🚀 Publish Listing
+                </button>
 
-        </div>
+            </div>
 
-    </div>
+        </form>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     IMAGE PREVIEW
+====================================================== -->
+
+<script>
+
+    const imageInput =
+        document.getElementById("image");
+
+    const preview =
+        document.getElementById("preview");
+
+    const previewImage =
+        document.getElementById("previewImage");
+
+    const fileName =
+        document.getElementById("fileName");
+
+
+    imageInput.addEventListener(
+        "change",
+        function () {
+
+            const file =
+                this.files[0];
+
+            if (!file) {
+
+                preview.style.display =
+                    "none";
+
+                fileName.textContent =
+                    "";
+
+                return;
+            }
+
+            fileName.textContent =
+                "Selected: " + file.name;
+
+
+            if (
+                file.type.startsWith("image/")
+            ) {
+
+                const reader =
+                    new FileReader();
+
+                reader.onload =
+                    function (event) {
+
+                        previewImage.src =
+                            event.target.result;
+
+                        preview.style.display =
+                            "block";
+                    };
+
+                reader.readAsDataURL(file);
+            }
+
+        }
+    );
+
+</script>
 
 </body>
 </html>
