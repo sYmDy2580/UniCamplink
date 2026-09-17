@@ -4970,6 +4970,7 @@ def api_chat_messages(user_id):
 
 @app.route("/admin")
 def admin_dashboard():
+
     if "user_id" not in session:
         return redirect(url_for("login"))
 
@@ -4979,16 +4980,33 @@ def admin_dashboard():
     conn = get_db_connection()
 
     current_user = conn.execute(
-        "SELECT id, name, email FROM users WHERE id = ?",
+        """
+        SELECT
+            id,
+            name,
+            email
+        FROM users
+        WHERE id = ?
+        """,
         (session["user_id"],)
     ).fetchone()
 
-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:
+    if (
+        not current_user
+        or current_user["email"].lower() != ADMIN_EMAIL
+    ):
         conn.close()
         return "Access denied.", 403
 
+    # --------------------------------------------------------
+    # PLATFORM STATISTICS
+    # --------------------------------------------------------
+
     total_users = conn.execute(
-        "SELECT COUNT(*) FROM users"
+        """
+        SELECT COUNT(*)
+        FROM users
+        """
     ).fetchone()[0]
 
     active_members = conn.execute(
@@ -5001,27 +5019,49 @@ def admin_dashboard():
     ).fetchone()[0]
 
     total_posts = conn.execute(
-        "SELECT COUNT(*) FROM posts"
+        """
+        SELECT COUNT(*)
+        FROM posts
+        """
     ).fetchone()[0]
 
     total_groups = conn.execute(
-        "SELECT COUNT(*) FROM groups"
+        """
+        SELECT COUNT(*)
+        FROM groups
+        """
     ).fetchone()[0]
 
     total_products = conn.execute(
-        "SELECT COUNT(*) FROM products"
+        """
+        SELECT COUNT(*)
+        FROM products
+        """
     ).fetchone()[0]
 
     total_messages = conn.execute(
-        "SELECT COUNT(*) FROM messages"
+        """
+        SELECT COUNT(*)
+        FROM messages
+        """
     ).fetchone()[0]
 
     total_friend_requests = conn.execute(
-        "SELECT COUNT(*) FROM friend_requests"
+        """
+        SELECT COUNT(*)
+        FROM friend_requests
+        """
     ).fetchone()[0]
 
+    # --------------------------------------------------------
+    # ADVERTISEMENT STATISTICS
+    # --------------------------------------------------------
+
     total_advertisements = conn.execute(
-        "SELECT COUNT(*) FROM advertisement_requests"
+        """
+        SELECT COUNT(*)
+        FROM advertisement_requests
+        """
     ).fetchone()[0]
 
     pending_advertisements = conn.execute(
@@ -5032,6 +5072,10 @@ def admin_dashboard():
         """
     ).fetchone()[0]
 
+    # --------------------------------------------------------
+    # CAMPUS AMBASSADORS
+    # --------------------------------------------------------
+
     total_ambassadors = conn.execute(
         """
         SELECT COUNT(*)
@@ -5040,14 +5084,39 @@ def admin_dashboard():
         """
     ).fetchone()[0]
 
+    # --------------------------------------------------------
+    # VERIFIED STUDENTS
+    # --------------------------------------------------------
+
+    total_verified_students = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM users
+        WHERE is_verified_student = 1
+        """
+    ).fetchone()[0]
+
+    # --------------------------------------------------------
+    # RECENT MEMBERS
+    # --------------------------------------------------------
+
     recent_users = conn.execute(
         """
-        SELECT id, name, email, university, joined_at, last_seen
-        FROM users
-        ORDER BY COALESCE(
+        SELECT
+            id,
+            name,
+            email,
+            university,
+            profile_picture,
             joined_at,
-            '9999-12-31 23:59:59'
-        ) DESC, id DESC
+            last_seen
+        FROM users
+        ORDER BY
+            COALESCE(
+                joined_at,
+                '9999-12-31 23:59:59'
+            ) DESC,
+            id DESC
         LIMIT 10
         """
     ).fetchall()
@@ -5056,7 +5125,9 @@ def admin_dashboard():
 
     return render_template(
         "admin_dashboard.html",
+
         current_user=current_user,
+
         total_users=total_users,
         active_members=active_members,
         total_posts=total_posts,
@@ -5064,160 +5135,16 @@ def admin_dashboard():
         total_products=total_products,
         total_messages=total_messages,
         total_friend_requests=total_friend_requests,
+
         total_advertisements=total_advertisements,
         pending_advertisements=pending_advertisements,
+
         total_ambassadors=total_ambassadors,
+        total_verified_students=total_verified_students,
+
         recent_users=recent_users
     )
 
-# ============================================================
-# ADMIN — ADVERTISEMENT REQUESTS
-# ============================================================
-
-@app.route("/admin/advertisements")
-def admin_advertisements():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    if not ADMIN_EMAIL:
-        return "Admin access is not configured yet.", 500
-
-    conn = get_db_connection()
-
-    current_user = conn.execute(
-        "SELECT id, name, email FROM users WHERE id = ?",
-        (session["user_id"],)
-    ).fetchone()
-
-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:
-        conn.close()
-        return "Access denied.", 403
-
-    advertisements = conn.execute(
-    """
-    SELECT
-        id,
-        user_id,
-        advertiser_name,
-        business_name,
-        email,
-        category,
-        subject,
-        message,
-        status,
-        created_at
-    FROM advertisement_requests
-    ORDER BY created_at DESC, id DESC
-    """
-).fetchall()
-
-    conn.close()
-
-    return render_template(
-        "admin_advertisements.html",
-        current_user=current_user,
-        advertisements=advertisements
-    )
-# ============================================================
-# ADMIN — APPROVE ADVERTISEMENT
-# ============================================================
-
-@app.route("/admin/advertisements/<int:advertisement_id>/approve", methods=["POST"])
-def admin_approve_advertisement(advertisement_id):
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    if not ADMIN_EMAIL:
-        return "Admin access is not configured yet.", 500
-
-    conn = get_db_connection()
-
-    current_user = conn.execute(
-        "SELECT id, name, email FROM users WHERE id = ?",
-        (session["user_id"],)
-    ).fetchone()
-
-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:
-        conn.close()
-        return "Access denied.", 403
-
-    advertisement = conn.execute(
-        """
-        SELECT id
-        FROM advertisement_requests
-        WHERE id = ?
-        """,
-        (advertisement_id,)
-    ).fetchone()
-
-    if not advertisement:
-        conn.close()
-        return "Advertisement request not found.", 404
-
-    conn.execute(
-        """
-        UPDATE advertisement_requests
-        SET status = 'approved'
-        WHERE id = ?
-        """,
-        (advertisement_id,)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for("admin_advertisements"))
-
-
-# ============================================================
-# ADMIN — REJECT ADVERTISEMENT
-# ============================================================
-
-@app.route("/admin/advertisements/<int:advertisement_id>/reject", methods=["POST"])
-def admin_reject_advertisement(advertisement_id):
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    if not ADMIN_EMAIL:
-        return "Admin access is not configured yet.", 500
-
-    conn = get_db_connection()
-
-    current_user = conn.execute(
-        "SELECT id, name, email FROM users WHERE id = ?",
-        (session["user_id"],)
-    ).fetchone()
-
-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:
-        conn.close()
-        return "Access denied.", 403
-
-    advertisement = conn.execute(
-        """
-        SELECT id
-        FROM advertisement_requests
-        WHERE id = ?
-        """,
-        (advertisement_id,)
-    ).fetchone()
-
-    if not advertisement:
-        conn.close()
-        return "Advertisement request not found.", 404
-
-    conn.execute(
-        """
-        UPDATE advertisement_requests
-        SET status = 'rejected'
-        WHERE id = ?
-        """,
-        (advertisement_id,)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for("admin_advertisements"))
 # ============================================================
 # ADMIN — MEMBERS
 # ============================================================
@@ -5374,6 +5301,211 @@ def _require_admin():
         return None, ("Access denied.", 403)
 
     return current_user, conn
+# ============================================================
+# ADMIN — VERIFIED STUDENTS
+# RAZOR / FACEBOOK-TIKTOK STYLE ADMIN SYSTEM
+# ============================================================
+
+@app.route("/admin/verified-students")
+def admin_verified_students():
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    search = clean_text(
+        request.args.get("q"),
+        MAX_SEARCH_LENGTH
+    )
+
+    if search is None:
+        conn.close()
+        return (
+            "Search query is too long. "
+            "Maximum length is 100 characters."
+        ), 400
+
+    search = search or ""
+
+    if search:
+        pattern = f"%{search}%"
+
+        users = conn.execute(
+            """
+            SELECT
+                id,
+                name,
+                email,
+                university,
+                profile_picture,
+                is_verified_student,
+                verified_at,
+                verified_by
+            FROM users
+            WHERE
+                LOWER(name) LIKE LOWER(?)
+                OR LOWER(email) LIKE LOWER(?)
+                OR LOWER(COALESCE(university, '')) LIKE LOWER(?)
+            ORDER BY
+                COALESCE(
+                    joined_at,
+                    '9999-12-31 23:59:59'
+                ) DESC,
+                id DESC
+            LIMIT 100
+            """,
+            (
+                pattern,
+                pattern,
+                pattern
+            )
+        ).fetchall()
+
+    else:
+        users = conn.execute(
+            """
+            SELECT
+                id,
+                name,
+                email,
+                university,
+                profile_picture,
+                is_verified_student,
+                verified_at,
+                verified_by
+            FROM users
+            ORDER BY
+                COALESCE(
+                    joined_at,
+                    '9999-12-31 23:59:59'
+                ) DESC,
+                id DESC
+            LIMIT 100
+            """
+        ).fetchall()
+
+    total_verified_students = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM users
+        WHERE is_verified_student = 1
+        """
+    ).fetchone()[0]
+
+    conn.close()
+
+    return render_template(
+        "admin_verified_students.html",
+        current_user=current_user,
+        users=users,
+        search=search,
+        total_verified_students=total_verified_students
+    )
+
+
+# ============================================================
+# ADMIN — VERIFY STUDENT
+# ============================================================
+
+@app.route(
+    "/admin/verified-students/<int:user_id>/verify",
+    methods=["POST"]
+)
+def admin_verify_student(user_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    user = conn.execute(
+        """
+        SELECT id, name
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return "Student not found.", 404
+
+    conn.execute(
+        """
+        UPDATE users
+        SET
+            is_verified_student = 1,
+            verified_at = CURRENT_TIMESTAMP,
+            verified_by = ?
+        WHERE id = ?
+        """,
+        (
+            current_user["id"],
+            user_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_verified_students")
+    )
+
+
+# ============================================================
+# ADMIN — UNVERIFY STUDENT
+# ============================================================
+
+@app.route(
+    "/admin/verified-students/<int:user_id>/unverify",
+    methods=["POST"]
+)
+def admin_unverify_student(user_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    user = conn.execute(
+        """
+        SELECT id, name
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return "Student not found.", 404
+
+    conn.execute(
+        """
+        UPDATE users
+        SET
+            is_verified_student = 0,
+            verified_at = NULL,
+            verified_by = NULL
+        WHERE id = ?
+        """,
+        (user_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_verified_students")
+    )
 
 
 @app.route("/admin/campus-ambassadors")
@@ -5608,6 +5740,10 @@ def advertise_with_us():
 
     if request.method == "POST":
 
+        # --------------------------------------------------------
+        # GET FORM DATA
+        # --------------------------------------------------------
+
         name = clean_text(
             request.form.get("name"),
             MAX_NAME_LENGTH
@@ -5634,6 +5770,10 @@ def advertise_with_us():
             MAX_MESSAGE_LENGTH
         )
 
+        # --------------------------------------------------------
+        # VALIDATION
+        # --------------------------------------------------------
+
         if (
             not name
             or not business_name
@@ -5653,20 +5793,107 @@ def advertise_with_us():
                 form_data=request.form
             ), 400
 
-        # WhatsApp number for UniCamplink advertising
-        whatsapp_number = "2349161162607"
+        # --------------------------------------------------------
+        # SAVE REQUEST TO DATABASE
+        #
+        # IMPORTANT:
+        # These are the ACTUAL columns in your table:
+        #
+        # user_id
+        # name
+        # email
+        # business_name
+        # advertising_type
+        # message
+        # status
+        # --------------------------------------------------------
 
-        whatsapp_message = (
-            "Hello UniCamplink 👋\n\n"
-            "I want to advertise on UniCamplink.\n\n"
-            f"Name: {name}\n"
-            f"Email: {email}\n"
-            f"Business Name: {business_name}\n"
-            f"Advertising Type: {advertising_type}\n\n"
-            f"Message:\n{message}"
-        )
+        conn = get_db_connection()
+
+        try:
+
+            cursor = conn.execute(
+                """
+                INSERT INTO advertisement_requests
+                (
+                    user_id,
+                    name,
+                    email,
+                    business_name,
+                    advertising_type,
+                    message,
+                    status
+                )
+                VALUES (?, ?, ?, ?, ?, ?, 'pending')
+                """,
+                (
+                    session["user_id"],
+                    name,
+                    email,
+                    business_name,
+                    advertising_type,
+                    message
+                )
+            )
+
+            request_id = cursor.lastrowid
+
+            conn.commit()
+
+        except Exception:
+
+            conn.rollback()
+
+            app.logger.exception(
+                "UniCamplink advertisement request save failed."
+            )
+
+            conn.close()
+
+            return render_template(
+                "advertise_with_us.html",
+                error=(
+                    "We could not save your advertising request "
+                    "right now. Please try again."
+                ),
+                form_data=request.form
+            ), 500
+
+        finally:
+
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        # --------------------------------------------------------
+        # SEND REQUEST TO WHATSAPP
+        # --------------------------------------------------------
 
         from urllib.parse import quote
+
+        whatsapp_number = (
+            WHATSAPP_NUMBER
+            if WHATSAPP_NUMBER
+            else "2349161162607"
+        )
+
+        whatsapp_message = (
+            "📢 *UniCamplink Advertisement Request*\n\n"
+
+            f"🆔 *Request ID:* #{request_id}\n"
+            f"👤 *Name:* {name}\n"
+            f"📧 *Email:* {email}\n"
+            f"🏢 *Business / Organization:* {business_name}\n"
+            f"📣 *Advertising Type:* {advertising_type}\n\n"
+
+            "📝 *Message:*\n"
+            f"{message}\n\n"
+
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "This request was submitted through "
+            "the UniCamplink Advertise With Us page."
+        )
 
         whatsapp_url = (
             "https://wa.me/"
@@ -5677,8 +5904,219 @@ def advertise_with_us():
 
         return redirect(whatsapp_url)
 
+    # --------------------------------------------------------
+    # GET REQUEST
+    # --------------------------------------------------------
+
     return render_template(
         "advertise_with_us.html"
+    )
+
+
+# ============================================================
+# ADMIN — ADVERTISEMENT REQUESTS
+# ============================================================
+
+@app.route("/admin/advertisements")
+def admin_advertisements():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    if not ADMIN_EMAIL:
+        return "Admin access is not configured yet.", 500
+
+    conn = get_db_connection()
+
+    current_user = conn.execute(
+        """
+        SELECT
+            id,
+            name,
+            email
+        FROM users
+        WHERE id = ?
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    if (
+        not current_user
+        or current_user["email"].lower() != ADMIN_EMAIL
+    ):
+        conn.close()
+        return "Access denied.", 403
+
+    advertisements = conn.execute(
+        """
+        SELECT
+            id,
+            user_id,
+
+            name AS advertiser_name,
+
+            business_name,
+
+            email,
+
+            advertising_type AS category,
+
+            advertising_type AS subject,
+
+            message,
+
+            status,
+
+            created_at
+
+        FROM advertisement_requests
+
+        ORDER BY
+            created_at DESC,
+            id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "admin_advertisements.html",
+        current_user=current_user,
+        advertisements=advertisements
+    )
+
+
+# ============================================================
+# ADMIN — APPROVE ADVERTISEMENT
+# ============================================================
+
+@app.route(
+    "/admin/advertisements/<int:advertisement_id>/approve",
+    methods=["POST"]
+)
+def admin_approve_advertisement(advertisement_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    if not ADMIN_EMAIL:
+        return "Admin access is not configured yet.", 500
+
+    conn = get_db_connection()
+
+    current_user = conn.execute(
+        """
+        SELECT
+            id,
+            name,
+            email
+        FROM users
+        WHERE id = ?
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    if (
+        not current_user
+        or current_user["email"].lower() != ADMIN_EMAIL
+    ):
+        conn.close()
+        return "Access denied.", 403
+
+    advertisement = conn.execute(
+        """
+        SELECT id
+        FROM advertisement_requests
+        WHERE id = ?
+        """,
+        (advertisement_id,)
+    ).fetchone()
+
+    if not advertisement:
+        conn.close()
+        return "Advertisement request not found.", 404
+
+    conn.execute(
+        """
+        UPDATE advertisement_requests
+        SET status = 'approved'
+        WHERE id = ?
+        """,
+        (advertisement_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_advertisements")
+    )
+
+
+# ============================================================
+# ADMIN — REJECT ADVERTISEMENT
+# ============================================================
+
+@app.route(
+    "/admin/advertisements/<int:advertisement_id>/reject",
+    methods=["POST"]
+)
+def admin_reject_advertisement(advertisement_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    if not ADMIN_EMAIL:
+        return "Admin access is not configured yet.", 500
+
+    conn = get_db_connection()
+
+    current_user = conn.execute(
+        """
+        SELECT
+            id,
+            name,
+            email
+        FROM users
+        WHERE id = ?
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    if (
+        not current_user
+        or current_user["email"].lower() != ADMIN_EMAIL
+    ):
+        conn.close()
+        return "Access denied.", 403
+
+    advertisement = conn.execute(
+        """
+        SELECT id
+        FROM advertisement_requests
+        WHERE id = ?
+        """,
+        (advertisement_id,)
+    ).fetchone()
+
+    if not advertisement:
+        conn.close()
+        return "Advertisement request not found.", 404
+
+    conn.execute(
+        """
+        UPDATE advertisement_requests
+        SET status = 'rejected'
+        WHERE id = ?
+        """,
+        (advertisement_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_advertisements")
     )
 
 

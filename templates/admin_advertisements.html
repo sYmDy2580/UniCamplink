@@ -1,637 +1,1492 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Advertisement Requests | UniCamplink Admin</title>
+    <meta
+        name="theme-color"
+        content="#38bdf8"
+    >
+
+    <title>
+        Advertisement Management | UniCamplink
+    </title>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
 
+    <script
+        src="{{ url_for('static', filename='js/theme.js') }}"
+        defer
+    ></script>
+
+
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f8fc;
-            color: #172033;
+
+        /* =========================================================
+           UNICAMPLINK ADMIN ADVERTISEMENTS
+           ========================================================= */
+
+        .ads-admin-page {
+
+            min-height: 100vh;
+
+            padding:
+                18px
+                14px
+                60px;
         }
 
-        .admin-header {
-            background: linear-gradient(135deg, #00a9e8, #0077c8);
-            color: white;
-            padding: 20px;
-            box-shadow: 0 3px 12px rgba(0,0,0,.15);
+
+        .ads-admin-container {
+
+            width:
+                min(1180px, 100%);
+
+            margin:
+                0 auto;
         }
 
-        .header-inner {
-            max-width: 1200px;
-            margin: auto;
+
+        /* =========================================================
+           HEADER
+           ========================================================= */
+
+        .ads-admin-header {
+
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
+
             gap: 15px;
+
+            padding:
+                10px
+                0
+                22px;
         }
 
-        .brand {
+
+        .ads-admin-brand {
+
             display: flex;
+
             align-items: center;
-            gap: 12px;
+
+            gap: 11px;
         }
 
-        .brand img {
-            width: 48px;
-            height: 48px;
+
+        .ads-admin-logo {
+
+            width: 45px;
+
+            height: 45px;
+
             object-fit: contain;
-            border-radius: 12px;
-            background: white;
-        }
 
-        .brand h1 {
-            margin: 0;
-            font-size: 21px;
-        }
-
-        .brand p {
-            margin: 3px 0 0;
-            font-size: 13px;
-            opacity: .9;
-        }
-
-        .back-btn {
-            color: white;
-            text-decoration: none;
-            border: 1px solid rgba(255,255,255,.65);
-            padding: 9px 15px;
-            border-radius: 8px;
-        }
-
-        .container {
-            max-width: 1250px;
-            margin: 30px auto;
-            padding: 0 18px;
-        }
-
-        .page-title {
-            margin-bottom: 25px;
-        }
-
-        .page-title h2 {
-            margin-bottom: 6px;
-        }
-
-        .page-title p {
-            color: #64748b;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(170px, 1fr)
-            );
-            gap: 16px;
-            margin-bottom: 25px;
-        }
-
-        .stat {
-            background: white;
-            padding: 20px;
             border-radius: 14px;
-            box-shadow: 0 5px 20px rgba(15,23,42,.08);
-            border-left: 4px solid #00a9e8;
+
+            box-shadow:
+                0 8px 25px
+                rgba(56, 189, 248, .18);
         }
 
-        .stat.pending {
-            border-left-color: #f59e0b;
-        }
 
-        .stat.approved {
-            border-left-color: #10b981;
-        }
+        .ads-admin-brand-text {
 
-        .stat.rejected {
-            border-left-color: #ef4444;
-        }
-
-        .stat-title {
-            color: #64748b;
-            font-size: 13px;
-            margin-bottom: 7px;
-        }
-
-        .stat-number {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .requests {
             display: flex;
+
             flex-direction: column;
-            gap: 18px;
+
+            line-height: 1.15;
         }
 
-        .request-card {
-            background: white;
-            border-radius: 16px;
-            padding: 22px;
-            box-shadow: 0 5px 20px rgba(15,23,42,.08);
+
+        .ads-admin-brand-name {
+
+            font-size: 17px;
+
+            font-weight: 900;
         }
 
-        .request-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
 
-        .request-header h3 {
-            margin: 0 0 5px;
-        }
+        .ads-admin-brand-sub {
 
-        .request-id {
-            color: #64748b;
-            font-size: 12px;
-        }
+            margin-top: 3px;
 
-        .status {
-            display: inline-block;
-            padding: 6px 11px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: capitalize;
-        }
-
-        .status-pending {
-            background: #fff7ed;
-            color: #c2410c;
-        }
-
-        .status-approved {
-            background: #ecfdf5;
-            color: #047857;
-        }
-
-        .status-rejected {
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-
-        .details {
-            display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(220px, 1fr)
-            );
-            gap: 12px;
-            margin-bottom: 17px;
-        }
-
-        .detail {
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 9px;
-        }
-
-        .detail-label {
-            display: block;
-            color: #64748b;
             font-size: 11px;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            font-weight: bold;
+
+            opacity: .55;
         }
 
-        .detail-value {
-            font-size: 14px;
-            word-break: break-word;
-        }
 
-        .message-box {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 18px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
+        .ads-admin-header-actions {
 
-        .message-title {
-            font-size: 12px;
-            color: #64748b;
-            font-weight: bold;
-            margin-bottom: 7px;
-            text-transform: uppercase;
-        }
-
-        .actions {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+
+            align-items: center;
+
+            gap: 8px;
         }
 
-        .action-btn {
-            border: 0;
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
+
+        .ads-admin-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 7px;
+
+            padding:
+                9px
+                13px;
+
+            border-radius: 999px;
+
+            border:
+                1px solid
+                rgba(148, 163, 184, .17);
+
+            background:
+                rgba(148, 163, 184, .08);
+
+            color: inherit;
+
+            text-decoration: none;
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            transition:
+                transform .2s ease,
+                background .2s ease;
         }
 
-        .approve {
-            background: #10b981;
-            color: white;
+
+        .ads-admin-btn:hover {
+
+            transform:
+                translateY(-1px);
+
+            background:
+                rgba(56, 189, 248, .11);
         }
 
-        .approve:hover {
-            background: #059669;
+
+        /* =========================================================
+           HERO
+           ========================================================= */
+
+        .ads-admin-hero {
+
+            position: relative;
+
+            overflow: hidden;
+
+            padding:
+                28px;
+
+            border-radius: 25px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, .16),
+                    rgba(37, 99, 235, .08),
+                    rgba(168, 85, 247, .07)
+                );
+
+            border:
+                1px solid
+                rgba(56, 189, 248, .18);
+
+            margin-bottom: 18px;
         }
 
-        .reject {
-            background: #ef4444;
-            color: white;
+
+        .ads-admin-hero::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 200px;
+
+            height: 200px;
+
+            border-radius: 50%;
+
+            right: -90px;
+
+            top: -100px;
+
+            background:
+                rgba(56, 189, 248, .09);
+
+            filter: blur(4px);
         }
 
-        .reject:hover {
-            background: #dc2626;
+
+        .ads-admin-hero-content {
+
+            position: relative;
+
+            z-index: 2;
         }
 
-        .empty {
-            background: white;
-            border-radius: 15px;
-            padding: 50px 25px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(15,23,42,.08);
-        }
 
-        .empty-icon {
-            font-size: 50px;
+        .ads-admin-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding:
+                6px
+                10px;
+
+            border-radius: 999px;
+
+            color:
+                #38bdf8;
+
+            background:
+                rgba(56, 189, 248, .11);
+
+            border:
+                1px solid
+                rgba(56, 189, 248, .17);
+
+            font-size: 11px;
+
+            font-weight: 900;
+
             margin-bottom: 10px;
         }
 
-        .empty h3 {
-            margin-bottom: 8px;
+
+        .ads-admin-hero h1 {
+
+            margin: 0;
+
+            font-size:
+                clamp(24px, 4vw, 36px);
+
+            letter-spacing:
+                -.5px;
         }
 
-        .empty p {
-            color: #64748b;
+
+        .ads-admin-hero p {
+
+            max-width: 700px;
+
+            margin:
+                9px
+                0
+                0;
+
+            line-height: 1.6;
+
+            font-size: 13px;
+
+            opacity: .63;
         }
 
-        @media (max-width: 650px) {
-            .header-inner {
-                align-items: flex-start;
-                flex-direction: column;
-            }
 
-            .request-header {
-                flex-direction: column;
-            }
+        /* =========================================================
+           STAT CARDS
+           ========================================================= */
 
-            .details {
-                grid-template-columns: 1fr;
+        .ads-stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 11px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .ads-stat {
+
+            padding:
+                17px;
+
+            border-radius:
+                18px;
+
+            background:
+                rgba(255, 255, 255, .035);
+
+            border:
+                1px solid
+                rgba(148, 163, 184, .13);
+        }
+
+
+        .ads-stat-top {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 8px;
+        }
+
+
+        .ads-stat-icon {
+
+            width: 35px;
+
+            height: 35px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 11px;
+
+            background:
+                rgba(56, 189, 248, .10);
+        }
+
+
+        .ads-stat-label {
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: .5px;
+
+            opacity: .52;
+        }
+
+
+        .ads-stat-value {
+
+            margin-top: 12px;
+
+            font-size: 25px;
+
+            font-weight: 900;
+        }
+
+
+        /* =========================================================
+           REQUEST LIST
+           ========================================================= */
+
+        .ads-section-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+            margin:
+                20px
+                0
+                12px;
+        }
+
+
+        .ads-section-header h2 {
+
+            margin: 0;
+
+            font-size: 19px;
+        }
+
+
+        .ads-section-header span {
+
+            font-size: 11px;
+
+            opacity: .48;
+        }
+
+
+        .ads-list {
+
+            display: grid;
+
+            gap: 13px;
+        }
+
+
+        .ads-card {
+
+            overflow: hidden;
+
+            border-radius:
+                22px;
+
+            background:
+                rgba(255, 255, 255, .035);
+
+            border:
+                1px solid
+                rgba(148, 163, 184, .14);
+
+            box-shadow:
+                0 12px 35px
+                rgba(0, 0, 0, .045);
+        }
+
+
+        .ads-card-main {
+
+            padding:
+                20px;
+        }
+
+
+        .ads-card-top {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            justify-content: space-between;
+
+            gap: 14px;
+        }
+
+
+        .ads-user {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            min-width: 0;
+        }
+
+
+        .ads-avatar {
+
+            width: 44px;
+
+            height: 44px;
+
+            flex: 0 0 auto;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #2563eb
+                );
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: 900;
+        }
+
+
+        .ads-user-info {
+
+            min-width: 0;
+        }
+
+
+        .ads-user-name {
+
+            font-size: 14px;
+
+            font-weight: 900;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+
+        .ads-business {
+
+            margin-top: 3px;
+
+            font-size: 11px;
+
+            opacity: .56;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+
+        .ads-status {
+
+            flex: 0 0 auto;
+
+            padding:
+                6px
+                9px;
+
+            border-radius:
+                999px;
+
+            font-size: 10px;
+
+            font-weight: 900;
+
+            text-transform: uppercase;
+
+            letter-spacing: .4px;
+        }
+
+
+        .ads-status-pending {
+
+            color: #f59e0b;
+
+            background:
+                rgba(245, 158, 11, .10);
+
+            border:
+                1px solid
+                rgba(245, 158, 11, .18);
+        }
+
+
+        .ads-status-approved {
+
+            color: #10b981;
+
+            background:
+                rgba(16, 185, 129, .10);
+
+            border:
+                1px solid
+                rgba(16, 185, 129, .18);
+        }
+
+
+        .ads-status-rejected {
+
+            color: #ef4444;
+
+            background:
+                rgba(239, 68, 68, .10);
+
+            border:
+                1px solid
+                rgba(239, 68, 68, .18);
+        }
+
+
+        .ads-category {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            margin-top: 18px;
+
+            padding:
+                6px
+                10px;
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(56, 189, 248, .08);
+
+            color:
+                #38bdf8;
+
+            font-size: 10px;
+
+            font-weight: 900;
+        }
+
+
+        .ads-card h3 {
+
+            margin:
+                11px
+                0
+                7px;
+
+            font-size: 17px;
+        }
+
+
+        .ads-message {
+
+            margin: 0;
+
+            line-height: 1.65;
+
+            font-size: 13px;
+
+            opacity: .68;
+
+            white-space: pre-wrap;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        .ads-meta {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px 15px;
+
+            margin-top: 15px;
+
+            padding-top: 13px;
+
+            border-top:
+                1px solid
+                rgba(148, 163, 184, .09);
+
+            font-size: 10px;
+
+            opacity: .48;
+        }
+
+
+        /* =========================================================
+           ACTION BAR
+           ========================================================= */
+
+        .ads-actions {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding:
+                13px
+                20px;
+
+            border-top:
+                1px solid
+                rgba(148, 163, 184, .09);
+
+            background:
+                rgba(148, 163, 184, .025);
+        }
+
+
+        .ads-action {
+
+            flex: 1;
+
+            border: 0;
+
+            padding:
+                10px
+                13px;
+
+            border-radius:
+                12px;
+
+            font-size: 12px;
+
+            font-weight: 900;
+
+            cursor: pointer;
+
+            transition:
+                transform .18s ease,
+                opacity .18s ease;
+        }
+
+
+        .ads-action:hover {
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        .ads-action-approve {
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #10b981,
+                    #059669
+                );
+        }
+
+
+        .ads-action-reject {
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef4444,
+                    #dc2626
+                );
+        }
+
+
+        .ads-reviewed {
+
+            width: 100%;
+
+            text-align: center;
+
+            padding:
+                9px;
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(148, 163, 184, .06);
+
+            font-size: 11px;
+
+            opacity: .55;
+        }
+
+
+        /* =========================================================
+           EMPTY STATE
+           ========================================================= */
+
+        .ads-empty {
+
+            padding:
+                55px
+                20px;
+
+            text-align: center;
+
+            border-radius:
+                22px;
+
+            background:
+                rgba(255, 255, 255, .025);
+
+            border:
+                1px dashed
+                rgba(148, 163, 184, .18);
+        }
+
+
+        .ads-empty-icon {
+
+            font-size: 40px;
+
+            margin-bottom: 10px;
+        }
+
+
+        .ads-empty h3 {
+
+            margin:
+                0
+                0
+                6px;
+
+            font-size: 17px;
+        }
+
+
+        .ads-empty p {
+
+            margin: 0;
+
+            font-size: 12px;
+
+            opacity: .55;
+        }
+
+
+        /* =========================================================
+           LIGHT MODE
+           ========================================================= */
+
+        body.light-mode .ads-stat,
+        body.light-mode .ads-card,
+        body.light-mode .ads-empty {
+
+            background:
+                rgba(255, 255, 255, .75);
+
+            border-color:
+                rgba(15, 23, 42, .09);
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 800px) {
+
+            .ads-stats {
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
             }
         }
+
+
+        @media (max-width: 560px) {
+
+            .ads-admin-page {
+
+                padding:
+                    10px
+                    10px
+                    45px;
+            }
+
+
+            .ads-admin-brand-sub {
+
+                display: none;
+            }
+
+
+            .ads-admin-logo {
+
+                width: 39px;
+
+                height: 39px;
+            }
+
+
+            .ads-admin-brand-name {
+
+                font-size: 15px;
+            }
+
+
+            .ads-admin-btn {
+
+                padding:
+                    8px
+                    10px;
+
+                font-size: 10px;
+            }
+
+
+            .ads-admin-hero {
+
+                padding:
+                    22px
+                    18px;
+
+                border-radius:
+                    20px;
+            }
+
+
+            .ads-admin-hero h1 {
+
+                font-size: 25px;
+            }
+
+
+            .ads-stats {
+
+                gap: 8px;
+            }
+
+
+            .ads-stat {
+
+                padding:
+                    14px;
+            }
+
+
+            .ads-stat-value {
+
+                font-size: 21px;
+            }
+
+
+            .ads-card-main {
+
+                padding:
+                    17px;
+            }
+
+
+            .ads-card-top {
+
+                align-items:
+                    flex-start;
+            }
+
+
+            .ads-status {
+
+                font-size: 8px;
+
+                padding:
+                    5px
+                    7px;
+            }
+
+
+            .ads-actions {
+
+                padding:
+                    11px
+                    13px;
+            }
+
+
+            .ads-action {
+
+                font-size: 11px;
+
+                padding:
+                    9px
+                    8px;
+            }
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-<header class="admin-header">
 
-    <div class="header-inner">
+<div class="ads-admin-page">
 
-        <div class="brand">
+    <div class="ads-admin-container">
 
-            <img
-                src="{{ url_for('static', filename='images/unicamplink-logo.png') }}"
-                alt="UniCamplink Logo"
-            >
 
-            <div>
-                <h1>Advertisement Management</h1>
-                <p>UniCamplink Admin Panel</p>
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <header class="ads-admin-header">
+
+            <div class="ads-admin-brand">
+
+                <img
+                    class="ads-admin-logo"
+                    src="{{ url_for(
+                        'static',
+                        filename='images/unicamplink-logo.png'
+                    ) }}"
+                    alt="UniCamplink"
+                >
+
+                <div class="ads-admin-brand-text">
+
+                    <span class="ads-admin-brand-name">
+                        UniCamplink
+                    </span>
+
+                    <span class="ads-admin-brand-sub">
+                        Advertisement Center
+                    </span>
+
+                </div>
+
             </div>
+
+
+            <div class="ads-admin-header-actions">
+
+                <a
+                    href="{{ url_for('admin_dashboard') }}"
+                    class="ads-admin-btn"
+                >
+                    ← Admin
+                </a>
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="ads-admin-btn"
+                >
+                    🏠
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             HERO
+        ====================================================== -->
+
+        <section class="ads-admin-hero">
+
+            <div class="ads-admin-hero-content">
+
+                <div class="ads-admin-badge">
+                    🛡️ Admin Control Center
+                </div>
+
+                <h1>
+                    Advertisement Requests
+                </h1>
+
+                <p>
+                    Review businesses, products, events, services
+                    and opportunities submitted through
+                    UniCamplink.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             STATS
+        ====================================================== -->
+
+        {% set total_ads = advertisements|length %}
+        {% set pending_ads = advertisements
+            |selectattr("status", "equalto", "pending")
+            |list|length
+        %}
+
+        {% set approved_ads = advertisements
+            |selectattr("status", "equalto", "approved")
+            |list|length
+        %}
+
+        {% set rejected_ads = advertisements
+            |selectattr("status", "equalto", "rejected")
+            |list|length
+        %}
+
+
+        <section class="ads-stats">
+
+            <div class="ads-stat">
+
+                <div class="ads-stat-top">
+
+                    <span class="ads-stat-label">
+                        Total
+                    </span>
+
+                    <div class="ads-stat-icon">
+                        📣
+                    </div>
+
+                </div>
+
+                <div class="ads-stat-value">
+                    {{ total_ads }}
+                </div>
+
+            </div>
+
+
+            <div class="ads-stat">
+
+                <div class="ads-stat-top">
+
+                    <span class="ads-stat-label">
+                        Pending
+                    </span>
+
+                    <div class="ads-stat-icon">
+                        ⏳
+                    </div>
+
+                </div>
+
+                <div class="ads-stat-value">
+                    {{ pending_ads }}
+                </div>
+
+            </div>
+
+
+            <div class="ads-stat">
+
+                <div class="ads-stat-top">
+
+                    <span class="ads-stat-label">
+                        Approved
+                    </span>
+
+                    <div class="ads-stat-icon">
+                        ✅
+                    </div>
+
+                </div>
+
+                <div class="ads-stat-value">
+                    {{ approved_ads }}
+                </div>
+
+            </div>
+
+
+            <div class="ads-stat">
+
+                <div class="ads-stat-top">
+
+                    <span class="ads-stat-label">
+                        Rejected
+                    </span>
+
+                    <div class="ads-stat-icon">
+                        ❌
+                    </div>
+
+                </div>
+
+                <div class="ads-stat-value">
+                    {{ rejected_ads }}
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             REQUESTS
+        ====================================================== -->
+
+        <div class="ads-section-header">
+
+            <h2>
+                Recent Requests
+            </h2>
+
+            <span>
+                {{ total_ads }} request{% if total_ads != 1 %}s{% endif %}
+            </span>
 
         </div>
 
-        <a
-            href="{{ url_for('admin_dashboard') }}"
-            class="back-btn"
-        >
-            ← Admin Dashboard
-        </a>
 
-    </div>
+        {% if advertisements %}
 
-</header>
+        <section class="ads-list">
 
 
-<main class="container">
+            {% for ad in advertisements %}
 
-    <section class="page-title">
-
-        <h2>📢 Advertisement Requests</h2>
-
-        <p>
-            Review, approve or reject advertising requests
-            submitted through UniCamplink.
-        </p>
-
-    </section>
+            <article class="ads-card">
 
 
-    {% set total = advertisements|length %}
-    {% set pending = advertisements
-        |selectattr("status", "equalto", "pending")
-        |list|length
-    %}
-
-    {% set approved = advertisements
-        |selectattr("status", "equalto", "approved")
-        |list|length
-    %}
-
-    {% set rejected = advertisements
-        |selectattr("status", "equalto", "rejected")
-        |list|length
-    %}
+                <div class="ads-card-main">
 
 
-    <section class="stats">
+                    <!-- =========================================
+                         USER
+                    ========================================== -->
 
-        <div class="stat">
-            <div class="stat-title">
-                Total Requests
-            </div>
+                    <div class="ads-card-top">
 
-            <div class="stat-number">
-                {{ total }}
-            </div>
-        </div>
+                        <div class="ads-user">
 
+                            <div class="ads-avatar">
 
-        <div class="stat pending">
-            <div class="stat-title">
-                Pending
-            </div>
+                                {{ (
+                                    ad["name"] or "U"
+                                )[0]|upper }}
 
-            <div class="stat-number">
-                {{ pending }}
-            </div>
-        </div>
+                            </div>
 
 
-        <div class="stat approved">
-            <div class="stat-title">
-                Approved
-            </div>
+                            <div class="ads-user-info">
 
-            <div class="stat-number">
-                {{ approved }}
-            </div>
-        </div>
+                                <div class="ads-user-name">
+                                    {{ ad["name"] or "Unknown User" }}
+                                </div>
 
+                                <div class="ads-business">
+                                    {{ ad["business_name"] or
+                                       "No business name provided" }}
+                                </div>
 
-        <div class="stat rejected">
-            <div class="stat-title">
-                Rejected
-            </div>
+                            </div>
 
-            <div class="stat-number">
-                {{ rejected }}
-            </div>
-        </div>
-
-    </section>
+                        </div>
 
 
-    {% if advertisements %}
+                        <div class="
+                            ads-status
+                            {% if ad['status'] == 'pending' %}
+                                ads-status-pending
+                            {% elif ad['status'] == 'approved' %}
+                                ads-status-approved
+                            {% else %}
+                                ads-status-rejected
+                            {% endif %}
+                        ">
 
-    <section class="requests">
+                            {% if ad["status"] == "pending" %}
+                                ⏳ Pending
+                            {% elif ad["status"] == "approved" %}
+                                ✓ Approved
+                            {% elif ad["status"] == "rejected" %}
+                                ✕ Rejected
+                            {% else %}
+                                {{ ad["status"]|capitalize }}
+                            {% endif %}
 
-        {% for ad in advertisements %}
+                        </div>
 
-        <article class="request-card">
+                    </div>
 
-            <div class="request-header">
 
-                <div>
+                    <!-- =========================================
+                         CATEGORY
+                    ========================================== -->
+
+                    <div class="ads-category">
+
+                        📌
+
+                        {{ ad["advertising_type"]
+                           or "General Promotion" }}
+
+                    </div>
+
+
+                    <!-- =========================================
+                         CONTENT
+                    ========================================== -->
 
                     <h3>
-                        {{ ad["business_name"] }}
+                        {{ ad["business_name"]
+                           or "Advertisement Request" }}
                     </h3>
 
-                    <div class="request-id">
-                        Advertisement Request #{{ ad["id"] }}
+
+                    <p class="ads-message">
+                        {{ ad["message"] }}
+                    </p>
+
+
+                    <!-- =========================================
+                         META
+                    ========================================== -->
+
+                    <div class="ads-meta">
+
+                        <span>
+                            ✉️ {{ ad["email"] }}
+                        </span>
+
+                        <span>
+                            🆔 Request #{{ ad["id"] }}
+                        </span>
+
+                        <span>
+                            🕒 {{ ad["created_at"] }}
+                        </span>
+
                     </div>
 
                 </div>
 
 
-                {% if ad["status"] == "approved" %}
+                <!-- =================================================
+                     ACTIONS
+                ================================================== -->
 
-                    <span class="status status-approved">
-                        Approved
-                    </span>
+                {% if ad["status"] == "pending" %}
 
-                {% elif ad["status"] == "rejected" %}
+                <div class="ads-actions">
 
-                    <span class="status status-rejected">
-                        Rejected
-                    </span>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'admin_approve_advertisement',
+                            advertisement_id=ad['id']
+                        ) }}"
+                        style="flex:1;"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="
+                                ads-action
+                                ads-action-approve
+                            "
+                            onclick="
+                                return confirm(
+                                    'Approve this advertising request?'
+                                );
+                            "
+                        >
+                            ✓ Approve
+                        </button>
+
+                    </form>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'admin_reject_advertisement',
+                            advertisement_id=ad['id']
+                        ) }}"
+                        style="flex:1;"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="
+                                ads-action
+                                ads-action-reject
+                            "
+                            onclick="
+                                return confirm(
+                                    'Reject this advertising request?'
+                                );
+                            "
+                        >
+                            ✕ Reject
+                        </button>
+
+                    </form>
+
+                </div>
 
                 {% else %}
 
-                    <span class="status status-pending">
-                        Pending
-                    </span>
+                <div class="ads-actions">
+
+                    <div class="ads-reviewed">
+
+                        {% if ad["status"] == "approved" %}
+
+                            ✅ This request has been approved.
+
+                        {% else %}
+
+                            ❌ This request has been rejected.
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
 
                 {% endif %}
 
+
+            </article>
+
+            {% endfor %}
+
+
+        </section>
+
+        {% else %}
+
+
+        <!-- =====================================================
+             EMPTY
+        ====================================================== -->
+
+        <section class="ads-empty">
+
+            <div class="ads-empty-icon">
+                📭
             </div>
 
+            <h3>
+                No advertising requests yet
+            </h3>
 
-            <div class="details">
+            <p>
+                New advertising requests will appear here
+                when users submit them.
+            </p>
 
-                <div class="detail">
+        </section>
 
-                    <span class="detail-label">
-                        Advertiser
-                    </span>
-
-                    <span class="detail-value">
-                        {{ ad["advertiser_name"] }}
-                    </span>
-
-                </div>
+        {% endif %}
 
 
-                <div class="detail">
-
-                    <span class="detail-label">
-                        Email
-                    </span>
-
-                    <span class="detail-value">
-                        {{ ad["email"] }}
-                    </span>
-
-                </div>
-
-
-                <div class="detail">
-
-                    <span class="detail-label">
-                        Category
-                    </span>
-
-                    <span class="detail-value">
-                        {{ ad["category"] }}
-                    </span>
-
-                </div>
-
-
-                <div class="detail">
-
-                    <span class="detail-label">
-                        Subject
-                    </span>
-
-                    <span class="detail-value">
-                        {{ ad["subject"] }}
-                    </span>
-
-                </div>
-
-
-                <div class="detail">
-
-                    <span class="detail-label">
-                        Submitted
-                    </span>
-
-                    <span class="detail-value">
-                        {{ ad["created_at"] }}
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="message-box">
-
-                <div class="message-title">
-                    Advertising Details
-                </div>
-
-                {{ ad["message"] }}
-
-            </div>
-
-
-           {% if ad["status"] == "pending" %}
-
-<div class="actions">
-
-    <!-- APPROVE -->
-    <form
-        method="POST"
-        action="{{ url_for(
-            'admin_approve_advertisement',
-            advertisement_id=ad['id']
-        ) }}"
-    >
-
-        <input
-    type="hidden"
-    name="csrf_token"
-    value="{{ csrf_token() }}"
->
-        >
-
-        <button
-            type="submit"
-            class="action-btn approve"
-            onclick="return confirm(
-                'Approve this advertisement request?'
-            );"
-        >
-            ✓ Approve
-        </button>
-
-    </form>
-
-
-    <!-- REJECT -->
-    <form
-        method="POST"
-        action="{{ url_for(
-            'admin_reject_advertisement',
-            advertisement_id=ad['id']
-        ) }}"
-    >
-
-        <input
-    type="hidden"
-    name="csrf_token"
-    value="{{ csrf_token() }}"
->
-        >
-
-        <button
-            type="submit"
-            class="action-btn reject"
-            onclick="return confirm(
-                'Reject this advertisement request?'
-            );"
-        >
-            ✕ Reject
-        </button>
-
-    </form>
+    </div>
 
 </div>
 
-{% endif %}
-
-        </article>
-
-        {% endfor %}
-
-    </section>
-
-    {% else %}
-
-    <section class="empty">
-
-        <div class="empty-icon">
-            📢
-        </div>
-
-        <h3>
-            No Advertisement Requests Yet
-        </h3>
-
-        <p>
-            When someone submits an advertising request,
-            it will appear here for review.
-        </p>
-
-    </section>
-
-    {% endif %}
-
-</main>
 
 </body>
 </html>

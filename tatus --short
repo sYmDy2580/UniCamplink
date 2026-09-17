@@ -1,0 +1,921 @@
+[1mdiff --git a/app.py b/app.py[m
+[1mindex 0eaf0e0..715f3c9 100644[m
+[1m--- a/app.py[m
+[1m+++ b/app.py[m
+[36m@@ -4970,6 +4970,7 @@[m [mdef api_chat_messages(user_id):[m
+ [m
+ @app.route("/admin")[m
+ def admin_dashboard():[m
+[32m+[m
+     if "user_id" not in session:[m
+         return redirect(url_for("login"))[m
+ [m
+[36m@@ -4979,16 +4980,33 @@[m [mdef admin_dashboard():[m
+     conn = get_db_connection()[m
+ [m
+     current_user = conn.execute([m
+[31m-        "SELECT id, name, email FROM users WHERE id = ?",[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT[m
+[32m+[m[32m            id,[m
+[32m+[m[32m            name,[m
+[32m+[m[32m            email[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+         (session["user_id"],)[m
+     ).fetchone()[m
+ [m
+[31m-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:[m
+[32m+[m[32m    if ([m
+[32m+[m[32m        not current_user[m
+[32m+[m[32m        or current_user["email"].lower() != ADMIN_EMAIL[m
+[32m+[m[32m    ):[m
+         conn.close()[m
+         return "Access denied.", 403[m
+ [m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m[32m    # PLATFORM STATISTICS[m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m
+     total_users = conn.execute([m
+[31m-        "SELECT COUNT(*) FROM users"[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        """[m
+     ).fetchone()[0][m
+ [m
+     active_members = conn.execute([m
+[36m@@ -5001,27 +5019,49 @@[m [mdef admin_dashboard():[m
+     ).fetchone()[0][m
+ [m
+     total_posts = conn.execute([m
+[31m-        "SELECT COUNT(*) FROM posts"[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM posts[m
+[32m+[m[32m        """[m
+     ).fetchone()[0][m
+ [m
+     total_groups = conn.execute([m
+[31m-        "SELECT COUNT(*) FROM groups"[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM groups[m
+[32m+[m[32m        """[m
+     ).fetchone()[0][m
+ [m
+     total_products = conn.execute([m
+[31m-        "SELECT COUNT(*) FROM products"[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM products[m
+[32m+[m[32m        """[m
+     ).fetchone()[0][m
+ [m
+     total_messages = conn.execute([m
+[31m-        "SELECT COUNT(*) FROM messages"[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM messages[m
+[32m+[m[32m        """[m
+     ).fetchone()[0][m
+ [m
+     total_friend_requests = conn.execute([m
+[31m-        "SELECT COUNT(*) FROM friend_requests"[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM friend_requests[m
+[32m+[m[32m        """[m
+     ).fetchone()[0][m
+ [m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m[32m    # ADVERTISEMENT STATISTICS[m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m
+     total_advertisements = conn.execute([m
+[31m-        "SELECT COUNT(*) FROM advertisement_requests"[m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM advertisement_requests[m
+[32m+[m[32m        """[m
+     ).fetchone()[0][m
+ [m
+     pending_advertisements = conn.execute([m
+[36m@@ -5032,6 +5072,10 @@[m [mdef admin_dashboard():[m
+         """[m
+     ).fetchone()[0][m
+ [m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m[32m    # CAMPUS AMBASSADORS[m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m
+     total_ambassadors = conn.execute([m
+         """[m
+         SELECT COUNT(*)[m
+[36m@@ -5040,14 +5084,39 @@[m [mdef admin_dashboard():[m
+         """[m
+     ).fetchone()[0][m
+ [m
+[31m-    recent_users = conn.execute([m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m[32m    # VERIFIED STUDENTS[m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m
+[32m+[m[32m    total_verified_students = conn.execute([m
+         """[m
+[31m-        SELECT id, name, email, university, joined_at, last_seen[m
+[32m+[m[32m        SELECT COUNT(*)[m
+         FROM users[m
+[31m-        ORDER BY COALESCE([m
+[32m+[m[32m        WHERE is_verified_student = 1[m
+[32m+[m[32m        """[m
+[32m+[m[32m    ).fetchone()[0][m
+[32m+[m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m[32m    # RECENT MEMBERS[m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m
+[32m+[m[32m    recent_users = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT[m
+[32m+[m[32m            id,[m
+[32m+[m[32m            name,[m
+[32m+[m[32m            email,[m
+[32m+[m[32m            university,[m
+[32m+[m[32m            profile_picture,[m
+             joined_at,[m
+[31m-            '9999-12-31 23:59:59'[m
+[31m-        ) DESC, id DESC[m
+[32m+[m[32m            last_seen[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        ORDER BY[m
+[32m+[m[32m            COALESCE([m
+[32m+[m[32m                joined_at,[m
+[32m+[m[32m                '9999-12-31 23:59:59'[m
+[32m+[m[32m            ) DESC,[m
+[32m+[m[32m            id DESC[m
+         LIMIT 10[m
+         """[m
+     ).fetchall()[m
+[36m@@ -5056,7 +5125,9 @@[m [mdef admin_dashboard():[m
+ [m
+     return render_template([m
+         "admin_dashboard.html",[m
+[32m+[m
+         current_user=current_user,[m
+[32m+[m
+         total_users=total_users,[m
+         active_members=active_members,[m
+         total_posts=total_posts,[m
+[36m@@ -5064,160 +5135,16 @@[m [mdef admin_dashboard():[m
+         total_products=total_products,[m
+         total_messages=total_messages,[m
+         total_friend_requests=total_friend_requests,[m
+[32m+[m
+         total_advertisements=total_advertisements,[m
+         pending_advertisements=pending_advertisements,[m
+[31m-        total_ambassadors=total_ambassadors,[m
+[31m-        recent_users=recent_users[m
+[31m-    )[m
+[31m-[m
+[31m-# ============================================================[m
+[31m-# ADMIN — ADVERTISEMENT REQUESTS[m
+[31m-# ============================================================[m
+[31m-[m
+[31m-@app.route("/admin/advertisements")[m
+[31m-def admin_advertisements():[m
+[31m-    if "user_id" not in session:[m
+[31m-        return redirect(url_for("login"))[m
+[31m-[m
+[31m-    if not ADMIN_EMAIL:[m
+[31m-        return "Admin access is not configured yet.", 500[m
+[31m-[m
+[31m-    conn = get_db_connection()[m
+[31m-[m
+[31m-    current_user = conn.execute([m
+[31m-        "SELECT id, name, email FROM users WHERE id = ?",[m
+[31m-        (session["user_id"],)[m
+[31m-    ).fetchone()[m
+[31m-[m
+[31m-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:[m
+[31m-        conn.close()[m
+[31m-        return "Access denied.", 403[m
+[31m-[m
+[31m-    advertisements = conn.execute([m
+[31m-    """[m
+[31m-    SELECT[m
+[31m-        id,[m
+[31m-        user_id,[m
+[31m-        advertiser_name,[m
+[31m-        business_name,[m
+[31m-        email,[m
+[31m-        category,[m
+[31m-        subject,[m
+[31m-        message,[m
+[31m-        status,[m
+[31m-        created_at[m
+[31m-    FROM advertisement_requests[m
+[31m-    ORDER BY created_at DESC, id DESC[m
+[31m-    """[m
+[31m-).fetchall()[m
+[31m-[m
+[31m-    conn.close()[m
+[31m-[m
+[31m-    return render_template([m
+[31m-        "admin_advertisements.html",[m
+[31m-        current_user=current_user,[m
+[31m-        advertisements=advertisements[m
+[31m-    )[m
+[31m-# ============================================================[m
+[31m-# ADMIN — APPROVE ADVERTISEMENT[m
+[31m-# ============================================================[m
+[31m-[m
+[31m-@app.route("/admin/advertisements/<int:advertisement_id>/approve", methods=["POST"])[m
+[31m-def admin_approve_advertisement(advertisement_id):[m
+[31m-    if "user_id" not in session:[m
+[31m-        return redirect(url_for("login"))[m
+[31m-[m
+[31m-    if not ADMIN_EMAIL:[m
+[31m-        return "Admin access is not configured yet.", 500[m
+[31m-[m
+[31m-    conn = get_db_connection()[m
+[31m-[m
+[31m-    current_user = conn.execute([m
+[31m-        "SELECT id, name, email FROM users WHERE id = ?",[m
+[31m-        (session["user_id"],)[m
+[31m-    ).fetchone()[m
+[31m-[m
+[31m-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:[m
+[31m-        conn.close()[m
+[31m-        return "Access denied.", 403[m
+[31m-[m
+[31m-    advertisement = conn.execute([m
+[31m-        """[m
+[31m-        SELECT id[m
+[31m-        FROM advertisement_requests[m
+[31m-        WHERE id = ?[m
+[31m-        """,[m
+[31m-        (advertisement_id,)[m
+[31m-    ).fetchone()[m
+[31m-[m
+[31m-    if not advertisement:[m
+[31m-        conn.close()[m
+[31m-        return "Advertisement request not found.", 404[m
+[31m-[m
+[31m-    conn.execute([m
+[31m-        """[m
+[31m-        UPDATE advertisement_requests[m
+[31m-        SET status = 'approved'[m
+[31m-        WHERE id = ?[m
+[31m-        """,[m
+[31m-        (advertisement_id,)[m
+[31m-    )[m
+[31m-[m
+[31m-    conn.commit()[m
+[31m-    conn.close()[m
+[31m-[m
+[31m-    return redirect(url_for("admin_advertisements"))[m
+[31m-[m
+[31m-[m
+[31m-# ============================================================[m
+[31m-# ADMIN — REJECT ADVERTISEMENT[m
+[31m-# ============================================================[m
+[31m-[m
+[31m-@app.route("/admin/advertisements/<int:advertisement_id>/reject", methods=["POST"])[m
+[31m-def admin_reject_advertisement(advertisement_id):[m
+[31m-    if "user_id" not in session:[m
+[31m-        return redirect(url_for("login"))[m
+[31m-[m
+[31m-    if not ADMIN_EMAIL:[m
+[31m-        return "Admin access is not configured yet.", 500[m
+[31m-[m
+[31m-    conn = get_db_connection()[m
+[31m-[m
+[31m-    current_user = conn.execute([m
+[31m-        "SELECT id, name, email FROM users WHERE id = ?",[m
+[31m-        (session["user_id"],)[m
+[31m-    ).fetchone()[m
+ [m
+[31m-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:[m
+[31m-        conn.close()[m
+[31m-        return "Access denied.", 403[m
+[31m-[m
+[31m-    advertisement = conn.execute([m
+[31m-        """[m
+[31m-        SELECT id[m
+[31m-        FROM advertisement_requests[m
+[31m-        WHERE id = ?[m
+[31m-        """,[m
+[31m-        (advertisement_id,)[m
+[31m-    ).fetchone()[m
+[31m-[m
+[31m-    if not advertisement:[m
+[31m-        conn.close()[m
+[31m-        return "Advertisement request not found.", 404[m
+[32m+[m[32m        total_ambassadors=total_ambassadors,[m
+[32m+[m[32m        total_verified_students=total_verified_students,[m
+ [m
+[31m-    conn.execute([m
+[31m-        """[m
+[31m-        UPDATE advertisement_requests[m
+[31m-        SET status = 'rejected'[m
+[31m-        WHERE id = ?[m
+[31m-        """,[m
+[31m-        (advertisement_id,)[m
+[32m+[m[32m        recent_users=recent_users[m
+     )[m
+ [m
+[31m-    conn.commit()[m
+[31m-    conn.close()[m
+[31m-[m
+[31m-    return redirect(url_for("admin_advertisements"))[m
+ # ============================================================[m
+ # ADMIN — MEMBERS[m
+ # ============================================================[m
+[36m@@ -5369,11 +5296,216 @@[m [mdef _require_admin():[m
+         (session["user_id"],)[m
+     ).fetchone()[m
+ [m
+[31m-    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:[m
+[32m+[m[32m    if not current_user or current_user["email"].lower() != ADMIN_EMAIL:[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return None, ("Access denied.", 403)[m
+[32m+[m
+[32m+[m[32m    return current_user, conn[m
+[32m+[m[32m# ============================================================[m
+[32m+[m[32m# ADMIN — VERIFIED STUDENTS[m
+[32m+[m[32m# RAZOR / FACEBOOK-TIKTOK STYLE ADMIN SYSTEM[m
+[32m+[m[32m# ============================================================[m
+[32m+[m
+[32m+[m[32m@app.route("/admin/verified-students")[m
+[32m+[m[32mdef admin_verified_students():[m
+[32m+[m[32m    current_user, result = _require_admin()[m
+[32m+[m
+[32m+[m[32m    if current_user is None:[m
+[32m+[m[32m        return result[m
+[32m+[m
+[32m+[m[32m    conn = result[m
+[32m+[m
+[32m+[m[32m    search = clean_text([m
+[32m+[m[32m        request.args.get("q"),[m
+[32m+[m[32m        MAX_SEARCH_LENGTH[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    if search is None:[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return ([m
+[32m+[m[32m            "Search query is too long. "[m
+[32m+[m[32m            "Maximum length is 100 characters."[m
+[32m+[m[32m        ), 400[m
+[32m+[m
+[32m+[m[32m    search = search or ""[m
+[32m+[m
+[32m+[m[32m    if search:[m
+[32m+[m[32m        pattern = f"%{search}%"[m
+[32m+[m
+[32m+[m[32m        users = conn.execute([m
+[32m+[m[32m            """[m
+[32m+[m[32m            SELECT[m
+[32m+[m[32m                id,[m
+[32m+[m[32m                name,[m
+[32m+[m[32m                email,[m
+[32m+[m[32m                university,[m
+[32m+[m[32m                profile_picture,[m
+[32m+[m[32m                is_verified_student,[m
+[32m+[m[32m                verified_at,[m
+[32m+[m[32m                verified_by[m
+[32m+[m[32m            FROM users[m
+[32m+[m[32m            WHERE[m
+[32m+[m[32m                LOWER(name) LIKE LOWER(?)[m
+[32m+[m[32m                OR LOWER(email) LIKE LOWER(?)[m
+[32m+[m[32m                OR LOWER(COALESCE(university, '')) LIKE LOWER(?)[m
+[32m+[m[32m            ORDER BY[m
+[32m+[m[32m                COALESCE([m
+[32m+[m[32m                    joined_at,[m
+[32m+[m[32m                    '9999-12-31 23:59:59'[m
+[32m+[m[32m                ) DESC,[m
+[32m+[m[32m                id DESC[m
+[32m+[m[32m            LIMIT 100[m
+[32m+[m[32m            """,[m
+[32m+[m[32m            ([m
+[32m+[m[32m                pattern,[m
+[32m+[m[32m                pattern,[m
+[32m+[m[32m                pattern[m
+[32m+[m[32m            )[m
+[32m+[m[32m        ).fetchall()[m
+[32m+[m
+[32m+[m[32m    else:[m
+[32m+[m[32m        users = conn.execute([m
+[32m+[m[32m            """[m
+[32m+[m[32m            SELECT[m
+[32m+[m[32m                id,[m
+[32m+[m[32m                name,[m
+[32m+[m[32m                email,[m
+[32m+[m[32m                university,[m
+[32m+[m[32m                profile_picture,[m
+[32m+[m[32m                is_verified_student,[m
+[32m+[m[32m                verified_at,[m
+[32m+[m[32m                verified_by[m
+[32m+[m[32m            FROM users[m
+[32m+[m[32m            ORDER BY[m
+[32m+[m[32m                COALESCE([m
+[32m+[m[32m                    joined_at,[m
+[32m+[m[32m                    '9999-12-31 23:59:59'[m
+[32m+[m[32m                ) DESC,[m
+[32m+[m[32m                id DESC[m
+[32m+[m[32m            LIMIT 100[m
+[32m+[m[32m            """[m
+[32m+[m[32m        ).fetchall()[m
+[32m+[m
+[32m+[m[32m    total_verified_students = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT COUNT(*)[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        WHERE is_verified_student = 1[m
+[32m+[m[32m        """[m
+[32m+[m[32m    ).fetchone()[0][m
+[32m+[m
+[32m+[m[32m    conn.close()[m
+[32m+[m
+[32m+[m[32m    return render_template([m
+[32m+[m[32m        "admin_verified_students.html",[m
+[32m+[m[32m        current_user=current_user,[m
+[32m+[m[32m        users=users,[m
+[32m+[m[32m        search=search,[m
+[32m+[m[32m        total_verified_students=total_verified_students[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+[32m+[m[32m# ============================================================[m
+[32m+[m[32m# ADMIN — VERIFY STUDENT[m
+[32m+[m[32m# ============================================================[m
+[32m+[m
+[32m+[m[32m@app.route([m
+[32m+[m[32m    "/admin/verified-students/<int:user_id>/verify",[m
+[32m+[m[32m    methods=["POST"][m
+[32m+[m[32m)[m
+[32m+[m[32mdef admin_verify_student(user_id):[m
+[32m+[m
+[32m+[m[32m    current_user, result = _require_admin()[m
+[32m+[m
+[32m+[m[32m    if current_user is None:[m
+[32m+[m[32m        return result[m
+[32m+[m
+[32m+[m[32m    conn = result[m
+[32m+[m
+[32m+[m[32m    user = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT id, name[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (user_id,)[m
+[32m+[m[32m    ).fetchone()[m
+[32m+[m
+[32m+[m[32m    if not user:[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return "Student not found.", 404[m
+[32m+[m
+[32m+[m[32m    conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        UPDATE users[m
+[32m+[m[32m        SET[m
+[32m+[m[32m            is_verified_student = 1,[m
+[32m+[m[32m            verified_at = CURRENT_TIMESTAMP,[m
+[32m+[m[32m            verified_by = ?[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        ([m
+[32m+[m[32m            current_user["id"],[m
+[32m+[m[32m            user_id[m
+[32m+[m[32m        )[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    conn.commit()[m
+[32m+[m[32m    conn.close()[m
+[32m+[m
+[32m+[m[32m    return redirect([m
+[32m+[m[32m        url_for("admin_verified_students")[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+[32m+[m[32m# ============================================================[m
+[32m+[m[32m# ADMIN — UNVERIFY STUDENT[m
+[32m+[m[32m# ============================================================[m
+[32m+[m
+[32m+[m[32m@app.route([m
+[32m+[m[32m    "/admin/verified-students/<int:user_id>/unverify",[m
+[32m+[m[32m    methods=["POST"][m
+[32m+[m[32m)[m
+[32m+[m[32mdef admin_unverify_student(user_id):[m
+[32m+[m
+[32m+[m[32m    current_user, result = _require_admin()[m
+[32m+[m
+[32m+[m[32m    if current_user is None:[m
+[32m+[m[32m        return result[m
+[32m+[m
+[32m+[m[32m    conn = result[m
+[32m+[m
+[32m+[m[32m    user = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT id, name[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (user_id,)[m
+[32m+[m[32m    ).fetchone()[m
+[32m+[m
+[32m+[m[32m    if not user:[m
+         conn.close()[m
+[31m-        return None, ("Access denied.", 403)[m
+[32m+[m[32m        return "Student not found.", 404[m
+ [m
+[31m-    return current_user, conn[m
+[32m+[m[32m    conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        UPDATE users[m
+[32m+[m[32m        SET[m
+[32m+[m[32m            is_verified_student = 0,[m
+[32m+[m[32m            verified_at = NULL,[m
+[32m+[m[32m            verified_by = NULL[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (user_id,)[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    conn.commit()[m
+[32m+[m[32m    conn.close()[m
+[32m+[m
+[32m+[m[32m    return redirect([m
+[32m+[m[32m        url_for("admin_verified_students")[m
+[32m+[m[32m    )[m
+ [m
+ [m
+ @app.route("/admin/campus-ambassadors")[m
+[36m@@ -5608,6 +5740,10 @@[m [mdef advertise_with_us():[m
+ [m
+     if request.method == "POST":[m
+ [m
+[32m+[m[32m        # --------------------------------------------------------[m
+[32m+[m[32m        # GET FORM DATA[m
+[32m+[m[32m        # --------------------------------------------------------[m
+[32m+[m
+         name = clean_text([m
+             request.form.get("name"),[m
+             MAX_NAME_LENGTH[m
+[36m@@ -5634,6 +5770,10 @@[m [mdef advertise_with_us():[m
+             MAX_MESSAGE_LENGTH[m
+         )[m
+ [m
+[32m+[m[32m        # --------------------------------------------------------[m
+[32m+[m[32m        # VALIDATION[m
+[32m+[m[32m        # --------------------------------------------------------[m
+[32m+[m
+         if ([m
+             not name[m
+             or not business_name[m
+[36m@@ -5653,21 +5793,108 @@[m [mdef advertise_with_us():[m
+                 form_data=request.form[m
+             ), 400[m
+ [m
+[31m-        # WhatsApp number for UniCamplink advertising[m
+[31m-        whatsapp_number = "2349161162607"[m
+[32m+[m[32m        # --------------------------------------------------------[m
+[32m+[m[32m        # SAVE REQUEST TO DATABASE[m
+[32m+[m[32m        #[m
+[32m+[m[32m        # IMPORTANT:[m
+[32m+[m[32m        # These are the ACTUAL columns in your table:[m
+[32m+[m[32m        #[m
+[32m+[m[32m        # user_id[m
+[32m+[m[32m        # name[m
+[32m+[m[32m        # email[m
+[32m+[m[32m        # business_name[m
+[32m+[m[32m        # advertising_type[m
+[32m+[m[32m        # message[m
+[32m+[m[32m        # status[m
+[32m+[m[32m        # --------------------------------------------------------[m
+ [m
+[31m-        whatsapp_message = ([m
+[31m-            "Hello UniCamplink 👋\n\n"[m
+[31m-            "I want to advertise on UniCamplink.\n\n"[m
+[31m-            f"Name: {name}\n"[m
+[31m-            f"Email: {email}\n"[m
+[31m-            f"Business Name: {business_name}\n"[m
+[31m-            f"Advertising Type: {advertising_type}\n\n"[m
+[31m-            f"Message:\n{message}"[m
+[31m-        )[m
+[32m+[m[32m        conn = get_db_connection()[m
+[32m+[m
+[32m+[m[32m        try:[m
+[32m+[m
+[32m+[m[32m            cursor = conn.execute([m
+[32m+[m[32m                """[m
+[32m+[m[32m                INSERT INTO advertisement_requests[m
+[32m+[m[32m                ([m
+[32m+[m[32m                    user_id,[m
+[32m+[m[32m                    name,[m
+[32m+[m[32m                    email,[m
+[32m+[m[32m                    business_name,[m
+[32m+[m[32m                    advertising_type,[m
+[32m+[m[32m                    message,[m
+[32m+[m[32m                    status[m
+[32m+[m[32m                )[m
+[32m+[m[32m                VALUES (?, ?, ?, ?, ?, ?, 'pending')[m
+[32m+[m[32m                """,[m
+[32m+[m[32m                ([m
+[32m+[m[32m                    session["user_id"],[m
+[32m+[m[32m                    name,[m
+[32m+[m[32m                    email,[m
+[32m+[m[32m                    business_name,[m
+[32m+[m[32m                    advertising_type,[m
+[32m+[m[32m                    message[m
+[32m+[m[32m                )[m
+[32m+[m[32m            )[m
+[32m+[m
+[32m+[m[32m            request_id = cursor.lastrowid[m
+[32m+[m
+[32m+[m[32m            conn.commit()[m
+[32m+[m
+[32m+[m[32m        except Exception:[m
+[32m+[m
+[32m+[m[32m            conn.rollback()[m
+[32m+[m
+[32m+[m[32m            app.logger.exception([m
+[32m+[m[32m                "UniCamplink advertisement request save failed."[m
+[32m+[m[32m            )[m
+[32m+[m
+[32m+[m[32m            conn.close()[m
+[32m+[m
+[32m+[m[32m            return render_template([m
+[32m+[m[32m                "advertise_with_us.html",[m
+[32m+[m[32m                error=([m
+[32m+[m[32m                    "We could not save your advertising request "[m
+[32m+[m[32m                    "right now. Please try again."[m
+[32m+[m[32m                ),[m
+[32m+[m[32m                form_data=request.form[m
+[32m+[m[32m            ), 500[m
+[32m+[m
+[32m+[m[32m        finally:[m
+[32m+[m
+[32m+[m[32m            try:[m
+[32m+[m[32m                conn.close()[m
+[32m+[m[32m            except Exception:[m
+[32m+[m[32m                pass[m
+[32m+[m
+[32m+[m[32m        # --------------------------------------------------------[m
+[32m+[m[32m        # SEND REQUEST TO WHATSAPP[m
+[32m+[m[32m        # --------------------------------------------------------[m
+ [m
+         from urllib.parse import quote[m
+ [m
+[32m+[m[32m        whatsapp_number = ([m
+[32m+[m[32m            WHATSAPP_NUMBER[m
+[32m+[m[32m            if WHATSAPP_NUMBER[m
+[32m+[m[32m            else "2349161162607"[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        whatsapp_message = ([m
+[32m+[m[32m            "📢 *UniCamplink Advertisement Request*\n\n"[m
+[32m+[m
+[32m+[m[32m            f"🆔 *Request ID:* #{request_id}\n"[m
+[32m+[m[32m            f"👤 *Name:* {name}\n"[m
+[32m+[m[32m            f"📧 *Email:* {email}\n"[m
+[32m+[m[32m            f"🏢 *Business / Organization:* {business_name}\n"[m
+[32m+[m[32m            f"📣 *Advertising Type:* {advertising_type}\n\n"[m
+[32m+[m
+[32m+[m[32m            "📝 *Message:*\n"[m
+[32m+[m[32m            f"{message}\n\n"[m
+[32m+[m
+[32m+[m[32m            "━━━━━━━━━━━━━━━━━━━━\n"[m
+[32m+[m[32m            "This request was submitted through "[m
+[32m+[m[32m            "the UniCamplink Advertise With Us page."[m
+[32m+[m[32m        )[m
+[32m+[m
+         whatsapp_url = ([m
+             "https://wa.me/"[m
+             + whatsapp_number[m
+[36m@@ -5677,11 +5904,222 @@[m [mdef advertise_with_us():[m
+ [m
+         return redirect(whatsapp_url)[m
+ [m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m[32m    # GET REQUEST[m
+[32m+[m[32m    # --------------------------------------------------------[m
+[32m+[m
+     return render_template([m
+         "advertise_with_us.html"[m
+     )[m
+ [m
+ [m
+[32m+[m[32m# ============================================================[m
+[32m+[m[32m# ADMIN — ADVERTISEMENT REQUESTS[m
+[32m+[m[32m# ============================================================[m
+[32m+[m
+[32m+[m[32m@app.route("/admin/advertisements")[m
+[32m+[m[32mdef admin_advertisements():[m
+[32m+[m
+[32m+[m[32m    if "user_id" not in session:[m
+[32m+[m[32m        return redirect(url_for("login"))[m
+[32m+[m
+[32m+[m[32m    if not ADMIN_EMAIL:[m
+[32m+[m[32m        return "Admin access is not configured yet.", 500[m
+[32m+[m
+[32m+[m[32m    conn = get_db_connection()[m
+[32m+[m
+[32m+[m[32m    current_user = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT[m
+[32m+[m[32m            id,[m
+[32m+[m[32m            name,[m
+[32m+[m[32m            email[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (session["user_id"],)[m
+[32m+[m[32m    ).fetchone()[m
+[32m+[m
+[32m+[m[32m    if ([m
+[32m+[m[32m        not current_user[m
+[32m+[m[32m        or current_user["email"].lower() != ADMIN_EMAIL[m
+[32m+[m[32m    ):[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return "Access denied.", 403[m
+[32m+[m
+[32m+[m[32m    advertisements = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT[m
+[32m+[m[32m            id,[m
+[32m+[m[32m            user_id,[m
+[32m+[m
+[32m+[m[32m            name AS advertiser_name,[m
+[32m+[m
+[32m+[m[32m            business_name,[m
+[32m+[m
+[32m+[m[32m            email,[m
+[32m+[m
+[32m+[m[32m            advertising_type AS category,[m
+[32m+[m
+[32m+[m[32m            advertising_type AS subject,[m
+[32m+[m
+[32m+[m[32m            message,[m
+[32m+[m
+[32m+[m[32m            status,[m
+[32m+[m
+[32m+[m[32m            created_at[m
+[32m+[m
+[32m+[m[32m        FROM advertisement_requests[m
+[32m+[m
+[32m+[m[32m        ORDER BY[m
+[32m+[m[32m            created_at DESC,[m
+[32m+[m[32m            id DESC[m
+[32m+[m[32m        """[m
+[32m+[m[32m    ).fetchall()[m
+[32m+[m
+[32m+[m[32m    conn.close()[m
+[32m+[m
+[32m+[m[32m    return render_template([m
+[32m+[m[32m        "admin_advertisements.html",[m
+[32m+[m[32m        current_user=current_user,[m
+[32m+[m[32m        advertisements=advertisements[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+[32m+[m[32m# ============================================================[m
+[32m+[m[32m# ADMIN — APPROVE ADVERTISEMENT[m
+[32m+[m[32m# ============================================================[m
+[32m+[m
+[32m+[m[32m@app.route([m
+[32m+[m[32m    "/admin/advertisements/<int:advertisement_id>/approve",[m
+[32m+[m[32m    methods=["POST"][m
+[32m+[m[32m)[m
+[32m+[m[32mdef admin_approve_advertisement(advertisement_id):[m
+[32m+[m
+[32m+[m[32m    if "user_id" not in session:[m
+[32m+[m[32m        return redirect(url_for("login"))[m
+[32m+[m
+[32m+[m[32m    if not ADMIN_EMAIL:[m
+[32m+[m[32m        return "Admin access is not configured yet.", 500[m
+[32m+[m
+[32m+[m[32m    conn = get_db_connection()[m
+[32m+[m
+[32m+[m[32m    current_user = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT[m
+[32m+[m[32m            id,[m
+[32m+[m[32m            name,[m
+[32m+[m[32m            email[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (session["user_id"],)[m
+[32m+[m[32m    ).fetchone()[m
+[32m+[m
+[32m+[m[32m    if ([m
+[32m+[m[32m        not current_user[m
+[32m+[m[32m        or current_user["email"].lower() != ADMIN_EMAIL[m
+[32m+[m[32m    ):[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return "Access denied.", 403[m
+[32m+[m
+[32m+[m[32m    advertisement = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT id[m
+[32m+[m[32m        FROM advertisement_requests[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (advertisement_id,)[m
+[32m+[m[32m    ).fetchone()[m
+[32m+[m
+[32m+[m[32m    if not advertisement:[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return "Advertisement request not found.", 404[m
+[32m+[m
+[32m+[m[32m    conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        UPDATE advertisement_requests[m
+[32m+[m[32m        SET status = 'approved'[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (advertisement_id,)[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    conn.commit()[m
+[32m+[m[32m    conn.close()[m
+[32m+[m
+[32m+[m[32m    return redirect([m
+[32m+[m[32m        url_for("admin_advertisements")[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+[32m+[m[32m# ============================================================[m
+[32m+[m[32m# ADMIN — REJECT ADVERTISEMENT[m
+[32m+[m[32m# ============================================================[m
+[32m+[m
+[32m+[m[32m@app.route([m
+[32m+[m[32m    "/admin/advertisements/<int:advertisement_id>/reject",[m
+[32m+[m[32m    methods=["POST"][m
+[32m+[m[32m)[m
+[32m+[m[32mdef admin_reject_advertisement(advertisement_id):[m
+[32m+[m
+[32m+[m[32m    if "user_id" not in session:[m
+[32m+[m[32m        return redirect(url_for("login"))[m
+[32m+[m
+[32m+[m[32m    if not ADMIN_EMAIL:[m
+[32m+[m[32m        return "Admin access is not configured yet.", 500[m
+[32m+[m
+[32m+[m[32m    conn = get_db_connection()[m
+[32m+[m
+[32m+[m[32m    current_user = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT[m
+[32m+[m[32m            id,[m
+[32m+[m[32m            name,[m
+[32m+[m[32m            email[m
+[32m+[m[32m        FROM users[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (session["user_id"],)[m
+[32m+[m[32m    ).fetchone()[m
+[32m+[m
+[32m+[m[32m    if ([m
+[32m+[m[32m        not current_user[m
+[32m+[m[32m        or current_user["email"].lower() != ADMIN_EMAIL[m
+[32m+[m[32m    ):[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return "Access denied.", 403[m
+[32m+[m
+[32m+[m[32m    advertisement = conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        SELECT id[m
+[32m+[m[32m        FROM advertisement_requests[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (advertisement_id,)[m
+[32m+[m[32m    ).fetchone()[m
+[32m+[m
+[32m+[m[32m    if not advertisement:[m
+[32m+[m[32m        conn.close()[m
+[32m+[m[32m        return "Advertisement request not found.", 404[m
+[32m+[m
+[32m+[m[32m    conn.execute([m
+[32m+[m[32m        """[m
+[32m+[m[32m        UPDATE advertisement_requests[m
+[32m+[m[32m        SET status = 'rejected'[m
+[32m+[m[32m        WHERE id = ?[m
+[32m+[m[32m        """,[m
+[32m+[m[32m        (advertisement_id,)[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    conn.commit()[m
+[32m+[m[32m    conn.close()[m
+[32m+[m
+[32m+[m[32m    return redirect([m
+[32m+[m[32m        url_for("admin_advertisements")[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+ [m
+ # ============================================================[m
+ # START APPLICATION[m
