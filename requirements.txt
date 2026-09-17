@@ -6,4 +6,5 @@ MarkupSafe==3.0.3
 pillow==12.3.0
 Werkzeug==3.1.8
 WTForms==3.2.2
-gunicorn==26.2.0python-dotenv
+gunicorn==26.2.0
+python-dotenv
