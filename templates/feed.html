@@ -7,13 +7,15 @@
 <meta charset="UTF-8">
 
 <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
 >
 
 <meta
-    name="description"
-    content="UniCamplink Student Feed — connect, share and interact with students."
+name="description"
+content="UniCamplink Student Feed — connect, share and interact with students."
+
 >
 
 <title>Feed | UniCamplink</title>
@@ -23,67 +25,1091 @@
     href="{{ url_for('static', filename='style.css') }}"
 >
 
-
 <style>
+
 /* ============================================================
-   RAZOR COMMENT VISIBILITY + THEME
+   RAZOR FEED — FACEBOOK / TIKTOK INSPIRED
+   UniCamplink original branding
 ============================================================ */
+
+:root {
+    --razor-primary: #38bdf8;
+    --razor-primary-dark: #0284c7;
+    --razor-bg-dark: #020617;
+    --razor-surface-dark: #0f172a;
+    --razor-surface-dark-2: #111c31;
+    --razor-border-dark: rgba(148, 163, 184, .18);
+    --razor-text-dark: #f8fafc;
+    --razor-muted-dark: #94a3b8;
+
+    --razor-bg-light: #f1f5f9;
+    --razor-surface-light: #ffffff;
+    --razor-border-light: #e2e8f0;
+    --razor-text-light: #0f172a;
+    --razor-muted-light: #64748b;
+
+    --razor-radius: 18px;
+}
+
+
+/* ============================================================
+   BASE
+============================================================ */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(56,189,248,.08),
+            transparent 32%
+        ),
+        var(--razor-bg-dark, #020617);
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ============================================================
+   RAZOR FEED CONTAINER
+============================================================ */
+
+.razor-feed {
+    width: min(100% - 24px, 760px);
+    margin: 0 auto;
+    padding: 28px 0 80px;
+}
+
+
+/* ============================================================
+   COMPOSER
+============================================================ */
+
+.razor-composer {
+    position: relative;
+    margin-bottom: 24px;
+    padding: 18px;
+    border: 1px solid var(--razor-border-dark);
+    border-radius: var(--razor-radius);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15,23,42,.98),
+            rgba(15,23,42,.88)
+        );
+    box-shadow:
+        0 16px 50px rgba(0,0,0,.20);
+    overflow: hidden;
+}
+
+.razor-composer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(56,189,248,.10),
+            transparent 35%
+        );
+}
+
+.composer-header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.composer-avatar {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(
+            135deg,
+            #38bdf8,
+            #0284c7
+        );
+    color: #fff;
+    font-size: 21px;
+    border: 2px solid rgba(56,189,248,.35);
+}
+
+.composer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.composer-header > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.composer-header strong {
+    font-size: 15px;
+    color: var(--razor-text-dark);
+}
+
+.composer-header span {
+    font-size: 12px;
+    color: var(--razor-muted-dark);
+}
+
+
+/* ============================================================
+   TEXTAREA
+============================================================ */
+
+#postContent {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    min-height: 105px;
+    box-sizing: border-box;
+    resize: vertical;
+    border: 1px solid var(--razor-border-dark);
+    border-radius: 15px;
+    outline: none;
+    padding: 14px 15px;
+    background: rgba(2,6,23,.60);
+    color: var(--razor-text-dark);
+    line-height: 1.55;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+#postContent::placeholder {
+    color: #64748b;
+}
+
+#postContent:focus {
+    border-color: rgba(56,189,248,.65);
+    box-shadow:
+        0 0 0 3px rgba(56,189,248,.10);
+}
+
+
+/* ============================================================
+   IMAGE UPLOAD
+============================================================ */
+
+.image-upload-area {
+    position: relative;
+    z-index: 1;
+    margin-top: 12px;
+}
+
+.image-upload-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--razor-border-dark);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 750;
+    color: var(--razor-text-dark);
+    background: rgba(148,163,184,.06);
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease;
+}
+
+.image-upload-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(56,189,248,.60);
+    background: rgba(56,189,248,.08);
+}
+
+.post-image-preview {
+    position: relative;
+    margin-top: 12px;
+    max-width: 440px;
+}
+
+.post-image-preview img {
+    display: block;
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.remove-post-image {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    width: 35px;
+    height: 35px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0,0,0,.75);
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+
+/* ============================================================
+   COMPOSER FOOTER
+============================================================ */
+
+.composer-footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid var(--razor-border-dark);
+}
+
+.composer-options {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.composer-option {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--razor-muted-dark);
+    cursor: pointer;
+    font-size: 18px;
+    transition:
+        background .2s ease,
+        transform .2s ease;
+}
+
+.composer-option:hover {
+    background: rgba(148,163,184,.10);
+    transform: scale(1.06);
+}
+
+.razor-post-btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 19px;
+    background:
+        linear-gradient(
+            135deg,
+            #38bdf8,
+            #0284c7
+        );
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow:
+        0 8px 20px rgba(14,165,233,.20);
+    transition:
+        transform .2s ease,
+        opacity .2s ease;
+}
+
+.razor-post-btn:hover {
+    transform: translateY(-1px);
+}
+
+.razor-post-btn:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+
+/* ============================================================
+   FEED HEADER
+============================================================ */
+
+.razor-feed-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+    margin: 10px 2px 15px;
+}
+
+.razor-feed-header h1 {
+    margin: 0;
+    font-size: clamp(23px, 5vw, 30px);
+    line-height: 1.15;
+    letter-spacing: -.6px;
+}
+
+.razor-feed-header p {
+    margin: 6px 0 0;
+    color: var(--razor-muted-dark);
+    font-size: 13px;
+}
+
+.feed-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(34,197,94,.09);
+    color: #4ade80;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   POST CARD
+============================================================ */
+
+.razor-post {
+    position: relative;
+    margin-bottom: 17px;
+    padding: 16px;
+    border: 1px solid var(--razor-border-dark);
+    border-radius: var(--razor-radius);
+    background:
+        linear-gradient(
+            150deg,
+            rgba(15,23,42,.98),
+            rgba(15,23,42,.91)
+        );
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.16);
+    overflow: hidden;
+    transition:
+        border-color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.razor-post:hover {
+    border-color: rgba(56,189,248,.22);
+}
+
+
+/* ============================================================
+   AUTHOR
+============================================================ */
+
+.post-author {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.post-avatar-link {
+    flex: 0 0 auto;
+    display: block;
+    text-decoration: none;
+}
+
+.post-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.post-avatar:not(.placeholder-avatar) {
+    border: 2px solid rgba(56,189,248,.22);
+}
+
+.placeholder-avatar {
+    background:
+        linear-gradient(
+            135deg,
+            #0ea5e9,
+            #0369a1
+        );
+    color: #fff;
+    font-size: 19px;
+}
+
+.post-author-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.post-author-name {
+    width: fit-content;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--razor-text-dark);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.post-author-name:hover {
+    color: var(--razor-primary);
+}
+
+.post-university {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--razor-muted-dark);
+    font-size: 11px;
+}
+
+.post-time {
+    color: #64748b;
+    font-size: 10px;
+}
+
+
+/* ============================================================
+   SPONSORED BADGE
+============================================================ */
+
+.razor-sponsored-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    width: max-content;
+    margin: 11px 0 4px 57px;
+    padding: 6px 10px;
+    border: 1px solid rgba(56,189,248,.28);
+    border-radius: 999px;
+    background: rgba(56,189,248,.09);
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .15px;
+}
+
+.razor-sponsored-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow:
+        0 0 0 3px rgba(56,189,248,.10);
+}
+
+
+/* ============================================================
+   CONTENT
+============================================================ */
+
+.post-content {
+    margin-top: 13px;
+    color: var(--razor-text-dark);
+    font-size: 15px;
+    line-height: 1.62;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   POST MEDIA
+============================================================ */
+
+.post-media {
+    margin: 13px 0 5px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: rgba(148,163,184,.07);
+    display: flex;
+    justify-content: center;
+    max-width: 100%;
+}
+
+.post-media img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 540px;
+    object-fit: contain;
+    cursor: zoom-in;
+}
+
+
+/* ============================================================
+   STATISTICS
+============================================================ */
+
+.post-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 3px 8px;
+    color: var(--razor-muted-dark);
+    font-size: 12px;
+}
+
+.like-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.comment-count-btn {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 3px;
+}
+
+.comment-count-btn:hover {
+    color: var(--razor-primary);
+}
+
+
+/* ============================================================
+   POST ACTIONS
+============================================================ */
+
+.post-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    border-top: 1px solid var(--razor-border-dark);
+    border-bottom: 1px solid var(--razor-border-dark);
+    padding: 6px 0;
+}
+
+.like-form {
+    display: contents;
+}
+
+.post-action-btn {
+    min-height: 42px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--razor-muted-dark);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    transition:
+        background .2s ease,
+        color .2s ease;
+}
+
+.post-action-btn:hover {
+    background: rgba(148,163,184,.08);
+    color: var(--razor-text-dark);
+}
+
+.post-action-btn.liked {
+    color: #f43f5e;
+}
+
+.post-action-btn:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+
+
+/* ============================================================
+   COMMENTS
+============================================================ */
+
 .post-comments {
     display: none;
+    padding-top: 13px;
 }
 
 .post-comments.visible {
     display: block;
 }
 
-html[data-theme="light"] .razor-composer,
-html[data-theme="light"] .razor-post {
-    background: var(--surface, #ffffff);
-    color: var(--text, #111827);
-    border-color: var(--border, #e5e7eb);
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin-bottom: 13px;
 }
 
-html[data-theme="dark"] .razor-composer,
-html[data-theme="dark"] .razor-post {
-    background: var(--surface, #0f172a);
-    color: var(--text, #f8fafc);
-    border-color: var(--border, #334155);
+.razor-comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+}
+
+.comment-avatar {
+    flex: 0 0 auto;
+}
+
+.comment-avatar-link {
+    display: block;
+    text-decoration: none;
+}
+
+.comment-avatar-image,
+.comment-avatar-placeholder {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+}
+
+.comment-avatar-image {
+    display: block;
+    object-fit: cover;
+}
+
+.comment-avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(
+            135deg,
+            #0ea5e9,
+            #0369a1
+        );
+    color: #fff;
+    font-size: 14px;
+}
+
+.comment-body {
+    min-width: 0;
+    flex: 1;
+}
+
+.comment-author-link {
+    display: inline-block;
+    color: var(--razor-text-dark);
+    text-decoration: none;
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.comment-author-link:hover {
+    color: var(--razor-primary);
+}
+
+.comment-bubble {
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 8px 11px;
+    border-radius: 14px;
+    background: rgba(148,163,184,.09);
+    color: var(--razor-text-dark);
+    font-size: 13px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.comment-actions {
+    margin-top: 4px;
+}
+
+.comment-reply-btn {
+    border: 0;
+    background: transparent;
+    color: var(--razor-muted-dark);
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.comment-reply-btn:hover {
+    color: var(--razor-primary);
+}
+
+.comment-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 9px;
+    padding-left: 15px;
+    border-left: 2px solid rgba(56,189,248,.12);
+}
+
+
+/* ============================================================
+   COMMENT FORM
+============================================================ */
+
+.comment-form {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.comment-form input {
+    min-width: 0;
+    flex: 1;
+    height: 40px;
+    box-sizing: border-box;
+    border: 1px solid var(--razor-border-dark);
+    border-radius: 999px;
+    outline: none;
+    padding: 0 14px;
+    background: rgba(148,163,184,.08);
+    color: var(--razor-text-dark);
+}
+
+.comment-form input:focus {
+    border-color: rgba(56,189,248,.55);
+    box-shadow:
+        0 0 0 3px rgba(56,189,248,.08);
+}
+
+.comment-form input::placeholder {
+    color: #64748b;
+}
+
+.comment-form > button[type="submit"] {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border: 0;
+    border-radius: 50%;
+    background:
+        linear-gradient(
+            135deg,
+            #38bdf8,
+            #0284c7
+        );
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.cancel-reply-btn {
+    display: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: rgba(244,63,94,.10);
+    color: #fb7185;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   EMPTY FEED
+============================================================ */
+
+.razor-empty {
+    padding: 55px 20px;
+    text-align: center;
+    border: 1px dashed var(--razor-border-dark);
+    border-radius: var(--razor-radius);
+    background: rgba(15,23,42,.65);
+}
+
+.razor-empty > div {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.razor-empty h2 {
+    margin: 0;
+    color: var(--razor-text-dark);
+    font-size: 20px;
+}
+
+.razor-empty p {
+    margin: 8px 0 0;
+    color: var(--razor-muted-dark);
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   LIGHT MODE
+============================================================ */
+
+html[data-theme="light"] body {
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(56,189,248,.09),
+            transparent 32%
+        ),
+        var(--razor-bg-light);
+}
+
+html[data-theme="light"] .razor-composer,
+html[data-theme="light"] .razor-post {
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f8fafc
+        );
+    color: var(--razor-text-light);
+    border-color: var(--razor-border-light);
+    box-shadow:
+        0 10px 30px rgba(15,23,42,.07);
+}
+
+html[data-theme="light"] .composer-header strong,
+html[data-theme="light"] .post-author-name,
+html[data-theme="light"] .post-content,
+html[data-theme="light"] .comment-author-link,
+html[data-theme="light"] .comment-bubble,
+html[data-theme="light"] .razor-empty h2 {
+    color: var(--razor-text-light);
+}
+
+html[data-theme="light"] .composer-header span,
+html[data-theme="light"] .post-university,
+html[data-theme="light"] .post-time,
+html[data-theme="light"] .razor-feed-header p,
+html[data-theme="light"] .post-stats,
+html[data-theme="light"] .post-action-btn,
+html[data-theme="light"] .comment-reply-btn {
+    color: var(--razor-muted-light);
+}
+
+html[data-theme="light"] #postContent {
+    background: #f8fafc;
+    color: var(--razor-text-light);
+    border-color: var(--razor-border-light);
+}
+
+html[data-theme="light"] .comment-form input {
+    background: #f8fafc;
+    color: var(--razor-text-light);
+    border-color: var(--razor-border-light);
+}
+
+html[data-theme="light"] .comment-bubble {
+    background: #f1f5f9;
 }
 
 html[data-theme="light"] .post-actions,
-html[data-theme="light"] .composer-footer,
-html[data-theme="dark"] .post-actions,
-html[data-theme="dark"] .composer-footer {
-    border-color: var(--border, #334155);
+html[data-theme="light"] .composer-footer {
+    border-color: var(--razor-border-light);
 }
 
-html[data-theme="light"] .comment-form input,
-html[data-theme="dark"] .comment-form input {
-    background: var(--surface-2, rgba(148,163,184,.12));
-    color: var(--text, #f8fafc);
-    border-color: var(--border, #334155);
+html[data-theme="light"] .razor-empty {
+    background: #fff;
+    border-color: var(--razor-border-light);
 }
 
-html[data-theme="light"] .post-action-btn,
-html[data-theme="light"] .comment-count-btn,
-html[data-theme="light"] .composer-option {
-    color: var(--muted, #64748b);
+html[data-theme="light"] .razor-sponsored-badge {
+    background: rgba(14,165,233,.07);
+    border-color: rgba(14,165,233,.22);
+    color: #0284c7;
 }
 
-html[data-theme="dark"] .post-action-btn,
-html[data-theme="dark"] .comment-count-btn,
-html[data-theme="dark"] .composer-option {
-    color: var(--muted, #94a3b8);
+
+/* ============================================================
+   IMAGE LIGHTBOX
+============================================================ */
+
+.post-image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,.90);
 }
 
-html[data-theme="light"] .post-action-btn:hover,
-html[data-theme="light"] .composer-option:hover,
-html[data-theme="dark"] .post-action-btn:hover,
-html[data-theme="dark"] .composer-option:hover {
-    background: var(--surface-2, rgba(148,163,184,.12));
+.post-image-lightbox.visible {
+    display: flex;
 }
-/* RAZOR POST IMAGE UI */
-.image-upload-area{margin-top:12px}.image-upload-button{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border-color,rgba(148,163,184,.25));border-radius:12px;cursor:pointer;font-weight:700;color:var(--text-color,inherit);background:var(--card-color,rgba(255,255,255,.04));transition:.2s}.image-upload-button:hover{transform:translateY(-1px);border-color:#38bdf8}.post-image-preview{position:relative;margin-top:12px;max-width:420px}.post-image-preview img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:14px}.remove-post-image{position:absolute;top:8px;right:8px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-size:24px;cursor:pointer}.post-media{margin:12px 0 4px;overflow:hidden;border-radius:14px;background:rgba(148,163,184,.08);display:flex;justify-content:center;max-width:100%}.post-media img{display:block;width:auto;max-width:100%;height:auto;max-height:500px;object-fit:contain;cursor:zoom-in}@media(max-width:900px){.post-media img{max-height:440px}}.post-image-lightbox{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.88)}.post-image-lightbox.visible{display:flex}.post-image-lightbox img{max-width:min(1100px,95vw);max-height:90vh;object-fit:contain;border-radius:12px}.lightbox-close{position:absolute;top:18px;right:22px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:30px;cursor:pointer}@media(max-width:640px){.post-media{border-radius:12px}.post-media img{max-height:380px;width:100%;object-fit:cover}.post-image-preview{max-width:100%}}
+
+.post-image-lightbox img {
+    max-width: min(1100px, 95vw);
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,.14);
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 900px) {
+
+    .razor-feed {
+        width: min(100% - 16px, 760px);
+        padding-top: 18px;
+    }
+
+    .post-media img {
+        max-height: 440px;
+    }
+}
+
+
+@media (max-width: 640px) {
+
+    .razor-feed {
+        width: calc(100% - 10px);
+        padding: 12px 0 60px;
+    }
+
+    .razor-composer,
+    .razor-post {
+        border-radius: 15px;
+        padding: 13px;
+    }
+
+    .razor-feed-header {
+        align-items: center;
+        margin-top: 16px;
+    }
+
+    .razor-feed-header p {
+        font-size: 12px;
+    }
+
+    .feed-live {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+
+    .post-avatar {
+        width: 42px;
+        height: 42px;
+    }
+
+    .razor-sponsored-badge {
+        margin-left: 52px;
+    }
+
+    .post-content {
+        font-size: 14px;
+    }
+
+    .post-action-btn {
+        min-height: 40px;
+        font-size: 12px;
+    }
+
+    .post-action-btn span {
+        display: inline;
+    }
+
+    .post-media {
+        border-radius: 12px;
+    }
+
+    .post-media img {
+        width: 100%;
+        max-height: 390px;
+        object-fit: cover;
+    }
+
+    .composer-footer {
+        align-items: center;
+    }
+
+    .composer-options {
+        gap: 1px;
+    }
+
+    .composer-option {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+
+    .razor-post-btn {
+        padding: 9px 15px;
+        font-size: 12px;
+    }
+
+    .comment-replies {
+        padding-left: 10px;
+    }
+}
+
+
+@media (max-width: 420px) {
+
+    .razor-feed-header h1 {
+        font-size: 21px;
+    }
+
+    .razor-feed-header p {
+        display: none;
+    }
+
+    .razor-sponsored-badge {
+        margin-left: 0;
+    }
+
+    .post-action-btn span {
+        font-size: 11px;
+    }
+
+    .composer-header span {
+        font-size: 11px;
+    }
+}
+
 </style>
 
 </head>
@@ -98,91 +1124,91 @@ html[data-theme="dark"] .composer-option:hover {
 
 <div class="nav-container">
 
+<a
+    href="{{ url_for('dashboard') }}"
+    class="nav-brand"
+>
+    <span>UniCamplink</span>
+</a>
+
+
+<div class="nav-links">
+
+    <a href="{{ url_for('dashboard') }}">
+        Dashboard
+    </a>
+
     <a
-        href="{{ url_for('dashboard') }}"
-        class="nav-brand"
+        href="{{ url_for('feed') }}"
+        class="active"
     >
-        <span>UniCamplink</span>
+        Feed
+    </a>
+
+    <a href="{{ url_for('profile') }}">
+        Profile
+    </a>
+
+    <a href="{{ url_for('groups') }}">
+        Groups
+    </a>
+
+    <a href="{{ url_for('search_students') }}">
+        Search
+    </a>
+
+    <a href="{{ url_for('messages') }}">
+        Messages
+    </a>
+
+    <a href="{{ url_for('friends') }}">
+        Friends
+    </a>
+
+    <a href="{{ url_for('friend_requests') }}">
+        Requests
+    </a>
+
+    <a href="{{ url_for('notifications') }}">
+        Notifications
+    </a>
+
+    <a href="{{ url_for('marketplace') }}">
+        Marketplace
     </a>
 
 
-    <div class="nav-links">
+    <button
+        type="button"
+        class="theme-toggle"
+        id="themeToggle"
+    >
+        🌙 Dark Mode
+    </button>
 
-        <a href="{{ url_for('dashboard') }}">
-            Dashboard
-        </a>
 
-        <a
-            href="{{ url_for('feed') }}"
-            class="active"
+    <form
+        action="{{ url_for('logout') }}"
+        method="POST"
+        class="logout-form"
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
         >
-            Feed
-        </a>
-
-        <a href="{{ url_for('profile') }}">
-            Profile
-        </a>
-
-        <a href="{{ url_for('groups') }}">
-            Groups
-        </a>
-
-        <a href="{{ url_for('search_students') }}">
-            Search
-        </a>
-
-        <a href="{{ url_for('messages') }}">
-            Messages
-        </a>
-
-        <a href="{{ url_for('friends') }}">
-            Friends
-        </a>
-
-        <a href="{{ url_for('friend_requests') }}">
-            Requests
-        </a>
-
-        <a href="{{ url_for('notifications') }}">
-            Notifications
-        </a>
-
-        <a href="{{ url_for('marketplace') }}">
-            Marketplace
-        </a>
-
 
         <button
-            type="button"
-            class="theme-toggle"
-            id="themeToggle"
+            type="submit"
+            class="nav-logout"
         >
-            🌙 Dark Mode
+            Logout
         </button>
 
+    </form>
 
-        <form
-            action="{{ url_for('logout') }}"
-            method="POST"
-            class="logout-form"
-        >
-
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{ csrf_token() }}"
-            >
-
-            <button
-                type="submit"
-                class="nav-logout"
-            >
-                Logout
-            </button>
-
-        </form>
-
-    </div>
+</div>
 
 </div>
 
@@ -194,470 +1220,516 @@ html[data-theme="dark"] .composer-option:hover {
 
 <main class="razor-feed">
 
-<!-- ========================================================
+<!-- ============================================================
      CREATE POST
-========================================================= -->
+============================================================ -->
 
 <section class="razor-composer">
 
-    <div class="composer-header">
+<div class="composer-header">
 
-        <div class="composer-avatar">
+    <div class="composer-avatar">
 
-            {% if session.get("profile_picture") %}
+        {% if session.get("profile_picture") %}
 
-                <img
-                    src="{{ url_for(
-                        'static',
-                        filename='uploads/' +
-                        session.get('profile_picture')
-                    ) }}"
-                    alt=""
-                >
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='uploads/' +
+                    session.get('profile_picture')
+                ) }}"
+                alt=""
+            >
 
-            {% else %}
+        {% else %}
 
-                <span>
-                    👤
-                </span>
+            <span>👤</span>
 
-            {% endif %}
-
-        </div>
-
-
-        <div>
-
-            <strong>
-                Create a post
-            </strong>
-
-            <span>
-                Share something with your campus
-            </span>
-
-        </div>
+        {% endif %}
 
     </div>
 
-
-    <form
-        id="createPostForm"
-        action="{{ url_for('create_post') }}"
-        method="POST"
-        enctype="multipart/form-data"
-    >
-
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="{{ csrf_token() }}"
-        >
-
-
-        <textarea
-            name="content"
-            id="postContent"
-            maxlength="5000"
-            placeholder="What's happening on campus?"
-        ></textarea>
-
-
-        <div class="image-upload-area">
-            <label for="postImage" class="image-upload-button">🖼️ <span>Photo</span></label>
-            <input type="file" id="postImage" name="image" accept="image/png,image/jpeg,image/jpg,image/gif" hidden>
-            <div id="postImagePreview" class="post-image-preview" hidden>
-                <img id="postImagePreviewImg" src="" alt="Selected post image preview">
-                <button type="button" id="removePostImage" class="remove-post-image" aria-label="Remove selected image">×</button>
-            </div>
-        </div>
-
-        <div class="composer-footer">
-
-            <div class="composer-options">
-
-                <button
-                    type="button"
-                    class="composer-option"
-                    title="Emoji"
-                    onclick="insertEmoji('😊')"
-                >
-                    😊
-                </button>
-
-                <button
-                    type="button"
-                    class="composer-option"
-                    title="Emoji"
-                    onclick="insertEmoji('🔥')"
-                >
-                    🔥
-                </button>
-
-                <button
-                    type="button"
-                    class="composer-option"
-                    title="Emoji"
-                    onclick="insertEmoji('🎓')"
-                >
-                    🎓
-                </button>
-
-                <button
-                    type="button"
-                    class="composer-option"
-                    title="Emoji"
-                    onclick="insertEmoji('😂')"
-                >
-                    😂
-                </button>
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="razor-post-btn"
-            >
-                Post 🚀
-            </button>
-
-        </div>
-
-    </form>
-
-</section>
-
-
-<!-- ========================================================
-     FEED HEADER
-========================================================= -->
-
-<div class="razor-feed-header">
 
     <div>
 
-        <h1>
-            Student Feed
-        </h1>
+        <strong>
+            Create a post
+        </strong>
 
-        <p>
-            What's happening across the campus community?
-        </p>
+        <span>
+            Share something with your campus
+        </span>
 
     </div>
-
-    <span class="feed-live">
-        ● Live
-    </span>
 
 </div>
 
 
-<!-- ========================================================
-     POSTS
-========================================================= -->
+<form
+    id="createPostForm"
+    action="{{ url_for('create_post') }}"
+    method="POST"
+    enctype="multipart/form-data"
+>
 
-<section id="postsContainer">
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
 
-    {% if posts %}
 
-        {% for post in posts %}
+    <textarea
+        name="content"
+        id="postContent"
+        maxlength="5000"
+        placeholder="What's happening on campus?"
+    ></textarea>
 
-        <article
-            class="razor-post"
-            id="post-{{ post['id'] }}"
-            data-post-id="{{ post['id'] }}"
+
+    <div class="image-upload-area">
+
+        <label
+            for="postImage"
+            class="image-upload-button"
+        >
+            🖼️
+            <span>Photo</span>
+        </label>
+
+        <input
+            type="file"
+            id="postImage"
+            name="image"
+            accept="image/png,image/jpeg,image/jpg,image/gif"
+            hidden
         >
 
 
-            <!-- ============================================
-                 AUTHOR
-            ============================================= -->
-
-            <div class="post-author">
-
-                <a
-                    href="{{ url_for(
-                        'view_user',
-                        user_id=post['user_id']
-                    ) }}"
-                    class="post-avatar-link"
-                >
-
-                    {% if post["profile_picture"] %}
-
-                        <img
-                            src="{{ url_for(
-                                'static',
-                                filename='uploads/' +
-                                post['profile_picture']
-                            ) }}"
-                            alt=""
-                            class="post-avatar"
-                            onerror="
-                                this.style.display='none';
-                                this.nextElementSibling.style.display='flex';
-                            "
-                        >
-
-                        <div
-                            class="post-avatar placeholder-avatar"
-                            style="display:none;"
-                        >
-                            👤
-                        </div>
-
-                    {% else %}
-
-                        <div class="post-avatar placeholder-avatar">
-                            👤
-                        </div>
-
-                    {% endif %}
-
-                </a>
-
-
-                <div class="post-author-info">
-
-                    <a
-                        href="{{ url_for(
-                            'view_user',
-                            user_id=post['user_id']
-                        ) }}"
-                        class="post-author-name"
-                    >
-                        {{ post["author_name"] }}
-                    </a>
-
-
-                    {% if post["author_university"] %}
-
-                        <span class="post-university">
-                            🎓 {{ post["author_university"] }}
-                        </span>
-
-                    {% endif %}
-
-
-                    <span class="post-time">
-                        {{ post["created_at"]|nigeria_time }}
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- ============================================
-                 CONTENT
-            ============================================= -->
-
-            <div class="post-content">
-
-                {{ post["content"] }}
-
-            </div>
-
-            {% if post["image"] %}
-                <div class="post-media">
-                    <img src="{{ url_for('static', filename='uploads/' + post['image']) }}" alt="Post image" loading="lazy" onclick="openPostImage(this.src)">
-                </div>
-            {% endif %}
-
-
-            <!-- ============================================
-                 STATISTICS
-            ============================================= -->
-
-            <div class="post-stats">
-
-                <span class="like-stat">
-
-                    ❤️
-
-                    <span class="like-count">
-                        {{ post["like_count"] }}
-                    </span>
-
-                </span>
-
-
-                <button
-                    type="button"
-                    class="comment-count-btn"
-                    onclick="focusComment('{{ post.id }}')"
-                >
-
-                    <span class="comment-count">
-                        {{ post["comment_count"] }}
-                    </span>
-
-                    comments
-
-                </button>
-
-            </div>
-
-
-            <!-- ============================================
-                 ACTIONS
-            ============================================= -->
-
-            <div class="post-actions">
-
-
-                <!-- LIKE -->
-
-                <form
-                    class="like-form"
-                    data-post-id="{{ post['id'] }}"
-                    action="{{ url_for(
-                        'like_post',
-                        post_id=post['id']
-                    ) }}"
-                    method="POST"
-                >
-
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
-
-
-                    <button
-                        type="submit"
-                        class="post-action-btn like-button{% if post['user_liked'] %} liked{% endif %}"
-                    >
-
-                        {% if post["user_liked"] %}
-
-                            ❤️
-                            <span>Unlike</span>
-
-                        {% else %}
-
-                            🤍
-                            <span>Like</span>
-
-                        {% endif %}
-
-                    </button>
-
-                </form>
-
-
-                <!-- COMMENT -->
-
-                <button
-                    type="button"
-                    class="post-action-btn"
-                    data-post-id="{{ post['id'] }}"
-                    onclick="focusComment(this.dataset.postId)"
-                >
-
-                    💬
-                    <span>Comment</span>
-
-                </button>
-
-
-                <!-- SHARE -->
-
-                <button
-                    type="button"
-                    class="post-action-btn"
-                    data-post-id="{{ post['id'] }}"
-                    onclick="copyPostLink(this.dataset.postId)"
-                >
-
-                    ↗️
-                    <span>Share</span>
-
-                </button>
-
-            </div>
-
-
-            <!-- ============================================
-                 COMMENTS
-            ============================================= -->
-
-            <div
-                class="post-comments"
-                id="comments-{{ post['id'] }}"
+        <div
+            id="postImagePreview"
+            class="post-image-preview"
+            hidden
+        >
+
+            <img
+                id="postImagePreviewImg"
+                src=""
+                alt="Selected post image preview"
             >
 
-                <div class="comments-list">
-
-                    <!-- Comments loaded dynamically -->
-
-                </div>
-
-
-                <!-- COMMENT FORM -->
-
-                <form
-                    class="comment-form"
-                    data-post-id="{{ post['id'] }}"
-                    action="{{ url_for(
-                        'comment',
-                        post_id=post['id']
-                    ) }}"
-                    method="POST"
-                >
-
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
-
-
-                    <input
-                        type="text"
-                        name="content"
-                        placeholder="Write a comment..."
-                        maxlength="2000"
-                        autocomplete="off"
-                        required
-                    >
-
-
-                    <button type="submit">
-                        ➤
-                    </button>
-
-                </form>
-
-            </div>
-
-
-        </article>
-
-        {% endfor %}
-
-    {% else %}
-
-        <div class="razor-empty">
-
-            <div>
-                🎓
-            </div>
-
-            <h2>
-                Your campus feed is quiet
-            </h2>
-
-            <p>
-                Be the first student to start the conversation.
-            </p>
+            <button
+                type="button"
+                id="removePostImage"
+                class="remove-post-image"
+                aria-label="Remove selected image"
+            >
+                ×
+            </button>
 
         </div>
 
+    </div>
+
+
+    <div class="composer-footer">
+
+        <div class="composer-options">
+
+            <button
+                type="button"
+                class="composer-option"
+                title="Emoji"
+                onclick="insertEmoji('😊')"
+            >
+                😊
+            </button>
+
+            <button
+                type="button"
+                class="composer-option"
+                title="Emoji"
+                onclick="insertEmoji('🔥')"
+            >
+                🔥
+            </button>
+
+            <button
+                type="button"
+                class="composer-option"
+                title="Emoji"
+                onclick="insertEmoji('🎓')"
+            >
+                🎓
+            </button>
+
+            <button
+                type="button"
+                class="composer-option"
+                title="Emoji"
+                onclick="insertEmoji('😂')"
+            >
+                😂
+            </button>
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="razor-post-btn"
+        >
+            Post 🚀
+        </button>
+
+    </div>
+
+</form>
+
+</section>
+
+<!-- ============================================================
+     FEED HEADER
+============================================================ -->
+
+<div class="razor-feed-header">
+
+<div>
+
+    <h1>
+        Student Feed
+    </h1>
+
+    <p>
+        What's happening across the campus community?
+    </p>
+
+</div>
+
+<span class="feed-live">
+    ● Live
+</span>
+
+</div>
+
+<!-- ============================================================
+     POSTS
+============================================================ -->
+
+<section id="postsContainer">
+
+{% if posts %}
+
+{% for post in posts %}
+
+<article
+    class="razor-post"
+    id="post-{{ post['id'] }}"
+    data-post-id="{{ post['id'] }}"
+>
+
+<!-- ========================================================
+     AUTHOR
+========================================================= -->
+
+<div class="post-author">
+
+<a
+    href="{{ url_for(
+        'view_user',
+        user_id=post['user_id']
+    ) }}"
+    class="post-avatar-link"
+>
+
+    {% if post["profile_picture"] %}
+
+        <img
+            src="{{ url_for(
+                'static',
+                filename='uploads/' +
+                post['profile_picture']
+            ) }}"
+            alt=""
+            class="post-avatar"
+            onerror="
+                this.style.display='none';
+                this.nextElementSibling.style.display='flex';
+            "
+        >
+
+        <div
+            class="post-avatar placeholder-avatar"
+            style="display:none;"
+        >
+            👤
+        </div>
+
+    {% else %}
+
+        <div class="post-avatar placeholder-avatar">
+            👤
+        </div>
+
     {% endif %}
+
+</a>
+
+
+<div class="post-author-info">
+
+    <a
+        href="{{ url_for(
+            'view_user',
+            user_id=post['user_id']
+        ) }}"
+        class="post-author-name"
+    >
+        {{ post["author_name"] }}
+    </a>
+
+
+    {% if post["author_university"] %}
+
+        <span class="post-university">
+            🎓 {{ post["author_university"] }}
+        </span>
+
+    {% endif %}
+
+
+    <span class="post-time">
+        {{ post["created_at"]|nigeria_time }}
+    </span>
+
+</div>
+
+</div>
+
+<!-- ========================================================
+     SPONSORED BADGE
+========================================================= -->
+
+{% if post["is_sponsored"] %}
+
+<div
+    class="razor-sponsored-badge"
+    aria-label="Sponsored post"
+>
+
+
+<span class="razor-sponsored-dot"></span>
+
+<span>
+    Sponsored
+</span>
+
+</div>
+
+{% endif %}
+
+<!-- ========================================================
+     CONTENT
+========================================================= -->
+
+<div class="post-content">
+
+{{ post["content"] }}
+
+</div>
+
+{% if post["image"] %}
+
+<div class="post-media">
+
+<img
+    src="{{ url_for(
+        'static',
+        filename='uploads/' + post['image']
+    ) }}"
+    alt="Post image"
+    loading="lazy"
+    onclick="openPostImage(this.src)"
+>
+</div>
+
+{% endif %}
+
+<!-- ========================================================
+     STATISTICS
+========================================================= -->
+
+<div class="post-stats">
+
+<span class="like-stat">
+
+    ❤️
+
+    <span class="like-count">
+        {{ post["like_count"] }}
+    </span>
+
+</span>
+
+
+<button
+    type="button"
+    class="comment-count-btn"
+    onclick="focusComment('{{ post.id }}')"
+>
+
+    <span class="comment-count">
+        {{ post["comment_count"] }}
+    </span>
+
+    comments
+
+</button>
+
+</div>
+
+<!-- ========================================================
+     ACTIONS
+========================================================= -->
+
+<div class="post-actions">
+
+<form
+    class="like-form"
+    data-post-id="{{ post['id'] }}"
+    action="{{ url_for(
+        'like_post',
+        post_id=post['id']
+    ) }}"
+    method="POST"
+>
+
+<input
+    type="hidden"
+    name="csrf_token"
+    value="{{ csrf_token() }}"
+>
+
+
+<button
+    type="submit"
+    class="post-action-btn like-button{% if post['user_liked'] %} liked{% endif %}"
+>
+
+    {% if post["user_liked"] %}
+
+        ❤️
+        <span>Unlike</span>
+
+    {% else %}
+
+        🤍
+        <span>Like</span>
+
+    {% endif %}
+
+</button>
+
+</form>
+
+<button
+type="button"
+class="post-action-btn"
+data-post-id="{{ post['id'] }}"
+onclick="focusComment(this.dataset.postId)"
+
+>
+
+💬
+<span>Comment</span>
+
+</button>
+
+<button
+type="button"
+class="post-action-btn"
+data-post-id="{{ post['id'] }}"
+onclick="copyPostLink(this.dataset.postId)"
+
+>
+
+↗️
+<span>Share</span>
+
+</button>
+
+</div>
+
+<!-- ========================================================
+     COMMENTS
+========================================================= -->
+
+<div
+    class="post-comments"
+    id="comments-{{ post['id'] }}"
+>
+
+<div class="comments-list"></div>
+
+
+<form
+    class="comment-form"
+    data-post-id="{{ post['id'] }}"
+    action="{{ url_for(
+        'comment',
+        post_id=post['id']
+    ) }}"
+    method="POST"
+>
+
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+
+    <input
+        type="text"
+        name="content"
+        placeholder="Write a comment..."
+        maxlength="2000"
+        autocomplete="off"
+        required
+    >
+
+
+    <button type="submit">
+        ➤
+    </button>
+
+</form>
+
+</div>
+
+</article>
+
+{% endfor %}
+
+{% else %}
+
+<div class="razor-empty">
+
+<div>
+    🎓
+</div>
+
+<h2>
+    Your campus feed is quiet
+</h2>
+
+<p>
+    Be the first student to start the conversation.
+</p>
+
+</div>
+
+{% endif %}
 
 </section>
 
@@ -668,52 +1740,157 @@ html[data-theme="dark"] .composer-option:hover {
 ============================================================ -->
 
 <script>
-/* ============================================================
-   RAZOR THEME — FUNCTIONAL DARK / LIGHT MODE
-============================================================ */
+
 (function () {
-    const root = document.documentElement;
-    const toggle = document.getElementById("themeToggle");
-    const storageKey = "unicamplink-theme";
+
+    const root =
+        document.documentElement;
+
+    const toggle =
+        document.getElementById(
+            "themeToggle"
+        );
+
+    const storageKey =
+        "unicamplink-theme";
+
 
     function applyTheme(theme) {
-        const isDark = theme === "dark";
-        root.setAttribute("data-theme", isDark ? "dark" : "light");
-        document.body.classList.toggle("dark-mode", isDark);
-        document.body.classList.toggle("light-mode", !isDark);
+
+        const isDark =
+            theme === "dark";
+
+
+        root.setAttribute(
+            "data-theme",
+            isDark
+                ? "dark"
+                : "light"
+        );
+
+
+        document.body.classList.toggle(
+            "dark-mode",
+            isDark
+        );
+
+
+        document.body.classList.toggle(
+            "light-mode",
+            !isDark
+        );
+
 
         if (toggle) {
-            toggle.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
-            toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
-            toggle.setAttribute("aria-pressed", String(isDark));
+
+            toggle.textContent =
+                isDark
+                    ? "☀️ Light Mode"
+                    : "🌙 Dark Mode";
+
+
+            toggle.setAttribute(
+                "aria-label",
+                isDark
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+            );
+
+
+            toggle.setAttribute(
+                "aria-pressed",
+                String(isDark)
+            );
+
         }
+
     }
+
 
     let savedTheme = "dark";
+
+
     try {
-        const stored = localStorage.getItem(storageKey);
-        if (stored === "light" || stored === "dark") {
-            savedTheme = stored;
+
+        const stored =
+            localStorage.getItem(
+                storageKey
+            );
+
+
+        if (
+            stored === "light" ||
+            stored === "dark"
+        ) {
+
+            savedTheme =
+                stored;
+
         }
+
     } catch (error) {
-        console.warn("Unable to read saved theme.", error);
+
+        console.warn(
+            "Unable to read saved theme.",
+            error
+        );
+
     }
 
-    applyTheme(savedTheme);
+
+    applyTheme(
+        savedTheme
+    );
+
 
     if (toggle) {
-        toggle.addEventListener("click", function () {
-            const current = root.getAttribute("data-theme") === "dark" ? "dark" : "light";
-            const next = current === "dark" ? "light" : "dark";
-            applyTheme(next);
-            try {
-                localStorage.setItem(storageKey, next);
-            } catch (error) {
-                console.warn("Unable to save theme.", error);
+
+        toggle.addEventListener(
+            "click",
+            function () {
+
+                const current =
+                    root.getAttribute(
+                        "data-theme"
+                    ) === "dark"
+                        ? "dark"
+                        : "light";
+
+
+                const next =
+                    current === "dark"
+                        ? "light"
+                        : "dark";
+
+
+                applyTheme(
+                    next
+                );
+
+
+                try {
+
+                    localStorage.setItem(
+                        storageKey,
+                        next
+                    );
+
+                } catch (error) {
+
+                    console.warn(
+                        "Unable to save theme.",
+                        error
+                    );
+
+                }
+
             }
-        });
+        );
+
     }
+
 })();
+
 </script>
 
 <!-- ============================================================
@@ -747,12 +1924,6 @@ async function parseApiResponse(response) {
         ) || "";
 
 
-    /*
-     * --------------------------------------------------------
-     * JSON RESPONSE
-     * --------------------------------------------------------
-     */
-
     if (
         contentType
             .toLowerCase()
@@ -760,6 +1931,7 @@ async function parseApiResponse(response) {
     ) {
 
         let data;
+
 
         try {
 
@@ -773,9 +1945,11 @@ async function parseApiResponse(response) {
                 error
             );
 
+
             throw new Error(
                 `The server returned invalid JSON (${response.status}).`
             );
+
         }
 
 
@@ -786,6 +1960,7 @@ async function parseApiResponse(response) {
                 data?.message ||
                 `Request failed (${response.status}).`
             );
+
         }
 
 
@@ -799,20 +1974,17 @@ async function parseApiResponse(response) {
                 data.message ||
                 "The request could not be completed."
             );
+
         }
 
 
         return data;
+
     }
 
 
-    /*
-     * --------------------------------------------------------
-     * NON-JSON RESPONSE
-     * --------------------------------------------------------
-     */
-
     let responseText = "";
+
 
     try {
 
@@ -825,6 +1997,7 @@ async function parseApiResponse(response) {
             "Unable to read server response:",
             error
         );
+
     }
 
 
@@ -836,6 +2009,7 @@ async function parseApiResponse(response) {
         throw new Error(
             "Your session may have expired. Please log in again."
         );
+
     }
 
 
@@ -846,6 +2020,7 @@ async function parseApiResponse(response) {
         throw new Error(
             "This action was blocked. Your session may have expired or the request was rejected."
         );
+
     }
 
 
@@ -856,6 +2031,7 @@ async function parseApiResponse(response) {
         throw new Error(
             "The requested post or comment could not be found."
         );
+
     }
 
 
@@ -866,6 +2042,7 @@ async function parseApiResponse(response) {
         throw new Error(
             "The request is too large."
         );
+
     }
 
 
@@ -876,6 +2053,7 @@ async function parseApiResponse(response) {
         throw new Error(
             "Something went wrong on the server. Please try again."
         );
+
     }
 
 
@@ -900,12 +2078,14 @@ async function parseApiResponse(response) {
         throw new Error(
             cleanText
         );
+
     }
 
 
     throw new Error(
         `Request failed (${response.status}).`
     );
+
 }
 
 
@@ -926,57 +2106,127 @@ function insertEmoji(emoji) {
     }
 
 
-    textarea.value += emoji;
+    const start =
+        textarea.selectionStart ??
+        textarea.value.length;
+
+
+    const end =
+        textarea.selectionEnd ??
+        textarea.value.length;
+
+
+    textarea.value =
+        textarea.value.substring(
+            0,
+            start
+        ) +
+        emoji +
+        textarea.value.substring(
+            end
+        );
+
+
+    textarea.selectionStart =
+        textarea.selectionEnd =
+            start + emoji.length;
+
 
     textarea.focus();
+
 }
 
 
 /* ============================================================
-   FOCUS COMMENT
+   COMMENTS
 ============================================================ */
 
-function toggleComments(postId, focusInput = true) {
+function toggleComments(
+    postId,
+    focusInput = true
+) {
 
     const comments =
-        document.getElementById(`comments-${postId}`);
+        document.getElementById(
+            `comments-${postId}`
+        );
+
 
     if (!comments) {
         return;
     }
 
+
     const isVisible =
-        comments.classList.contains("visible");
-
-    if (isVisible) {
-        comments.classList.remove("visible");
-        return;
-    }
-
-    comments.classList.add("visible");
-
-    // Load comments only when the user opens them.
-    loadComments(postId);
-
-    if (focusInput) {
-        const input = comments.querySelector(
-            ".comment-form input[name='content']"
+        comments.classList.contains(
+            "visible"
         );
 
-        if (input) {
-            setTimeout(function () {
-                try {
-                    input.focus({ preventScroll: true });
-                } catch (error) {
-                    input.focus();
-                }
-            }, 80);
-        }
+
+    if (isVisible) {
+
+        comments.classList.remove(
+            "visible"
+        );
+
+        return;
+
     }
+
+
+    comments.classList.add(
+        "visible"
+    );
+
+
+    loadComments(
+        postId
+    );
+
+
+    if (focusInput) {
+
+        const input =
+            comments.querySelector(
+                ".comment-form input[name='content']"
+            );
+
+
+        if (input) {
+
+            setTimeout(
+                function () {
+
+                    try {
+
+                        input.focus({
+                            preventScroll: true
+                        });
+
+                    } catch (error) {
+
+                        input.focus();
+
+                    }
+
+                },
+                80
+            );
+
+        }
+
+    }
+
 }
 
+
 function focusComment(postId) {
-    toggleComments(postId, true);
+
+    toggleComments(
+        postId,
+        true
+    );
+
 }
 
 
@@ -986,134 +2236,146 @@ function focusComment(postId) {
 
 document.querySelectorAll(
     ".like-form"
-).forEach(form => {
+).forEach(
+    form => {
 
-    form.addEventListener(
-        "submit",
-        async function(event) {
+        form.addEventListener(
+            "submit",
+            async function(event) {
 
-            event.preventDefault();
-
-
-            const button =
-                form.querySelector(
-                    ".like-button"
-                );
+                event.preventDefault();
 
 
-            const postId =
-                form.dataset.postId;
-
-
-            if (
-                !button ||
-                !postId ||
-                button.disabled
-            ) {
-
-                return;
-            }
-
-
-            button.disabled = true;
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        form.action,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "X-CSRFToken":
-                                    csrfToken,
-
-                                "X-Requested-With":
-                                    "XMLHttpRequest",
-
-                                "Accept":
-                                    "application/json"
-                            },
-
-                            credentials:
-                                "same-origin"
-                        }
+                const button =
+                    form.querySelector(
+                        ".like-button"
                     );
 
 
-                const data =
-                    await parseApiResponse(
-                        response
-                    );
+                const postId =
+                    form.dataset.postId;
 
 
-                const post =
-                    document.getElementById(
-                        `post-${postId}`
-                    );
+                if (
+                    !button ||
+                    !postId ||
+                    button.disabled
+                ) {
 
-
-                if (!post) {
                     return;
+
                 }
 
 
-                const count =
-                    post.querySelector(
-                        ".like-count"
+                button.disabled =
+                    true;
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            form.action,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "X-CSRFToken":
+                                        csrfToken,
+
+                                    "X-Requested-With":
+                                        "XMLHttpRequest",
+
+                                    "Accept":
+                                        "application/json"
+                                },
+
+                                credentials:
+                                    "same-origin"
+                            }
+                        );
+
+
+                    const data =
+                        await parseApiResponse(
+                            response
+                        );
+
+
+                    const post =
+                        document.getElementById(
+                            `post-${postId}`
+                        );
+
+
+                    if (!post) {
+                        return;
+                    }
+
+
+                    const count =
+                        post.querySelector(
+                            ".like-count"
+                        );
+
+
+                    if (count) {
+
+                        count.textContent =
+                            data.like_count;
+
+                    }
+
+
+                    if (data.user_liked) {
+
+                        button.classList.add(
+                            "liked"
+                        );
+
+
+                        button.innerHTML =
+                            "❤️ <span>Unlike</span>";
+
+                    } else {
+
+                        button.classList.remove(
+                            "liked"
+                        );
+
+
+                        button.innerHTML =
+                            "🤍 <span>Like</span>";
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Like error:",
+                        error
                     );
 
 
-                if (count) {
+                    alert(
+                        error.message ||
+                        "Unable to update like."
+                    );
 
-                    count.textContent =
-                        data.like_count;
+
+                } finally {
+
+                    button.disabled =
+                        false;
+
                 }
 
-
-                if (data.user_liked) {
-
-                    button.classList.add(
-                        "liked"
-                    );
-
-                    button.innerHTML =
-                        "❤️ <span>Unlike</span>";
-
-                } else {
-
-                    button.classList.remove(
-                        "liked"
-                    );
-
-                    button.innerHTML =
-                        "🤍 <span>Like</span>";
-                }
-
-
-            } catch (error) {
-
-                console.error(
-                    "Like error:",
-                    error
-                );
-
-
-                alert(
-                    error.message ||
-                    "Unable to update like."
-                );
-
-
-            } finally {
-
-                button.disabled = false;
             }
-        }
-    );
-});
+        );
+
+    }
+);
 
 
 /* ============================================================
@@ -1122,189 +2384,203 @@ document.querySelectorAll(
 
 document.querySelectorAll(
     ".comment-form"
-).forEach(form => {
+).forEach(
+    form => {
 
-    form.addEventListener(
-        "submit",
-        async function(event) {
+        form.addEventListener(
+            "submit",
+            async function(event) {
 
-            event.preventDefault();
-
-
-            const input =
-                form.querySelector(
-                    "input[name='content']"
-                );
+                event.preventDefault();
 
 
-            const button =
-                form.querySelector(
-                    "button[type='submit']"
-                );
-
-
-            const postId =
-                form.dataset.postId;
-
-
-            if (
-                !input ||
-                !button ||
-                !postId
-            ) {
-
-                return;
-            }
-
-
-            const content =
-                input.value.trim();
-
-
-            if (!content) {
-                return;
-            }
-
-
-            if (button.disabled) {
-                return;
-            }
-
-
-            button.disabled = true;
-
-
-            const parentCommentId =
-                input.dataset.parentCommentId ||
-                "";
-
-
-            const formData =
-                new FormData(form);
-
-
-            if (parentCommentId) {
-
-                formData.set(
-                    "parent_comment_id",
-                    parentCommentId
-                );
-
-            } else {
-
-                formData.delete(
-                    "parent_comment_id"
-                );
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        form.action,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "X-CSRFToken":
-                                    csrfToken,
-
-                                "X-Requested-With":
-                                    "XMLHttpRequest",
-
-                                "Accept":
-                                    "application/json"
-                            },
-
-                            credentials:
-                                "same-origin",
-
-                            body:
-                                formData
-                        }
+                const input =
+                    form.querySelector(
+                        "input[name='content']"
                     );
 
 
-                const data =
-                    await parseApiResponse(
-                        response
+                const button =
+                    form.querySelector(
+                        "button[type='submit']"
                     );
 
 
-                const commentsList =
-                    document.querySelector(
-                        `#comments-${postId} .comments-list`
-                    );
+                const postId =
+                    form.dataset.postId;
 
 
                 if (
-                    commentsList &&
-                    data.comment
+                    !input ||
+                    !button ||
+                    !postId
                 ) {
 
-                    addCommentToList(
-                        commentsList,
-                        data.comment
-                    );
+                    return;
+
                 }
 
 
-                const post =
-                    document.getElementById(
-                        `post-${postId}`
+                const content =
+                    input.value.trim();
+
+
+                if (!content) {
+                    return;
+                }
+
+
+                if (button.disabled) {
+                    return;
+                }
+
+
+                button.disabled =
+                    true;
+
+
+                const parentCommentId =
+                    input.dataset.parentCommentId ||
+                    "";
+
+
+                const formData =
+                    new FormData(
+                        form
                     );
 
 
-                if (post) {
+                if (parentCommentId) {
 
-                    const count =
-                        post.querySelector(
-                            ".comment-count"
+                    formData.set(
+                        "parent_comment_id",
+                        parentCommentId
+                    );
+
+                } else {
+
+                    formData.delete(
+                        "parent_comment_id"
+                    );
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            form.action,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "X-CSRFToken":
+                                        csrfToken,
+
+                                    "X-Requested-With":
+                                        "XMLHttpRequest",
+
+                                    "Accept":
+                                        "application/json"
+                                },
+
+                                credentials:
+                                    "same-origin",
+
+                                body:
+                                    formData
+                            }
                         );
 
 
-                    if (count) {
+                    const data =
+                        await parseApiResponse(
+                            response
+                        );
 
-                        count.textContent =
-                            data.comment_count;
+
+                    const commentsList =
+                        document.querySelector(
+                            `#comments-${postId} .comments-list`
+                        );
+
+
+                    if (
+                        commentsList &&
+                        data.comment
+                    ) {
+
+                        addCommentToList(
+                            commentsList,
+                            data.comment
+                        );
+
                     }
+
+
+                    const post =
+                        document.getElementById(
+                            `post-${postId}`
+                        );
+
+
+                    if (post) {
+
+                        const count =
+                            post.querySelector(
+                                ".comment-count"
+                            );
+
+
+                        if (count) {
+
+                            count.textContent =
+                                data.comment_count;
+
+                        }
+
+                    }
+
+
+                    input.value = "";
+
+
+                    cancelReply(
+                        input
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Comment error:",
+                        error
+                    );
+
+
+                    alert(
+                        error.message ||
+                        "Unable to add comment."
+                    );
+
+
+                } finally {
+
+                    button.disabled =
+                        false;
+
                 }
 
-
-                input.value = "";
-
-
-                cancelReply(
-                    input
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Comment error:",
-                    error
-                );
-
-
-                alert(
-                    error.message ||
-                    "Unable to add comment."
-                );
-
-
-            } finally {
-
-                button.disabled = false;
             }
-        }
-    );
-});
+        );
+
+    }
+);
 
 
 /* ============================================================
-   ADD COMMENT / REPLY TO DOM
+   ADD COMMENT / REPLY
 ============================================================ */
 
 function addCommentToList(
@@ -1319,6 +2595,7 @@ function addCommentToList(
     ) {
 
         return;
+
     }
 
 
@@ -1327,10 +2604,6 @@ function addCommentToList(
             comment.id
         );
 
-
-    /*
-     * Strong duplicate protection.
-     */
 
     const existing =
         commentsList.querySelector(
@@ -1342,10 +2615,6 @@ function addCommentToList(
         return;
     }
 
-
-    /*
-     * Create comment element.
-     */
 
     const commentElement =
         document.createElement(
@@ -1363,13 +2632,11 @@ function addCommentToList(
 
     commentElement.dataset.parentCommentId =
         comment.parent_comment_id
-            ? String(comment.parent_comment_id)
+            ? String(
+                comment.parent_comment_id
+            )
             : "";
 
-
-    /* --------------------------------------------------------
-       AVATAR
-    -------------------------------------------------------- */
 
     const avatarContainer =
         document.createElement(
@@ -1473,6 +2740,7 @@ function addCommentToList(
         avatarLink.appendChild(
             placeholder
         );
+
     }
 
 
@@ -1480,10 +2748,6 @@ function addCommentToList(
         avatarLink
     );
 
-
-    /* --------------------------------------------------------
-       COMMENT BODY
-    -------------------------------------------------------- */
 
     const body =
         document.createElement(
@@ -1494,10 +2758,6 @@ function addCommentToList(
     body.className =
         "comment-body";
 
-
-    /*
-     * Author name.
-     */
 
     const authorLink =
         document.createElement(
@@ -1538,10 +2798,6 @@ function addCommentToList(
     );
 
 
-    /*
-     * Comment bubble.
-     */
-
     const bubble =
         document.createElement(
             "div"
@@ -1561,10 +2817,6 @@ function addCommentToList(
         bubble
     );
 
-
-    /*
-     * Comment actions.
-     */
 
     const actions =
         document.createElement(
@@ -1616,10 +2868,6 @@ function addCommentToList(
     );
 
 
-    /*
-     * Assemble comment.
-     */
-
     commentElement.appendChild(
         avatarContainer
     );
@@ -1630,10 +2878,6 @@ function addCommentToList(
     );
 
 
-    /* --------------------------------------------------------
-       TOP-LEVEL COMMENT
-    -------------------------------------------------------- */
-
     if (
         !comment.parent_comment_id
     ) {
@@ -1643,12 +2887,9 @@ function addCommentToList(
         );
 
         return;
+
     }
 
-
-    /* --------------------------------------------------------
-       REPLY
-    -------------------------------------------------------- */
 
     const parentId =
         String(
@@ -1662,10 +2903,6 @@ function addCommentToList(
         );
 
 
-    /*
-     * Parent isn't currently available.
-     */
-
     if (!parentComment) {
 
         commentsList.appendChild(
@@ -1673,12 +2910,9 @@ function addCommentToList(
         );
 
         return;
+
     }
 
-
-    /*
-     * Find/create replies container.
-     */
 
     let repliesContainer =
         parentComment.querySelector(
@@ -1701,21 +2935,19 @@ function addCommentToList(
         parentComment.appendChild(
             repliesContainer
         );
+
     }
 
-
-    /*
-     * Add reply.
-     */
 
     repliesContainer.appendChild(
         commentElement
     );
+
 }
 
 
 /* ============================================================
-   LOAD EXISTING COMMENTS
+   LOAD COMMENTS
 ============================================================ */
 
 async function loadComments(postId) {
@@ -1731,27 +2963,23 @@ async function loadComments(postId) {
     }
 
 
-    /*
-     * Prevent duplicate loading.
-     */
-
     if (
-        commentsList.dataset.loaded === "true"
+        commentsList.dataset.loaded ===
+        "true"
     ) {
 
         return;
+
     }
 
 
-    /*
-     * Prevent simultaneous requests.
-     */
-
     if (
-        commentsList.dataset.loading === "true"
+        commentsList.dataset.loading ===
+        "true"
     ) {
 
         return;
+
     }
 
 
@@ -1796,30 +3024,16 @@ async function loadComments(postId) {
             throw new Error(
                 "The server returned an invalid comments response."
             );
+
         }
 
-
-        /*
-         * Mark loaded BEFORE rendering.
-         */
 
         commentsList.dataset.loaded =
             "true";
 
 
-        /*
-         * Clear only after successful
-         * server response.
-         */
-
         commentsList.replaceChildren();
 
-
-        /*
-         * ----------------------------------------------------
-         * TOP-LEVEL COMMENTS FIRST
-         * ----------------------------------------------------
-         */
 
         const topLevelComments =
             data.comments.filter(
@@ -1839,12 +3053,6 @@ async function loadComments(postId) {
             }
         );
 
-
-        /*
-         * ----------------------------------------------------
-         * REPLIES SECOND
-         * ----------------------------------------------------
-         */
 
         const replies =
             data.comments.filter(
@@ -1867,10 +3075,6 @@ async function loadComments(postId) {
 
     } catch (error) {
 
-        /*
-         * Allow retry after failed load.
-         */
-
         delete commentsList.dataset.loaded;
 
 
@@ -1883,9 +3087,10 @@ async function loadComments(postId) {
     } finally {
 
         delete commentsList.dataset.loading;
-    }
-}
 
+    }
+
+}
 
 
 /* ============================================================
@@ -1940,27 +3145,15 @@ function prepareReply(commentId) {
     }
 
 
-    /*
-     * Store parent ID.
-     */
-
     input.dataset.parentCommentId =
         String(
             commentId
         );
 
 
-    /*
-     * Change placeholder.
-     */
-
     input.placeholder =
         "Reply to this comment...";
 
-
-    /*
-     * Find/create cancel button.
-     */
 
     let cancelButton =
         form.querySelector(
@@ -2003,30 +3196,27 @@ function prepareReply(commentId) {
         form.appendChild(
             cancelButton
         );
+
     }
 
-
-    /*
-     * Show cancel button.
-     */
 
     cancelButton.style.display =
         "inline-block";
 
 
-    /*
-     * Scroll to input once.
-     */
+    try {
 
-    input.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-    });
+        input.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
 
+    } catch (error) {
 
-    /*
-     * Focus after scrolling.
-     */
+        input.scrollIntoView();
+
+    }
+
 
     setTimeout(
         function() {
@@ -2036,6 +3226,7 @@ function prepareReply(commentId) {
         },
         350
     );
+
 }
 
 
@@ -2050,24 +3241,12 @@ function cancelReply(input) {
     }
 
 
-    /*
-     * Remove parent ID.
-     */
-
     delete input.dataset.parentCommentId;
 
-
-    /*
-     * Restore placeholder.
-     */
 
     input.placeholder =
         "Write a comment...";
 
-
-    /*
-     * Hide cancel button.
-     */
 
     const form =
         input.closest(
@@ -2090,7 +3269,9 @@ function cancelReply(input) {
 
         cancelButton.style.display =
             "none";
+
     }
+
 }
 
 
@@ -2110,7 +3291,9 @@ function copyPostLink(postId) {
     ) {
 
         navigator.clipboard
-            .writeText(url)
+            .writeText(
+                url
+            )
             .then(
                 function() {
 
@@ -2135,12 +3318,14 @@ function copyPostLink(postId) {
         alert(
             url
         );
+
     }
+
 }
 
 
 /* ============================================================
-   CREATE POST — AJAX — NO PAGE REFRESH
+   CREATE POST
 ============================================================ */
 
 const createPostForm =
@@ -2150,88 +3335,85 @@ const createPostForm =
 
 
 /* ============================================================
-   INSERT NEW POST INTO FEED
+   INSERT NEW POST
 ============================================================ */
 
-function insertNewRazorPost(postData) {
+function insertNewRazorPost(
+    postData
+) {
 
-    if (!postData || !postData.id) {
+    if (
+        !postData ||
+        !postData.id
+    ) {
+
         return;
+
     }
+
 
     const postsContainer =
         document.getElementById(
             "postsContainer"
         );
 
+
     if (!postsContainer) {
         return;
     }
 
-
-    /*
-     * --------------------------------------------------------
-     * Prevent duplicate insertion
-     * --------------------------------------------------------
-     */
 
     const existingPost =
         document.getElementById(
             `post-${postData.id}`
         );
 
+
     if (existingPost) {
         return;
     }
 
-
-    /*
-     * --------------------------------------------------------
-     * Remove empty-feed message if it exists
-     * --------------------------------------------------------
-     */
 
     const emptyFeed =
         postsContainer.querySelector(
             ".razor-empty"
         );
 
+
     if (emptyFeed) {
         emptyFeed.remove();
     }
 
-
-    /*
-     * --------------------------------------------------------
-     * Create post article
-     * --------------------------------------------------------
-     */
 
     const post =
         document.createElement(
             "article"
         );
 
+
     post.className =
         "razor-post";
+
 
     post.id =
         `post-${postData.id}`;
 
+
     post.dataset.postId =
-        String(postData.id);
+        String(
+            postData.id
+        );
 
 
-    /*
-     * --------------------------------------------------------
-     * AUTHOR SECTION
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       AUTHOR
+    ======================================================== */
 
     const author =
         document.createElement(
             "div"
         );
+
 
     author.className =
         "post-author";
@@ -2242,16 +3424,14 @@ function insertNewRazorPost(postData) {
             "a"
         );
 
+
     avatarLink.href =
         `/user/${postData.user_id}`;
+
 
     avatarLink.className =
         "post-avatar-link";
 
-
-    /*
-     * Avatar
-     */
 
     if (postData.profile_picture) {
 
@@ -2260,13 +3440,16 @@ function insertNewRazorPost(postData) {
                 "img"
             );
 
+
         image.src =
             `/static/uploads/${encodeURIComponent(
                 postData.profile_picture
             )}`;
 
+
         image.alt =
             "";
+
 
         image.className =
             "post-avatar";
@@ -2277,11 +3460,14 @@ function insertNewRazorPost(postData) {
                 "div"
             );
 
+
         placeholder.className =
             "post-avatar placeholder-avatar";
 
+
         placeholder.style.display =
             "none";
+
 
         placeholder.textContent =
             "👤";
@@ -2293,6 +3479,7 @@ function insertNewRazorPost(postData) {
 
                 this.style.display =
                     "none";
+
 
                 placeholder.style.display =
                     "flex";
@@ -2308,6 +3495,7 @@ function insertNewRazorPost(postData) {
             image
         );
 
+
         avatarLink.appendChild(
             placeholder
         );
@@ -2319,15 +3507,19 @@ function insertNewRazorPost(postData) {
                 "div"
             );
 
+
         placeholder.className =
             "post-avatar placeholder-avatar";
+
 
         placeholder.textContent =
             "👤";
 
+
         avatarLink.appendChild(
             placeholder
         );
+
     }
 
 
@@ -2336,14 +3528,11 @@ function insertNewRazorPost(postData) {
     );
 
 
-    /*
-     * Author information
-     */
-
     const authorInfo =
         document.createElement(
             "div"
         );
+
 
     authorInfo.className =
         "post-author-info";
@@ -2354,11 +3543,14 @@ function insertNewRazorPost(postData) {
             "a"
         );
 
+
     authorName.href =
         `/user/${postData.user_id}`;
 
+
     authorName.className =
         "post-author-name";
+
 
     authorName.textContent =
         postData.author_name ||
@@ -2377,33 +3569,35 @@ function insertNewRazorPost(postData) {
                 "span"
             );
 
+
         university.className =
             "post-university";
+
 
         university.textContent =
             `🎓 ${postData.author_university}`;
 
+
         authorInfo.appendChild(
             university
         );
+
     }
 
-
-    /*
-     * New posts are genuinely just created,
-     * so show "Just now".
-     */
 
     const postTime =
         document.createElement(
             "span"
         );
 
+
     postTime.className =
         "post-time";
 
+
     postTime.textContent =
         "Just now";
+
 
     authorInfo.appendChild(
         postTime
@@ -2414,101 +3608,211 @@ function insertNewRazorPost(postData) {
         authorInfo
     );
 
+
     post.appendChild(
         author
     );
 
 
-    /*
-     * --------------------------------------------------------
-     * CONTENT
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       SPONSORED
+    ======================================================== */
+
+    if (
+        postData.is_sponsored
+    ) {
+
+        const sponsored =
+            document.createElement(
+                "div"
+            );
+
+
+        sponsored.className =
+            "razor-sponsored-badge";
+
+
+        sponsored.setAttribute(
+            "aria-label",
+            "Sponsored post"
+        );
+
+
+        const dot =
+            document.createElement(
+                "span"
+            );
+
+
+        dot.className =
+            "razor-sponsored-dot";
+
+
+        const text =
+            document.createElement(
+                "span"
+            );
+
+
+        text.textContent =
+            "Sponsored";
+
+
+        sponsored.appendChild(
+            dot
+        );
+
+
+        sponsored.appendChild(
+            text
+        );
+
+
+        post.appendChild(
+            sponsored
+        );
+
+    }
+
+
+    /* ========================================================
+       CONTENT
+    ======================================================== */
 
     const content =
         document.createElement(
             "div"
         );
 
+
     content.className =
         "post-content";
 
+
     content.textContent =
-        postData.content || "";
+        postData.content ||
+        "";
+
 
     post.appendChild(
         content
     );
 
+
     if (postData.image) {
-        const media = document.createElement("div");
-        media.className = "post-media";
-        const mediaImage = document.createElement("img");
-        mediaImage.src = `/static/uploads/${encodeURIComponent(postData.image)}`;
-        mediaImage.alt = "Post image";
-        mediaImage.loading = "lazy";
-        mediaImage.addEventListener("click", function() { openPostImage(this.src); });
-        media.appendChild(mediaImage);
-        post.appendChild(media);
+
+        const media =
+            document.createElement(
+                "div"
+            );
+
+
+        media.className =
+            "post-media";
+
+
+        const mediaImage =
+            document.createElement(
+                "img"
+            );
+
+
+        mediaImage.src =
+            `/static/uploads/${encodeURIComponent(
+                postData.image
+            )}`;
+
+
+        mediaImage.alt =
+            "Post image";
+
+
+        mediaImage.loading =
+            "lazy";
+
+
+        mediaImage.addEventListener(
+            "click",
+            function() {
+
+                openPostImage(
+                    this.src
+                );
+
+            }
+        );
+
+
+        media.appendChild(
+            mediaImage
+        );
+
+
+        post.appendChild(
+            media
+        );
+
     }
 
 
-    /*
-     * --------------------------------------------------------
-     * STATISTICS
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       STATISTICS
+    ======================================================== */
 
     const stats =
         document.createElement(
             "div"
         );
 
+
     stats.className =
         "post-stats";
 
-
-    /*
-     * Like statistic
-     */
 
     const likeStat =
         document.createElement(
             "span"
         );
 
+
     likeStat.className =
         "like-stat";
 
+
     likeStat.innerHTML =
-        `❤️ <span class="like-count">0</span>`;
+        `
+        ❤️
+        <span class="like-count">0</span>
+        `;
+
 
     stats.appendChild(
         likeStat
     );
 
 
-    /*
-     * Comment statistic
-     */
-
     const commentCountButton =
         document.createElement(
             "button"
         );
 
+
     commentCountButton.type =
         "button";
 
+
     commentCountButton.className =
         "comment-count-btn";
+
 
     commentCountButton.addEventListener(
         "click",
         function() {
 
             focusComment(
-                String(postData.id)
+                String(
+                    postData.id
+                )
             );
 
         }
@@ -2520,8 +3824,10 @@ function insertNewRazorPost(postData) {
             "span"
         );
 
+
     commentCount.className =
         "comment-count";
+
 
     commentCount.textContent =
         "0";
@@ -2531,53 +3837,57 @@ function insertNewRazorPost(postData) {
         commentCount
     );
 
+
     commentCountButton.appendChild(
         document.createTextNode(
             " comments"
         )
     );
 
+
     stats.appendChild(
         commentCountButton
     );
+
 
     post.appendChild(
         stats
     );
 
 
-    /*
-     * --------------------------------------------------------
-     * ACTIONS
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       ACTIONS
+    ======================================================== */
 
     const actions =
         document.createElement(
             "div"
         );
 
+
     actions.className =
         "post-actions";
 
-
-    /*
-     * LIKE FORM
-     */
 
     const likeForm =
         document.createElement(
             "form"
         );
 
+
     likeForm.className =
         "like-form";
 
+
     likeForm.dataset.postId =
-        String(postData.id);
+        String(
+            postData.id
+        );
+
 
     likeForm.action =
         `/like/${postData.id}`;
+
 
     likeForm.method =
         "POST";
@@ -2588,14 +3898,18 @@ function insertNewRazorPost(postData) {
             "input"
         );
 
+
     csrf.type =
         "hidden";
+
 
     csrf.name =
         "csrf_token";
 
+
     csrf.value =
         csrfToken;
+
 
     likeForm.appendChild(
         csrf
@@ -2607,11 +3921,14 @@ function insertNewRazorPost(postData) {
             "button"
         );
 
+
     likeButton.type =
         "submit";
 
+
     likeButton.className =
         "post-action-btn like-button";
+
 
     likeButton.innerHTML =
         "🤍 <span>Like</span>";
@@ -2621,25 +3938,25 @@ function insertNewRazorPost(postData) {
         likeButton
     );
 
+
     actions.appendChild(
         likeForm
     );
 
-
-    /*
-     * COMMENT BUTTON
-     */
 
     const commentButton =
         document.createElement(
             "button"
         );
 
+
     commentButton.type =
         "button";
 
+
     commentButton.className =
         "post-action-btn";
+
 
     commentButton.innerHTML =
         "💬 <span>Comment</span>";
@@ -2650,7 +3967,9 @@ function insertNewRazorPost(postData) {
         function() {
 
             focusComment(
-                String(postData.id)
+                String(
+                    postData.id
+                )
             );
 
         }
@@ -2662,20 +3981,19 @@ function insertNewRazorPost(postData) {
     );
 
 
-    /*
-     * SHARE BUTTON
-     */
-
     const shareButton =
         document.createElement(
             "button"
         );
 
+
     shareButton.type =
         "button";
 
+
     shareButton.className =
         "post-action-btn";
+
 
     shareButton.innerHTML =
         "↗️ <span>Share</span>";
@@ -2686,7 +4004,9 @@ function insertNewRazorPost(postData) {
         function() {
 
             copyPostLink(
-                String(postData.id)
+                String(
+                    postData.id
+                )
             );
 
         }
@@ -2703,19 +4023,19 @@ function insertNewRazorPost(postData) {
     );
 
 
-    /*
-     * --------------------------------------------------------
-     * COMMENTS SECTION
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       COMMENTS SECTION
+    ======================================================== */
 
     const commentsSection =
         document.createElement(
             "div"
         );
 
+
     commentsSection.className =
         "post-comments";
+
 
     commentsSection.id =
         `comments-${postData.id}`;
@@ -2726,6 +4046,7 @@ function insertNewRazorPost(postData) {
             "div"
         );
 
+
     commentsList.className =
         "comments-list";
 
@@ -2735,23 +4056,25 @@ function insertNewRazorPost(postData) {
     );
 
 
-    /*
-     * COMMENT FORM
-     */
-
     const commentForm =
         document.createElement(
             "form"
         );
 
+
     commentForm.className =
         "comment-form";
 
+
     commentForm.dataset.postId =
-        String(postData.id);
+        String(
+            postData.id
+        );
+
 
     commentForm.action =
         `/comment/${postData.id}`;
+
 
     commentForm.method =
         "POST";
@@ -2762,14 +4085,18 @@ function insertNewRazorPost(postData) {
             "input"
         );
 
+
     commentCsrf.type =
         "hidden";
+
 
     commentCsrf.name =
         "csrf_token";
 
+
     commentCsrf.value =
         csrfToken;
+
 
     commentForm.appendChild(
         commentCsrf
@@ -2781,20 +4108,26 @@ function insertNewRazorPost(postData) {
             "input"
         );
 
+
     commentInput.type =
         "text";
+
 
     commentInput.name =
         "content";
 
+
     commentInput.placeholder =
         "Write a comment...";
+
 
     commentInput.maxLength =
         2000;
 
+
     commentInput.autocomplete =
         "off";
+
 
     commentInput.required =
         true;
@@ -2810,8 +4143,10 @@ function insertNewRazorPost(postData) {
             "button"
         );
 
+
     commentSubmit.type =
         "submit";
+
 
     commentSubmit.textContent =
         "➤";
@@ -2821,31 +4156,25 @@ function insertNewRazorPost(postData) {
         commentSubmit
     );
 
+
     commentsSection.appendChild(
         commentForm
     );
+
 
     post.appendChild(
         commentsSection
     );
 
 
-    /*
-     * --------------------------------------------------------
-     * INSERT AT TOP OF FEED
-     * --------------------------------------------------------
-     */
-
     postsContainer.prepend(
         post
     );
 
 
-    /*
-     * --------------------------------------------------------
-     * ACTIVATE LIKE AJAX FOR NEW POST
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       NEW POST LIKE AJAX
+    ======================================================== */
 
     likeForm.addEventListener(
         "submit",
@@ -2853,14 +4182,19 @@ function insertNewRazorPost(postData) {
 
             event.preventDefault();
 
+
             if (
                 likeButton.disabled
             ) {
+
                 return;
+
             }
+
 
             likeButton.disabled =
                 true;
+
 
             try {
 
@@ -2903,6 +4237,7 @@ function insertNewRazorPost(postData) {
 
                     count.textContent =
                         data.like_count;
+
                 }
 
 
@@ -2911,6 +4246,7 @@ function insertNewRazorPost(postData) {
                     likeButton.classList.add(
                         "liked"
                     );
+
 
                     likeButton.innerHTML =
                         "❤️ <span>Unlike</span>";
@@ -2921,8 +4257,10 @@ function insertNewRazorPost(postData) {
                         "liked"
                     );
 
+
                     likeButton.innerHTML =
                         "🤍 <span>Like</span>";
+
                 }
 
             } catch (error) {
@@ -2931,6 +4269,7 @@ function insertNewRazorPost(postData) {
                     "New post like error:",
                     error
                 );
+
 
                 alert(
                     error.message ||
@@ -2941,16 +4280,16 @@ function insertNewRazorPost(postData) {
 
                 likeButton.disabled =
                     false;
+
             }
+
         }
     );
 
 
-    /*
-     * --------------------------------------------------------
-     * ACTIVATE COMMENT AJAX FOR NEW POST
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       NEW POST COMMENT AJAX
+    ======================================================== */
 
     commentForm.addEventListener(
         "submit",
@@ -2971,7 +4310,9 @@ function insertNewRazorPost(postData) {
             if (
                 commentSubmit.disabled
             ) {
+
                 return;
+
             }
 
 
@@ -3027,6 +4368,7 @@ function insertNewRazorPost(postData) {
                         commentsList,
                         data.comment
                     );
+
                 }
 
 
@@ -3037,10 +4379,12 @@ function insertNewRazorPost(postData) {
 
                     commentCount.textContent =
                         data.comment_count;
+
                 }
 
 
-                commentInput.value = "";
+                commentInput.value =
+                    "";
 
             } catch (error) {
 
@@ -3048,6 +4392,7 @@ function insertNewRazorPost(postData) {
                     "New post comment error:",
                     error
                 );
+
 
                 alert(
                     error.message ||
@@ -3058,77 +4403,267 @@ function insertNewRazorPost(postData) {
 
                 commentSubmit.disabled =
                     false;
+
             }
+
         }
     );
 
 
-    /*
-     * --------------------------------------------------------
-     * SMOOTHLY SHOW NEW POST
-     * --------------------------------------------------------
-     */
+    /* ========================================================
+       SHOW NEW POST
+    ======================================================== */
 
     post.scrollIntoView({
         behavior: "smooth",
         block: "start"
     });
+
 }
 
 
 /* ============================================================
-   POST IMAGE PICKER + PREVIEW
+   POST IMAGE PICKER
 ============================================================ */
-const postImageInput = document.getElementById("postImage");
-const postImagePreview = document.getElementById("postImagePreview");
-const postImagePreviewImg = document.getElementById("postImagePreviewImg");
-const removePostImageButton = document.getElementById("removePostImage");
+
+const postImageInput =
+    document.getElementById(
+        "postImage"
+    );
+
+
+const postImagePreview =
+    document.getElementById(
+        "postImagePreview"
+    );
+
+
+const postImagePreviewImg =
+    document.getElementById(
+        "postImagePreviewImg"
+    );
+
+
+const removePostImageButton =
+    document.getElementById(
+        "removePostImage"
+    );
+
 
 if (postImageInput) {
-    postImageInput.addEventListener("change", function() {
-        const file = this.files && this.files[0];
-        if (!file) return;
-        if (!["image/png", "image/jpeg", "image/gif"].includes(file.type)) {
-            alert("Please choose a PNG, JPG, JPEG or GIF image.");
-            this.value = ""; return;
+
+    postImageInput.addEventListener(
+        "change",
+        function() {
+
+            const file =
+                this.files &&
+                this.files[0];
+
+
+            if (!file) {
+                return;
+            }
+
+
+            if (
+                ![
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif"
+                ].includes(
+                    file.type
+                )
+            ) {
+
+                alert(
+                    "Please choose a PNG, JPG, JPEG or GIF image."
+                );
+
+
+                this.value =
+                    "";
+
+
+                return;
+
+            }
+
+
+            if (
+                file.size >
+                5 * 1024 * 1024
+            ) {
+
+                alert(
+                    "Image must be 5 MB or smaller."
+                );
+
+
+                this.value =
+                    "";
+
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function(event) {
+
+                    postImagePreviewImg.src =
+                        event.target.result;
+
+
+                    postImagePreview.hidden =
+                        false;
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
         }
-        if (file.size > 5 * 1024 * 1024) {
-            alert("Image must be 5 MB or smaller.");
-            this.value = ""; return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            postImagePreviewImg.src = event.target.result;
-            postImagePreview.hidden = false;
-        };
-        reader.readAsDataURL(file);
-    });
+    );
+
 }
 
-if (removePostImageButton) {
-    removePostImageButton.addEventListener("click", function() {
-        if (postImageInput) postImageInput.value = "";
-        if (postImagePreviewImg) postImagePreviewImg.src = "";
-        if (postImagePreview) postImagePreview.hidden = true;
-    });
+
+if (
+    removePostImageButton
+) {
+
+    removePostImageButton.addEventListener(
+        "click",
+        function() {
+
+            if (postImageInput) {
+
+                postImageInput.value =
+                    "";
+
+            }
+
+
+            if (postImagePreviewImg) {
+
+                postImagePreviewImg.src =
+                    "";
+
+            }
+
+
+            if (postImagePreview) {
+
+                postImagePreview.hidden =
+                    true;
+
+            }
+
+        }
+    );
+
 }
+
+
+/* ============================================================
+   IMAGE LIGHTBOX
+============================================================ */
 
 function openPostImage(src) {
-    if (!src) return;
-    let overlay = document.getElementById("postImageLightbox");
-    if (!overlay) {
-        overlay = document.createElement("div");
-        overlay.id = "postImageLightbox";
-        overlay.className = "post-image-lightbox";
-        overlay.innerHTML = '<button type="button" class="lightbox-close" aria-label="Close image">×</button><img src="" alt="Expanded post image">';
-        overlay.addEventListener("click", function(event) {
-            if (event.target === overlay || event.target.classList.contains("lightbox-close")) overlay.classList.remove("visible");
-        });
-        document.body.appendChild(overlay);
+
+    if (!src) {
+        return;
     }
-    overlay.querySelector("img").src = src;
-    overlay.classList.add("visible");
+
+
+    let overlay =
+        document.getElementById(
+            "postImageLightbox"
+        );
+
+
+    if (!overlay) {
+
+        overlay =
+            document.createElement(
+                "div"
+            );
+
+
+        overlay.id =
+            "postImageLightbox";
+
+
+        overlay.className =
+            "post-image-lightbox";
+
+
+        overlay.innerHTML =
+            `
+            <button
+                type="button"
+                class="lightbox-close"
+                aria-label="Close image"
+            >
+                ×
+            </button>
+
+            <img
+                src=""
+                alt="Expanded post image"
+            >
+            `;
+
+
+        overlay.addEventListener(
+            "click",
+            function(event) {
+
+                if (
+                    event.target ===
+                        overlay ||
+                    event.target.classList.contains(
+                        "lightbox-close"
+                    )
+                ) {
+
+                    overlay.classList.remove(
+                        "visible"
+                    );
+
+                }
+
+            }
+        );
+
+
+        document.body.appendChild(
+            overlay
+        );
+
+    }
+
+
+    overlay.querySelector(
+        "img"
+    ).src =
+        src;
+
+
+    overlay.classList.add(
+        "visible"
+    );
+
 }
+
 
 /* ============================================================
    CREATE POST FORM
@@ -3158,12 +4693,31 @@ if (createPostForm) {
                 textarea.value.trim();
 
 
-            const imageInput = document.getElementById("postImage");
-            const hasImage = imageInput && imageInput.files && imageInput.files.length > 0;
+            const imageInput =
+                document.getElementById(
+                    "postImage"
+                );
 
-            if (!content && !hasImage) {
-                alert("Write something or select an image.");
+
+            const hasImage =
+                imageInput &&
+                imageInput.files &&
+                imageInput.files.length >
+                    0;
+
+
+            if (
+                !content &&
+                !hasImage
+            ) {
+
+                alert(
+                    "Write something or select an image."
+                );
+
+
                 return;
+
             }
 
 
@@ -3177,7 +4731,9 @@ if (createPostForm) {
                 !button ||
                 button.disabled
             ) {
+
                 return;
+
             }
 
 
@@ -3187,6 +4743,7 @@ if (createPostForm) {
 
             const originalButtonText =
                 button.innerHTML;
+
 
             button.innerHTML =
                 "Posting...";
@@ -3240,27 +4797,45 @@ if (createPostForm) {
                     throw new Error(
                         "The server did not return the new post."
                     );
+
                 }
 
-
-                /*
-                 * Insert the post directly into
-                 * the current feed.
-                 */
 
                 insertNewRazorPost(
                     data.post
                 );
 
 
-                /*
-                 * Clear composer.
-                 */
+                textarea.value =
+                    "";
 
-                textarea.value = "";
-                if (imageInput) imageInput.value = "";
-                if (postImagePreviewImg) postImagePreviewImg.src = "";
-                if (postImagePreview) postImagePreview.hidden = true;
+
+                if (imageInput) {
+
+                    imageInput.value =
+                        "";
+
+                }
+
+
+                if (
+                    postImagePreviewImg
+                ) {
+
+                    postImagePreviewImg.src =
+                        "";
+
+                }
+
+
+                if (
+                    postImagePreview
+                ) {
+
+                    postImagePreview.hidden =
+                        true;
+
+                }
 
 
             } catch (error) {
@@ -3269,6 +4844,7 @@ if (createPostForm) {
                     "Create post error:",
                     error
                 );
+
 
                 alert(
                     error.message ||
@@ -3281,13 +4857,19 @@ if (createPostForm) {
                 button.disabled =
                     false;
 
+
                 button.innerHTML =
                     originalButtonText;
+
             }
+
         }
     );
+
 }
+
 </script>
 
 </body>
+
 </html>

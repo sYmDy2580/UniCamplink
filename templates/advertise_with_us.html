@@ -1,1362 +1,1442 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="theme-color"
-        content="#38bdf8"
-    >
-
-    <title>Advertise With Us | UniCamplink</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
-    <script
-        src="{{ url_for('static', filename='js/theme.js') }}"
-        defer
-    ></script>
-
-    <style>
-        /* =========================================================
-           UNICAMPLINK — ADVERTISE PAGE
-           Facebook / TikTok inspired
-        ========================================================= */
-
-        .advertise-shell {
-            min-height: 100vh;
-            padding: 24px 14px 60px;
-        }
-
-        .advertise-container {
-            width: min(1100px, 100%);
-            margin: 0 auto;
-        }
-
-        /* =========================================================
-           TOP BAR
-        ========================================================= */
-
-        .advertise-topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-
-            padding: 12px 4px 22px;
-        }
-
-        .advertise-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .advertise-brand img {
-            width: 44px;
-            height: 44px;
-
-            object-fit: contain;
-
-            border-radius: 14px;
-
-            box-shadow:
-                0 8px 25px rgba(56, 189, 248, .20);
-        }
-
-        .advertise-brand-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.15;
-        }
-
-        .advertise-brand-name {
-            font-weight: 800;
-            font-size: 17px;
-        }
-
-        .advertise-brand-subtitle {
-            font-size: 12px;
-            opacity: .62;
-            margin-top: 3px;
-        }
-
-        .advertise-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-
-            padding: 9px 13px;
-
-            border-radius: 999px;
-
-            text-decoration: none;
-
-            color: inherit;
-
-            background: rgba(148, 163, 184, .10);
-
-            border: 1px solid rgba(148, 163, 184, .18);
-
-            font-size: 13px;
-            font-weight: 700;
-
-            transition:
-                transform .2s ease,
-                background .2s ease;
-        }
-
-        .advertise-back:hover {
-            transform: translateY(-1px);
-            background: rgba(56, 189, 248, .12);
-        }
-
-        /* =========================================================
-           HERO
-        ========================================================= */
-
-        .advertise-hero {
-            position: relative;
-            overflow: hidden;
-
-            padding: 42px 28px;
-
-            border-radius: 28px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(56, 189, 248, .16),
-                    rgba(59, 130, 246, .08),
-                    rgba(168, 85, 247, .08)
-                );
-
-            border: 1px solid rgba(56, 189, 248, .20);
-
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, .08);
-
-            text-align: center;
-
-            margin-bottom: 24px;
-        }
-
-        .advertise-hero::before {
-            content: "";
-
-            position: absolute;
-
-            width: 230px;
-            height: 230px;
-
-            border-radius: 50%;
-
-            background: rgba(56, 189, 248, .10);
-
-            filter: blur(8px);
-
-            top: -110px;
-            right: -70px;
-        }
-
-        .advertise-hero::after {
-            content: "";
-
-            position: absolute;
-
-            width: 180px;
-            height: 180px;
-
-            border-radius: 50%;
-
-            background: rgba(168, 85, 247, .08);
-
-            filter: blur(8px);
-
-            bottom: -100px;
-            left: -60px;
-        }
-
-        .advertise-hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .advertise-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-
-            padding: 7px 12px;
-
-            border-radius: 999px;
-
-            background: rgba(56, 189, 248, .12);
-
-            border: 1px solid rgba(56, 189, 248, .20);
-
-            color: #38bdf8;
-
-            font-size: 12px;
-            font-weight: 800;
-
-            margin-bottom: 15px;
-        }
-
-        .advertise-hero h1 {
-            margin: 0;
-
-            font-size: clamp(28px, 5vw, 48px);
-
-            line-height: 1.05;
-
-            letter-spacing: -.7px;
-        }
-
-        .advertise-hero h1 span {
-            color: #38bdf8;
-        }
-
-        .advertise-hero p {
-            max-width: 700px;
-
-            margin: 17px auto 0;
-
-            line-height: 1.7;
-
-            opacity: .72;
-
-            font-size: 15px;
-        }
-
-        /* =========================================================
-           BENEFITS
-        ========================================================= */
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#38bdf8">
+
+<title>Advertise With Us | UniCamplink</title>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
+
+<script
+    src="{{ url_for('static', filename='js/theme.js') }}"
+    defer
+></script>
+
+<style>
+    /* =========================================================
+       UNICAMPLINK RAZOR — ADVERTISE WITH US
+       Facebook / TikTok inspired
+       ========================================================= */
+
+    .advertise-shell {
+        min-height: 100vh;
+        padding: 24px 14px 60px;
+    }
+
+    .advertise-container {
+        width: min(1100px, 100%);
+        margin: 0 auto;
+    }
+
+    /* =========================================================
+       TOP BAR
+       ========================================================= */
+
+    .advertise-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 12px 4px 22px;
+    }
+
+    .advertise-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .advertise-brand img {
+        width: 44px;
+        height: 44px;
+        object-fit: contain;
+        border-radius: 14px;
+        box-shadow: 0 8px 25px rgba(56, 189, 248, .20);
+    }
+
+    .advertise-brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+    }
+
+    .advertise-brand-name {
+        font-weight: 800;
+        font-size: 17px;
+    }
+
+    .advertise-brand-subtitle {
+        font-size: 12px;
+        opacity: .62;
+        margin-top: 3px;
+    }
+
+    .advertise-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 13px;
+        border-radius: 999px;
+        text-decoration: none;
+        color: inherit;
+        background: rgba(148, 163, 184, .10);
+        border: 1px solid rgba(148, 163, 184, .18);
+        font-size: 13px;
+        font-weight: 700;
+        transition: transform .2s ease, background .2s ease;
+    }
+
+    .advertise-back:hover {
+        transform: translateY(-1px);
+        background: rgba(56, 189, 248, .12);
+    }
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+
+    .advertise-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 46px 28px;
+        border-radius: 28px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(56, 189, 248, .16),
+                rgba(59, 130, 246, .08),
+                rgba(168, 85, 247, .08)
+            );
+
+        border: 1px solid rgba(56, 189, 248, .20);
+
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, .08);
+
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .advertise-hero::before {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        border-radius: 50%;
+        background: rgba(56, 189, 248, .10);
+        filter: blur(8px);
+        top: -110px;
+        right: -70px;
+    }
+
+    .advertise-hero::after {
+        content: "";
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: rgba(168, 85, 247, .08);
+        filter: blur(8px);
+        bottom: -100px;
+        left: -60px;
+    }
+
+    .advertise-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .advertise-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(56, 189, 248, .12);
+        border: 1px solid rgba(56, 189, 248, .20);
+        color: #38bdf8;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .advertise-hero h1 {
+        margin: 0;
+        font-size: clamp(28px, 5vw, 48px);
+        line-height: 1.05;
+        letter-spacing: -.7px;
+    }
+
+    .advertise-hero h1 span {
+        color: #38bdf8;
+    }
+
+    .advertise-hero p {
+        max-width: 700px;
+        margin: 17px auto 0;
+        line-height: 1.7;
+        opacity: .72;
+        font-size: 15px;
+    }
+
+    /* =========================================================
+       BENEFITS
+       ========================================================= */
+
+    .advertise-benefits {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .advertise-benefit {
+        padding: 20px 17px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, .035);
+        border: 1px solid rgba(148, 163, 184, .14);
+        transition: transform .2s ease, border-color .2s ease;
+    }
+
+    .advertise-benefit:hover {
+        transform: translateY(-3px);
+        border-color: rgba(56, 189, 248, .28);
+    }
+
+    .advertise-benefit-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: rgba(56, 189, 248, .10);
+        font-size: 21px;
+        margin-bottom: 13px;
+    }
+
+    .advertise-benefit h3 {
+        margin: 0 0 7px;
+        font-size: 15px;
+    }
+
+    .advertise-benefit p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.55;
+        opacity: .62;
+    }
+
+    /* =========================================================
+       CONTACT STRIP
+       ========================================================= */
+
+    .advertise-contact {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: center;
+
+        padding: 20px 22px;
+        margin-bottom: 24px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(37, 211, 102, .09),
+                rgba(56, 189, 248, .08)
+            );
+
+        border: 1px solid rgba(37, 211, 102, .18);
+    }
+
+    .advertise-contact-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .advertise-contact-icon {
+        width: 50px;
+        height: 50px;
+        flex: 0 0 auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 16px;
+
+        background: rgba(37, 211, 102, .13);
+
+        font-size: 25px;
+    }
+
+    .advertise-contact h3 {
+        margin: 0 0 4px;
+        font-size: 15px;
+    }
+
+    .advertise-contact p {
+        margin: 0;
+        font-size: 12px;
+        opacity: .65;
+        line-height: 1.5;
+    }
+
+    .advertise-whatsapp {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        padding: 11px 17px;
+
+        border-radius: 999px;
+
+        text-decoration: none;
+
+        background: #25D366;
+        color: white;
+
+        font-size: 13px;
+        font-weight: 900;
+
+        box-shadow:
+            0 9px 25px rgba(37, 211, 102, .20);
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .advertise-whatsapp:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 13px 30px rgba(37, 211, 102, .28);
+    }
+
+    /* =========================================================
+       MAIN GRID
+       ========================================================= */
+
+    .advertise-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(0, .85fr)
+            minmax(0, 1.35fr);
+
+        gap: 20px;
+        align-items: start;
+    }
+
+    /* =========================================================
+       INFO CARD
+       ========================================================= */
+
+    .advertise-info-card,
+    .advertise-form-card {
+        border-radius: 24px;
+
+        background:
+            rgba(255, 255, 255, .035);
+
+        border:
+            1px solid rgba(148, 163, 184, .14);
+
+        box-shadow:
+            0 16px 45px rgba(0, 0, 0, .06);
+    }
+
+    .advertise-info-card {
+        padding: 24px;
+        position: sticky;
+        top: 20px;
+    }
+
+    .advertise-info-card h2 {
+        margin: 0 0 9px;
+        font-size: 20px;
+    }
+
+    .advertise-info-card > p {
+        margin: 0 0 22px;
+        line-height: 1.65;
+        font-size: 13px;
+        opacity: .65;
+    }
+
+    .advertise-step {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 17px;
+    }
+
+    .advertise-step:last-child {
+        margin-bottom: 0;
+    }
+
+    .advertise-step-number {
+        flex: 0 0 auto;
+
+        width: 30px;
+        height: 30px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background:
+            rgba(56, 189, 248, .12);
+
+        color: #38bdf8;
+
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .advertise-step strong {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 3px;
+    }
+
+    .advertise-step span {
+        display: block;
+        font-size: 12px;
+        line-height: 1.5;
+        opacity: .58;
+    }
+
+    /* =========================================================
+       FORM CARD
+       ========================================================= */
+
+    .advertise-form-card {
+        padding: 25px;
+    }
+
+    .advertise-form-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin-bottom: 23px;
+    }
+
+    .advertise-form-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 14px;
+
+        background:
+            rgba(56, 189, 248, .12);
+
+        font-size: 20px;
+    }
+
+    .advertise-form-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .advertise-form-header p {
+        margin: 5px 0 0;
+        font-size: 12px;
+        opacity: .6;
+        line-height: 1.5;
+    }
+
+    /* =========================================================
+       ALERTS
+       ========================================================= */
+
+    .advertise-alert {
+        padding: 13px 14px;
+        border-radius: 14px;
+        margin-bottom: 18px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .advertise-alert-error {
+        background:
+            rgba(239, 68, 68, .09);
+
+        border:
+            1px solid rgba(239, 68, 68, .22);
+
+        color: #f87171;
+    }
+
+    .advertise-alert-success {
+        background:
+            rgba(16, 185, 129, .09);
+
+        border:
+            1px solid rgba(16, 185, 129, .22);
+
+        color: #34d399;
+    }
+
+    /* =========================================================
+       FORM
+       ========================================================= */
+
+    .advertise-form-row {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 14px;
+    }
+
+    .advertise-field {
+        margin-bottom: 17px;
+    }
+
+    .advertise-field label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .advertise-field input,
+    .advertise-field select,
+    .advertise-field textarea {
+        width: 100%;
+        box-sizing: border-box;
+
+        padding: 12px 13px;
+
+        border-radius: 13px;
+
+        border:
+            1px solid rgba(148, 163, 184, .20);
+
+        background:
+            rgba(15, 23, 42, .035);
+
+        color: inherit;
+
+        font: inherit;
+        font-size: 13px;
+
+        outline: none;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease,
+            background .2s ease;
+    }
+
+    .advertise-field input:focus,
+    .advertise-field select:focus,
+    .advertise-field textarea:focus {
+        border-color:
+            rgba(56, 189, 248, .65);
+
+        box-shadow:
+            0 0 0 3px rgba(56, 189, 248, .09);
+    }
+
+    .advertise-field textarea {
+        min-height: 145px;
+        resize: vertical;
+        line-height: 1.55;
+    }
+
+    .advertise-field select option {
+        color: #111827;
+        background: white;
+    }
+
+    .advertise-character-note {
+        margin-top: 5px;
+        font-size: 10px;
+        opacity: .48;
+    }
+
+    /* =========================================================
+       SUBMIT BUTTON
+       ========================================================= */
+
+    .advertise-submit {
+        width: 100%;
+        border: 0;
+
+        padding: 13px 18px;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #38bdf8,
+                #2563eb
+            );
+
+        color: white;
+
+        font-size: 14px;
+        font-weight: 900;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 10px 28px rgba(37, 99, 235, .20);
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .advertise-submit:hover {
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 14px 32px rgba(37, 99, 235, .28);
+    }
+
+    .advertise-submit:active {
+        transform: translateY(0);
+    }
+
+    .advertise-form-note {
+        margin: 13px 0 0;
+        text-align: center;
+        font-size: 11px;
+        line-height: 1.55;
+        opacity: .52;
+    }
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    .advertise-footer {
+        text-align: center;
+        margin-top: 28px;
+        font-size: 11px;
+        opacity: .45;
+    }
+
+    .advertise-footer a {
+        color: #38bdf8;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    /* =========================================================
+       LIGHT MODE
+       ========================================================= */
+
+    body.light-mode .advertise-benefit,
+    body.light-mode .advertise-info-card,
+    body.light-mode .advertise-form-card {
+        background:
+            rgba(255, 255, 255, .75);
+
+        border-color:
+            rgba(15, 23, 42, .10);
+    }
+
+    body.light-mode .advertise-field input,
+    body.light-mode .advertise-field select,
+    body.light-mode .advertise-field textarea {
+        background:
+            rgba(248, 250, 252, .90);
+
+        border-color:
+            rgba(15, 23, 42, .12);
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 850px) {
 
         .advertise-benefits {
-            display: grid;
-
             grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-
-            gap: 12px;
-
-            margin-bottom: 24px;
+                repeat(2, minmax(0, 1fr));
         }
-
-        .advertise-benefit {
-            padding: 20px 17px;
-
-            border-radius: 20px;
-
-            background:
-                rgba(255, 255, 255, .035);
-
-            border:
-                1px solid rgba(148, 163, 184, .14);
-
-            transition:
-                transform .2s ease,
-                border-color .2s ease;
-        }
-
-        .advertise-benefit:hover {
-            transform: translateY(-3px);
-
-            border-color:
-                rgba(56, 189, 248, .28);
-        }
-
-        .advertise-benefit-icon {
-            width: 44px;
-            height: 44px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 14px;
-
-            background:
-                rgba(56, 189, 248, .10);
-
-            font-size: 21px;
-
-            margin-bottom: 13px;
-        }
-
-        .advertise-benefit h3 {
-            margin: 0 0 7px;
-
-            font-size: 15px;
-        }
-
-        .advertise-benefit p {
-            margin: 0;
-
-            font-size: 12px;
-
-            line-height: 1.55;
-
-            opacity: .62;
-        }
-
-        /* =========================================================
-           MAIN GRID
-        ========================================================= */
 
         .advertise-grid {
-            display: grid;
-
-            grid-template-columns:
-                minmax(0, .85fr)
-                minmax(0, 1.35fr);
-
-            gap: 20px;
-
-            align-items: start;
-        }
-
-        /* =========================================================
-           INFO CARD
-        ========================================================= */
-
-        .advertise-info-card,
-        .advertise-form-card {
-            border-radius: 24px;
-
-            background:
-                rgba(255, 255, 255, .035);
-
-            border:
-                1px solid rgba(148, 163, 184, .14);
-
-            box-shadow:
-                0 16px 45px rgba(0, 0, 0, .06);
+            grid-template-columns: 1fr;
         }
 
         .advertise-info-card {
-            padding: 24px;
-
-            position: sticky;
-            top: 20px;
+            position: static;
         }
 
-        .advertise-info-card h2 {
-            margin: 0 0 9px;
-
-            font-size: 20px;
+        .advertise-contact {
+            grid-template-columns: 1fr;
         }
 
-        .advertise-info-card > p {
-            margin: 0 0 22px;
+        .advertise-whatsapp {
+            width: 100%;
+        }
+    }
 
-            line-height: 1.65;
+    @media (max-width: 600px) {
 
+        .advertise-shell {
+            padding:
+                10px 10px 45px;
+        }
+
+        .advertise-topbar {
+            padding:
+                7px 2px 15px;
+        }
+
+        .advertise-brand-subtitle {
+            display: none;
+        }
+
+        .advertise-brand-name {
+            font-size: 15px;
+        }
+
+        .advertise-brand img {
+            width: 38px;
+            height: 38px;
+        }
+
+        .advertise-back {
+            padding: 8px 10px;
+            font-size: 11px;
+        }
+
+        .advertise-hero {
+            padding: 32px 18px;
+            border-radius: 22px;
+        }
+
+        .advertise-hero h1 {
+            font-size: 31px;
+        }
+
+        .advertise-hero p {
             font-size: 13px;
-
-            opacity: .65;
         }
 
-        .advertise-step {
-            display: flex;
+        .advertise-benefits {
+            grid-template-columns:
+                1fr 1fr;
 
-            gap: 12px;
-
-            margin-bottom: 17px;
+            gap: 9px;
         }
 
-        .advertise-step:last-child {
-            margin-bottom: 0;
+        .advertise-benefit {
+            padding: 15px 13px;
+            border-radius: 17px;
         }
 
-        .advertise-step-number {
-            flex: 0 0 auto;
-
-            width: 30px;
-            height: 30px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 50%;
-
-            background:
-                rgba(56, 189, 248, .12);
-
-            color: #38bdf8;
-
-            font-size: 12px;
-            font-weight: 900;
+        .advertise-benefit-icon {
+            width: 38px;
+            height: 38px;
+            font-size: 18px;
         }
 
-        .advertise-step strong {
-            display: block;
-
+        .advertise-benefit h3 {
             font-size: 13px;
-
-            margin-bottom: 3px;
         }
 
-        .advertise-step span {
-            display: block;
-
-            font-size: 12px;
-
-            line-height: 1.5;
-
-            opacity: .58;
+        .advertise-benefit p {
+            font-size: 10px;
         }
 
-        /* =========================================================
-           FORM CARD
-        ========================================================= */
-
-        .advertise-form-card {
-            padding: 25px;
+        .advertise-contact {
+            padding: 17px;
+            border-radius: 19px;
         }
 
-        .advertise-form-header {
-            display: flex;
-
+        .advertise-contact-left {
             align-items: flex-start;
-
-            gap: 13px;
-
-            margin-bottom: 23px;
         }
 
-        .advertise-form-icon {
-            width: 44px;
-            height: 44px;
-
-            flex: 0 0 auto;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 14px;
-
-            background:
-                rgba(56, 189, 248, .12);
-
-            font-size: 20px;
+        .advertise-info-card,
+        .advertise-form-card {
+            padding: 19px;
+            border-radius: 20px;
         }
-
-        .advertise-form-header h2 {
-            margin: 0;
-
-            font-size: 20px;
-        }
-
-        .advertise-form-header p {
-            margin: 5px 0 0;
-
-            font-size: 12px;
-
-            opacity: .6;
-
-            line-height: 1.5;
-        }
-
-        /* =========================================================
-           ALERTS
-        ========================================================= */
-
-        .advertise-alert {
-            padding: 13px 14px;
-
-            border-radius: 14px;
-
-            margin-bottom: 18px;
-
-            font-size: 13px;
-
-            line-height: 1.5;
-        }
-
-        .advertise-alert-error {
-            background:
-                rgba(239, 68, 68, .09);
-
-            border:
-                1px solid rgba(239, 68, 68, .22);
-
-            color: #f87171;
-        }
-
-        .advertise-alert-success {
-            background:
-                rgba(16, 185, 129, .09);
-
-            border:
-                1px solid rgba(16, 185, 129, .22);
-
-            color: #34d399;
-        }
-
-        /* =========================================================
-           FORM
-        ========================================================= */
 
         .advertise-form-row {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-
-            gap: 14px;
+            grid-template-columns: 1fr;
+            gap: 0;
         }
+    }
+</style>
 
-        .advertise-field {
-            margin-bottom: 17px;
-        }
-
-        .advertise-field label {
-            display: block;
-
-            margin-bottom: 7px;
-
-            font-size: 12px;
-
-            font-weight: 800;
-        }
-
-        .advertise-field input,
-        .advertise-field select,
-        .advertise-field textarea {
-            width: 100%;
-
-            box-sizing: border-box;
-
-            padding: 12px 13px;
-
-            border-radius: 13px;
-
-            border:
-                1px solid rgba(148, 163, 184, .20);
-
-            background:
-                rgba(15, 23, 42, .035);
-
-            color: inherit;
-
-            font: inherit;
-
-            font-size: 13px;
-
-            outline: none;
-
-            transition:
-                border-color .2s ease,
-                box-shadow .2s ease,
-                background .2s ease;
-        }
-
-        .advertise-field input:focus,
-        .advertise-field select:focus,
-        .advertise-field textarea:focus {
-            border-color:
-                rgba(56, 189, 248, .65);
-
-            box-shadow:
-                0 0 0 3px rgba(56, 189, 248, .09);
-        }
-
-        .advertise-field textarea {
-            min-height: 145px;
-
-            resize: vertical;
-
-            line-height: 1.55;
-        }
-
-        .advertise-field select option {
-            color: #111827;
-
-            background: white;
-        }
-
-        .advertise-character-note {
-            margin-top: 5px;
-
-            font-size: 10px;
-
-            opacity: .48;
-        }
-
-        .advertise-submit {
-            width: 100%;
-
-            border: 0;
-
-            padding: 13px 18px;
-
-            border-radius: 14px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #38bdf8,
-                    #2563eb
-                );
-
-            color: white;
-
-            font-size: 14px;
-
-            font-weight: 900;
-
-            cursor: pointer;
-
-            box-shadow:
-                0 10px 28px rgba(37, 99, 235, .20);
-
-            transition:
-                transform .2s ease,
-                box-shadow .2s ease;
-        }
-
-        .advertise-submit:hover {
-            transform: translateY(-1px);
-
-            box-shadow:
-                0 14px 32px rgba(37, 99, 235, .28);
-        }
-
-        .advertise-submit:active {
-            transform: translateY(0);
-        }
-
-        .advertise-form-note {
-            margin: 13px 0 0;
-
-            text-align: center;
-
-            font-size: 11px;
-
-            line-height: 1.55;
-
-            opacity: .52;
-        }
-
-        .advertise-footer {
-            text-align: center;
-
-            margin-top: 28px;
-
-            font-size: 11px;
-
-            opacity: .45;
-        }
-
-        .advertise-footer a {
-            color: #38bdf8;
-
-            text-decoration: none;
-
-            font-weight: 700;
-        }
-
-        /* =========================================================
-           LIGHT MODE
-        ========================================================= */
-
-        body.light-mode .advertise-benefit,
-        body.light-mode .advertise-info-card,
-        body.light-mode .advertise-form-card {
-            background:
-                rgba(255, 255, 255, .75);
-
-            border-color:
-                rgba(15, 23, 42, .10);
-        }
-
-        body.light-mode .advertise-field input,
-        body.light-mode .advertise-field select,
-        body.light-mode .advertise-field textarea {
-            background:
-                rgba(248, 250, 252, .90);
-
-            border-color:
-                rgba(15, 23, 42, .12);
-        }
-
-        /* =========================================================
-           RESPONSIVE
-        ========================================================= */
-
-        @media (max-width: 850px) {
-
-            .advertise-benefits {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-            }
-
-            .advertise-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .advertise-info-card {
-                position: static;
-            }
-        }
-
-        @media (max-width: 600px) {
-
-            .advertise-shell {
-                padding:
-                    10px 10px 45px;
-            }
-
-            .advertise-topbar {
-                padding:
-                    7px 2px 15px;
-            }
-
-            .advertise-brand-subtitle {
-                display: none;
-            }
-
-            .advertise-brand-name {
-                font-size: 15px;
-            }
-
-            .advertise-brand img {
-                width: 38px;
-                height: 38px;
-            }
-
-            .advertise-back {
-                padding: 8px 10px;
-
-                font-size: 11px;
-            }
-
-            .advertise-hero {
-                padding: 32px 18px;
-
-                border-radius: 22px;
-            }
-
-            .advertise-hero h1 {
-                font-size: 31px;
-            }
-
-            .advertise-hero p {
-                font-size: 13px;
-            }
-
-            .advertise-benefits {
-                grid-template-columns: 1fr 1fr;
-
-                gap: 9px;
-            }
-
-            .advertise-benefit {
-                padding: 15px 13px;
-
-                border-radius: 17px;
-            }
-
-            .advertise-benefit-icon {
-                width: 38px;
-                height: 38px;
-
-                font-size: 18px;
-            }
-
-            .advertise-benefit h3 {
-                font-size: 13px;
-            }
-
-            .advertise-benefit p {
-                font-size: 10px;
-            }
-
-            .advertise-info-card,
-            .advertise-form-card {
-                padding: 19px;
-
-                border-radius: 20px;
-            }
-
-            .advertise-form-row {
-                grid-template-columns: 1fr;
-
-                gap: 0;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
 <div class="advertise-shell">
 
-    <div class="advertise-container">
+<div class="advertise-container">
 
-        <!-- =====================================================
-             TOP BAR
-        ====================================================== -->
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
 
-        <header class="advertise-topbar">
+    <header class="advertise-topbar">
 
-            <a
-                href="{{ url_for('dashboard') }}"
-                class="advertise-brand"
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="advertise-brand"
+        >
+
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='images/unicamplink-logo.png'
+                ) }}"
+                alt="UniCamplink"
             >
 
-                <img
-                    src="{{ url_for(
-                        'static',
-                        filename='images/unicamplink-logo.png'
-                    ) }}"
-                    alt="UniCamplink"
-                >
+            <div class="advertise-brand-text">
 
-                <div class="advertise-brand-text">
+                <span class="advertise-brand-name">
+                    UniCamplink
+                </span>
 
-                    <span class="advertise-brand-name">
-                        UniCamplink
-                    </span>
+                <span class="advertise-brand-subtitle">
+                    Student Community
+                </span>
 
-                    <span class="advertise-brand-subtitle">
-                        Student Community
+            </div>
+
+        </a>
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="advertise-back"
+        >
+            ← Dashboard
+        </a>
+
+    </header>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="advertise-hero">
+
+        <div class="advertise-hero-content">
+
+            <div class="advertise-badge">
+                📣 Advertise on UniCamplink
+            </div>
+
+            <h1>
+                Put Your Brand
+                <span>in Front of Students.</span>
+            </h1>
+
+            <p>
+                Connect your business, product, event, service,
+                opportunity or campus offer with the UniCamplink
+                student community.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         BENEFITS
+    ====================================================== -->
+
+    <section class="advertise-benefits">
+
+        <div class="advertise-benefit">
+
+            <div class="advertise-benefit-icon">
+                🎯
+            </div>
+
+            <h3>
+                Reach Students
+            </h3>
+
+            <p>
+                Put your message in front of students
+                who use UniCamplink.
+            </p>
+
+        </div>
+
+
+        <div class="advertise-benefit">
+
+            <div class="advertise-benefit-icon">
+                🚀
+            </div>
+
+            <h3>
+                Promote
+            </h3>
+
+            <p>
+                Promote products, businesses, events
+                and opportunities.
+            </p>
+
+        </div>
+
+
+        <div class="advertise-benefit">
+
+            <div class="advertise-benefit-icon">
+                🏫
+            </div>
+
+            <h3>
+                Campus Reach
+            </h3>
+
+            <p>
+                Connect with students across different
+                campuses and schools.
+            </p>
+
+        </div>
+
+
+        <div class="advertise-benefit">
+
+            <div class="advertise-benefit-icon">
+                📈
+            </div>
+
+            <h3>
+                Grow
+            </h3>
+
+            <p>
+                Build awareness and introduce your brand
+                to a student audience.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         WHATSAPP CONTACT
+    ====================================================== -->
+
+    <section class="advertise-contact">
+
+        <div class="advertise-contact-left">
+
+            <div class="advertise-contact-icon">
+                💬
+            </div>
+
+            <div>
+
+                <h3>
+                    Prefer WhatsApp?
+                </h3>
+
+                <p>
+                    Chat directly with the UniCamplink
+                    advertising team about your campaign.
+                </p>
+
+            </div>
+
+        </div>
+
+        <a
+            href="https://wa.me/2349161162607?text=Hello%20UniCamplink%2C%20I%20want%20to%20advertise%20on%20UniCamplink."
+            target="_blank"
+            rel="noopener noreferrer"
+            class="advertise-whatsapp"
+        >
+            💬 Chat on WhatsApp
+        </a>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <section class="advertise-grid">
+
+
+        <!-- =================================================
+             HOW IT WORKS
+        ================================================== -->
+
+        <aside class="advertise-info-card">
+
+            <h2>
+                How it works
+            </h2>
+
+            <p>
+                Send your advertising request and our team
+                will review it before it is published.
+            </p>
+
+
+            <div class="advertise-step">
+
+                <div class="advertise-step-number">
+                    1
+                </div>
+
+                <div>
+
+                    <strong>
+                        Submit your request
+                    </strong>
+
+                    <span>
+                        Tell us what you want to promote
+                        and provide your contact details.
                     </span>
 
                 </div>
 
-            </a>
+            </div>
 
-            <a
-                href="{{ url_for('dashboard') }}"
-                class="advertise-back"
+
+            <div class="advertise-step">
+
+                <div class="advertise-step-number">
+                    2
+                </div>
+
+                <div>
+
+                    <strong>
+                        UniCamplink reviews it
+                    </strong>
+
+                    <span>
+                        Your request is placed in the
+                        admin advertising queue.
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="advertise-step">
+
+                <div class="advertise-step-number">
+                    3
+                </div>
+
+                <div>
+
+                    <strong>
+                        Approval
+                    </strong>
+
+                    <span>
+                        Approved advertising requests can
+                        be prepared for publication.
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="advertise-step">
+
+                <div class="advertise-step-number">
+                    4
+                </div>
+
+                <div>
+
+                    <strong>
+                        Reach the community
+                    </strong>
+
+                    <span>
+                        Your campaign can then be presented
+                        to UniCamplink users.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             FORM
+        ================================================== -->
+
+        <section class="advertise-form-card">
+
+            <div class="advertise-form-header">
+
+                <div class="advertise-form-icon">
+                    📣
+                </div>
+
+                <div>
+
+                    <h2>
+                        Advertising Request
+                    </h2>
+
+                    <p>
+                        Complete the form below.
+                        Required fields are marked with *.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if error %}
+
+            <div class="advertise-alert advertise-alert-error">
+                ⚠️ {{ error }}
+            </div>
+
+            {% endif %}
+
+
+            {% if success %}
+
+            <div class="advertise-alert advertise-alert-success">
+                ✅ {{ success }}
+            </div>
+
+            {% endif %}
+
+
+            <form
+                method="POST"
+                action="{{ url_for('advertise_with_us') }}"
+                id="advertiseForm"
             >
-                ← Dashboard
-            </a>
 
-        </header>
-
-
-        <!-- =====================================================
-             HERO
-        ====================================================== -->
-
-        <section class="advertise-hero">
-
-            <div class="advertise-hero-content">
-
-                <div class="advertise-badge">
-                    📣 Advertise on UniCamplink
-                </div>
-
-                <h1>
-                    Put Your Brand
-                    <span>in Front of Students.</span>
-                </h1>
-
-                <p>
-                    Connect your business, product, event, service,
-                    opportunity or campus offer with the UniCamplink
-                    student community.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================================
-             BENEFITS
-        ====================================================== -->
-
-        <section class="advertise-benefits">
-
-            <div class="advertise-benefit">
-
-                <div class="advertise-benefit-icon">
-                    🎯
-                </div>
-
-                <h3>
-                    Reach Students
-                </h3>
-
-                <p>
-                    Put your message in front of students
-                    who use UniCamplink.
-                </p>
-
-            </div>
-
-
-            <div class="advertise-benefit">
-
-                <div class="advertise-benefit-icon">
-                    🚀
-                </div>
-
-                <h3>
-                    Promote
-                </h3>
-
-                <p>
-                    Promote products, businesses, events
-                    and opportunities.
-                </p>
-
-            </div>
-
-
-            <div class="advertise-benefit">
-
-                <div class="advertise-benefit-icon">
-                    🏫
-                </div>
-
-                <h3>
-                    Campus Reach
-                </h3>
-
-                <p>
-                    Connect with students across different
-                    campuses and schools.
-                </p>
-
-            </div>
-
-
-            <div class="advertise-benefit">
-
-                <div class="advertise-benefit-icon">
-                    📈
-                </div>
-
-                <h3>
-                    Grow
-                </h3>
-
-                <p>
-                    Build awareness and introduce your brand
-                    to a student audience.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================================
-             MAIN CONTENT
-        ====================================================== -->
-
-        <section class="advertise-grid">
-
-
-            <!-- =================================================
-                 HOW IT WORKS
-            ================================================== -->
-
-            <aside class="advertise-info-card">
-
-                <h2>
-                    How it works
-                </h2>
-
-                <p>
-                    Send your advertising request and our team
-                    will review it before it is published.
-                </p>
-
-
-                <div class="advertise-step">
-
-                    <div class="advertise-step-number">
-                        1
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Submit your request
-                        </strong>
-
-                        <span>
-                            Tell us what you want to promote
-                            and provide your contact details.
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="advertise-step">
-
-                    <div class="advertise-step-number">
-                        2
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            UniCamplink reviews it
-                        </strong>
-
-                        <span>
-                            Your request is placed in the
-                            admin advertising queue.
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="advertise-step">
-
-                    <div class="advertise-step-number">
-                        3
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Approval
-                        </strong>
-
-                        <span>
-                            Approved advertising requests can
-                            be prepared for publication.
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="advertise-step">
-
-                    <div class="advertise-step-number">
-                        4
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Reach the community
-                        </strong>
-
-                        <span>
-                            Your campaign can then be presented
-                            to UniCamplink users.
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </aside>
-
-
-            <!-- =================================================
-                 FORM
-            ================================================== -->
-
-            <section class="advertise-form-card">
-
-                <div class="advertise-form-header">
-
-                    <div class="advertise-form-icon">
-                        📣
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Advertising Request
-                        </h2>
-
-                        <p>
-                            Complete the form below.
-                            Required fields are marked with *.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                {% if error %}
-
-                <div class="advertise-alert advertise-alert-error">
-                    ⚠️ {{ error }}
-                </div>
-
-                {% endif %}
-
-
-                {% if success %}
-
-                <div class="advertise-alert advertise-alert-success">
-                    ✅ {{ success }}
-                </div>
-
-                {% endif %}
-
-
-                <form
-                    method="POST"
-                    action="{{ url_for('advertise_with_us') }}"
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
                 >
 
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
+
+                <!-- =================================================
+                     HIDDEN COMPATIBILITY FIELD
+                ================================================== -->
+
+                <input
+                    type="hidden"
+                    name="name"
+                    id="legacyNameField"
+                    value="{{ request.form.get('name', '') }}"
+                >
 
 
-                    <!-- =========================================
-                         NAME + EMAIL
-                    ========================================== -->
+                <!-- =================================================
+                     NAME + EMAIL
+                ================================================== -->
 
-                    <div class="advertise-form-row">
-
-                        <div class="advertise-field">
-
-                            <label for="name">
-                                Your Name *
-                            </label>
-
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                maxlength="150"
-                                required
-                                autocomplete="name"
-                                value="{{ request.form.get('name', '') }}"
-                                placeholder="Your full name"
-                            >
-
-                        </div>
-
-
-                        <div class="advertise-field">
-
-                            <label for="email">
-                                Email Address *
-                            </label>
-
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                maxlength="150"
-                                required
-                                autocomplete="email"
-                                value="{{ request.form.get('email', '') }}"
-                                placeholder="you@example.com"
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =========================================
-                         BUSINESS
-                    ========================================== -->
+                <div class="advertise-form-row">
 
                     <div class="advertise-field">
 
-                        <label for="business_name">
-                            Business / Organization Name *
+                        <label for="advertiser_name">
+                            Your Name *
                         </label>
 
                         <input
                             type="text"
-                            id="business_name"
-                            name="business_name"
+                            id="advertiser_name"
+                            name="advertiser_name"
                             maxlength="150"
                             required
+                            autocomplete="name"
                             value="{{ request.form.get(
-                                'business_name',
-                                ''
+                                'advertiser_name',
+                                request.form.get('name', '')
                             ) }}"
-                            placeholder="Business, brand or organization"
+                            placeholder="Your full name"
                         >
 
                     </div>
 
 
-                    <!-- =========================================
-                         ADVERTISING TYPE
-                    ========================================== -->
-
                     <div class="advertise-field">
 
-                        <label for="advertising_type">
-                            What would you like to promote? *
+                        <label for="email">
+                            Email Address *
                         </label>
 
-                        <select
-                            id="advertising_type"
-                            name="advertising_type"
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            maxlength="150"
                             required
+                            autocomplete="email"
+                            value="{{ request.form.get('email', '') }}"
+                            placeholder="you@example.com"
                         >
 
-                            <option value="">
-                                Select an option
-                            </option>
-
-                            <option
-                                value="Business Promotion"
-                                {% if request.form.get(
-                                    'advertising_type'
-                                ) == 'Business Promotion' %}
-                                    selected
-                                {% endif %}
-                            >
-                                🏪 Business Promotion
-                            </option>
-
-                            <option
-                                value="Product Promotion"
-                                {% if request.form.get(
-                                    'advertising_type'
-                                ) == 'Product Promotion' %}
-                                    selected
-                                {% endif %}
-                            >
-                                🛍️ Product Promotion
-                            </option>
-
-                            <option
-                                value="Event Promotion"
-                                {% if request.form.get(
-                                    'advertising_type'
-                                ) == 'Event Promotion' %}
-                                    selected
-                                {% endif %}
-                            >
-                                🎉 Event Promotion
-                            </option>
-
-                            <option
-                                value="Campus Service"
-                                {% if request.form.get(
-                                    'advertising_type'
-                                ) == 'Campus Service' %}
-                                    selected
-                                {% endif %}
-                            >
-                                🏫 Campus Service
-                            </option>
-
-                            <option
-                                value="Job / Opportunity"
-                                {% if request.form.get(
-                                    'advertising_type'
-                                ) == 'Job / Opportunity' %}
-                                    selected
-                                {% endif %}
-                            >
-                                💼 Job / Opportunity
-                            </option>
-
-                            <option
-                                value="Other"
-                                {% if request.form.get(
-                                    'advertising_type'
-                                ) == 'Other' %}
-                                    selected
-                                {% endif %}
-                            >
-                                ✨ Other
-                            </option>
-
-                        </select>
-
                     </div>
 
-
-                    <!-- =========================================
-                         MESSAGE
-                    ========================================== -->
-
-                    <div class="advertise-field">
-
-                        <label for="message">
-                            Advertising Details *
-                        </label>
-
-                        <textarea
-                            id="message"
-                            name="message"
-                            maxlength="2000"
-                            required
-                            placeholder="Tell us about what you want to advertise, your campaign, product, event or opportunity..."
-                        >{{ request.form.get('message', '') }}</textarea>
-
-                        <div class="advertise-character-note">
-                            Maximum 2,000 characters.
-                        </div>
-
-                    </div>
+                </div>
 
 
-                    <!-- =========================================
-                         SUBMIT
-                    ========================================== -->
+                <!-- =================================================
+                     BUSINESS
+                ================================================== -->
 
-                    <button
-                        type="submit"
-                        class="advertise-submit"
+                <div class="advertise-field">
+
+                    <label for="business_name">
+                        Business / Organization Name *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="business_name"
+                        name="business_name"
+                        maxlength="150"
+                        required
+                        value="{{ request.form.get(
+                            'business_name',
+                            ''
+                        ) }}"
+                        placeholder="Business, brand or organization"
                     >
-                        🚀 Submit Advertising Request
-                    </button>
 
-                    <p class="advertise-form-note">
-                        Your request will be saved as
-                        <strong>Pending</strong> and reviewed
-                        by the UniCamplink admin.
-                    </p>
+                </div>
 
-                </form>
 
-            </section>
+                <!-- =================================================
+                     ADVERTISING TYPE
+                ================================================== -->
+
+                <div class="advertise-field">
+
+                    <label for="advertising_type">
+                        What would you like to promote? *
+                    </label>
+
+                    <select
+                        id="advertising_type"
+                        name="advertising_type"
+                        required
+                    >
+
+                        <option value="">
+                            Select an option
+                        </option>
+
+                        <option
+                            value="Business Promotion"
+                            {% if request.form.get('advertising_type') == 'Business Promotion' %}
+                                selected
+                            {% endif %}
+                        >
+                            🏪 Business Promotion
+                        </option>
+
+                        <option
+                            value="Product Promotion"
+                            {% if request.form.get('advertising_type') == 'Product Promotion' %}
+                                selected
+                            {% endif %}
+                        >
+                            🛍️ Product Promotion
+                        </option>
+
+                        <option
+                            value="Event Promotion"
+                            {% if request.form.get('advertising_type') == 'Event Promotion' %}
+                                selected
+                            {% endif %}
+                        >
+                            🎉 Event Promotion
+                        </option>
+
+                        <option
+                            value="Campus Service"
+                            {% if request.form.get('advertising_type') == 'Campus Service' %}
+                                selected
+                            {% endif %}
+                        >
+                            🏫 Campus Service
+                        </option>
+
+                        <option
+                            value="Job / Opportunity"
+                            {% if request.form.get('advertising_type') == 'Job / Opportunity' %}
+                                selected
+                            {% endif %}
+                        >
+                            💼 Job / Opportunity
+                        </option>
+
+                        <option
+                            value="Other"
+                            {% if request.form.get('advertising_type') == 'Other' %}
+                                selected
+                            {% endif %}
+                        >
+                            ✨ Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- =================================================
+                     MESSAGE
+                ================================================== -->
+
+                <div class="advertise-field">
+
+                    <label for="message">
+                        Advertising Details *
+                    </label>
+
+                    <textarea
+                        id="message"
+                        name="message"
+                        maxlength="2000"
+                        required
+                        placeholder="Tell us about what you want to advertise, your campaign, product, event or opportunity..."
+                    >{{ request.form.get('message', '') }}</textarea>
+
+                    <div class="advertise-character-note">
+                        Maximum 2,000 characters.
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SUBMIT
+                ================================================== -->
+
+                <button
+                    type="submit"
+                    class="advertise-submit"
+                >
+                    🚀 Submit Advertising Request
+                </button>
+
+                <p class="advertise-form-note">
+                    Your request will be saved as
+                    <strong>Pending</strong> and reviewed
+                    by the UniCamplink admin.
+                </p>
+
+            </form>
 
         </section>
 
+    </section>
 
-        <div class="advertise-footer">
 
-            UniCamplink Community •
-            <a href="{{ url_for('dashboard') }}">
-                Back to Dashboard
-            </a>
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
 
-        </div>
+    <div class="advertise-footer">
+
+        UniCamplink Community •
+
+        <a href="{{ url_for('dashboard') }}">
+            Back to Dashboard
+        </a>
+
+        •
+
+        <a
+            href="https://wa.me/2349161162607"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            WhatsApp Advertising
+        </a>
 
     </div>
 
 </div>
+
+</div>
+
+<!-- =========================================================
+     FORM COMPATIBILITY
+     Keeps older Flask routes expecting "name" working while
+     the database-compatible field uses "advertiser_name".
+========================================================= -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("advertiseForm");
+    const advertiserName = document.getElementById("advertiser_name");
+    const legacyName = document.getElementById("legacyNameField");
+
+    if (!form || !advertiserName || !legacyName) {
+        return;
+    }
+
+    function syncAdvertiserName() {
+        legacyName.value = advertiserName.value.trim();
+    }
+
+    advertiserName.addEventListener(
+        "input",
+        syncAdvertiserName
+    );
+
+    form.addEventListener(
+        "submit",
+        syncAdvertiserName
+    );
+
+});
+</script>
 
 </body>
 </html>

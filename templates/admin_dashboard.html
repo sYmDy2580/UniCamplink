@@ -77,8 +77,10 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
+
             background: var(--admin-bg);
             color: var(--admin-text);
+
             font-family:
                 Inter,
                 -apple-system,
@@ -88,7 +90,9 @@
                 Helvetica,
                 Arial,
                 sans-serif;
+
             overflow-x: hidden;
+
             transition:
                 background .25s ease,
                 color .25s ease;
@@ -118,6 +122,7 @@
             top: 0;
             left: 0;
             right: 0;
+
             height: 68px;
             z-index: 1000;
 
@@ -157,16 +162,18 @@
         .mobile-menu {
             width: 42px;
             height: 42px;
-            display: none;
 
+            display: none;
             align-items: center;
             justify-content: center;
 
             border-radius: 50%;
+
             background: var(--admin-card-soft);
             color: var(--admin-text);
 
             cursor: pointer;
+
             transition: .2s ease;
         }
 
@@ -193,6 +200,7 @@
             );
 
             color: white;
+
             font-weight: 900;
             font-size: 17px;
 
@@ -227,10 +235,12 @@
             justify-content: center;
 
             border-radius: 50%;
+
             background: var(--admin-card-soft);
             color: var(--admin-text);
 
             cursor: pointer;
+
             transition: .2s ease;
         }
 
@@ -246,6 +256,7 @@
 
         .admin-sidebar {
             position: fixed;
+
             top: 68px;
             left: 0;
             bottom: 0;
@@ -256,9 +267,11 @@
             padding: 18px 12px;
 
             background: var(--admin-card);
+
             border-right: 1px solid var(--admin-border);
 
             overflow-y: auto;
+
             transition: transform .25s ease;
         }
 
@@ -267,8 +280,10 @@
             margin: 5px 0 7px;
 
             color: var(--admin-muted);
+
             font-size: 10px;
             font-weight: 800;
+
             text-transform: uppercase;
             letter-spacing: .12em;
         }
@@ -278,15 +293,18 @@
 
             display: flex;
             align-items: center;
+
             gap: 12px;
 
             min-height: 46px;
+
             padding: 0 13px;
             margin-bottom: 4px;
 
             border-radius: 14px;
 
             color: var(--admin-muted);
+
             font-size: 13px;
             font-weight: 700;
 
@@ -310,8 +328,11 @@
 
         .sidebar-icon {
             width: 23px;
+
             text-align: center;
+
             font-size: 18px;
+
             flex: 0 0 23px;
         }
 
@@ -340,7 +361,9 @@
 
         .sidebar-divider {
             height: 1px;
+
             background: var(--admin-border);
+
             margin: 15px 8px;
         }
 
@@ -349,22 +372,27 @@
             padding: 13px;
 
             border-radius: 16px;
+
             background: var(--admin-card-soft);
             border: 1px solid var(--admin-border);
         }
 
         .sidebar-user-label {
             color: var(--admin-muted);
+
             font-size: 10px;
             font-weight: 700;
+
             text-transform: uppercase;
             letter-spacing: .08em;
         }
 
         .sidebar-user-name {
             margin-top: 5px;
+
             font-size: 13px;
             font-weight: 800;
+
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -377,6 +405,7 @@
         .mobile-overlay {
             position: fixed;
             inset: 0;
+
             z-index: 850;
 
             background: rgba(0, 0, 0, .48);
@@ -398,6 +427,7 @@
 
         .admin-main {
             margin-left: var(--sidebar-width);
+
             padding: 92px 24px 100px;
 
             min-height: 100vh;
@@ -406,6 +436,7 @@
         .admin-container {
             width: 100%;
             max-width: 1350px;
+
             margin: 0 auto;
         }
 
@@ -435,6 +466,7 @@
                 var(--admin-card);
 
             border: 1px solid var(--admin-border);
+
             box-shadow: var(--shadow);
 
             margin-bottom: 22px;
@@ -448,6 +480,7 @@
         .hero-eyebrow {
             display: inline-flex;
             align-items: center;
+
             gap: 7px;
 
             padding: 7px 10px;
@@ -472,8 +505,11 @@
             margin: 13px 0 5px;
 
             font-size: clamp(25px, 4vw, 38px);
+
             line-height: 1.08;
+
             letter-spacing: -.045em;
+
             font-weight: 900;
         }
 
@@ -482,10 +518,12 @@
         }
 
         .hero-description {
-            max-width: 680px;
+            max-width: 720px;
+
             margin: 0;
 
             color: var(--admin-muted);
+
             font-size: 13px;
             line-height: 1.65;
         }
@@ -493,6 +531,7 @@
         .hero-actions {
             display: flex;
             flex-wrap: wrap;
+
             gap: 9px;
 
             margin-top: 19px;
@@ -504,6 +543,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+
             gap: 7px;
 
             padding: 0 15px;
@@ -526,13 +566,28 @@
 
         .hero-button.secondary {
             background: var(--admin-card-soft);
+
             color: var(--admin-text);
+
             border: 1px solid var(--admin-border);
         }
 
         .hero-button.secondary:hover {
             background: var(--primary-soft);
             color: var(--primary-dark);
+        }
+
+        .hero-button.sponsored {
+            background: linear-gradient(
+                135deg,
+                #8b5cf6,
+                #ec4899
+            );
+        }
+
+        .hero-button.sponsored:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.06);
         }
 
         /* =========================================================
@@ -545,25 +600,32 @@
             justify-content: space-between;
 
             gap: 12px;
+
             margin: 28px 2px 13px;
         }
 
         .section-heading h2 {
             margin: 0;
+
             font-size: 17px;
+
             letter-spacing: -.025em;
         }
 
         .section-heading p {
             margin: 3px 0 0;
+
             color: var(--admin-muted);
+
             font-size: 11px;
         }
 
         .section-link {
             color: var(--primary-dark);
+
             font-size: 11px;
             font-weight: 800;
+
             white-space: nowrap;
         }
 
@@ -577,7 +639,10 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
             gap: 12px;
         }
 
@@ -586,10 +651,13 @@
             overflow: hidden;
 
             min-width: 0;
+
             padding: 17px;
 
             background: var(--admin-card);
+
             border: 1px solid var(--admin-border);
+
             border-radius: var(--radius);
 
             box-shadow: var(--shadow-sm);
@@ -609,6 +677,7 @@
             content: "";
 
             position: absolute;
+
             right: -25px;
             bottom: -30px;
 
@@ -618,6 +687,7 @@
             border-radius: 50%;
 
             background: var(--stat-soft);
+
             opacity: .8;
         }
 
@@ -640,16 +710,20 @@
             border-radius: 13px;
 
             background: var(--stat-soft);
+
             color: var(--stat-color);
 
             font-size: 17px;
+
             flex: 0 0 39px;
         }
 
         .stat-label {
             color: var(--admin-muted);
+
             font-size: 10px;
             font-weight: 750;
+
             text-transform: uppercase;
             letter-spacing: .06em;
         }
@@ -661,12 +735,15 @@
             line-height: 1;
 
             font-weight: 900;
+
             letter-spacing: -.04em;
         }
 
         .stat-meta {
             margin-top: 7px;
+
             color: var(--admin-muted);
+
             font-size: 10px;
         }
 
@@ -710,20 +787,27 @@
 
         .quick-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
             gap: 12px;
         }
 
         .quick-card {
             display: flex;
             align-items: center;
+
             gap: 12px;
 
             min-width: 0;
+
             padding: 14px;
 
             background: var(--admin-card);
+
             border: 1px solid var(--admin-border);
+
             border-radius: var(--radius);
 
             box-shadow: var(--shadow-sm);
@@ -733,12 +817,15 @@
 
         .quick-card:hover {
             transform: translateY(-2px);
-            border-color: rgba(56, 189, 248, .25);
+
+            border-color:
+                rgba(56, 189, 248, .25);
         }
 
         .quick-icon {
             width: 43px;
             height: 43px;
+
             flex: 0 0 43px;
 
             display: flex;
@@ -748,6 +835,7 @@
             border-radius: 14px;
 
             background: var(--quick-bg);
+
             color: var(--quick-color);
 
             font-size: 18px;
@@ -765,7 +853,9 @@
 
         .quick-description {
             margin-top: 3px;
+
             color: var(--admin-muted);
+
             font-size: 10px;
 
             white-space: nowrap;
@@ -775,6 +865,7 @@
 
         .quick-arrow {
             color: var(--admin-muted);
+
             font-size: 15px;
         }
 
@@ -798,8 +889,46 @@
             --quick-color: var(--green);
         }
 
+        .quick-pink {
+            --quick-bg: var(--pink-soft);
+            --quick-color: var(--pink);
+        }
+
         html[data-theme="dark"] .quick-blue {
             --quick-color: var(--primary);
+        }
+
+        /* =========================================================
+           SPONSORED QUICK CARD
+           ========================================================= */
+
+        .quick-sponsored {
+            position: relative;
+
+            border-color:
+                rgba(139, 92, 246, .20);
+        }
+
+        .quick-sponsored::after {
+            content: "NEW";
+
+            position: absolute;
+
+            top: 8px;
+            right: 8px;
+
+            padding: 3px 6px;
+
+            border-radius: 999px;
+
+            background: var(--purple-soft);
+
+            color: var(--purple);
+
+            font-size: 7px;
+            font-weight: 900;
+
+            letter-spacing: .06em;
         }
 
         /* =========================================================
@@ -808,8 +937,13 @@
 
         .content-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+
+            grid-template-columns:
+                minmax(0, 1.35fr)
+                minmax(300px, .65fr);
+
             gap: 14px;
+
             align-items: start;
         }
 
@@ -817,7 +951,9 @@
             min-width: 0;
 
             background: var(--admin-card);
+
             border: 1px solid var(--admin-border);
+
             border-radius: var(--radius);
 
             box-shadow: var(--shadow-sm);
@@ -840,6 +976,7 @@
         .panel-title {
             display: flex;
             align-items: center;
+
             gap: 9px;
 
             font-size: 13px;
@@ -857,6 +994,7 @@
             border-radius: 10px;
 
             background: var(--primary-soft);
+
             color: var(--primary-dark);
         }
 
@@ -870,6 +1008,7 @@
             border-radius: 999px;
 
             background: var(--admin-card-soft);
+
             color: var(--admin-muted);
 
             font-size: 9px;
@@ -893,9 +1032,11 @@
 
             padding: 14px 18px;
 
-            border-bottom: 1px solid var(--admin-border);
+            border-bottom:
+                1px solid var(--admin-border);
 
-            transition: background .2s ease;
+            transition:
+                background .2s ease;
         }
 
         .member-row:last-child {
@@ -909,6 +1050,7 @@
         .member-avatar {
             width: 42px;
             height: 42px;
+
             flex: 0 0 42px;
 
             display: flex;
@@ -918,6 +1060,7 @@
             border-radius: 50%;
 
             background: var(--primary-soft);
+
             color: var(--primary-dark);
 
             font-size: 14px;
@@ -933,6 +1076,7 @@
         .member-avatar img {
             width: 100%;
             height: 100%;
+
             object-fit: cover;
         }
 
@@ -954,6 +1098,7 @@
             margin-top: 3px;
 
             color: var(--admin-muted);
+
             font-size: 10px;
 
             white-space: nowrap;
@@ -964,11 +1109,13 @@
         .member-meta {
             display: flex;
             align-items: center;
+
             gap: 5px;
 
             margin-top: 4px;
 
             color: var(--admin-muted);
+
             font-size: 9px;
         }
 
@@ -991,8 +1138,11 @@
 
         .empty-state {
             padding: 35px 18px;
+
             text-align: center;
+
             color: var(--admin-muted);
+
             font-size: 12px;
         }
 
@@ -1007,6 +1157,7 @@
         .management-item {
             display: flex;
             align-items: center;
+
             gap: 12px;
 
             padding: 13px 10px;
@@ -1023,6 +1174,7 @@
         .management-icon {
             width: 40px;
             height: 40px;
+
             flex: 0 0 40px;
 
             display: flex;
@@ -1032,6 +1184,7 @@
             border-radius: 13px;
 
             background: var(--manage-bg);
+
             color: var(--manage-color);
 
             font-size: 17px;
@@ -1049,7 +1202,9 @@
 
         .management-description {
             margin-top: 3px;
+
             color: var(--admin-muted);
+
             font-size: 9px;
             line-height: 1.45;
         }
@@ -1057,11 +1212,13 @@
         .management-number {
             font-size: 13px;
             font-weight: 900;
+
             white-space: nowrap;
         }
 
         .management-arrow {
             color: var(--admin-muted);
+
             font-size: 13px;
         }
 
@@ -1090,8 +1247,35 @@
             --manage-color: var(--red);
         }
 
+        .manage-pink {
+            --manage-bg: var(--pink-soft);
+            --manage-color: var(--pink);
+        }
+
         html[data-theme="dark"] .manage-blue {
             --manage-color: var(--primary);
+        }
+
+        /* =========================================================
+           SPONSORED MANAGEMENT ITEM
+           ========================================================= */
+
+        .sponsored-management {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(139, 92, 246, .07),
+                    transparent
+                );
+        }
+
+        .sponsored-management:hover {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(139, 92, 246, .12),
+                    var(--admin-card-soft)
+                );
         }
 
         /* =========================================================
@@ -1100,8 +1284,12 @@
 
         .activity-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
             gap: 10px;
+
             padding: 14px;
         }
 
@@ -1109,7 +1297,9 @@
             padding: 14px 12px;
 
             border-radius: 15px;
+
             background: var(--admin-card-soft);
+
             border: 1px solid var(--admin-border);
 
             text-align: center;
@@ -1123,7 +1313,9 @@
             margin-top: 7px;
 
             font-size: 19px;
+
             font-weight: 900;
+
             letter-spacing: -.04em;
         }
 
@@ -1131,21 +1323,28 @@
             margin-top: 3px;
 
             color: var(--admin-muted);
+
             font-size: 9px;
             font-weight: 700;
         }
 
         /* =========================================================
-           BOTTOM MOBILE NAV
+           MOBILE BOTTOM NAV
            ========================================================= */
 
         .mobile-bottom-nav {
             display: none;
 
             position: fixed;
+
             left: 10px;
             right: 10px;
-            bottom: calc(10px + env(safe-area-inset-bottom));
+
+            bottom:
+                calc(
+                    10px +
+                    env(safe-area-inset-bottom)
+                );
 
             z-index: 1000;
 
@@ -1153,16 +1352,20 @@
 
             padding: 5px;
 
-            background: color-mix(
-                in srgb,
-                var(--admin-card) 94%,
-                transparent
-            );
+            background:
+                color-mix(
+                    in srgb,
+                    var(--admin-card) 94%,
+                    transparent
+                );
 
-            border: 1px solid var(--admin-border);
+            border:
+                1px solid var(--admin-border);
+
             border-radius: 20px;
 
-            box-shadow: 0 12px 35px rgba(0, 0, 0, .16);
+            box-shadow:
+                0 12px 35px rgba(0, 0, 0, .16);
 
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
@@ -1173,6 +1376,7 @@
 
             display: flex;
             flex-direction: column;
+
             align-items: center;
             justify-content: center;
 
@@ -1207,16 +1411,20 @@
            ========================================================= */
 
         @media (max-width: 1150px) {
+
             .stats-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
             }
 
             .quick-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
             }
         }
 
         @media (max-width: 900px) {
+
             :root {
                 --sidebar-width: 235px;
             }
@@ -1226,13 +1434,16 @@
             }
 
             .stats-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
             }
         }
 
         @media (max-width: 720px) {
+
             .admin-topbar {
                 height: 62px;
+
                 padding: 0 11px;
             }
 
@@ -1243,7 +1454,9 @@
             .brand-mark {
                 width: 35px;
                 height: 35px;
+
                 flex-basis: 35px;
+
                 border-radius: 11px;
             }
 
@@ -1262,11 +1475,15 @@
 
             .admin-sidebar {
                 top: 62px;
-                width: min(280px, 86vw);
 
-                transform: translateX(-105%);
+                width:
+                    min(280px, 86vw);
 
-                box-shadow: 12px 0 35px rgba(0, 0, 0, .12);
+                transform:
+                    translateX(-105%);
+
+                box-shadow:
+                    12px 0 35px rgba(0, 0, 0, .12);
             }
 
             .admin-sidebar.open {
@@ -1275,14 +1492,19 @@
 
             .admin-main {
                 margin-left: 0;
+
                 padding:
                     77px
                     11px
-                    calc(88px + env(safe-area-inset-bottom));
+                    calc(
+                        88px +
+                        env(safe-area-inset-bottom)
+                    );
             }
 
             .admin-hero {
                 padding: 21px 17px;
+
                 border-radius: 20px;
             }
 
@@ -1297,12 +1519,16 @@
 
             .hero-actions {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+
+                grid-template-columns:
+                    1fr 1fr;
             }
 
             .hero-button {
                 width: 100%;
+
                 padding: 0 9px;
+
                 font-size: 11px;
             }
 
@@ -1311,20 +1537,26 @@
             }
 
             .stats-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
                 gap: 8px;
             }
 
             .stat-card {
                 padding: 13px;
+
                 border-radius: 16px;
             }
 
             .stat-icon {
                 width: 34px;
                 height: 34px;
+
                 flex-basis: 34px;
+
                 border-radius: 11px;
+
                 font-size: 15px;
             }
 
@@ -1334,6 +1566,7 @@
 
             .stat-value {
                 font-size: 21px;
+
                 margin-top: 10px;
             }
 
@@ -1343,17 +1576,20 @@
 
             .quick-grid {
                 grid-template-columns: 1fr;
+
                 gap: 8px;
             }
 
             .quick-card {
                 padding: 12px;
+
                 border-radius: 16px;
             }
 
             .quick-icon {
                 width: 39px;
                 height: 39px;
+
                 flex-basis: 39px;
             }
 
@@ -1372,6 +1608,7 @@
             .member-avatar {
                 width: 39px;
                 height: 39px;
+
                 flex-basis: 39px;
             }
 
@@ -1381,6 +1618,7 @@
 
             .activity-grid {
                 gap: 7px;
+
                 padding: 10px;
             }
 
@@ -1398,8 +1636,10 @@
         }
 
         @media (max-width: 420px) {
+
             .brand-title {
                 max-width: 150px;
+
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
@@ -1426,6 +1666,7 @@
 
             .member-date {
                 display: block;
+
                 margin-top: 2px;
             }
 
@@ -1439,17 +1680,25 @@
            ========================================================= */
 
         @media (prefers-reduced-motion: reduce) {
+
             *,
             *::before,
             *::after {
                 scroll-behavior: auto !important;
-                transition: none !important;
-                animation: none !important;
+
+                transition:
+                    none !important;
+
+                animation:
+                    none !important;
             }
         }
 
         :focus-visible {
-            outline: 3px solid rgba(56, 189, 248, .35);
+            outline:
+                3px solid
+                rgba(56, 189, 248, .35);
+
             outline-offset: 2px;
         }
     </style>
@@ -1472,16 +1721,24 @@
                 aria-label="Open admin menu"
                 aria-controls="adminSidebar"
                 aria-expanded="false">
+
                 ☰
+
             </button>
 
-            <a href="{{ url_for('admin_dashboard') }}"
-               class="brand-mark"
-               aria-label="UniCamplink Admin">
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="brand-mark"
+                aria-label="UniCamplink Admin">
+
                 U
+
             </a>
 
+
             <div class="brand-text">
+
                 <div class="brand-title">
                     UniCamplink Admin
                 </div>
@@ -1489,9 +1746,11 @@
                 <div class="brand-subtitle">
                     Razor Control Center
                 </div>
+
             </div>
 
         </div>
+
 
         <div class="topbar-right">
 
@@ -1501,15 +1760,20 @@
                 type="button"
                 aria-label="Toggle theme"
                 title="Toggle light/dark mode">
+
                 🌙
+
             </button>
+
 
             <a
                 class="top-action"
                 href="{{ url_for('dashboard') }}"
                 aria-label="Open platform"
                 title="Open UniCamplink">
+
                 ↗
+
             </a>
 
         </div>
@@ -1535,15 +1799,21 @@
         class="admin-sidebar"
         id="adminSidebar">
 
+
         <div class="sidebar-section-title">
             Control Center
         </div>
+
+
+        <!-- OVERVIEW -->
 
         <a
             href="{{ url_for('admin_dashboard') }}"
             class="sidebar-link active">
 
-            <span class="sidebar-icon">⌂</span>
+            <span class="sidebar-icon">
+                ⌂
+            </span>
 
             <span class="sidebar-link-text">
                 Overview
@@ -1551,11 +1821,16 @@
 
         </a>
 
+
+        <!-- MEMBERS -->
+
         <a
             href="{{ url_for('admin_members') }}"
             class="sidebar-link">
 
-            <span class="sidebar-icon">👥</span>
+            <span class="sidebar-icon">
+                👥
+            </span>
 
             <span class="sidebar-link-text">
                 Members
@@ -1563,29 +1838,58 @@
 
         </a>
 
+
+        <!-- ADVERTISEMENTS -->
+
         <a
             href="{{ url_for('admin_advertisements') }}"
             class="sidebar-link">
 
-            <span class="sidebar-icon">📣</span>
+            <span class="sidebar-icon">
+                📣
+            </span>
 
             <span class="sidebar-link-text">
                 Advertisements
             </span>
 
             {% if pending_advertisements > 0 %}
+
                 <span class="sidebar-badge">
                     {{ pending_advertisements }}
                 </span>
+
             {% endif %}
 
         </a>
+
+
+        <!-- SPONSORED POSTS -->
+
+        <a
+            href="{{ url_for('admin_sponsored_posts') }}"
+            class="sidebar-link">
+
+            <span class="sidebar-icon">
+                📢
+            </span>
+
+            <span class="sidebar-link-text">
+                Sponsored Posts
+            </span>
+
+        </a>
+
+
+        <!-- CAMPUS AMBASSADORS -->
 
         <a
             href="{{ url_for('admin_campus_ambassadors') }}"
             class="sidebar-link">
 
-            <span class="sidebar-icon">🎓</span>
+            <span class="sidebar-icon">
+                🎓
+            </span>
 
             <span class="sidebar-link-text">
                 Campus Ambassadors
@@ -1593,11 +1897,16 @@
 
         </a>
 
+
+        <!-- VERIFIED STUDENTS -->
+
         <a
             href="{{ url_for('admin_verified_students') }}"
             class="sidebar-link">
 
-            <span class="sidebar-icon">✓</span>
+            <span class="sidebar-icon">
+                ✓
+            </span>
 
             <span class="sidebar-link-text">
                 Verified Students
@@ -1608,15 +1917,21 @@
 
         <div class="sidebar-divider"></div>
 
+
         <div class="sidebar-section-title">
             Platform
         </div>
+
+
+        <!-- MAIN DASHBOARD -->
 
         <a
             href="{{ url_for('dashboard') }}"
             class="sidebar-link">
 
-            <span class="sidebar-icon">🏠</span>
+            <span class="sidebar-icon">
+                🏠
+            </span>
 
             <span class="sidebar-link-text">
                 Main Dashboard
@@ -1624,11 +1939,16 @@
 
         </a>
 
+
+        <!-- LOGOUT -->
+
         <a
             href="{{ url_for('logout') }}"
             class="sidebar-link">
 
-            <span class="sidebar-icon">↪</span>
+            <span class="sidebar-icon">
+                ↪
+            </span>
 
             <span class="sidebar-link-text">
                 Logout
@@ -1636,6 +1956,8 @@
 
         </a>
 
+
+        <!-- ADMIN USER -->
 
         <div class="sidebar-user">
 
@@ -1669,37 +1991,62 @@
 
                 <div class="hero-content">
 
+
                     <div class="hero-eyebrow">
                         ⚡ Razor Admin Center
                     </div>
 
+
                     <h1 class="hero-title">
+
                         Welcome back,
+
                         <span>
                             {{ current_user["name"] }}
                         </span>
+
                     </h1>
 
+
                     <p class="hero-description">
+
                         Manage UniCamplink from one place.
                         Monitor members, community activity,
-                        advertisements, Campus Ambassadors and
-                        verified students.
+                        advertisements, sponsored campaigns,
+                        Campus Ambassadors and verified students.
+
                     </p>
 
+
                     <div class="hero-actions">
+
 
                         <a
                             href="{{ url_for('admin_members') }}"
                             class="hero-button">
+
                             👥 Manage Members
+
                         </a>
+
 
                         <a
                             href="{{ url_for('admin_advertisements') }}"
                             class="hero-button secondary">
+
                             📣 Advertisements
+
                         </a>
+
+
+                        <a
+                            href="{{ url_for('admin_sponsored_posts') }}"
+                            class="hero-button sponsored">
+
+                            📢 Sponsored Posts
+
+                        </a>
+
 
                     </div>
 
@@ -1715,6 +2062,7 @@
             <div class="section-heading">
 
                 <div>
+
                     <h2>
                         Platform overview
                     </h2>
@@ -1722,6 +2070,7 @@
                     <p>
                         A quick look at UniCamplink activity.
                     </p>
+
                 </div>
 
             </div>
@@ -2037,6 +2386,7 @@
             <div class="section-heading">
 
                 <div>
+
                     <h2>
                         Quick actions
                     </h2>
@@ -2044,6 +2394,7 @@
                     <p>
                         Jump directly into important admin tools.
                     </p>
+
                 </div>
 
             </div>
@@ -2051,6 +2402,8 @@
 
             <section class="quick-grid">
 
+
+                <!-- MEMBERS -->
 
                 <a
                     href="{{ url_for('admin_members') }}"
@@ -2079,6 +2432,8 @@
                 </a>
 
 
+                <!-- AMBASSADORS -->
+
                 <a
                     href="{{ url_for('admin_campus_ambassadors') }}"
                     class="quick-card">
@@ -2105,6 +2460,8 @@
 
                 </a>
 
+
+                <!-- VERIFIED -->
 
                 <a
                     href="{{ url_for('admin_verified_students') }}"
@@ -2133,6 +2490,8 @@
                 </a>
 
 
+                <!-- ADVERTISEMENTS -->
+
                 <a
                     href="{{ url_for('admin_advertisements') }}"
                     class="quick-card">
@@ -2160,6 +2519,35 @@
                 </a>
 
 
+                <!-- SPONSORED POSTS -->
+
+                <a
+                    href="{{ url_for('admin_sponsored_posts') }}"
+                    class="quick-card quick-sponsored">
+
+                    <div class="quick-icon quick-purple">
+                        📢
+                    </div>
+
+                    <div class="quick-info">
+
+                        <div class="quick-title">
+                            Sponsored Posts
+                        </div>
+
+                        <div class="quick-description">
+                            Manage active sponsored campaigns
+                        </div>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+
             </section>
 
 
@@ -2170,6 +2558,7 @@
             <div class="section-heading">
 
                 <div>
+
                     <h2>
                         Community activity
                     </h2>
@@ -2177,6 +2566,7 @@
                     <p>
                         Core activity across the platform.
                     </p>
+
                 </div>
 
             </div>
@@ -2218,14 +2608,19 @@
 
                                 <div class="member-row">
 
+
                                     <div class="member-avatar">
 
                                         {% if user["profile_picture"] %}
+
                                             <img
                                                 src="{{ user['profile_picture'] }}"
                                                 alt="{{ user['name'] }}">
+
                                         {% else %}
+
                                             {{ user["name"][0]|upper }}
+
                                         {% endif %}
 
                                     </div>
@@ -2237,19 +2632,24 @@
                                             {{ user["name"] }}
                                         </div>
 
+
                                         <div class="member-email">
                                             {{ user["email"] }}
                                         </div>
 
+
                                         <div class="member-meta">
 
                                             <span class="member-school">
-                                                🎓 {{ user["university"] or "University not set" }}
+                                                🎓
+                                                {{ user["university"] or "University not set" }}
                                             </span>
+
 
                                             <span class="dot">
                                                 •
                                             </span>
+
 
                                             <span class="member-date">
                                                 {{ user["joined_at"] or "—" }}
@@ -2371,7 +2771,7 @@
                         </a>
 
 
-                        <!-- ADS -->
+                        <!-- ADVERTISEMENTS -->
 
                         <a
                             href="{{ url_for('admin_advertisements') }}"
@@ -2395,6 +2795,39 @@
 
                             <div class="management-number">
                                 {{ total_advertisements }}
+                            </div>
+
+                            <div class="management-arrow">
+                                →
+                            </div>
+
+                        </a>
+
+
+                        <!-- SPONSORED POSTS -->
+
+                        <a
+                            href="{{ url_for('admin_sponsored_posts') }}"
+                            class="management-item sponsored-management">
+
+                            <div class="management-icon manage-purple">
+                                📢
+                            </div>
+
+                            <div class="management-info">
+
+                                <div class="management-title">
+                                    Sponsored Posts
+                                </div>
+
+                                <div class="management-description">
+                                    Manage sponsored campaigns and promotions
+                                </div>
+
+                            </div>
+
+                            <div class="management-number">
+                                📢
                             </div>
 
                             <div class="management-arrow">
@@ -2485,6 +2918,7 @@
             <div class="section-heading">
 
                 <div>
+
                     <h2>
                         At a glance
                     </h2>
@@ -2492,6 +2926,7 @@
                     <p>
                         A compact snapshot of the UniCamplink ecosystem.
                     </p>
+
                 </div>
 
             </div>
@@ -2500,6 +2935,7 @@
             <section class="panel">
 
                 <div class="activity-grid">
+
 
                     <div class="activity-box">
 
@@ -2563,10 +2999,11 @@
 
 
     <!-- =========================================================
-         MOBILE BOTTOM NAV
+         MOBILE BOTTOM NAVIGATION
          ========================================================= -->
 
     <nav class="mobile-bottom-nav">
+
 
         <a
             href="{{ url_for('admin_dashboard') }}"
@@ -2577,6 +3014,7 @@
 
         </a>
 
+
         <a
             href="{{ url_for('admin_members') }}"
             class="mobile-bottom-link">
@@ -2585,6 +3023,7 @@
             <span>Members</span>
 
         </a>
+
 
         <a
             href="{{ url_for('admin_advertisements') }}"
@@ -2595,6 +3034,17 @@
 
         </a>
 
+
+        <a
+            href="{{ url_for('admin_sponsored_posts') }}"
+            class="mobile-bottom-link">
+
+            <span>📢</span>
+            <span>Sponsored</span>
+
+        </a>
+
+
         <a
             href="{{ url_for('admin_campus_ambassadors') }}"
             class="mobile-bottom-link">
@@ -2604,14 +3054,6 @@
 
         </a>
 
-        <a
-            href="{{ url_for('admin_verified_students') }}"
-            class="mobile-bottom-link">
-
-            <span>✓</span>
-            <span>Verified</span>
-
-        </a>
 
     </nav>
 
@@ -2621,235 +3063,333 @@
          ========================================================= -->
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
 
-            const html = document.documentElement;
-
-            const themeToggle =
-                document.getElementById("themeToggle");
-
-            const mobileMenuButton =
-                document.getElementById("mobileMenuButton");
-
-            const adminSidebar =
-                document.getElementById("adminSidebar");
-
-            const mobileOverlay =
-                document.getElementById("mobileOverlay");
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
 
 
-            /* =====================================================
-               THEME
-               ===================================================== */
+                const html =
+                    document.documentElement;
 
-            function applyTheme(theme) {
 
-                html.setAttribute("data-theme", theme);
+                const themeToggle =
+                    document.getElementById(
+                        "themeToggle"
+                    );
+
+
+                const mobileMenuButton =
+                    document.getElementById(
+                        "mobileMenuButton"
+                    );
+
+
+                const adminSidebar =
+                    document.getElementById(
+                        "adminSidebar"
+                    );
+
+
+                const mobileOverlay =
+                    document.getElementById(
+                        "mobileOverlay"
+                    );
+
+
+                /* =================================================
+                   THEME
+                   ================================================= */
+
+                function applyTheme(theme) {
+
+                    html.setAttribute(
+                        "data-theme",
+                        theme
+                    );
+
+
+                    if (themeToggle) {
+
+                        themeToggle.textContent =
+                            theme === "dark"
+                                ? "☀️"
+                                : "🌙";
+
+
+                        themeToggle.setAttribute(
+                            "aria-label",
+                            theme === "dark"
+                                ? "Switch to light mode"
+                                : "Switch to dark mode"
+                        );
+
+
+                        themeToggle.setAttribute(
+                            "title",
+                            theme === "dark"
+                                ? "Switch to light mode"
+                                : "Switch to dark mode"
+                        );
+
+                    }
+
+                }
+
+
+                let savedTheme =
+                    localStorage.getItem(
+                        "unicamplink-theme"
+                    );
+
+
+                if (
+                    savedTheme !== "light" &&
+                    savedTheme !== "dark"
+                ) {
+
+                    savedTheme = "dark";
+
+                }
+
+
+                applyTheme(savedTheme);
+
 
                 if (themeToggle) {
 
-                    themeToggle.textContent =
-                        theme === "dark" ? "☀️" : "🌙";
+                    themeToggle.addEventListener(
+                        "click",
+                        function () {
 
-                    themeToggle.setAttribute(
-                        "aria-label",
-                        theme === "dark"
-                            ? "Switch to light mode"
-                            : "Switch to dark mode"
+
+                            const currentTheme =
+                                html.getAttribute(
+                                    "data-theme"
+                                );
+
+
+                            const newTheme =
+                                currentTheme === "dark"
+                                    ? "light"
+                                    : "dark";
+
+
+                            localStorage.setItem(
+                                "unicamplink-theme",
+                                newTheme
+                            );
+
+
+                            applyTheme(newTheme);
+
+                        }
                     );
 
-                    themeToggle.setAttribute(
-                        "title",
-                        theme === "dark"
-                            ? "Switch to light mode"
-                            : "Switch to dark mode"
-                    );
                 }
-            }
 
 
-            let savedTheme =
-                localStorage.getItem("unicamplink-theme");
+                /* =================================================
+                   MOBILE SIDEBAR
+                   ================================================= */
+
+                function openSidebar() {
+
+                    if (!adminSidebar) {
+                        return;
+                    }
 
 
-            if (
-                savedTheme !== "light" &&
-                savedTheme !== "dark"
-            ) {
-                savedTheme = "dark";
-            }
+                    adminSidebar.classList.add(
+                        "open"
+                    );
 
 
-            applyTheme(savedTheme);
+                    if (mobileOverlay) {
 
-
-            if (themeToggle) {
-
-                themeToggle.addEventListener(
-                    "click",
-                    function () {
-
-                        const currentTheme =
-                            html.getAttribute("data-theme");
-
-                        const newTheme =
-                            currentTheme === "dark"
-                                ? "light"
-                                : "dark";
-
-                        localStorage.setItem(
-                            "unicamplink-theme",
-                            newTheme
+                        mobileOverlay.classList.add(
+                            "active"
                         );
 
-                        applyTheme(newTheme);
+                    }
+
+
+                    if (mobileMenuButton) {
+
+                        mobileMenuButton.setAttribute(
+                            "aria-expanded",
+                            "true"
+                        );
+
+
+                        mobileMenuButton.textContent =
+                            "✕";
+
+                    }
+
+
+                    document.body.style.overflow =
+                        "hidden";
+
+                }
+
+
+                function closeSidebar() {
+
+                    if (!adminSidebar) {
+                        return;
+                    }
+
+
+                    adminSidebar.classList.remove(
+                        "open"
+                    );
+
+
+                    if (mobileOverlay) {
+
+                        mobileOverlay.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+
+                    if (mobileMenuButton) {
+
+                        mobileMenuButton.setAttribute(
+                            "aria-expanded",
+                            "false"
+                        );
+
+
+                        mobileMenuButton.textContent =
+                            "☰";
+
+                    }
+
+
+                    document.body.style.overflow =
+                        "";
+
+                }
+
+
+                if (mobileMenuButton) {
+
+                    mobileMenuButton.addEventListener(
+                        "click",
+                        function () {
+
+
+                            if (
+                                adminSidebar &&
+                                adminSidebar.classList.contains(
+                                    "open"
+                                )
+                            ) {
+
+                                closeSidebar();
+
+                            } else {
+
+                                openSidebar();
+
+                            }
+
+                        }
+                    );
+
+                }
+
+
+                if (mobileOverlay) {
+
+                    mobileOverlay.addEventListener(
+                        "click",
+                        closeSidebar
+                    );
+
+                }
+
+
+                /* =================================================
+                   CLOSE MOBILE SIDEBAR AFTER CLICK
+                   ================================================= */
+
+                if (adminSidebar) {
+
+                    adminSidebar
+                        .querySelectorAll("a")
+                        .forEach(
+                            function (link) {
+
+                                link.addEventListener(
+                                    "click",
+                                    function () {
+
+
+                                        if (
+                                            window.innerWidth <=
+                                            720
+                                        ) {
+
+                                            closeSidebar();
+
+                                        }
+
+                                    }
+                                );
+
+                            }
+                        );
+
+                }
+
+
+                /* =================================================
+                   ESCAPE KEY
+                   ================================================= */
+
+                document.addEventListener(
+                    "keydown",
+                    function (event) {
+
+                        if (
+                            event.key ===
+                            "Escape"
+                        ) {
+
+                            closeSidebar();
+
+                        }
+
                     }
                 );
 
-            }
 
+                /* =================================================
+                   RESPONSIVE SAFETY
+                   ================================================= */
 
-            /* =====================================================
-               MOBILE SIDEBAR
-               ===================================================== */
-
-            function openSidebar() {
-
-                if (!adminSidebar) return;
-
-                adminSidebar.classList.add("open");
-
-                if (mobileOverlay) {
-                    mobileOverlay.classList.add("active");
-                }
-
-                if (mobileMenuButton) {
-                    mobileMenuButton.setAttribute(
-                        "aria-expanded",
-                        "true"
-                    );
-
-                    mobileMenuButton.textContent = "✕";
-                }
-
-                document.body.style.overflow = "hidden";
-            }
-
-
-            function closeSidebar() {
-
-                if (!adminSidebar) return;
-
-                adminSidebar.classList.remove("open");
-
-                if (mobileOverlay) {
-                    mobileOverlay.classList.remove("active");
-                }
-
-                if (mobileMenuButton) {
-                    mobileMenuButton.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-                    mobileMenuButton.textContent = "☰";
-                }
-
-                document.body.style.overflow = "";
-            }
-
-
-            if (mobileMenuButton) {
-
-                mobileMenuButton.addEventListener(
-                    "click",
+                window.addEventListener(
+                    "resize",
                     function () {
 
                         if (
-                            adminSidebar &&
-                            adminSidebar.classList.contains("open")
+                            window.innerWidth > 720
                         ) {
+
                             closeSidebar();
-                        } else {
-                            openSidebar();
+
                         }
 
                     }
                 );
 
             }
+        );
 
-
-            if (mobileOverlay) {
-
-                mobileOverlay.addEventListener(
-                    "click",
-                    closeSidebar
-                );
-
-            }
-
-
-            /* =====================================================
-               CLOSE SIDEBAR WHEN A LINK IS SELECTED ON MOBILE
-               ===================================================== */
-
-            if (adminSidebar) {
-
-                adminSidebar
-                    .querySelectorAll("a")
-                    .forEach(function (link) {
-
-                        link.addEventListener(
-                            "click",
-                            function () {
-
-                                if (
-                                    window.innerWidth <= 720
-                                ) {
-                                    closeSidebar();
-                                }
-
-                            }
-                        );
-
-                    });
-
-            }
-
-
-            /* =====================================================
-               ESCAPE KEY
-               ===================================================== */
-
-            document.addEventListener(
-                "keydown",
-                function (event) {
-
-                    if (event.key === "Escape") {
-                        closeSidebar();
-                    }
-
-                }
-            );
-
-
-            /* =====================================================
-               RESPONSIVE SAFETY
-               ===================================================== */
-
-            window.addEventListener(
-                "resize",
-                function () {
-
-                    if (window.innerWidth > 720) {
-                        closeSidebar();
-                    }
-
-                }
-            );
-
-        });
     </script>
 
 </body>
