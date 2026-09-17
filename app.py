@@ -5503,17 +5503,22 @@ def _require_admin():
     return current_user, conn
 # ============================================================
 # ADMIN — VERIFIED STUDENTS
-# RAZOR / FACEBOOK-TIKTOK STYLE ADMIN SYSTEM
+# RAZOR / FACEBOOK-TIKTOK STYLE ADMIN PAGE
 # ============================================================
 
 @app.route("/admin/verified-students")
 def admin_verified_students():
+
     current_user, result = _require_admin()
 
     if current_user is None:
         return result
 
     conn = result
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
 
     search = clean_text(
         request.args.get("q"),
@@ -5522,6 +5527,7 @@ def admin_verified_students():
 
     if search is None:
         conn.close()
+
         return (
             "Search query is too long. "
             "Maximum length is 100 characters."
@@ -5529,7 +5535,12 @@ def admin_verified_students():
 
     search = search or ""
 
+    # --------------------------------------------------------
+    # SEARCH STUDENTS
+    # --------------------------------------------------------
+
     if search:
+
         pattern = f"%{search}%"
 
         users = conn.execute(
@@ -5543,17 +5554,29 @@ def admin_verified_students():
                 is_verified_student,
                 verified_at,
                 verified_by
+
             FROM users
+
             WHERE
                 LOWER(name) LIKE LOWER(?)
+
                 OR LOWER(email) LIKE LOWER(?)
-                OR LOWER(COALESCE(university, '')) LIKE LOWER(?)
+
+                OR LOWER(
+                    COALESCE(
+                        university,
+                        ''
+                    )
+                ) LIKE LOWER(?)
+
             ORDER BY
                 COALESCE(
                     joined_at,
                     '9999-12-31 23:59:59'
                 ) DESC,
+
                 id DESC
+
             LIMIT 100
             """,
             (
@@ -5563,7 +5586,12 @@ def admin_verified_students():
             )
         ).fetchall()
 
+    # --------------------------------------------------------
+    # ALL STUDENTS
+    # --------------------------------------------------------
+
     else:
+
         users = conn.execute(
             """
             SELECT
@@ -5575,16 +5603,24 @@ def admin_verified_students():
                 is_verified_student,
                 verified_at,
                 verified_by
+
             FROM users
+
             ORDER BY
                 COALESCE(
                     joined_at,
                     '9999-12-31 23:59:59'
                 ) DESC,
+
                 id DESC
+
             LIMIT 100
             """
         ).fetchall()
+
+    # --------------------------------------------------------
+    # VERIFIED COUNT
+    # --------------------------------------------------------
 
     total_verified_students = conn.execute(
         """
@@ -5594,20 +5630,41 @@ def admin_verified_students():
         """
     ).fetchone()[0]
 
+    # --------------------------------------------------------
+    # TOTAL STUDENTS
+    # --------------------------------------------------------
+
+    total_students = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM users
+        """
+    ).fetchone()[0]
+
     conn.close()
+
+    # --------------------------------------------------------
+    # RENDER RAZOR ADMIN PAGE
+    # --------------------------------------------------------
 
     return render_template(
         "admin_verified_students.html",
+
         current_user=current_user,
+
         users=users,
+
         search=search,
-        total_verified_students=total_verified_students
+
+        total_verified_students=total_verified_students,
+
+        total_students=total_students
     )
-
-
 # ============================================================
-# ADMIN — VERIFY STUDENT
+# ADMIN — VERIFIED STUDENTS
+# RAZOR / FACEBOOK-TIKTOK STYLE ADMIN SYSTEM
 # ============================================================
+
 
 @app.route(
     "/admin/verified-students/<int:user_id>/verify",
@@ -5622,9 +5679,16 @@ def admin_verify_student(user_id):
 
     conn = result
 
+    # ========================================================
+    # FIND STUDENT
+    # ========================================================
+
     user = conn.execute(
         """
-        SELECT id, name
+        SELECT
+            id,
+            name,
+            is_verified_student
         FROM users
         WHERE id = ?
         """,
@@ -5633,7 +5697,30 @@ def admin_verify_student(user_id):
 
     if not user:
         conn.close()
-        return "Student not found.", 404
+
+        return (
+            "Student not found.",
+            404
+        )
+
+    # ========================================================
+    # ALREADY VERIFIED
+    # Prevent duplicate verification notifications
+    # ========================================================
+
+    if user["is_verified_student"]:
+
+        conn.close()
+
+        return redirect(
+            url_for(
+                "admin_verified_students"
+            )
+        )
+
+    # ========================================================
+    # VERIFY STUDENT
+    # ========================================================
 
     conn.execute(
         """
@@ -5650,17 +5737,58 @@ def admin_verify_student(user_id):
         )
     )
 
+    # ========================================================
+    # SEND VERIFICATION NOTIFICATION
+    # ========================================================
+
+    conn.execute(
+        """
+        INSERT INTO notifications
+        (
+            user_id,
+            sender_id,
+            type,
+            message,
+            link
+        )
+        VALUES
+        (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        )
+        """,
+        (
+            user["id"],
+            current_user["id"],
+            "verification",
+            "Your account has been verified as an Official UniCamplink Verified Student. ✅",
+            "/profile"
+        )
+    )
+
     conn.commit()
+
     conn.close()
 
+    # ========================================================
+    # RETURN TO VERIFIED STUDENTS ADMIN PAGE
+    # ========================================================
+
     return redirect(
-        url_for("admin_verified_students")
+        url_for(
+            "admin_verified_students"
+        )
     )
+
 
 
 # ============================================================
 # ADMIN — UNVERIFY STUDENT
 # ============================================================
+
 
 @app.route(
     "/admin/verified-students/<int:user_id>/unverify",
@@ -5675,9 +5803,16 @@ def admin_unverify_student(user_id):
 
     conn = result
 
+    # ========================================================
+    # FIND STUDENT
+    # ========================================================
+
     user = conn.execute(
         """
-        SELECT id, name
+        SELECT
+            id,
+            name,
+            is_verified_student
         FROM users
         WHERE id = ?
         """,
@@ -5686,7 +5821,29 @@ def admin_unverify_student(user_id):
 
     if not user:
         conn.close()
-        return "Student not found.", 404
+
+        return (
+            "Student not found.",
+            404
+        )
+
+    # ========================================================
+    # ALREADY UNVERIFIED
+    # ========================================================
+
+    if not user["is_verified_student"]:
+
+        conn.close()
+
+        return redirect(
+            url_for(
+                "admin_verified_students"
+            )
+        )
+
+    # ========================================================
+    # REMOVE VERIFIED STATUS
+    # ========================================================
 
     conn.execute(
         """
@@ -5697,38 +5854,103 @@ def admin_unverify_student(user_id):
             verified_by = NULL
         WHERE id = ?
         """,
-        (user_id,)
+        (
+            user_id,
+        )
+    )
+
+    # ========================================================
+    # SEND UNVERIFICATION NOTIFICATION
+    # ========================================================
+
+    conn.execute(
+        """
+        INSERT INTO notifications
+        (
+            user_id,
+            sender_id,
+            type,
+            message,
+            link
+        )
+        VALUES
+        (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        )
+        """,
+        (
+            user["id"],
+            current_user["id"],
+            "verification",
+            "Your UniCamplink Verified Student status has been removed.",
+            "/profile"
+        )
     )
 
     conn.commit()
+
     conn.close()
 
     return redirect(
-        url_for("admin_verified_students")
+        url_for(
+            "admin_verified_students"
+        )
     )
 
 
-@app.route("/admin/campus-ambassadors")
+
+# ============================================================
+# ADMIN — CAMPUS AMBASSADORS
+# RAZOR / FACEBOOK-TIKTOK STYLE ADMIN SYSTEM
+# ============================================================
+
+
+@app.route(
+    "/admin/campus-ambassadors"
+)
 def admin_campus_ambassadors():
+
     current_user, result = _require_admin()
+
     if current_user is None:
         return result
 
     conn = result
+
+    # ========================================================
+    # SEARCH
+    # ========================================================
+
     search = clean_text(
         request.args.get("q"),
         MAX_SEARCH_LENGTH
     )
 
     if search is None:
+
         conn.close()
+
         return (
-            "Search query is too long. Maximum length is 100 characters."
+            "Search query is too long. "
+            "Maximum length is 100 characters."
         ), 400
 
-    pattern = f"%{search}%" if search else None
+    pattern = (
+        f"%{search}%"
+        if search
+        else None
+    )
+
+    # ========================================================
+    # SEARCH USERS
+    # ========================================================
 
     if pattern:
+
         users = conn.execute(
             """
             SELECT
@@ -5737,25 +5959,76 @@ def admin_campus_ambassadors():
                 users.email,
                 users.university,
                 users.profile_picture,
-                ca.campus AS ambassador_campus,
-                ca.school AS ambassador_school,
-                ca.active AS ambassador_active,
+
+                ca.campus
+                    AS ambassador_campus,
+
+                ca.school
+                    AS ambassador_school,
+
+                ca.active
+                    AS ambassador_active,
+
                 ca.appointed_at
+
             FROM users
+
             LEFT JOIN campus_ambassadors ca
                 ON ca.user_id = users.id
+
             WHERE
-                LOWER(users.name) LIKE LOWER(?)
-                OR LOWER(users.email) LIKE LOWER(?)
-                OR LOWER(COALESCE(users.university, '')) LIKE LOWER(?)
-                OR LOWER(COALESCE(ca.campus, '')) LIKE LOWER(?)
-                OR LOWER(COALESCE(ca.school, '')) LIKE LOWER(?)
-            ORDER BY users.name COLLATE NOCASE ASC, users.id ASC
+
+                LOWER(users.name)
+                    LIKE LOWER(?)
+
+                OR LOWER(users.email)
+                    LIKE LOWER(?)
+
+                OR LOWER(
+                    COALESCE(
+                        users.university,
+                        ''
+                    )
+                )
+                    LIKE LOWER(?)
+
+                OR LOWER(
+                    COALESCE(
+                        ca.campus,
+                        ''
+                    )
+                )
+                    LIKE LOWER(?)
+
+                OR LOWER(
+                    COALESCE(
+                        ca.school,
+                        ''
+                    )
+                )
+                    LIKE LOWER(?)
+
+            ORDER BY
+                users.name COLLATE NOCASE ASC,
+                users.id ASC
+
             LIMIT 100
             """,
-            (pattern, pattern, pattern, pattern, pattern)
+            (
+                pattern,
+                pattern,
+                pattern,
+                pattern,
+                pattern
+            )
         ).fetchall()
+
+    # ========================================================
+    # ALL USERS
+    # ========================================================
+
     else:
+
         users = conn.execute(
             """
             SELECT
@@ -5764,17 +6037,34 @@ def admin_campus_ambassadors():
                 users.email,
                 users.university,
                 users.profile_picture,
-                ca.campus AS ambassador_campus,
-                ca.school AS ambassador_school,
-                ca.active AS ambassador_active,
+
+                ca.campus
+                    AS ambassador_campus,
+
+                ca.school
+                    AS ambassador_school,
+
+                ca.active
+                    AS ambassador_active,
+
                 ca.appointed_at
+
             FROM users
+
             LEFT JOIN campus_ambassadors ca
                 ON ca.user_id = users.id
-            ORDER BY users.name COLLATE NOCASE ASC, users.id ASC
+
+            ORDER BY
+                users.name COLLATE NOCASE ASC,
+                users.id ASC
+
             LIMIT 100
             """
         ).fetchall()
+
+    # ========================================================
+    # ACTIVE AMBASSADORS
+    # ========================================================
 
     ambassadors = conn.execute(
         """
@@ -5784,94 +6074,215 @@ def admin_campus_ambassadors():
             ca.campus,
             ca.school,
             ca.appointed_at,
+
             users.name,
             users.email,
             users.university,
             users.profile_picture
+
         FROM campus_ambassadors ca
-        JOIN users ON users.id = ca.user_id
-        WHERE ca.active = 1
-        ORDER BY ca.appointed_at DESC, ca.id DESC
+
+        JOIN users
+            ON users.id = ca.user_id
+
+        WHERE
+            ca.active = 1
+
+        ORDER BY
+            ca.appointed_at DESC,
+            ca.id DESC
         """
     ).fetchall()
 
     active_count = len(ambassadors)
+
     conn.close()
+
+    # ========================================================
+    # RENDER ADMIN PAGE
+    # ========================================================
 
     return render_template(
         "admin_campus_ambassadors.html",
+
         current_user=current_user,
+
         users=users,
+
         ambassadors=ambassadors,
+
         active_count=active_count,
+
         search=search
     )
 
 
-@app.route("/admin/campus-ambassadors/<int:user_id>/appoint", methods=["POST"])
+
+# ============================================================
+# ADMIN — APPOINT CAMPUS AMBASSADOR
+# ============================================================
+
+
+@app.route(
+    "/admin/campus-ambassadors/<int:user_id>/appoint",
+    methods=["POST"]
+)
 def admin_appoint_campus_ambassador(user_id):
+
     current_user, result = _require_admin()
+
     if current_user is None:
         return result
 
     conn = result
 
+    # ========================================================
+    # GET CAMPUS / SCHOOL
+    # ========================================================
+
     campus = clean_text(
         request.form.get("campus"),
         MAX_UNIVERSITY_LENGTH
     )
+
     school = clean_text(
         request.form.get("school"),
         MAX_UNIVERSITY_LENGTH
     )
 
     if not campus or not school:
+
         conn.close()
-        return "Campus and school are required.", 400
+
+        return (
+            "Campus and school are required.",
+            400
+        )
+
+    # ========================================================
+    # FIND USER
+    # ========================================================
 
     user = conn.execute(
-        "SELECT id, name FROM users WHERE id = ?",
+        """
+        SELECT
+            id,
+            name
+        FROM users
+        WHERE id = ?
+        """,
         (user_id,)
     ).fetchone()
 
     if not user:
+
         conn.close()
-        return "Student not found.", 404
+
+        return (
+            "Student not found.",
+            404
+        )
+
+    # ========================================================
+    # CHECK EXISTING AMBASSADOR RECORD
+    # ========================================================
 
     existing = conn.execute(
-        "SELECT id FROM campus_ambassadors WHERE user_id = ?",
+        """
+        SELECT
+            id
+        FROM campus_ambassadors
+        WHERE user_id = ?
+        """,
         (user_id,)
     ).fetchone()
 
+    # ========================================================
+    # REACTIVATE / UPDATE EXISTING AMBASSADOR
+    # ========================================================
+
     if existing:
+
         conn.execute(
             """
             UPDATE campus_ambassadors
-            SET campus = ?,
+
+            SET
+                campus = ?,
                 school = ?,
                 appointed_at = CURRENT_TIMESTAMP,
                 appointed_by = ?,
                 active = 1,
                 removed_at = NULL
-            WHERE user_id = ?
+
+            WHERE
+                user_id = ?
             """,
-            (campus, school, current_user["id"], user_id)
+            (
+                campus,
+                school,
+                current_user["id"],
+                user_id
+            )
         )
+
+    # ========================================================
+    # CREATE NEW AMBASSADOR
+    # ========================================================
+
     else:
+
         conn.execute(
             """
             INSERT INTO campus_ambassadors
-            (user_id, campus, school, appointed_by, active)
-            VALUES (?, ?, ?, ?, 1)
+            (
+                user_id,
+                campus,
+                school,
+                appointed_by,
+                active
+            )
+
+            VALUES
+            (
+                ?,
+                ?,
+                ?,
+                ?,
+                1
+            )
             """,
-            (user_id, campus, school, current_user["id"])
+            (
+                user_id,
+                campus,
+                school,
+                current_user["id"]
+            )
         )
+
+    # ========================================================
+    # CAMPUS AMBASSADOR NOTIFICATION
+    # ========================================================
 
     conn.execute(
         """
         INSERT INTO notifications
-        (user_id, sender_id, type, message, link)
-        VALUES (?, ?, ?, ?, ?)
+        (
+            user_id,
+            sender_id,
+            type,
+            message,
+            link
+        )
+
+        VALUES
+        (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        )
         """,
         (
             user_id,
@@ -5883,47 +6294,120 @@ def admin_appoint_campus_ambassador(user_id):
     )
 
     conn.commit()
+
     conn.close()
 
-    return redirect(url_for("admin_campus_ambassadors"))
+    return redirect(
+        url_for(
+            "admin_campus_ambassadors"
+        )
+    )
 
 
-@app.route("/admin/campus-ambassadors/<int:user_id>/remove", methods=["POST"])
+
+# ============================================================
+# ADMIN — REMOVE CAMPUS AMBASSADOR
+# ============================================================
+
+
+@app.route(
+    "/admin/campus-ambassadors/<int:user_id>/remove",
+    methods=["POST"]
+)
 def admin_remove_campus_ambassador(user_id):
+
     current_user, result = _require_admin()
+
     if current_user is None:
         return result
 
     conn = result
 
+    # ========================================================
+    # FIND ACTIVE AMBASSADOR
+    # ========================================================
+
     ambassador = conn.execute(
         """
-        SELECT id
+        SELECT
+            id
         FROM campus_ambassadors
-        WHERE user_id = ? AND active = 1
+        WHERE
+            user_id = ?
+            AND active = 1
         """,
         (user_id,)
     ).fetchone()
 
     if not ambassador:
+
         conn.close()
-        return "Active Campus Ambassador not found.", 404
+
+        return (
+            "Active Campus Ambassador not found.",
+            404
+        )
+
+    # ========================================================
+    # REMOVE AMBASSADOR
+    # ========================================================
 
     conn.execute(
         """
         UPDATE campus_ambassadors
-        SET active = 0,
+
+        SET
+            active = 0,
             removed_at = CURRENT_TIMESTAMP
-        WHERE user_id = ?
+
+        WHERE
+            user_id = ?
         """,
         (user_id,)
     )
 
+    # ========================================================
+    # REMOVAL NOTIFICATION
+    # ========================================================
+
+    conn.execute(
+        """
+        INSERT INTO notifications
+        (
+            user_id,
+            sender_id,
+            type,
+            message,
+            link
+        )
+
+        VALUES
+        (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        )
+        """,
+        (
+            user_id,
+            current_user["id"],
+            "campus_ambassador",
+            "Your Official UniCamplink Campus Ambassador status has been removed.",
+            "/profile"
+        )
+    )
+
     conn.commit()
+
     conn.close()
 
-    return redirect(url_for("admin_campus_ambassadors"))
-
+    return redirect(
+        url_for(
+            "admin_campus_ambassadors"
+        )
+    )
 
 # ============================================================
 # ADVERTISE WITH US
