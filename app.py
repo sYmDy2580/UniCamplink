@@ -1652,7 +1652,6 @@ def login():
 def dashboard():
 
     if "user_id" not in session:
-
         return redirect(
             url_for("login")
         )
@@ -1673,16 +1672,26 @@ def dashboard():
     conn.close()
 
     if not user:
-
         session.clear()
 
         return redirect(
             url_for("login")
         )
 
+    # ========================================================
+    # ADMIN STATUS
+    # ========================================================
+    is_admin = (
+        bool(ADMIN_EMAIL)
+        and user["email"]
+        and user["email"].strip().lower()
+        == ADMIN_EMAIL.strip().lower()
+    )
+
     return render_template(
         "dashboard.html",
-        user=user
+        user=user,
+        is_admin=is_admin
     )
 
 
