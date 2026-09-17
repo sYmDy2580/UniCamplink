@@ -1,6 +1,8 @@
 import os
-import sqlite3
 import math
+import sqlite3
+from dotenv import load_dotenv
+load_dotenv()
 import smtplib
 from email.message import EmailMessage
 from urllib.parse import quote
@@ -1008,7 +1010,67 @@ def update_posts_table():
             ALTER TABLE posts
             ADD COLUMN image TEXT DEFAULT ''
         """)
+    # ------------------------------------------------------------
+    # RAZOR SPONSORED EXISTING POSTS
+    # ------------------------------------------------------------
+    # Allows an admin to mark an ordinary UniCamplink post
+    # as Sponsored without creating a separate post.
+    #
+    # Non-destructive:
+    # - Existing posts remain untouched.
+    # - Existing posts default to not sponsored.
+    # ------------------------------------------------------------
 
+    existing_post_columns = {
+        row["name"]
+        for row in conn.execute(
+            "PRAGMA table_info(posts)"
+        ).fetchall()
+    }
+
+    if "is_sponsored" not in existing_post_columns:
+        conn.execute(
+            """
+            ALTER TABLE posts
+            ADD COLUMN is_sponsored INTEGER NOT NULL DEFAULT 0
+            """
+        )
+
+    if "sponsored_at" not in existing_post_columns:
+        conn.execute(
+            """
+            ALTER TABLE posts
+            ADD COLUMN sponsored_at TIMESTAMP
+            """
+        )
+        # ============================================================
+    # RAZOR: NORMAL POST SPONSORED FLAG
+    # ============================================================
+
+    existing_post_columns = {
+        row["name"]
+        for row in conn.execute(
+            "PRAGMA table_info(posts)"
+        ).fetchall()
+    }
+
+    if "is_sponsored" not in existing_post_columns:
+
+        conn.execute(
+            """
+            ALTER TABLE posts
+            ADD COLUMN is_sponsored INTEGER NOT NULL DEFAULT 0
+            """
+        )
+
+    if "sponsored_at" not in existing_post_columns:
+
+        conn.execute(
+            """
+            ALTER TABLE posts
+            ADD COLUMN sponsored_at TIMESTAMP
+            """
+        )
     conn.commit()
     conn.close()
 
@@ -1114,6 +1176,71 @@ def update_advertisement_requests_table():
 
     conn.commit()
     conn.close()
+    # ============================================================
+# DATABASE MIGRATION — SPONSORED POSTS
+# ============================================================
+
+def update_sponsored_posts_table():
+
+    conn = get_db_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS sponsored_posts (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            advertisement_request_id INTEGER UNIQUE,
+
+            advertiser_user_id INTEGER,
+
+            business_name TEXT NOT NULL DEFAULT '',
+
+            content TEXT NOT NULL DEFAULT '',
+
+            image TEXT DEFAULT '',
+
+            cta_text TEXT DEFAULT '',
+
+            cta_url TEXT DEFAULT '',
+
+            status TEXT NOT NULL DEFAULT 'draft',
+
+            starts_at TIMESTAMP,
+
+            ends_at TIMESTAMP,
+
+            impressions INTEGER NOT NULL DEFAULT 0,
+
+            clicks INTEGER NOT NULL DEFAULT 0,
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (advertisement_request_id)
+                REFERENCES advertisement_requests(id)
+                ON DELETE SET NULL,
+
+            FOREIGN KEY (advertiser_user_id)
+                REFERENCES users(id)
+                ON DELETE SET NULL
+        )
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS
+        idx_sponsored_posts_status
+        ON sponsored_posts(status)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS
+        idx_sponsored_posts_dates
+        ON sponsored_posts(starts_at, ends_at)
+    """)
+
+    conn.commit()
+    conn.close()
 
 
 # ============================================================
@@ -1173,6 +1300,7 @@ update_users_table()
 update_posts_table()
 update_comments_table()
 update_advertisement_requests_table()
+update_sponsored_posts_table()
 update_campus_ambassadors_table()
 # ============================================================
 # USER ONLINE / LAST SEEN TRACKER
@@ -5190,6 +5318,12 @@ def admin_dashboard():
         """,
         (session["user_id"],)
     ).fetchone()
+    print(
+    "ADMIN DEBUG:",
+    "session_user_id=", session.get("user_id"),
+    "current_user=", dict(current_user) if current_user else None,
+    "ADMIN_EMAIL=", repr(ADMIN_EMAIL)
+)
 
     if (
         not current_user
@@ -6419,6 +6553,9 @@ def admin_remove_campus_ambassador(user_id):
 )
 def advertise_with_us():
 
+    # ------------------------------------------------------------
+    # LOGIN REQUIRED
+    # ------------------------------------------------------------
     if "user_id" not in session:
         return redirect(url_for("login"))
 
@@ -6428,10 +6565,25 @@ def advertise_with_us():
         # GET FORM DATA
         # --------------------------------------------------------
 
+        # New Razor form field
+        advertiser_name = clean_text(
+            request.form.get("advertiser_name"),
+            MAX_NAME_LENGTH
+        )
+
+        # Legacy compatibility field
         name = clean_text(
             request.form.get("name"),
             MAX_NAME_LENGTH
         )
+
+        # If the new field is present, use it.
+        # Otherwise fall back to the old "name" field.
+        if not advertiser_name:
+            advertiser_name = name
+
+        if not name:
+            name = advertiser_name
 
         email = (
             request.form.get("email", "")
@@ -6455,11 +6607,30 @@ def advertise_with_us():
         )
 
         # --------------------------------------------------------
+        # DATABASE REQUIRED FIELDS
+        #
+        # advertisement_requests requires:
+        #
+        # advertiser_name
+        # business_name
+        # email
+        # category
+        # subject
+        # message
+        #
+        # We map the existing Razor form to those fields.
+        # --------------------------------------------------------
+
+        category = advertising_type
+
+        subject = business_name
+
+        # --------------------------------------------------------
         # VALIDATION
         # --------------------------------------------------------
 
         if (
-            not name
+            not advertiser_name
             or not business_name
             or not advertising_type
             or not message
@@ -6478,18 +6649,7 @@ def advertise_with_us():
             ), 400
 
         # --------------------------------------------------------
-        # SAVE REQUEST TO DATABASE
-        #
-        # IMPORTANT:
-        # These are the ACTUAL columns in your table:
-        #
-        # user_id
-        # name
-        # email
-        # business_name
-        # advertising_type
-        # message
-        # status
+        # SAVE ADVERTISEMENT REQUEST
         # --------------------------------------------------------
 
         conn = get_db_connection()
@@ -6501,28 +6661,41 @@ def advertise_with_us():
                 INSERT INTO advertisement_requests
                 (
                     user_id,
-                    name,
-                    email,
+                    advertiser_name,
                     business_name,
-                    advertising_type,
+                    email,
+                    category,
+                    subject,
                     message,
-                    status
+                    status,
+                    name,
+                    advertising_type
                 )
-                VALUES (?, ?, ?, ?, ?, ?, 'pending')
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
                 """,
                 (
                     session["user_id"],
-                    name,
-                    email,
+                    advertiser_name,
                     business_name,
-                    advertising_type,
-                    message
+                    email,
+                    category,
+                    subject,
+                    message,
+                    name,
+                    advertising_type
                 )
             )
 
             request_id = cursor.lastrowid
 
             conn.commit()
+
+            app.logger.info(
+                "UniCamplink advertisement request saved successfully. "
+                "request_id=%s user_id=%s",
+                request_id,
+                session["user_id"]
+            )
 
         except Exception:
 
@@ -6543,57 +6716,29 @@ def advertise_with_us():
                 form_data=request.form
             ), 500
 
-        finally:
-
-            try:
-                conn.close()
-            except Exception:
-                pass
+        conn.close()
 
         # --------------------------------------------------------
-        # SEND REQUEST TO WHATSAPP
+        # SUCCESS
         # --------------------------------------------------------
 
-        from urllib.parse import quote
-
-        whatsapp_number = (
-            WHATSAPP_NUMBER
-            if WHATSAPP_NUMBER
-            else "2349161162607"
+        return render_template(
+            "advertise_with_us.html",
+            success=(
+                "Your advertising request has been submitted "
+                "successfully. Our team will review it and contact "
+                "you shortly."
+            ),
+            form_data={}
         )
 
-        whatsapp_message = (
-            "📢 *UniCamplink Advertisement Request*\n\n"
-
-            f"🆔 *Request ID:* #{request_id}\n"
-            f"👤 *Name:* {name}\n"
-            f"📧 *Email:* {email}\n"
-            f"🏢 *Business / Organization:* {business_name}\n"
-            f"📣 *Advertising Type:* {advertising_type}\n\n"
-
-            "📝 *Message:*\n"
-            f"{message}\n\n"
-
-            "━━━━━━━━━━━━━━━━━━━━\n"
-            "This request was submitted through "
-            "the UniCamplink Advertise With Us page."
-        )
-
-        whatsapp_url = (
-            "https://wa.me/"
-            + whatsapp_number
-            + "?text="
-            + quote(whatsapp_message)
-        )
-
-        return redirect(whatsapp_url)
-
-    # --------------------------------------------------------
+    # ------------------------------------------------------------
     # GET REQUEST
-    # --------------------------------------------------------
+    # ------------------------------------------------------------
 
     return render_template(
-        "advertise_with_us.html"
+        "advertise_with_us.html",
+        form_data={}
     )
 
 
@@ -6680,36 +6825,21 @@ def admin_advertisements():
 )
 def admin_approve_advertisement(advertisement_id):
 
-    if "user_id" not in session:
-        return redirect(url_for("login"))
+    current_user, result = _require_admin()
 
-    if not ADMIN_EMAIL:
-        return "Admin access is not configured yet.", 500
+    if current_user is None:
+        return result
 
-    conn = get_db_connection()
-
-    current_user = conn.execute(
-        """
-        SELECT
-            id,
-            name,
-            email
-        FROM users
-        WHERE id = ?
-        """,
-        (session["user_id"],)
-    ).fetchone()
-
-    if (
-        not current_user
-        or current_user["email"].lower() != ADMIN_EMAIL
-    ):
-        conn.close()
-        return "Access denied.", 403
+    conn = result
 
     advertisement = conn.execute(
         """
-        SELECT id
+        SELECT
+            id,
+            user_id,
+            business_name,
+            message,
+            status
         FROM advertisement_requests
         WHERE id = ?
         """,
@@ -6720,6 +6850,23 @@ def admin_approve_advertisement(advertisement_id):
         conn.close()
         return "Advertisement request not found.", 404
 
+    # --------------------------------------------------------
+    # PREVENT DUPLICATE SPONSORED POSTS
+    # --------------------------------------------------------
+
+    existing = conn.execute(
+        """
+        SELECT id
+        FROM sponsored_posts
+        WHERE advertisement_request_id = ?
+        """,
+        (advertisement_id,)
+    ).fetchone()
+
+    # --------------------------------------------------------
+    # APPROVE REQUEST
+    # --------------------------------------------------------
+
     conn.execute(
         """
         UPDATE advertisement_requests
@@ -6729,13 +6876,360 @@ def admin_approve_advertisement(advertisement_id):
         (advertisement_id,)
     )
 
+    # --------------------------------------------------------
+    # CREATE SPONSORED POST DRAFT
+    # --------------------------------------------------------
+
+    if not existing:
+
+        conn.execute(
+            """
+            INSERT INTO sponsored_posts
+            (
+                advertisement_request_id,
+                advertiser_user_id,
+                business_name,
+                content,
+                status
+            )
+            VALUES (?, ?, ?, ?, 'draft')
+            """,
+            (
+                advertisement["id"],
+                advertisement["user_id"],
+                advertisement["business_name"],
+                advertisement["message"]
+            )
+        )
+
+    # --------------------------------------------------------
+    # NOTIFY ADVERTISER
+    # --------------------------------------------------------
+
+    if advertisement["user_id"]:
+
+        conn.execute(
+            """
+            INSERT INTO notifications
+            (
+                user_id,
+                sender_id,
+                type,
+                message,
+                link
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                advertisement["user_id"],
+                current_user["id"],
+                "advertisement",
+                "Your UniCamplink advertising request has been approved. 📢",
+                "/admin/advertisements"
+            )
+        )
+
     conn.commit()
     conn.close()
 
     return redirect(
         url_for("admin_advertisements")
     )
+# ============================================================
+# ADMIN — SPONSORED POSTS
+# ============================================================
 
+@app.route("/admin/sponsored-posts")
+def admin_sponsored_posts():
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    # --------------------------------------------------------
+    # EXISTING ADVERTISER-BASED SPONSORED POSTS
+    # --------------------------------------------------------
+    sponsored_posts = conn.execute(
+        """
+        SELECT
+            sp.*,
+            ar.email AS advertiser_email,
+            ar.advertising_type
+        FROM sponsored_posts sp
+
+        LEFT JOIN advertisement_requests ar
+            ON ar.id = sp.advertisement_request_id
+
+        ORDER BY
+            sp.created_at DESC,
+            sp.id DESC
+        """
+    ).fetchall()
+
+    # --------------------------------------------------------
+    # NORMAL FEED POSTS
+    # These can be marked/unmarked as Sponsored by admin.
+    # --------------------------------------------------------
+    normal_posts = conn.execute(
+        """
+        SELECT
+            posts.id,
+            posts.user_id,
+            posts.content,
+            posts.image,
+            posts.created_at,
+            posts.is_sponsored,
+            posts.sponsored_at,
+
+            users.name AS author_name,
+            users.university AS author_university,
+            users.profile_picture,
+
+            (
+                SELECT COUNT(*)
+                FROM likes
+                WHERE likes.post_id = posts.id
+            ) AS like_count,
+
+            (
+                SELECT COUNT(*)
+                FROM comments
+                WHERE comments.post_id = posts.id
+            ) AS comment_count
+
+        FROM posts
+
+        JOIN users
+            ON posts.user_id = users.id
+
+        ORDER BY
+            posts.created_at DESC,
+            posts.id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "admin_sponsored_posts.html",
+        current_user=current_user,
+        sponsored_posts=sponsored_posts,
+        normal_posts=normal_posts
+    )
+# ============================================================
+# ADMIN — ACTIVATE SPONSORED POST
+# ============================================================
+
+@app.route(
+    "/admin/sponsored-posts/<int:sponsored_post_id>/activate",
+    methods=["POST"]
+)
+def admin_activate_sponsored_post(sponsored_post_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    sponsored_post = conn.execute(
+        """
+        SELECT
+            id,
+            advertisement_request_id,
+            status
+        FROM sponsored_posts
+        WHERE id = ?
+        """,
+        (sponsored_post_id,)
+    ).fetchone()
+
+    if not sponsored_post:
+        conn.close()
+        return "Sponsored post not found.", 404
+
+    conn.execute(
+        """
+        UPDATE sponsored_posts
+        SET
+            status = 'active',
+            starts_at = COALESCE(
+                starts_at,
+                CURRENT_TIMESTAMP
+            ),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (sponsored_post_id,)
+    )
+
+    # Keep the original advertising request synchronized.
+    if sponsored_post["advertisement_request_id"]:
+
+        conn.execute(
+            """
+            UPDATE advertisement_requests
+            SET status = 'active'
+            WHERE id = ?
+            """,
+            (
+                sponsored_post["advertisement_request_id"],
+            )
+        )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_sponsored_posts")
+    )
+# ============================================================
+# ADMIN — PAUSE SPONSORED POST
+# ============================================================
+
+@app.route(
+    "/admin/sponsored-posts/<int:sponsored_post_id>/pause",
+    methods=["POST"]
+)
+def admin_pause_sponsored_post(sponsored_post_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    sponsored_post = conn.execute(
+        """
+        SELECT
+            id,
+            advertisement_request_id
+        FROM sponsored_posts
+        WHERE id = ?
+        """,
+        (sponsored_post_id,)
+    ).fetchone()
+
+    if not sponsored_post:
+        conn.close()
+        return "Sponsored post not found.", 404
+
+    conn.execute(
+        """
+        UPDATE sponsored_posts
+        SET
+            status = 'paused',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (sponsored_post_id,)
+    )
+
+    if sponsored_post["advertisement_request_id"]:
+
+        conn.execute(
+            """
+            UPDATE advertisement_requests
+            SET status = 'paused'
+            WHERE id = ?
+            """,
+            (
+                sponsored_post["advertisement_request_id"],
+            )
+        )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_sponsored_posts")
+    )
+
+
+# ============================================================
+# ADMIN — MARK NORMAL POST AS SPONSORED
+# ============================================================
+
+@app.route(
+    "/admin/posts/<int:post_id>/mark-sponsored",
+    methods=["POST"]
+)
+def admin_mark_post_sponsored(post_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    post = conn.execute(
+        """
+        SELECT id
+        FROM posts
+        WHERE id = ?
+        """,
+        (post_id,)
+    ).fetchone()
+
+    if not post:
+        conn.close()
+        return redirect(url_for("admin_sponsored_posts"))
+
+    conn.execute(
+        """
+        UPDATE posts
+        SET
+            is_sponsored = 1,
+            sponsored_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (post_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("admin_sponsored_posts"))
+
+
+# ============================================================
+# ADMIN — REMOVE SPONSORED FROM NORMAL POST
+# ============================================================
+
+@app.route(
+    "/admin/posts/<int:post_id>/remove-sponsored",
+    methods=["POST"]
+)
+def admin_remove_post_sponsored(post_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    conn.execute(
+        """
+        UPDATE posts
+        SET
+            is_sponsored = 0,
+            sponsored_at = NULL
+        WHERE id = ?
+        """,
+        (post_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("admin_sponsored_posts"))
 
 # ============================================================
 # ADMIN — REJECT ADVERTISEMENT

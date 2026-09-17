@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Sponsored Posts | UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        .razor-sponsored-page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px 16px 80px;
+        }
+
+        .razor-sponsored-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 26px;
+        }
+
+        .razor-sponsored-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .razor-sponsored-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(56, 189, 248, .12);
+            border: 1px solid rgba(56, 189, 248, .2);
+            font-size: 24px;
+        }
+
+        .razor-sponsored-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .razor-sponsored-header p {
+            margin: 5px 0 0;
+            opacity: .65;
+        }
+
+        .razor-admin-back {
+            text-decoration: none;
+            color: #38bdf8;
+            font-weight: 800;
+        }
+
+        .razor-sponsored-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .razor-sponsored-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    padding: 20px;
+
+    background: var(--surface);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+        .razor-sponsored-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #38bdf8;
+        }
+
+        .razor-post-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .razor-post-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .razor-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 2px solid rgba(56, 189, 248, .25);
+        }
+
+        .razor-avatar-placeholder {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: rgba(56, 189, 248, .12);
+            color: #38bdf8;
+            font-weight: 900;
+        }
+
+        .razor-author-name {
+    font-weight: 900;
+    font-size: 16px;
+    color: var(--text);
+}
+
+        .razor-author-school {
+    margin-top: 3px;
+    font-size: 12px;
+    color: var(--muted);
+    opacity: 1;
+}
+
+        .razor-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .razor-status.sponsored {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, .12);
+            border: 1px solid rgba(56, 189, 248, .18);
+        }
+
+        .razor-status.normal {
+            opacity: .65;
+            background: rgba(148, 163, 184, .10);
+        }
+
+        .razor-post-content {
+    margin: 18px 0;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    color: var(--text);
+    opacity: 1;
+}
+
+        .razor-post-image {
+            width: 100%;
+            max-height: 430px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-top: 12px;
+        }
+
+        .razor-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 12px;
+    font-size: 12px;
+
+    color: var(--muted);
+    opacity: 1;
+}
+
+       .razor-post-meta span {
+    padding: 5px 9px;
+    border-radius: 999px;
+
+    background: var(--surface-2);
+    color: var(--muted);
+
+    border: 1px solid var(--border-soft);
+}
+
+        .razor-post-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(148, 163, 184, .10);
+        }
+
+        .razor-action-form {
+            margin: 0;
+        }
+
+        .razor-action-btn {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 15px;
+            font-weight: 850;
+            cursor: pointer;
+            transition: transform .15s ease,
+                        opacity .15s ease;
+        }
+
+        .razor-action-btn:hover {
+            transform: translateY(-1px);
+            opacity: .9;
+        }
+
+        .razor-mark-btn {
+            background: #38bdf8;
+            color: #06131f;
+        }
+
+        .razor-remove-btn {
+            background: rgba(239, 68, 68, .12);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, .20);
+        }
+
+        .razor-existing-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, .10);
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .razor-empty {
+            text-align: center;
+            padding: 70px 20px;
+            border-radius: 22px;
+            border: 1px dashed rgba(148, 163, 184, .25);
+        }
+
+        .razor-empty-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .razor-empty h2 {
+            margin: 0 0 8px;
+        }
+
+        .razor-empty p {
+            margin: 0;
+            opacity: .65;
+        }
+
+        @media (max-width: 650px) {
+
+            .razor-sponsored-page {
+                padding: 18px 12px 70px;
+            }
+
+            .razor-sponsored-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .razor-sponsored-header h1 {
+                font-size: 24px;
+            }
+
+            .razor-sponsored-card {
+                padding: 16px;
+                border-radius: 18px;
+            }
+
+            .razor-post-top {
+                align-items: flex-start;
+            }
+
+            .razor-status {
+                font-size: 10px;
+                padding: 6px 8px;
+            }
+
+            .razor-post-actions {
+                flex-direction: column;
+            }
+
+            .razor-action-form,
+            .razor-action-btn {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="razor-sponsored-page">
+
+    <header class="razor-sponsored-header">
+
+        <div class="razor-sponsored-title">
+
+            <div class="razor-sponsored-icon">
+                📢
+            </div>
+
+            <div>
+
+                <h1>
+                    Sponsored Posts
+                </h1>
+
+                <p>
+                    Manage advertiser promotions and
+                    sponsored posts in the UniCamplink Razor feed.
+                </p>
+
+            </div>
+
+        </div>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="razor-admin-back"
+        >
+            ← Admin Center
+        </a>
+
+    </header>
+
+
+    <div class="razor-sponsored-grid">
+
+        {# =====================================================
+           EXISTING ADVERTISER SPONSORED POSTS
+           ===================================================== #}
+
+        {% for ad in sponsored_posts %}
+
+            <article class="razor-sponsored-card">
+
+                <div class="razor-post-top">
+
+                    <div class="razor-post-author">
+
+                        <div class="razor-avatar-placeholder">
+                            📢
+                        </div>
+
+                        <div>
+
+                            <div class="razor-author-name">
+                                {{ ad["business_name"] }}
+                            </div>
+
+                            <div class="razor-author-school">
+                                {{ ad["email"] }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <span class="razor-status sponsored">
+                        📢 Sponsored · {{ ad["status"]|capitalize }}
+                    </span>
+
+                </div>
+
+
+                {% if ad["content"] %}
+
+                    <div class="razor-post-content">
+                        {{ ad["content"] }}
+                    </div>
+
+                {% endif %}
+
+
+                <div class="razor-post-meta">
+
+                    <span>
+                        👁 {{ ad["impressions"] }}
+                    </span>
+
+                    <span>
+                        🖱 {{ ad["clicks"] }}
+                    </span>
+
+                    <span>
+                        {{ ad["advertising_type"] }}
+                    </span>
+
+                </div>
+
+
+                <div class="razor-post-actions">
+
+                    {% if ad["status"] in ["draft", "paused"] %}
+
+                        <form
+                            method="POST"
+                            action="{{
+                                url_for(
+                                    'admin_activate_sponsored_post',
+                                    sponsored_post_id=ad['id']
+                                )
+                            }}"
+                            class="razor-action-form"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="razor-action-btn razor-mark-btn"
+                            >
+                                🚀 Activate
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if ad["status"] == "active" %}
+
+                        <form
+                            method="POST"
+                            action="{{
+                                url_for(
+                                    'admin_pause_sponsored_post',
+                                    sponsored_post_id=ad['id']
+                                )
+                            }}"
+                            class="razor-action-form"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="razor-action-btn razor-remove-btn"
+                            >
+                                ⏸ Pause
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            </article>
+
+        {% endfor %}
+
+
+        {# =====================================================
+           NORMAL UNICAMPLINK POSTS
+           ===================================================== #}
+
+        {% if normal_posts %}
+
+            {% for post in normal_posts %}
+
+                <article class="razor-sponsored-card">
+
+                    <div class="razor-post-top">
+
+                        <div class="razor-post-author">
+
+                            {% if post["profile_picture"] %}
+
+                                <img
+                                    src="{{
+                                        url_for(
+                                            'static',
+                                            filename='uploads/' ~ post['profile_picture']
+                                        )
+                                    }}"
+                                    alt="{{ post['author_name'] }}"
+                                    class="razor-avatar"
+                                >
+
+                            {% else %}
+
+                                <div class="razor-avatar-placeholder">
+                                    {{ post["author_name"][0]|upper }}
+                                </div>
+
+                            {% endif %}
+
+                            <div>
+
+                                <div class="razor-author-name">
+                                    {{ post["author_name"] }}
+                                </div>
+
+                                {% if post["author_university"] %}
+
+                                    <div class="razor-author-school">
+                                        {{ post["author_university"] }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        {% if post["is_sponsored"] %}
+
+                            <span class="razor-status sponsored">
+                                📢 Sponsored
+                            </span>
+
+                        {% else %}
+
+                            <span class="razor-status normal">
+                                Normal Post
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    {% if post["is_sponsored"] %}
+
+                        <div class="razor-existing-badge">
+                            📢 Currently appearing as Sponsored
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if post["content"] %}
+
+                        <div class="razor-post-content">
+                            {{ post["content"] }}
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if post["image"] %}
+
+                        <img
+                            src="{{
+                                url_for(
+                                    'static',
+                                    filename='uploads/' ~ post['image']
+                                )
+                            }}"
+                            alt="Post image"
+                            class="razor-post-image"
+                        >
+
+                    {% endif %}
+
+
+                    <div class="razor-post-meta">
+
+                        <span>
+                            ❤️ {{ post["like_count"] }}
+                        </span>
+
+                        <span>
+                            💬 {{ post["comment_count"] }}
+                        </span>
+
+                        <span>
+                            🆔 Post #{{ post["id"] }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="razor-post-actions">
+
+                        {% if post["is_sponsored"] %}
+
+                            <form
+                                method="POST"
+                                action="{{
+                                    url_for(
+                                        'admin_remove_post_sponsored',
+                                        post_id=post['id']
+                                    )
+                                }}"
+                                class="razor-action-form"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="razor-action-btn razor-remove-btn"
+                                >
+                                    Remove Sponsored
+                                </button>
+
+                            </form>
+
+                        {% else %}
+
+                            <form
+                                method="POST"
+                                action="{{
+                                    url_for(
+                                        'admin_mark_post_sponsored',
+                                        post_id=post['id']
+                                    )
+                                }}"
+                                class="razor-action-form"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="razor-action-btn razor-mark-btn"
+                                >
+                                    📢 Mark as Sponsored
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        {% if not sponsored_posts and not normal_posts %}
+
+            <div class="razor-empty">
+
+                <div class="razor-empty-icon">
+                    📢
+                </div>
+
+                <h2>
+                    No Posts Yet
+                </h2>
+
+                <p>
+                    There are currently no advertiser promotions
+                    or regular posts to manage.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
