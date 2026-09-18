@@ -1,1410 +1,1435 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<meta
-    name="description"
-    content="UniCamplink student community — connect, communicate, discover opportunities and interact with your campus community."
->
+    <meta
+        name="description"
+        content="UniCamplink student community — connect, communicate, discover opportunities and interact with your campus community."
+    >
 
-<title>UniCamplink</title>
+    <title>UniCamplink</title>
 
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}"
->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
-<style>
+    <style>
 
-    /* =========================================================
-       UNICAMPLINK RAZOR SOCIAL DASHBOARD
-       Facebook / TikTok inspired
-       UniCamplink branding preserved
-       Frontend only — no backend/database changes
-    ========================================================= */
+        /* =========================================================
+           UNICAMPLINK RAZOR SOCIAL DASHBOARD
+           Facebook / TikTok inspired
+           UniCamplink branding preserved
+           Frontend only — no backend/database changes
+        ========================================================= */
 
-    :root {
+        :root {
+            --rz-primary: #38bdf8;
+            --rz-primary-dark: #0ea5e9;
 
-        --rz-primary: #38bdf8;
-        --rz-primary-dark: #0ea5e9;
+            --rz-bg: #07111f;
+            --rz-surface: #0d1a2b;
+            --rz-surface-2: #101f33;
+            --rz-surface-3: #14263d;
 
-        --rz-bg: #07111f;
-        --rz-surface: #0d1a2b;
-        --rz-surface-2: #101f33;
-        --rz-surface-3: #14263d;
+            --rz-text: #e8f0f8;
+            --rz-muted: #8ea3bb;
 
-        --rz-text: #e8f0f8;
-        --rz-muted: #8ea3bb;
+            --rz-border: #20344b;
 
-        --rz-border: #20344b;
+            --rz-danger: #ef4444;
+            --rz-success: #22c55e;
 
-        --rz-danger: #ef4444;
-        --rz-success: #22c55e;
+            --rz-radius: 16px;
+            --rz-radius-sm: 12px;
 
-        --rz-radius: 16px;
-        --rz-radius-sm: 12px;
-
-        --rz-shadow:
-            0 12px 35px rgba(0, 0, 0, .20);
-    }
-
-
-    /* =========================================================
-       RESET
-    ========================================================= */
-
-    * {
-        box-sizing: border-box;
-    }
-
-    html {
-        scroll-behavior: smooth;
-    }
-
-    body {
-        margin: 0;
-        min-height: 100vh;
-
-        font-family:
-            Inter,
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Roboto,
-            Arial,
-            sans-serif;
-
-        color: var(--rz-text);
-
-        background:
-            radial-gradient(
-                circle at 10% -10%,
-                rgba(56, 189, 248, .13),
-                transparent 28%
-            ),
-            var(--rz-bg);
-
-        overflow-x: hidden;
-    }
-
-    a,
-    button,
-    input,
-    textarea,
-    select {
-        font: inherit;
-    }
-
-    button,
-    a {
-        -webkit-tap-highlight-color: transparent;
-    }
-
-
-    /* =========================================================
-       TOP NAVIGATION
-    ========================================================= */
-
-    .rz-navbar {
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-
-        width: 100%;
-
-        background:
-            rgba(7, 17, 31, .94);
-
-        border-bottom:
-            1px solid var(--rz-border);
-
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-    }
-
-    .rz-nav-inner {
-
-        width: min(1380px, 100%);
-        min-height: 64px;
-
-        margin: auto;
-        padding: 8px 14px;
-
-        display: flex;
-        align-items: center;
-
-        gap: 10px;
-    }
-
-
-    /* =========================================================
-       BRAND
-    ========================================================= */
-
-    .rz-brand {
-
-        flex: 0 0 auto;
-
-        display: flex;
-        align-items: center;
-
-        gap: 8px;
-
-        color: var(--rz-text);
-
-        text-decoration: none;
-
-        font-size: 17px;
-        font-weight: 850;
-
-        white-space: nowrap;
-    }
-
-    .rz-brand img {
-
-        width: 39px;
-        height: 39px;
-
-        object-fit: contain;
-
-        border-radius: 11px;
-
-        box-shadow:
-            0 0 0 1px rgba(56, 189, 248, .18),
-            0 6px 20px rgba(0, 0, 0, .20);
-    }
-
-
-    /* =========================================================
-       SEARCH
-    ========================================================= */
-
-    .rz-search {
-
-        flex: 0 1 280px;
-
-        display: flex;
-        align-items: center;
-
-        min-width: 0;
-    }
-
-    .rz-search a {
-
-        width: 100%;
-
-        min-height: 40px;
-
-        display: flex;
-        align-items: center;
-
-        gap: 8px;
-
-        padding: 0 14px;
-
-        border-radius: 999px;
-
-        background:
-            var(--rz-surface-2);
-
-        border:
-            1px solid var(--rz-border);
-
-        color: var(--rz-muted);
-
-        text-decoration: none;
-
-        font-size: 12px;
-    }
-
-    .rz-search a:hover {
-
-        border-color:
-            rgba(56, 189, 248, .35);
-
-        color:
-            var(--rz-text);
-    }
-
-
-    /* =========================================================
-       NAV LINKS
-    ========================================================= */
-
-    .rz-nav-links {
-
-        flex: 1;
-        min-width: 0;
-
-        display: flex;
-        align-items: center;
-
-        justify-content: center;
-
-        gap: 3px;
-
-        overflow-x: auto;
-
-        scrollbar-width: none;
-    }
-
-    .rz-nav-links::-webkit-scrollbar {
-        display: none;
-    }
-
-    .rz-nav-links a {
-
-        flex: 0 0 auto;
-
-        min-width: 43px;
-        min-height: 40px;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        padding: 7px 9px;
-
-        border-radius: 12px;
-
-        color: var(--rz-muted);
-
-        text-decoration: none;
-
-        font-size: 17px;
-
-        transition:
-            background .18s ease,
-            color .18s ease,
-            transform .18s ease;
-    }
-
-    .rz-nav-links a span {
-        display: none;
-    }
-
-    .rz-nav-links a:hover {
-
-        background:
-            rgba(56, 189, 248, .09);
-
-        color:
-            var(--rz-primary);
-    }
-
-    .rz-nav-links a:active {
-        transform: scale(.94);
-    }
-
-
-    /* =========================================================
-       NAV RIGHT
-    ========================================================= */
-
-    .rz-nav-right {
-
-        flex: 0 0 auto;
-
-        display: flex;
-        align-items: center;
-
-        gap: 6px;
-    }
-
-    .rz-icon-btn {
-
-        width: 40px;
-        height: 40px;
-
-        border: 1px solid var(--rz-border);
-        border-radius: 50%;
-
-        background:
-            var(--rz-surface-2);
-
-        color: var(--rz-text);
-
-        cursor: pointer;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        text-decoration: none;
-
-        font-size: 16px;
-    }
-
-    .rz-icon-btn:hover {
-
-        background:
-            rgba(56, 189, 248, .10);
-
-        border-color:
-            rgba(56, 189, 248, .30);
-    }
-
-
-    /* =========================================================
-       MAIN LAYOUT
-    ========================================================= */
-
-    .rz-page {
-
-        width: min(1380px, 100%);
-
-        margin: auto;
-
-        padding:
-            22px 14px 90px;
-    }
-
-    .rz-layout {
-
-        display: grid;
-
-        grid-template-columns:
-            230px
-            minmax(0, 680px)
-            270px;
-
-        justify-content: center;
-
-        gap: 18px;
-
-        align-items: start;
-    }
-
-
-    /* =========================================================
-       LEFT SIDEBAR
-    ========================================================= */
-
-    .rz-sidebar {
-
-        position: sticky;
-        top: 82px;
-
-        display: flex;
-        flex-direction: column;
-
-        gap: 5px;
-    }
-
-    .rz-side-profile {
-
-        display: flex;
-        align-items: center;
-
-        gap: 10px;
-
-        padding: 10px;
-
-        margin-bottom: 7px;
-
-        border-radius: 14px;
-
-        text-decoration: none;
-
-        color: var(--rz-text);
-    }
-
-    .rz-side-profile:hover {
-
-        background:
-            var(--rz-surface-2);
-    }
-
-    .rz-avatar {
-
-        width: 43px;
-        height: 43px;
-
-        flex: 0 0 auto;
-
-        border-radius: 50%;
-
-        background:
-            linear-gradient(
-                135deg,
-                #38bdf8,
-                #0ea5e9
-            );
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        color: #03111d;
-
-        font-size: 17px;
-        font-weight: 850;
-
-        overflow: hidden;
-    }
-
-    .rz-avatar img {
-
-        width: 100%;
-        height: 100%;
-
-        object-fit: cover;
-    }
-
-    .rz-side-profile strong {
-
-        display: block;
-
-        font-size: 13px;
-
-        white-space: nowrap;
-
-        overflow: hidden;
-
-        text-overflow: ellipsis;
-    }
-
-    .rz-side-profile small {
-
-        color: var(--rz-muted);
-
-        font-size: 10px;
-    }
-
-    .rz-side-link {
-
-        min-height: 43px;
-
-        display: flex;
-        align-items: center;
-
-        gap: 12px;
-
-        padding: 8px 12px;
-
-        border-radius: 12px;
-
-        color: var(--rz-muted);
-
-        text-decoration: none;
-
-        font-size: 13px;
-        font-weight: 650;
-    }
-
-    .rz-side-link:hover {
-
-        background:
-            var(--rz-surface-2);
-
-        color:
-            var(--rz-text);
-    }
-
-    .rz-side-link.active {
-
-        background:
-            rgba(56, 189, 248, .10);
-
-        color:
-            var(--rz-primary);
-    }
-
-    .rz-side-link-icon {
-
-        width: 28px;
-
-        text-align: center;
-
-        font-size: 17px;
-    }
-
-
-    /* =========================================================
-       CENTER COLUMN
-    ========================================================= */
-
-    .rz-center {
-
-        min-width: 0;
-    }
-
-
-    /* =========================================================
-       WELCOME / PROFILE STRIP
-    ========================================================= */
-
-    .rz-welcome {
-
-        position: relative;
-
-        overflow: hidden;
-
-        padding: 20px;
-
-        margin-bottom: 14px;
-
-        border:
-            1px solid var(--rz-border);
-
-        border-radius:
-            var(--rz-radius);
-
-        background:
-            linear-gradient(
-                135deg,
-                rgba(56, 189, 248, .13),
-                var(--rz-surface) 52%,
-                var(--rz-surface-2)
-            );
-
-        box-shadow:
-            var(--rz-shadow);
-    }
-
-    .rz-welcome::after {
-
-        content: "";
-
-        position: absolute;
-
-        width: 180px;
-        height: 180px;
-
-        right: -70px;
-        top: -90px;
-
-        border-radius: 50%;
-
-        background:
-            rgba(56, 189, 248, .08);
-    }
-
-    .rz-welcome-content {
-
-        position: relative;
-        z-index: 2;
-    }
-
-    .rz-welcome-label {
-
-        display: inline-flex;
-        align-items: center;
-
-        gap: 6px;
-
-        color: var(--rz-primary);
-
-        font-size: 10px;
-        font-weight: 800;
-
-        text-transform: uppercase;
-
-        letter-spacing: .5px;
-
-        margin-bottom: 6px;
-    }
-
-    .rz-welcome h1 {
-
-        margin: 0 0 5px;
-
-        font-size: 25px;
-
-        letter-spacing: -.7px;
-    }
-
-    .rz-welcome p {
-
-        margin: 0;
-
-        color: var(--rz-muted);
-
-        font-size: 12px;
-
-        line-height: 1.6;
-    }
-
-
-    /* =========================================================
-       QUICK SOCIAL ACTION BAR
-    ========================================================= */
-
-    .rz-create-box {
-
-        padding: 13px;
-
-        margin-bottom: 14px;
-
-        border:
-            1px solid var(--rz-border);
-
-        border-radius:
-            var(--rz-radius);
-
-        background:
-            var(--rz-surface);
-
-        box-shadow:
-            0 8px 30px rgba(0,0,0,.10);
-    }
-
-    .rz-create-row {
-
-        display: flex;
-        align-items: center;
-
-        gap: 10px;
-    }
-
-    .rz-create-input {
-
-        flex: 1;
-
-        min-width: 0;
-
-        min-height: 43px;
-
-        display: flex;
-        align-items: center;
-
-        padding: 0 15px;
-
-        border-radius: 999px;
-
-        background:
-            var(--rz-surface-2);
-
-        border:
-            1px solid var(--rz-border);
-
-        color: var(--rz-muted);
-
-        text-decoration: none;
-
-        font-size: 12px;
-    }
-
-    .rz-create-input:hover {
-
-        background:
-            var(--rz-surface-3);
-
-        color:
-            var(--rz-text);
-    }
-
-    .rz-create-actions {
-
-        display: grid;
-
-        grid-template-columns:
-            repeat(3, 1fr);
-
-        gap: 5px;
-
-        margin-top: 11px;
-
-        padding-top: 10px;
-
-        border-top:
-            1px solid var(--rz-border);
-    }
-
-    .rz-create-action {
-
-        min-height: 38px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        gap: 5px;
-
-        border: 0;
-
-        background: transparent;
-
-        color: var(--rz-muted);
-
-        text-decoration: none;
-
-        border-radius: 10px;
-
-        font-size: 11px;
-        font-weight: 700;
-    }
-
-    .rz-create-action:hover {
-
-        background:
-            var(--rz-surface-2);
-
-        color:
-            var(--rz-primary);
-    }
-
-
-    /* =========================================================
-       ANNOUNCEMENT
-    ========================================================= */
-
-    .rz-announcement {
-
-        position: relative;
-
-        margin-bottom: 14px;
-
-        padding: 15px;
-
-        border:
-            1px solid rgba(56, 189, 248, .20);
-
-        border-radius:
-            var(--rz-radius);
-
-        background:
-            linear-gradient(
-                135deg,
-                rgba(56, 189, 248, .10),
-                var(--rz-surface)
-            );
-    }
-
-    .rz-announcement-top {
-
-        display: flex;
-        align-items: center;
-
-        gap: 8px;
-
-        margin-bottom: 7px;
-
-        color: var(--rz-primary);
-
-        font-size: 10px;
-        font-weight: 800;
-
-        text-transform: uppercase;
-    }
-
-    .rz-announcement h2 {
-
-        margin: 0 0 6px;
-
-        font-size: 16px;
-    }
-
-    .rz-announcement p {
-
-        margin: 0;
-
-        color: var(--rz-muted);
-
-        font-size: 12px;
-
-        line-height: 1.6;
-
-        white-space: pre-line;
-    }
-
-    .rz-announcement-link {
-
-        display: inline-flex;
-
-        margin-top: 9px;
-
-        color: var(--rz-primary);
-
-        text-decoration: none;
-
-        font-size: 11px;
-
-        font-weight: 750;
-    }
-
-
-    /* =========================================================
-       SOCIAL DISCOVERY CARDS
-    ========================================================= */
-
-    .rz-section-title {
-
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        margin:
-            18px 2px 9px;
-    }
-
-    .rz-section-title h2 {
-
-        margin: 0;
-
-        font-size: 15px;
-
-        letter-spacing: -.2px;
-    }
-
-    .rz-section-title a {
-
-        color: var(--rz-primary);
-
-        text-decoration: none;
-
-        font-size: 10px;
-
-        font-weight: 750;
-    }
-
-    .rz-discovery-grid {
-
-        display: grid;
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 9px;
-    }
-
-    .rz-discovery-card {
-
-        min-height: 105px;
-
-        display: flex;
-        flex-direction: column;
-
-        justify-content: space-between;
-
-        padding: 14px;
-
-        border:
-            1px solid var(--rz-border);
-
-        border-radius:
-            var(--rz-radius-sm);
-
-        background:
-            var(--rz-surface);
-
-        color: var(--rz-text);
-
-        text-decoration: none;
-
-        transition:
-            transform .18s ease,
-            border-color .18s ease,
-            background .18s ease;
-    }
-
-    .rz-discovery-card:hover {
-
-        transform: translateY(-2px);
-
-        border-color:
-            rgba(56, 189, 248, .25);
-
-        background:
-            var(--rz-surface-2);
-    }
-
-    .rz-discovery-icon {
-
-        width: 34px;
-        height: 34px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        border-radius: 10px;
-
-        background:
-            rgba(56, 189, 248, .10);
-
-        font-size: 17px;
-    }
-
-    .rz-discovery-card strong {
-
-        margin-top: 8px;
-
-        font-size: 12px;
-    }
-
-    .rz-discovery-card span {
-
-        margin-top: 2px;
-
-        color: var(--rz-muted);
-
-        font-size: 9.5px;
-    }
-
-
-    /* =========================================================
-       RIGHT SIDEBAR
-    ========================================================= */
-
-    .rz-rightbar {
-
-        position: sticky;
-        top: 82px;
-    }
-
-    .rz-panel {
-
-        padding: 15px;
-
-        margin-bottom: 13px;
-
-        border:
-            1px solid var(--rz-border);
-
-        border-radius:
-            var(--rz-radius);
-
-        background:
-            var(--rz-surface);
-    }
-
-    .rz-panel-title {
-
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        margin-bottom: 12px;
-    }
-
-    .rz-panel-title strong {
-
-        font-size: 13px;
-    }
-
-    .rz-panel-title a {
-
-        color: var(--rz-primary);
-
-        text-decoration: none;
-
-        font-size: 10px;
-    }
-
-
-    /* =========================================================
-       RIGHT SHORTCUTS
-    ========================================================= */
-
-    .rz-mini-link {
-
-        display: flex;
-        align-items: center;
-
-        gap: 9px;
-
-        padding: 8px;
-
-        border-radius: 10px;
-
-        color: var(--rz-muted);
-
-        text-decoration: none;
-
-        font-size: 11px;
-    }
-
-    .rz-mini-link:hover {
-
-        background:
-            var(--rz-surface-2);
-
-        color:
-            var(--rz-text);
-    }
-
-    .rz-mini-icon {
-
-        width: 31px;
-        height: 31px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        border-radius: 9px;
-
-        background:
-            rgba(56, 189, 248, .09);
-    }
-
-
-    /* =========================================================
-       COMMUNITY MESSAGE
-    ========================================================= */
-
-    .rz-community-box {
-
-        padding: 14px;
-
-        border-radius: 13px;
-
-        background:
-            linear-gradient(
-                135deg,
-                rgba(56, 189, 248, .10),
-                rgba(14, 165, 233, .04)
-            );
-
-        border:
-            1px solid rgba(56, 189, 248, .13);
-    }
-
-    .rz-community-box strong {
-
-        display: block;
-
-        margin-bottom: 5px;
-
-        font-size: 12px;
-    }
-
-    .rz-community-box p {
-
-        margin: 0;
-
-        color: var(--rz-muted);
-
-        font-size: 10px;
-
-        line-height: 1.6;
-    }
-
-
-    /* =========================================================
-       MOBILE BOTTOM NAV
-    ========================================================= */
-
-    .rz-mobile-nav {
-
-        display: none;
-
-        position: fixed;
-
-        left: 0;
-        right: 0;
-        bottom: 0;
-
-        z-index: 1100;
-
-        height: 62px;
-
-        background:
-            rgba(7, 17, 31, .97);
-
-        border-top:
-            1px solid var(--rz-border);
-
-        backdrop-filter: blur(18px);
-    }
-
-    .rz-mobile-nav-inner {
-
-        height: 100%;
-
-        display: grid;
-
-        grid-template-columns:
-            repeat(5, 1fr);
-    }
-
-    .rz-mobile-nav a {
-
-        display: flex;
-        flex-direction: column;
-
-        align-items: center;
-        justify-content: center;
-
-        gap: 2px;
-
-        color: var(--rz-muted);
-
-        text-decoration: none;
-
-        font-size: 17px;
-    }
-
-    .rz-mobile-nav a span {
-
-        font-size: 8px;
-        font-weight: 650;
-    }
-
-    .rz-mobile-nav a:hover {
-
-        color:
-            var(--rz-primary);
-    }
-
-
-    /* =========================================================
-       LIGHT MODE
-       Compatible with UniCamplink theme.js
-    ========================================================= */
-
-    html[data-theme="light"],
-    body.light-mode {
-
-        --rz-bg: #f3f6fa;
-        --rz-surface: #ffffff;
-        --rz-surface-2: #f8fafc;
-        --rz-surface-3: #eef4f8;
-
-        --rz-text: #0f172a;
-        --rz-muted: #64748b;
-
-        --rz-border: #e2e8f0;
-    }
-
-    html[data-theme="light"] body,
-    body.light-mode {
-
-        background:
-            radial-gradient(
-                circle at 10% -10%,
-                rgba(56, 189, 248, .10),
-                transparent 28%
-            ),
-            #f3f6fa;
-    }
-
-    html[data-theme="light"] .rz-navbar,
-    body.light-mode .rz-navbar {
-
-        background:
-            rgba(255,255,255,.94);
-    }
-
-    html[data-theme="light"] .rz-mobile-nav,
-    body.light-mode .rz-mobile-nav {
-
-        background:
-            rgba(255,255,255,.97);
-    }
-
-
-    /* =========================================================
-       TABLET
-    ========================================================= */
-
-    @media (max-width: 1100px) {
-
-        .rz-layout {
-
-            grid-template-columns:
-                190px
-                minmax(0, 680px);
+            --rz-shadow:
+                0 12px 35px rgba(0, 0, 0, .20);
         }
 
-        .rz-rightbar {
-            display: none;
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
         }
-    }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            color: var(--rz-text);
+
+            background:
+                radial-gradient(
+                    circle at 10% -10%,
+                    rgba(56, 189, 248, .13),
+                    transparent 28%
+                ),
+                var(--rz-bg);
+
+            overflow-x: hidden;
+        }
+
+        a,
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
 
 
-    /* =========================================================
-       MOBILE
-    ========================================================= */
+        /* =========================================================
+           TOP NAVIGATION
+        ========================================================= */
 
-    @media (max-width: 760px) {
+        .rz-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            width: 100%;
+
+            background:
+                rgba(7, 17, 31, .94);
+
+            border-bottom:
+                1px solid var(--rz-border);
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
 
         .rz-nav-inner {
+            width: min(1380px, 100%);
 
-            min-height: 58px;
+            min-height: 64px;
 
-            padding:
-                7px 9px;
+            margin: auto;
+
+            padding: 8px 14px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
         }
 
-        .rz-brand span {
 
-            display: none;
+        /* =========================================================
+           BRAND
+        ========================================================= */
+
+        .rz-brand {
+            flex: 0 0 auto;
+
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--rz-text);
+
+            text-decoration: none;
+
+            font-size: 17px;
+            font-weight: 850;
+
+            white-space: nowrap;
         }
 
         .rz-brand img {
+            width: 39px;
+            height: 39px;
 
-            width: 37px;
-            height: 37px;
+            object-fit: contain;
+
+            border-radius: 11px;
+
+            box-shadow:
+                0 0 0 1px rgba(56, 189, 248, .18),
+                0 6px 20px rgba(0, 0, 0, .20);
         }
+
+
+        /* =========================================================
+           SEARCH
+        ========================================================= */
 
         .rz-search {
+            flex: 0 1 280px;
 
-            flex: 1;
+            display: flex;
+            align-items: center;
+
+            min-width: 0;
         }
 
-        .rz-nav-links {
+        .rz-search a {
+            width: 100%;
 
+            min-height: 40px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 0 14px;
+
+            border-radius: 999px;
+
+            background:
+                var(--rz-surface-2);
+
+            border:
+                1px solid var(--rz-border);
+
+            color: var(--rz-muted);
+
+            text-decoration: none;
+
+            font-size: 12px;
+        }
+
+        .rz-search a:hover {
+            border-color:
+                rgba(56, 189, 248, .35);
+
+            color:
+                var(--rz-text);
+        }
+
+
+        /* =========================================================
+           NAV LINKS
+        ========================================================= */
+
+        .rz-nav-links {
+            flex: 1;
+
+            min-width: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 3px;
+
+            overflow-x: auto;
+
+            scrollbar-width: none;
+        }
+
+        .rz-nav-links::-webkit-scrollbar {
             display: none;
         }
 
-        .rz-nav-right {
+        .rz-nav-links a {
+            flex: 0 0 auto;
 
-            gap: 4px;
+            min-width: 43px;
+            min-height: 40px;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 7px 9px;
+
+            border-radius: 12px;
+
+            color: var(--rz-muted);
+
+            text-decoration: none;
+
+            font-size: 17px;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
+        }
+
+        .rz-nav-links a span {
+            display: none;
+        }
+
+        .rz-nav-links a:hover {
+            background:
+                rgba(56, 189, 248, .09);
+
+            color:
+                var(--rz-primary);
+        }
+
+        .rz-nav-links a:active {
+            transform: scale(.94);
+        }
+
+
+        /* =========================================================
+           CGPA DESKTOP NAV ITEM
+        ========================================================= */
+
+        .rz-nav-links a.rz-cgpa-link {
+            color:
+                var(--rz-primary);
+        }
+
+        .rz-nav-links a.rz-cgpa-link:hover {
+            background:
+                rgba(56, 189, 248, .12);
+        }
+
+
+        /* =========================================================
+           NAV RIGHT
+        ========================================================= */
+
+        .rz-nav-right {
+            flex: 0 0 auto;
+
+            display: flex;
+            align-items: center;
+
+            gap: 6px;
         }
 
         .rz-icon-btn {
+            width: 40px;
+            height: 40px;
 
-            width: 37px;
-            height: 37px;
+            border:
+                1px solid var(--rz-border);
+
+            border-radius: 50%;
+
+            background:
+                var(--rz-surface-2);
+
+            color:
+                var(--rz-text);
+
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            text-decoration: none;
+
+            font-size: 16px;
         }
 
+        .rz-icon-btn:hover {
+            background:
+                rgba(56, 189, 248, .10);
+
+            border-color:
+                rgba(56, 189, 248, .30);
+        }
+
+
+        /* =========================================================
+           MAIN LAYOUT
+        ========================================================= */
+
         .rz-page {
+            width: min(1380px, 100%);
+
+            margin: auto;
 
             padding:
-                12px 9px 82px;
+                22px 14px 90px;
         }
 
         .rz-layout {
+            display: grid;
 
-            display: block;
+            grid-template-columns:
+                230px
+                minmax(0, 680px)
+                270px;
+
+            justify-content: center;
+
+            gap: 18px;
+
+            align-items: start;
         }
+
+
+        /* =========================================================
+           LEFT SIDEBAR
+        ========================================================= */
 
         .rz-sidebar {
+            position: sticky;
+            top: 82px;
 
-            display: none;
+            display: flex;
+            flex-direction: column;
+
+            gap: 5px;
         }
 
-        .rz-rightbar {
+        .rz-side-profile {
+            display: flex;
+            align-items: center;
 
-            display: none;
+            gap: 10px;
+
+            padding: 10px;
+
+            margin-bottom: 7px;
+
+            border-radius: 14px;
+
+            text-decoration: none;
+
+            color: var(--rz-text);
         }
 
-        .rz-mobile-nav {
+        .rz-side-profile:hover {
+            background:
+                var(--rz-surface-2);
+        }
 
+        .rz-avatar {
+            width: 43px;
+            height: 43px;
+
+            flex: 0 0 auto;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0ea5e9
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #03111d;
+
+            font-size: 17px;
+            font-weight: 850;
+
+            overflow: hidden;
+        }
+
+        .rz-avatar img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+        .rz-side-profile strong {
             display: block;
+
+            font-size: 13px;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
         }
+
+        .rz-side-profile small {
+            color:
+                var(--rz-muted);
+
+            font-size: 10px;
+        }
+
+        .rz-side-link {
+            min-height: 43px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 8px 12px;
+
+            border-radius: 12px;
+
+            color:
+                var(--rz-muted);
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 650;
+        }
+
+        .rz-side-link:hover {
+            background:
+                var(--rz-surface-2);
+
+            color:
+                var(--rz-text);
+        }
+
+        .rz-side-link.active {
+            background:
+                rgba(56, 189, 248, .10);
+
+            color:
+                var(--rz-primary);
+        }
+
+        .rz-side-link-icon {
+            width: 28px;
+
+            text-align: center;
+
+            font-size: 17px;
+        }
+
+
+        /* =========================================================
+           CENTER COLUMN
+        ========================================================= */
+
+        .rz-center {
+            min-width: 0;
+        }
+
+
+        /* =========================================================
+           WELCOME / PROFILE STRIP
+        ========================================================= */
 
         .rz-welcome {
+            position: relative;
 
-            padding: 17px;
+            overflow: hidden;
 
-            margin-bottom: 10px;
+            padding: 20px;
 
-            border-radius: 15px;
+            margin-bottom: 14px;
+
+            border:
+                1px solid var(--rz-border);
+
+            border-radius:
+                var(--rz-radius);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, .13),
+                    var(--rz-surface) 52%,
+                    var(--rz-surface-2)
+                );
+
+            box-shadow:
+                var(--rz-shadow);
+        }
+
+        .rz-welcome::after {
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            right: -70px;
+            top: -90px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(56, 189, 248, .08);
+        }
+
+        .rz-welcome-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .rz-welcome-label {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 6px;
+
+            color:
+                var(--rz-primary);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: .5px;
+
+            margin-bottom: 6px;
         }
 
         .rz-welcome h1 {
+            margin: 0 0 5px;
 
-            font-size: 21px;
+            font-size: 25px;
+
+            letter-spacing: -.7px;
         }
 
         .rz-welcome p {
+            margin: 0;
 
-            font-size: 11px;
+            color:
+                var(--rz-muted);
+
+            font-size: 12px;
+
+            line-height: 1.6;
         }
 
+
+        /* =========================================================
+           QUICK SOCIAL ACTION BAR
+        ========================================================= */
+
         .rz-create-box {
+            padding: 13px;
 
-            border-radius: 15px;
+            margin-bottom: 14px;
 
-            padding: 10px;
+            border:
+                1px solid var(--rz-border);
+
+            border-radius:
+                var(--rz-radius);
+
+            background:
+                var(--rz-surface);
+
+            box-shadow:
+                0 8px 30px rgba(0,0,0,.10);
+        }
+
+        .rz-create-row {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
         }
 
         .rz-create-input {
+            flex: 1;
+
+            min-width: 0;
+
+            min-height: 43px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 15px;
+
+            border-radius: 999px;
+
+            background:
+                var(--rz-surface-2);
+
+            border:
+                1px solid var(--rz-border);
+
+            color:
+                var(--rz-muted);
+
+            text-decoration: none;
+
+            font-size: 12px;
+        }
+
+        .rz-create-input:hover {
+            background:
+                var(--rz-surface-3);
+
+            color:
+                var(--rz-text);
+        }
+
+        .rz-create-actions {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 5px;
+
+            margin-top: 11px;
+
+            padding-top: 10px;
+
+            border-top:
+                1px solid var(--rz-border);
+        }
+
+        .rz-create-action {
+            min-height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 5px;
+
+            border: 0;
+
+            background: transparent;
+
+            color:
+                var(--rz-muted);
+
+            text-decoration: none;
+
+            border-radius: 10px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .rz-create-action:hover {
+            background:
+                var(--rz-surface-2);
+
+            color:
+                var(--rz-primary);
+        }
+
+
+        /* =========================================================
+           ANNOUNCEMENT
+        ========================================================= */
+
+        .rz-announcement {
+            position: relative;
+
+            margin-bottom: 14px;
+
+            padding: 15px;
+
+            border:
+                1px solid rgba(56, 189, 248, .20);
+
+            border-radius:
+                var(--rz-radius);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, .10),
+                    var(--rz-surface)
+                );
+        }
+
+        .rz-announcement-top {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 7px;
+
+            color:
+                var(--rz-primary);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+        }
+
+        .rz-announcement h2 {
+            margin: 0 0 6px;
+
+            font-size: 16px;
+        }
+
+        .rz-announcement p {
+            margin: 0;
+
+            color:
+                var(--rz-muted);
+
+            font-size: 12px;
+
+            line-height: 1.6;
+
+            white-space: pre-line;
+        }
+
+        .rz-announcement-link {
+            display: inline-flex;
+
+            margin-top: 9px;
+
+            color:
+                var(--rz-primary);
+
+            text-decoration: none;
+
+            font-size: 11px;
+
+            font-weight: 750;
+        }
+
+
+        /* =========================================================
+           SOCIAL DISCOVERY CARDS
+        ========================================================= */
+
+        .rz-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin:
+                18px 2px 9px;
+        }
+
+        .rz-section-title h2 {
+            margin: 0;
+
+            font-size: 15px;
+
+            letter-spacing: -.2px;
+        }
+
+        .rz-section-title a {
+            color:
+                var(--rz-primary);
+
+            text-decoration: none;
+
+            font-size: 10px;
+
+            font-weight: 750;
+        }
+
+        .rz-discovery-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 9px;
+        }
+
+        .rz-discovery-card {
+            min-height: 105px;
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: space-between;
+
+            padding: 14px;
+
+            border:
+                1px solid var(--rz-border);
+
+            border-radius:
+                var(--rz-radius-sm);
+
+            background:
+                var(--rz-surface);
+
+            color:
+                var(--rz-text);
+
+            text-decoration: none;
+
+            transition:
+                transform .18s ease,
+                border-color .18s ease,
+                background .18s ease;
+        }
+
+        .rz-discovery-card:hover {
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(56, 189, 248, .25);
+
+            background:
+                var(--rz-surface-2);
+        }
+
+        .rz-discovery-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background:
+                rgba(56, 189, 248, .10);
+
+            font-size: 17px;
+        }
+
+        .rz-discovery-card strong {
+            margin-top: 8px;
+
+            font-size: 12px;
+        }
+
+        .rz-discovery-card span {
+            margin-top: 2px;
+
+            color:
+                var(--rz-muted);
+
+            font-size: 9.5px;
+        }
+
+
+        /* =========================================================
+           CGPA DISCOVERY CARD
+        ========================================================= */
+
+        .rz-discovery-card.cgpa-card {
+            border-color:
+                rgba(56, 189, 248, .22);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, .10),
+                    var(--rz-surface)
+                );
+        }
+
+        .rz-discovery-card.cgpa-card:hover {
+            border-color:
+                rgba(56, 189, 248, .45);
+        }
+
+
+        /* =========================================================
+           RIGHT SIDEBAR
+        ========================================================= */
+
+        .rz-rightbar {
+            position: sticky;
+
+            top: 82px;
+        }
+
+        .rz-panel {
+            padding: 15px;
+
+            margin-bottom: 13px;
+
+            border:
+                1px solid var(--rz-border);
+
+            border-radius:
+                var(--rz-radius);
+
+            background:
+                var(--rz-surface);
+        }
+
+        .rz-panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 12px;
+        }
+
+        .rz-panel-title strong {
+            font-size: 13px;
+        }
+
+        .rz-panel-title a {
+            color:
+                var(--rz-primary);
+
+            text-decoration: none;
+
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           RIGHT SHORTCUTS
+        ========================================================= */
+
+        .rz-mini-link {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+
+            padding: 8px;
+
+            border-radius: 10px;
+
+            color:
+                var(--rz-muted);
+
+            text-decoration: none;
 
             font-size: 11px;
         }
 
-        .rz-create-action {
+        .rz-mini-link:hover {
+            background:
+                var(--rz-surface-2);
 
-            font-size: 10px;
+            color:
+                var(--rz-text);
         }
 
-        .rz-discovery-grid {
+        .rz-mini-icon {
+            width: 31px;
+            height: 31px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background:
+                rgba(56, 189, 248, .09);
+        }
+
+
+        /* =========================================================
+           CGPA SHORTCUT
+        ========================================================= */
+
+        .rz-cgpa-shortcut {
+            color:
+                var(--rz-primary);
+        }
+
+        .rz-cgpa-shortcut .rz-mini-icon {
+            background:
+                rgba(56, 189, 248, .14);
+        }
+
+
+        /* =========================================================
+           COMMUNITY MESSAGE
+        ========================================================= */
+
+        .rz-community-box {
+            padding: 14px;
+
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(56, 189, 248, .10),
+                    rgba(14, 165, 233, .04)
+                );
+
+            border:
+                1px solid rgba(56, 189, 248, .13);
+        }
+
+        .rz-community-box strong {
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 12px;
+        }
+
+        .rz-community-box p {
+            margin: 0;
+
+            color:
+                var(--rz-muted);
+
+            font-size: 10px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================================================
+           MOBILE BOTTOM NAVIGATION
+        ========================================================= */
+
+        .rz-mobile-nav {
+            display: none;
+
+            position: fixed;
+
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            z-index: 1100;
+
+            min-height: 64px;
+
+            padding-bottom:
+                env(safe-area-inset-bottom);
+
+            background:
+                rgba(7, 17, 31, .97);
+
+            border-top:
+                1px solid var(--rz-border);
+
+            backdrop-filter:
+                blur(18px);
+
+            -webkit-backdrop-filter:
+                blur(18px);
+        }
+
+        .rz-mobile-nav-inner {
+            min-height: 64px;
+
+            display: grid;
 
             grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-        }
-    }
+                repeat(5, 1fr);
 
-
-    /* =========================================================
-       SMALL PHONES
-    ========================================================= */
-
-    @media (max-width: 400px) {
-
-        .rz-search a {
-
-            padding:
-                0 11px;
-
-            font-size: 10px;
+            align-items: stretch;
         }
 
-        .rz-icon-btn {
+        .rz-mobile-nav a {
+            min-width: 0;
 
-            width: 35px;
-            height: 35px;
+            min-height: 64px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 3px;
+
+            color:
+                var(--rz-muted);
+
+            text-decoration: none;
+
+            font-size: 19px;
+
+            transition:
+                color .18s ease,
+                background .18s ease,
+                transform .18s ease;
         }
 
-        .rz-create-actions {
+        .rz-mobile-nav a span {
+            font-size: 8px;
 
-            gap: 2px;
+            font-weight: 700;
         }
 
-        .rz-create-action {
-
-            font-size: 9px;
+        .rz-mobile-nav a:hover {
+            color:
+                var(--rz-primary);
         }
 
-        .rz-discovery-card {
-
-            min-height: 100px;
-
-            padding: 12px;
-        }
-    }
-
-
-    /* =========================================================
-       REDUCED MOTION
-    ========================================================= */
-
-    @media (prefers-reduced-motion: reduce) {
-
-        html {
-            scroll-behavior: auto;
+        .rz-mobile-nav a:active {
+            transform:
+                scale(.92);
         }
 
-        *,
-        *::before,
-        *::after {
-
-            transition-duration:
-                .01ms !important;
-
-            animation-duration:
-                .01ms !important;
+        .rz-mobile-nav .rz-mobile-cgpa {
+            color:
+                var(--rz-primary);
         }
-    }
 
-</style>
+
+        /* =========================================================
+           LIGHT MODE
+           Compatible with UniCamplink theme.js
+        ========================================================= */
+
+        html[data-theme="light"],
+        body.light-mode {
+            --rz-bg: #f3f6fa;
+            --rz-surface: #ffffff;
+            --rz-surface-2: #f8fafc;
+            --rz-surface-3: #eef4f8;
+
+            --rz-text: #0f172a;
+            --rz-muted: #64748b;
+
+            --rz-border: #e2e8f0;
+        }
+
+        html[data-theme="light"] body,
+        body.light-mode {
+            background:
+                radial-gradient(
+                    circle at 10% -10%,
+                    rgba(56, 189, 248, .10),
+                    transparent 28%
+                ),
+                #f3f6fa;
+        }
+
+        html[data-theme="light"] .rz-navbar,
+        body.light-mode .rz-navbar {
+            background:
+                rgba(255,255,255,.94);
+        }
+
+        html[data-theme="light"] .rz-mobile-nav,
+        body.light-mode .rz-mobile-nav {
+            background:
+                rgba(255,255,255,.97);
+        }
+
+
+        /* =========================================================
+           TABLET
+        ========================================================= */
+
+        @media (max-width: 1100px) {
+
+            .rz-layout {
+                grid-template-columns:
+                    190px
+                    minmax(0, 680px);
+            }
+
+            .rz-rightbar {
+                display: none;
+            }
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 760px) {
+
+            .rz-nav-inner {
+                min-height: 58px;
+
+                padding:
+                    7px 9px;
+            }
+
+            .rz-brand span {
+                display: none;
+            }
+
+            .rz-brand img {
+                width: 37px;
+                height: 37px;
+            }
+
+            .rz-search {
+                flex: 1;
+            }
+
+            .rz-nav-links {
+                display: none;
+            }
+
+            .rz-nav-right {
+                gap: 4px;
+            }
+
+            .rz-icon-btn {
+                width: 37px;
+                height: 37px;
+            }
+
+            .rz-page {
+                padding:
+                    12px 9px
+                    calc(94px + env(safe-area-inset-bottom));
+            }
+
+            .rz-layout {
+                display: block;
+            }
+
+            .rz-sidebar {
+                display: none;
+            }
+
+            .rz-rightbar {
+                display: none;
+            }
+
+            .rz-mobile-nav {
+                display: block;
+            }
+
+            .rz-welcome {
+                padding: 17px;
+
+                margin-bottom: 10px;
+
+                border-radius: 15px;
+            }
+
+            .rz-welcome h1 {
+                font-size: 21px;
+            }
+
+            .rz-welcome p {
+                font-size: 11px;
+            }
+
+            .rz-create-box {
+                border-radius: 15px;
+
+                padding: 10px;
+            }
+
+            .rz-create-input {
+                font-size: 11px;
+            }
+
+            .rz-create-action {
+                font-size: 10px;
+            }
+
+            .rz-discovery-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .rz-mobile-nav a {
+                min-height: 62px;
+            }
+        }
+
+
+        /* =========================================================
+           SMALL PHONES
+        ========================================================= */
+
+        @media (max-width: 400px) {
+
+            .rz-search a {
+                padding:
+                    0 11px;
+
+                font-size: 10px;
+            }
+
+            .rz-icon-btn {
+                width: 35px;
+                height: 35px;
+            }
+
+            .rz-create-actions {
+                gap: 2px;
+            }
+
+            .rz-create-action {
+                font-size: 9px;
+            }
+
+            .rz-discovery-card {
+                min-height: 100px;
+
+                padding: 12px;
+            }
+
+            .rz-mobile-nav a {
+                font-size: 18px;
+            }
+
+            .rz-mobile-nav a span {
+                font-size: 7.5px;
+            }
+        }
+
+
+        /* =========================================================
+           REDUCED MOTION
+        ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition-duration:
+                    .01ms !important;
+
+                animation-duration:
+                    .01ms !important;
+            }
+        }
+
+    </style>
 
 </head>
 
+
 <body>
+
 
 <!-- =========================================================
      TOP NAVIGATION
@@ -1414,6 +1439,8 @@
 
     <div class="rz-nav-inner">
 
+
+        <!-- BRAND -->
 
         <a
             href="{{ url_for('dashboard') }}"
@@ -1435,19 +1462,26 @@
         </a>
 
 
+        <!-- SEARCH -->
+
         <div class="rz-search">
 
             <a
                 href="{{ url_for('search_students') }}"
             >
+
                 🔍
+
                 <span>
                     Search students, groups...
                 </span>
+
             </a>
 
         </div>
 
+
+        <!-- DESKTOP NAVIGATION -->
 
         <div class="rz-nav-links">
 
@@ -1459,6 +1493,7 @@
                 <span>Home</span>
             </a>
 
+
             <a
                 href="{{ url_for('feed') }}"
                 title="Feed"
@@ -1466,6 +1501,7 @@
                 📰
                 <span>Feed</span>
             </a>
+
 
             <a
                 href="{{ url_for('messages') }}"
@@ -1475,6 +1511,19 @@
                 <span>Messages</span>
             </a>
 
+
+            <!-- CGPA -->
+
+            <a
+                href="{{ url_for('cgpa_calculator') }}"
+                title="CGPA Calculator"
+                class="rz-cgpa-link"
+            >
+                🎓
+                <span>CGPA</span>
+            </a>
+
+
             <a
                 href="{{ url_for('friends') }}"
                 title="Friends"
@@ -1482,6 +1531,7 @@
                 🤝
                 <span>Friends</span>
             </a>
+
 
             <a
                 href="{{ url_for('groups') }}"
@@ -1491,6 +1541,7 @@
                 <span>Groups</span>
             </a>
 
+
             <a
                 href="{{ url_for('notifications') }}"
                 title="Notifications"
@@ -1498,6 +1549,7 @@
                 🔔
                 <span>Notifications</span>
             </a>
+
 
             <a
                 href="{{ url_for('marketplace') }}"
@@ -1510,6 +1562,8 @@
         </div>
 
 
+        <!-- NAV RIGHT -->
+
         <div class="rz-nav-right">
 
             <a
@@ -1520,6 +1574,7 @@
                 👤
             </a>
 
+
             <button
                 type="button"
                 class="rz-icon-btn"
@@ -1529,6 +1584,7 @@
             >
                 🌙
             </button>
+
 
             {% if is_admin %}
 
@@ -1566,6 +1622,8 @@
         <aside class="rz-sidebar">
 
 
+            <!-- PROFILE -->
+
             <a
                 href="{{ url_for('profile') }}"
                 class="rz-side-profile"
@@ -1592,13 +1650,16 @@
 
                 </div>
 
+
                 <div>
 
                     <strong>
+
                         {{ session.get(
                             'user_name',
                             'Student'
                         ) }}
+
                     </strong>
 
                     <small>
@@ -1609,6 +1670,8 @@
 
             </a>
 
+
+            <!-- HOME -->
 
             <a
                 href="{{ url_for('dashboard') }}"
@@ -1624,6 +1687,8 @@
             </a>
 
 
+            <!-- FEED -->
+
             <a
                 href="{{ url_for('feed') }}"
                 class="rz-side-link"
@@ -1637,6 +1702,8 @@
 
             </a>
 
+
+            <!-- MESSAGES -->
 
             <a
                 href="{{ url_for('messages') }}"
@@ -1652,6 +1719,24 @@
             </a>
 
 
+            <!-- CGPA -->
+
+            <a
+                href="{{ url_for('cgpa_calculator') }}"
+                class="rz-side-link"
+            >
+
+                <span class="rz-side-link-icon">
+                    🎓
+                </span>
+
+                CGPA Calculator
+
+            </a>
+
+
+            <!-- FRIENDS -->
+
             <a
                 href="{{ url_for('friends') }}"
                 class="rz-side-link"
@@ -1665,6 +1750,8 @@
 
             </a>
 
+
+            <!-- FRIEND REQUESTS -->
 
             <a
                 href="{{ url_for('friend_requests') }}"
@@ -1680,6 +1767,8 @@
             </a>
 
 
+            <!-- GROUPS -->
+
             <a
                 href="{{ url_for('groups') }}"
                 class="rz-side-link"
@@ -1693,6 +1782,8 @@
 
             </a>
 
+
+            <!-- NOTIFICATIONS -->
 
             <a
                 href="{{ url_for('notifications') }}"
@@ -1708,6 +1799,8 @@
             </a>
 
 
+            <!-- ANNOUNCEMENTS -->
+
             <a
                 href="{{ url_for('announcements') }}"
                 class="rz-side-link"
@@ -1722,6 +1815,8 @@
             </a>
 
 
+            <!-- MARKETPLACE -->
+
             <a
                 href="{{ url_for('marketplace') }}"
                 class="rz-side-link"
@@ -1735,6 +1830,8 @@
 
             </a>
 
+
+            <!-- ADVERTISE -->
 
             <a
                 href="{{ url_for('advertise_with_us') }}"
@@ -1769,19 +1866,25 @@
                     <div class="rz-welcome-label">
 
                         🎓
+
                         UniCamplink Community
 
                     </div>
 
+
                     <h1>
 
                         Welcome,
+
                         {{ session.get(
                             'user_name',
                             'Student'
-                        ) }} 👋
+                        ) }}
+
+                        👋
 
                     </h1>
+
 
                     <p>
 
@@ -1805,10 +1908,9 @@
                 <div class="rz-create-row">
 
                     <div class="rz-avatar">
-
                         👤
-
                     </div>
+
 
                     <a
                         href="{{ url_for('feed') }}"
@@ -1834,6 +1936,7 @@
 
                     </a>
 
+
                     <a
                         href="{{ url_for('feed') }}"
                         class="rz-create-action"
@@ -1843,6 +1946,7 @@
                         Photo
 
                     </a>
+
 
                     <a
                         href="{{ url_for('groups') }}"
@@ -1874,17 +1978,20 @@
 
                     </div>
 
+
                     <h2>
 
                         {{ active_announcement["title"] }}
 
                     </h2>
 
+
                     <p>
 
                         {{ active_announcement["message"] }}
 
                     </p>
+
 
                     <a
                         href="{{ url_for('announcements') }}"
@@ -1918,8 +2025,11 @@
             </div>
 
 
+
             <section class="rz-discovery-grid">
 
+
+                <!-- FEED -->
 
                 <a
                     href="{{ url_for('feed') }}"
@@ -1941,6 +2051,8 @@
                 </a>
 
 
+                <!-- MESSAGES -->
+
                 <a
                     href="{{ url_for('messages') }}"
                     class="rz-discovery-card"
@@ -1960,6 +2072,30 @@
 
                 </a>
 
+
+                <!-- CGPA -->
+
+                <a
+                    href="{{ url_for('cgpa_calculator') }}"
+                    class="rz-discovery-card cgpa-card"
+                >
+
+                    <div class="rz-discovery-icon">
+                        🎓
+                    </div>
+
+                    <strong>
+                        CGPA Calculator
+                    </strong>
+
+                    <span>
+                        Calculate GPA & plan your target
+                    </span>
+
+                </a>
+
+
+                <!-- FRIENDS -->
 
                 <a
                     href="{{ url_for('friends') }}"
@@ -1981,6 +2117,8 @@
                 </a>
 
 
+                <!-- GROUPS -->
+
                 <a
                     href="{{ url_for('groups') }}"
                     class="rz-discovery-card"
@@ -2000,6 +2138,8 @@
 
                 </a>
 
+
+                <!-- SEARCH -->
 
                 <a
                     href="{{ url_for('search_students') }}"
@@ -2021,6 +2161,8 @@
                 </a>
 
 
+                <!-- MARKETPLACE -->
+
                 <a
                     href="{{ url_for('marketplace') }}"
                     class="rz-discovery-card"
@@ -2041,6 +2183,8 @@
                 </a>
 
 
+                <!-- NOTIFICATIONS -->
+
                 <a
                     href="{{ url_for('notifications') }}"
                     class="rz-discovery-card"
@@ -2060,6 +2204,8 @@
 
                 </a>
 
+
+                <!-- PROFILE -->
 
                 <a
                     href="{{ url_for('profile') }}"
@@ -2092,6 +2238,8 @@
 
         <aside class="rz-rightbar">
 
+
+            <!-- SHORTCUTS -->
 
             <section class="rz-panel">
 
@@ -2173,9 +2321,27 @@
 
                 </a>
 
+
+                <!-- CGPA -->
+
+                <a
+                    href="{{ url_for('cgpa_calculator') }}"
+                    class="rz-mini-link rz-cgpa-shortcut"
+                >
+
+                    <span class="rz-mini-icon">
+                        🎓
+                    </span>
+
+                    CGPA Calculator
+
+                </a>
+
             </section>
 
 
+
+            <!-- COMMUNITY -->
 
             <section class="rz-panel">
 
@@ -2208,6 +2374,8 @@
             </section>
 
 
+
+            <!-- EXPLORE -->
 
             <section class="rz-panel">
 
@@ -2265,39 +2433,85 @@
 
     <div class="rz-mobile-nav-inner">
 
+
+        <!-- HOME -->
+
         <a
             href="{{ url_for('dashboard') }}"
+            title="Home"
         >
+
             🏠
-            <span>Home</span>
+
+            <span>
+                Home
+            </span>
+
         </a>
+
+
+        <!-- FEED -->
 
         <a
             href="{{ url_for('feed') }}"
+            title="Feed"
         >
+
             📰
-            <span>Feed</span>
+
+            <span>
+                Feed
+            </span>
+
         </a>
+
+
+        <!-- CGPA -->
+
+        <a
+            href="{{ url_for('cgpa_calculator') }}"
+            title="CGPA Calculator"
+            class="rz-mobile-cgpa"
+        >
+
+            🎓
+
+            <span>
+                CGPA
+            </span>
+
+        </a>
+
+
+        <!-- MESSAGES -->
 
         <a
             href="{{ url_for('messages') }}"
+            title="Messages"
         >
+
             💬
-            <span>Messages</span>
+
+            <span>
+                Messages
+            </span>
+
         </a>
 
-        <a
-            href="{{ url_for('notifications') }}"
-        >
-            🔔
-            <span>Alerts</span>
-        </a>
+
+        <!-- PROFILE -->
 
         <a
             href="{{ url_for('profile') }}"
+            title="Profile"
         >
+
             👤
-            <span>Profile</span>
+
+            <span>
+                Profile
+            </span>
+
         </a>
 
     </div>
@@ -2313,6 +2527,7 @@
 <script
     src="{{ url_for('static', filename='js/theme.js') }}"
 ></script>
+
 
 </body>
 
