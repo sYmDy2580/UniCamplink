@@ -421,7 +421,29 @@ a {
 .razor-post:hover {
     border-color: rgba(56,189,248,.22);
 }
+/* ============================================================
+   REPORTED POST HIGHLIGHT
+============================================================ */
 
+.razor-post.reported-post-highlight {
+    border-color: #38bdf8;
+    box-shadow:
+        0 0 0 3px rgba(56, 189, 248, .18),
+        0 18px 50px rgba(56, 189, 248, .16);
+    animation: reportedPostPulse 1.2s ease-in-out 2;
+}
+
+@keyframes reportedPostPulse {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
 
 /* ============================================================
    AUTHOR
@@ -1588,75 +1610,99 @@ html[data-theme="light"] .razor-sponsored-badge {
 
 </div>
 
-<!-- ========================================================
+<!-- ============================================
      ACTIONS
-========================================================= -->
+============================================= -->
 
 <div class="post-actions">
 
-<form
-    class="like-form"
-    data-post-id="{{ post['id'] }}"
-    action="{{ url_for(
-        'like_post',
-        post_id=post['id']
-    ) }}"
-    method="POST"
->
+    <!-- LIKE -->
 
-<input
-    type="hidden"
-    name="csrf_token"
-    value="{{ csrf_token() }}"
->
+    <form
+        class="like-form"
+        data-post-id="{{ post['id'] }}"
+        action="{{ url_for(
+            'like_post',
+            post_id=post['id']
+        ) }}"
+        method="POST"
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <button
+            type="submit"
+            class="post-action-btn like-button{% if post['user_liked'] %} liked{% endif %}"
+        >
+
+            {% if post["user_liked"] %}
+
+                ❤️
+                <span>Unlike</span>
+
+            {% else %}
+
+                🤍
+                <span>Like</span>
+
+            {% endif %}
+
+        </button>
+
+    </form>
 
 
-<button
-    type="submit"
-    class="post-action-btn like-button{% if post['user_liked'] %} liked{% endif %}"
->
+    <!-- COMMENT -->
 
-    {% if post["user_liked"] %}
+    <button
+        type="button"
+        class="post-action-btn"
+        data-post-id="{{ post['id'] }}"
+        onclick="focusComment(this.dataset.postId)"
+    >
 
-        ❤️
-        <span>Unlike</span>
+        💬
+        <span>Comment</span>
 
-    {% else %}
+    </button>
 
-        🤍
-        <span>Like</span>
 
-    {% endif %}
+    <!-- SHARE -->
 
-</button>
+    <button
+        type="button"
+        class="post-action-btn"
+        data-post-id="{{ post['id'] }}"
+        onclick="copyPostLink(this.dataset.postId)"
+    >
 
-</form>
+        ↗️
+        <span>Share</span>
 
-<button
-type="button"
-class="post-action-btn"
-data-post-id="{{ post['id'] }}"
-onclick="focusComment(this.dataset.postId)"
+    </button>
 
->
 
-💬
-<span>Comment</span>
+    <!-- REPORT -->
 
-</button>
+    <button
+        type="button"
+        class="post-action-btn post-report-btn"
+        data-report-type="post"
+        data-report-id="{{ post['id'] }}"
+        onclick="openReportModal(
+            'post',
+            this.dataset.reportId
+        )"
+    >
 
-<button
-type="button"
-class="post-action-btn"
-data-post-id="{{ post['id'] }}"
-onclick="copyPostLink(this.dataset.postId)"
+        🚩
+        <span>Report</span>
 
->
-
-↗️
-<span>Share</span>
-
-</button>
+    </button>
 
 </div>
 
@@ -1734,6 +1780,175 @@ onclick="copyPostLink(this.dataset.postId)"
 </section>
 
 </main>
+<!-- ============================================================
+     REPORT MODAL
+============================================================ -->
+
+<div
+    id="reportModal"
+    class="report-modal"
+    aria-hidden="true"
+>
+
+    <div
+        class="report-modal-overlay"
+        onclick="closeReportModal()"
+    ></div>
+
+
+    <div
+        class="report-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reportModalTitle"
+    >
+
+        <button
+            type="button"
+            class="report-modal-close"
+            onclick="closeReportModal()"
+            aria-label="Close report window"
+        >
+            ×
+        </button>
+
+
+        <div class="report-modal-icon">
+            🚩
+        </div>
+
+
+        <h2 id="reportModalTitle">
+            Report this post
+        </h2>
+
+
+        <p class="report-modal-subtitle">
+            Help keep UniCamplink safe for students.
+        </p>
+
+
+        <input
+            type="hidden"
+            id="reportTargetType"
+            value=""
+        >
+
+        <input
+            type="hidden"
+            id="reportTargetId"
+            value=""
+        >
+
+
+        <label
+            for="reportReason"
+            class="report-field-label"
+        >
+            Why are you reporting this?
+        </label>
+
+
+        <select
+            id="reportReason"
+            class="report-select"
+        >
+
+            <option value="">
+                Select a reason
+            </option>
+
+            <option value="Spam">
+                Spam
+            </option>
+
+            <option value="Harassment or bullying">
+                Harassment or bullying
+            </option>
+
+            <option value="Hate or abusive content">
+                Hate or abusive content
+            </option>
+
+            <option value="Nudity or sexual content">
+                Nudity or sexual content
+            </option>
+
+            <option value="Violence">
+                Violence
+            </option>
+
+            <option value="Scam or fraud">
+                Scam or fraud
+            </option>
+
+            <option value="False or misleading information">
+                False or misleading information
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+
+        <label
+            for="reportDetails"
+            class="report-field-label"
+        >
+            Additional details
+            <span>(optional)</span>
+        </label>
+
+
+        <textarea
+            id="reportDetails"
+            class="report-details"
+            maxlength="1000"
+            placeholder="Tell us anything that may help our moderation team..."
+        ></textarea>
+
+
+        <div
+            id="reportError"
+            class="report-message report-error"
+            style="display:none;"
+        ></div>
+
+
+        <div
+            id="reportSuccess"
+            class="report-message report-success"
+            style="display:none;"
+        ></div>
+
+
+        <div class="report-modal-actions">
+
+            <button
+                type="button"
+                class="report-cancel-btn"
+                onclick="closeReportModal()"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                type="button"
+                class="report-submit-btn"
+                id="submitReportButton"
+                onclick="submitReport()"
+            >
+                Submit Report
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- ============================================================
      THEME
@@ -4867,7 +5082,531 @@ if (createPostForm) {
     );
 
 }
+/* ============================================================
+   REPORT SYSTEM
+============================================================ */
 
+function openReportModal(
+    targetType,
+    targetId
+) {
+
+    const modal =
+        document.getElementById(
+            "reportModal"
+        );
+
+    const typeInput =
+        document.getElementById(
+            "reportTargetType"
+        );
+
+    const idInput =
+        document.getElementById(
+            "reportTargetId"
+        );
+
+    const reason =
+        document.getElementById(
+            "reportReason"
+        );
+
+    const details =
+        document.getElementById(
+            "reportDetails"
+        );
+
+    const errorBox =
+        document.getElementById(
+            "reportError"
+        );
+
+    const successBox =
+        document.getElementById(
+            "reportSuccess"
+        );
+
+    const title =
+        document.getElementById(
+            "reportModalTitle"
+        );
+
+
+    if (
+        !modal ||
+        !typeInput ||
+        !idInput
+    ) {
+        return;
+    }
+
+
+    typeInput.value =
+        targetType || "post";
+
+    idInput.value =
+        String(targetId || "");
+
+
+    if (targetType === "user") {
+
+        title.textContent =
+            "Report this student";
+
+    } else if (targetType === "comment") {
+
+        title.textContent =
+            "Report this comment";
+
+    } else {
+
+        title.textContent =
+            "Report this post";
+    }
+
+
+    if (reason) {
+        reason.value = "";
+    }
+
+
+    if (details) {
+        details.value = "";
+    }
+
+
+    if (errorBox) {
+        errorBox.style.display = "none";
+        errorBox.textContent = "";
+    }
+
+
+    if (successBox) {
+        successBox.style.display = "none";
+        successBox.textContent = "";
+    }
+
+
+    modal.classList.add("open");
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+
+    setTimeout(
+        function() {
+
+            if (reason) {
+                reason.focus();
+            }
+
+        },
+        100
+    );
+}
+
+
+/* ============================================================
+   CLOSE REPORT MODAL
+============================================================ */
+
+function closeReportModal() {
+
+    const modal =
+        document.getElementById(
+            "reportModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove(
+        "open"
+    );
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.style.overflow =
+        "";
+}
+
+
+/* ============================================================
+   SUBMIT REPORT
+============================================================ */
+
+async function submitReport() {
+
+    const typeInput =
+        document.getElementById(
+            "reportTargetType"
+        );
+
+    const idInput =
+        document.getElementById(
+            "reportTargetId"
+        );
+
+    const reasonInput =
+        document.getElementById(
+            "reportReason"
+        );
+
+    const detailsInput =
+        document.getElementById(
+            "reportDetails"
+        );
+
+    const errorBox =
+        document.getElementById(
+            "reportError"
+        );
+
+    const successBox =
+        document.getElementById(
+            "reportSuccess"
+        );
+
+    const submitButton =
+        document.getElementById(
+            "submitReportButton"
+        );
+
+
+    if (
+        !typeInput ||
+        !idInput ||
+        !reasonInput ||
+        !detailsInput ||
+        !submitButton
+    ) {
+        return;
+    }
+
+
+    const targetType =
+        typeInput.value.trim();
+
+    const targetId =
+        Number(
+            idInput.value
+        );
+
+    const reason =
+        reasonInput.value.trim();
+
+    const details =
+        detailsInput.value.trim();
+
+
+    if (!targetType || !targetId) {
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                "Invalid report target.";
+
+            errorBox.style.display =
+                "block";
+        }
+
+        return;
+    }
+
+
+    if (!reason) {
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                "Please select a report reason.";
+
+            errorBox.style.display =
+                "block";
+        }
+
+        reasonInput.focus();
+
+        return;
+    }
+
+
+    if (details.length > 1000) {
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                "Additional details must be 1000 characters or less.";
+
+            errorBox.style.display =
+                "block";
+        }
+
+        return;
+    }
+
+
+    if (errorBox) {
+
+        errorBox.style.display =
+            "none";
+
+        errorBox.textContent =
+            "";
+    }
+
+
+    if (successBox) {
+
+        successBox.style.display =
+            "none";
+
+        successBox.textContent =
+            "";
+    }
+
+
+    submitButton.disabled =
+        true;
+
+    submitButton.textContent =
+        "Submitting...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/reports",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "X-CSRFToken":
+                            csrfToken,
+
+                        "X-Requested-With":
+                            "XMLHttpRequest",
+
+                        "Accept":
+                            "application/json"
+                    },
+
+                    credentials:
+                        "same-origin",
+
+                    body: JSON.stringify({
+                        target_type:
+                            targetType,
+
+                        target_id:
+                            targetId,
+
+                        reason:
+                            reason,
+
+                        details:
+                            details
+                    })
+                }
+            );
+
+
+        const data =
+            await parseApiResponse(
+                response
+            );
+
+
+        if (successBox) {
+
+            successBox.textContent =
+                data.message ||
+                "Your report has been submitted for review.";
+
+            successBox.style.display =
+                "block";
+        }
+
+
+        submitButton.textContent =
+            "Report Submitted";
+
+
+        setTimeout(
+            function() {
+
+                closeReportModal();
+
+            },
+            1200
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Report error:",
+            error
+        );
+
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                error.message ||
+                "Unable to submit the report.";
+
+            errorBox.style.display =
+                "block";
+        }
+
+
+        submitButton.disabled =
+            false;
+
+        submitButton.textContent =
+            "Submit Report";
+    }
+}
+
+
+/* ============================================================
+   CLOSE REPORT MODAL WITH ESC
+============================================================ */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            const modal =
+                document.getElementById(
+                    "reportModal"
+                );
+
+            if (
+                modal &&
+                modal.classList.contains(
+                    "open"
+                )
+            ) {
+
+                closeReportModal();
+            }
+        }
+    }
+);
+/* ============================================================
+   OPEN SPECIFIC REPORTED POST
+   Supports: /feed?post=34
+============================================================ */
+
+function openTargetPostFromUrl() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const postId =
+        params.get("post");
+
+    if (!postId) {
+        return;
+    }
+
+    const targetPost =
+        document.getElementById(
+            `post-${postId}`
+        );
+
+    if (!targetPost) {
+
+        console.warn(
+            `Reported post #${postId} is not currently rendered in the feed.`
+        );
+
+        return;
+    }
+
+    /* Remove any previous highlight */
+    document
+        .querySelectorAll(".reported-post-highlight")
+        .forEach(
+            post => {
+                post.classList.remove(
+                    "reported-post-highlight"
+                );
+            }
+        );
+
+    /* Highlight the reported post */
+    targetPost.classList.add(
+        "reported-post-highlight"
+    );
+
+    /* Scroll to the exact post */
+    setTimeout(
+        function() {
+
+            targetPost.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+        },
+        150
+    );
+
+    /* Remove highlight after a few seconds */
+    setTimeout(
+        function() {
+
+            targetPost.classList.remove(
+                "reported-post-highlight"
+            );
+
+        },
+        5000
+    );
+}
+
+
+/* Run after the feed has rendered */
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        openTargetPostFromUrl
+    );
+
+} else {
+
+    openTargetPostFromUrl();
+
+}
 </script>
 
 </body>

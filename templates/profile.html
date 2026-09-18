@@ -1,1101 +1,1781 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>{{ user["name"] }} - UniCamplink</title>
+<title>{{ user["name"] }} - UniCamplink</title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
 
-    <style>
+<style>
 
-        /* =========================================================
-           RAZOR PROFILE — UNICAMPLINK
-           Facebook / TikTok inspired social profile
-        ========================================================= */
+    /* =========================================================
+       RAZOR PROFILE
+       Facebook / TikTok inspired social-app profile
+       UniCamplink original branding
+    ========================================================= */
 
-        * {
-            box-sizing: border-box;
-        }
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        min-width: 0;
+        padding-bottom: 80px;
+        background: var(--bg, #f4f7fb);
+        color: var(--text, #0f172a);
+    }
+
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button,
+    a {
+        touch-action: manipulation;
+    }
+
+
+    /* =========================================================
+       TOP APP BAR
+    ========================================================= */
+
+    .razor-profile-navbar {
+
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+
+        width: 100%;
+
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+
+        min-height: 58px;
+
+        padding:
+            8px 16px;
+
+        background:
+            var(--nav, rgba(255,255,255,.95));
+
+        border-bottom:
+            1px solid var(--border);
+
+        box-shadow:
+            0 5px 22px rgba(15,23,42,.07);
+
+        backdrop-filter:
+            blur(18px);
+
+        -webkit-backdrop-filter:
+            blur(18px);
+    }
+
+
+    .profile-nav-logo {
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 8px;
+
+        min-width: 0;
+
+        color:
+            var(--text);
+
+        text-decoration: none;
+
+        font-size: 19px;
+        font-weight: 900;
+
+        letter-spacing: -.5px;
+    }
+
+
+    .profile-nav-logo img {
+
+        width: 38px;
+        height: 38px;
+
+        flex: 0 0 38px;
+
+        object-fit: contain;
+    }
+
+
+    .profile-nav-spacer {
+        flex: 1;
+    }
+
+
+    .profile-nav-action {
+
+        width: 40px;
+        height: 40px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background:
+            var(--surface-2);
+
+        border:
+            1px solid var(--border);
+
+        color:
+            var(--text);
+
+        text-decoration: none;
+
+        font-size: 18px;
+
+        transition:
+            transform .18s ease,
+            background .18s ease;
+    }
+
+
+    .profile-nav-action:hover {
+        transform: translateY(-1px);
+    }
+
+
+    .profile-nav-action:active {
+        transform: scale(.94);
+    }
+
+
+    /* =========================================================
+       MAIN PROFILE LAYOUT
+    ========================================================= */
+
+    .razor-profile-page {
+
+        width:
+            min(100%, 1050px);
+
+        margin:
+            0 auto;
+
+        padding:
+            18px 16px 40px;
+    }
+
+
+    /* =========================================================
+       PROFILE HERO
+    ========================================================= */
+
+    .profile-hero {
+
+        position: relative;
+
+        width: 100%;
+
+        overflow: hidden;
+
+        border:
+            1px solid var(--border);
+
+        border-radius: 22px;
+
+        background:
+            var(--surface);
+
+        box-shadow:
+            var(--shadow);
+
+    }
+
+
+    /* =========================================================
+       COVER
+    ========================================================= */
+
+    .profile-cover {
+
+        position: relative;
+
+        width: 100%;
+        height: 190px;
+
+        overflow: hidden;
+
+        background:
+            linear-gradient(
+                135deg,
+                #38bdf8 0%,
+                #0ea5e9 48%,
+                #2563eb 100%
+            );
+    }
+
+
+    .profile-cover::before {
+
+        content: "";
+
+        position: absolute;
+
+        width: 300px;
+        height: 300px;
+
+        top: -180px;
+        right: -60px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(255,255,255,.13);
+    }
+
+
+    .profile-cover::after {
+
+        content: "";
+
+        position: absolute;
+
+        width: 220px;
+        height: 220px;
+
+        bottom: -150px;
+        left: -40px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(255,255,255,.10);
+    }
+
+
+    .profile-cover-label {
+
+        position: absolute;
+
+        right: 16px;
+        bottom: 14px;
+
+        z-index: 2;
+
+        padding:
+            7px 11px;
+
+        border-radius: 999px;
+
+        background:
+            rgba(0,0,0,.18);
+
+        color: white;
+
+        font-size: 11px;
+        font-weight: 750;
+
+        backdrop-filter:
+            blur(8px);
+    }
+
+
+    /* =========================================================
+       PROFILE MAIN CONTENT
+    ========================================================= */
+
+    .profile-main {
+
+        position: relative;
+
+        padding:
+            0 28px 26px;
+    }
+
+
+    /* =========================================================
+       PROFILE IMAGE
+    ========================================================= */
+
+    .profile-picture-area {
+
+        position: relative;
+
+        width: fit-content;
+
+        margin-top: -67px;
+
+        z-index: 5;
+    }
+
+
+    .profile-image,
+    .profile-avatar {
+
+        width: 134px;
+        height: 134px;
+
+        border-radius: 50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border:
+            6px solid var(--surface);
+
+        box-shadow:
+            0 8px 28px rgba(15,23,42,.22);
+
+        overflow: hidden;
+    }
+
+
+    .profile-image {
+
+        object-fit: cover;
+
+        display: block;
+    }
+
+
+    .profile-avatar {
+
+        background:
+            linear-gradient(
+                135deg,
+                #e0f2fe,
+                #bae6fd
+            );
+
+        font-size: 54px;
+    }
+
+
+    .profile-status-dot {
+
+        position: absolute;
+
+        right: 6px;
+        bottom: 8px;
+
+        width: 24px;
+        height: 24px;
+
+        border-radius: 50%;
+
+        background: #22c55e;
+
+        border:
+            4px solid var(--surface);
+
+        box-shadow:
+            0 3px 10px rgba(34,197,94,.35);
+    }
+
+
+    /* =========================================================
+       PROFILE IDENTITY ROW
+    ========================================================= */
+
+    .profile-identity {
+
+        display: flex;
+
+        justify-content: space-between;
+        align-items: flex-start;
+
+        gap: 18px;
+
+        margin-top: 10px;
+    }
+
+
+    .profile-identity-main {
+
+        min-width: 0;
+    }
+
+
+    .profile-name {
+
+        margin:
+            0;
+
+        font-size:
+            clamp(25px, 4vw, 34px);
+
+        line-height:
+            1.12;
+
+        font-weight:
+            900;
+
+        letter-spacing:
+            -.8px;
+
+        overflow-wrap:
+            anywhere;
+    }
+
+
+    .profile-handle {
+
+        margin-top:
+            5px;
+
+        font-size:
+            13px;
+
+        color:
+            var(--muted);
+
+        overflow-wrap:
+            anywhere;
+    }
+
+
+    .profile-edit-area {
+
+        flex:
+            0 0 auto;
+    }
+
+
+    .edit-profile-btn {
+
+        min-height:
+            42px;
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        padding:
+            0 17px;
+
+        border-radius:
+            11px;
+
+        background:
+            #38bdf8;
+
+        color:
+            #082f49 !important;
+
+        text-decoration:
+            none;
+
+        font-size:
+            13px;
+
+        font-weight:
+            850;
+
+        box-shadow:
+            0 7px 20px rgba(56,189,248,.20);
+
+        transition:
+            transform .18s ease,
+            box-shadow .18s ease;
+    }
+
+
+    .edit-profile-btn:hover {
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            0 10px 25px rgba(56,189,248,.28);
+    }
+
+
+    /* =========================================================
+       BADGES
+    ========================================================= */
+
+    .profile-badges {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        flex-wrap:
+            wrap;
+
+        gap:
+            7px;
+
+        margin:
+            12px 0 10px;
+    }
+
+
+    .verified-student-badge,
+    .campus-ambassador-badge {
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        gap:
+            6px;
+
+        min-height:
+            30px;
+
+        padding:
+            5px 10px;
+
+        border-radius:
+            999px;
+
+        color:
+            white;
+
+        font-size:
+            11px;
+
+        font-weight:
+            800;
+
+        line-height:
+            1.2;
+    }
+
+
+    .verified-student-badge {
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #38bdf8
+            );
+
+        box-shadow:
+            0 4px 13px rgba(37,99,235,.18);
+    }
+
+
+    .campus-ambassador-badge {
+
+        background:
+            linear-gradient(
+                135deg,
+                #f59e0b,
+                #f97316
+            );
+
+        box-shadow:
+            0 4px 13px rgba(245,158,11,.18);
+    }
+
+
+    .verified-student-icon {
+
+        width:
+            18px;
+
+        height:
+            18px;
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        border-radius:
+            50%;
+
+        background:
+            white;
+
+        color:
+            #2563eb;
+
+        font-size:
+            11px;
+
+        font-weight:
+            900;
+    }
+
+
+    /* =========================================================
+       PROFILE BIO
+    ========================================================= */
+
+    .profile-bio {
+
+        max-width:
+            680px;
+
+        margin:
+            9px 0 12px;
+
+        font-size:
+            14px;
+
+        line-height:
+            1.6;
+
+        color:
+            var(--text);
+
+        opacity:
+            .84;
+
+        white-space:
+            pre-wrap;
+
+        overflow-wrap:
+            anywhere;
+    }
+
+
+    .profile-bio.empty {
+        color:
+            var(--muted);
+    }
+
+
+    /* =========================================================
+       PROFILE INFO
+    ========================================================= */
+
+    .profile-info-row {
+
+        display:
+            flex;
+
+        flex-wrap:
+            wrap;
+
+        gap:
+            8px 15px;
+
+        margin-top:
+            10px;
+    }
+
+
+    .profile-info-item {
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        gap:
+            6px;
+
+        font-size:
+            12px;
+
+        color:
+            var(--muted);
+    }
+
+
+    /* =========================================================
+       AMBASSADOR CARD
+    ========================================================= */
+
+    .campus-ambassador-details {
+
+        width:
+            min(100%, 570px);
+
+        margin:
+            15px 0 0;
+
+        padding:
+            13px 15px;
+
+        border-radius:
+            14px;
+
+        background:
+            rgba(245,158,11,.07);
+
+        border:
+            1px solid rgba(245,158,11,.20);
+    }
+
+
+    .campus-ambassador-details-title {
+
+        margin-bottom:
+            7px;
+
+        color:
+            #f59e0b;
+
+        font-size:
+            12px;
+
+        font-weight:
+            850;
+    }
+
+
+    .campus-ambassador-details p {
+
+        margin:
+            4px 0;
+
+        font-size:
+            12px;
+
+        line-height:
+            1.5;
+    }
+
+
+    .campus-ambassador-details strong {
+        color:
+            #f59e0b;
+    }
+
+
+    /* =========================================================
+       PROFILE STATS
+    ========================================================= */
+
+    .profile-stats {
+
+        display:
+            flex;
+
+        align-items:
+            stretch;
+
+        width:
+            min(100%, 520px);
+
+        margin:
+            20px 0 0;
+
+        padding:
+            13px 0;
+
+        border-top:
+            1px solid var(--border);
+
+        border-bottom:
+            1px solid var(--border);
+    }
+
+
+    .stat {
+
+        flex:
+            1;
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        min-height:
+            50px;
+
+        padding:
+            4px 15px;
+
+        border-right:
+            1px solid var(--border);
+    }
+
+
+    .stat:last-child {
+        border-right:
+            none;
+    }
+
+
+    .stat strong {
+
+        font-size:
+            20px;
+
+        font-weight:
+            900;
+
+        line-height:
+            1.1;
+    }
+
+
+    .stat span {
+
+        margin-top:
+            4px;
+
+        font-size:
+            11px;
+
+        color:
+            var(--muted);
+
+        font-weight:
+            600;
+    }
+
+
+    /* =========================================================
+       CONTENT AREA
+    ========================================================= */
+
+    .profile-content-grid {
+
+        display:
+            grid;
+
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        width:
+            100%;
+
+        margin-top:
+            20px;
+    }
+
+
+    /* =========================================================
+       POSTS HEADER
+    ========================================================= */
+
+    .profile-posts-header {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            space-between;
+
+        gap:
+            12px;
+
+        padding:
+            0 3px 10px;
+    }
+
+
+    .profile-posts-title {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        gap:
+            8px;
+
+        margin:
+            0;
+
+        font-size:
+            20px;
+
+        font-weight:
+            900;
+
+        letter-spacing:
+            -.3px;
+    }
+
+
+    .profile-posts-title-icon {
+
+        width:
+            34px;
+
+        height:
+            34px;
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        border-radius:
+            10px;
+
+        background:
+            var(--primary-soft, rgba(56,189,248,.12));
+
+        font-size:
+            17px;
+    }
+
+
+    .profile-posts-subtitle {
+
+        font-size:
+            11px;
+
+        color:
+            var(--muted);
+    }
+
+
+    /* =========================================================
+       POST CARD
+    ========================================================= */
+
+    .profile-posts .post-card {
+
+        position:
+            relative;
+
+        width:
+            100%;
+
+        margin-bottom:
+            12px;
+
+        padding:
+            17px;
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            17px;
+
+        background:
+            var(--surface);
+
+        box-shadow:
+            var(--shadow-sm);
+
+        transition:
+            box-shadow .18s ease,
+            transform .18s ease;
+    }
+
+
+    .profile-posts .post-card:hover {
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            var(--shadow);
+    }
+
+
+    /* =========================================================
+       POST AUTHOR
+    ========================================================= */
+
+    .post-author-row {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        gap:
+            10px;
+
+        margin-bottom:
+            12px;
+    }
+
+
+    .post-mini-avatar {
+
+        width:
+            40px;
+
+        height:
+            40px;
+
+        flex:
+            0 0 40px;
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        overflow:
+            hidden;
+
+        border-radius:
+            50%;
+
+        background:
+            linear-gradient(
+                135deg,
+                #e0f2fe,
+                #bae6fd
+            );
+
+        font-size:
+            17px;
+    }
+
+
+    .post-mini-avatar img {
+
+        width:
+            100%;
+
+        height:
+            100%;
+
+        object-fit:
+            cover;
+    }
+
+
+    .post-author-info {
+
+        min-width:
+            0;
+
+        flex:
+            1;
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
+    }
+
+
+    .post-author-name {
+
+        font-size:
+            13px;
+
+        font-weight:
+            850;
+
+        overflow-wrap:
+            anywhere;
+    }
+
+
+    .post-time {
+
+        margin-top:
+            2px;
+
+        font-size:
+            11px;
+
+        color:
+            var(--muted);
+    }
+
+
+    /* =========================================================
+       POST CONTENT
+    ========================================================= */
+
+    .profile-posts .post-card p {
+
+        margin:
+            0;
+
+        font-size:
+            14px;
+
+        line-height:
+            1.65;
+
+        white-space:
+            pre-wrap;
+
+        overflow-wrap:
+            anywhere;
+    }
+
+
+    /* =========================================================
+       POST FOOTER
+    ========================================================= */
+
+    .post-card-footer {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            space-between;
+
+        gap:
+            10px;
+
+        margin-top:
+            15px;
+
+        padding-top:
+            11px;
+
+        border-top:
+            1px solid var(--border-soft, var(--border));
+
+        color:
+            var(--muted);
+
+        font-size:
+            11px;
+    }
+
+
+    .post-card-label {
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        gap:
+            5px;
+    }
+
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
+
+    .profile-empty-state {
+
+        padding:
+            42px 20px;
+
+        text-align:
+            center;
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            18px;
+
+        background:
+            var(--surface);
+
+        box-shadow:
+            var(--shadow-sm);
+    }
+
+
+    .profile-empty-icon {
+
+        width:
+            62px;
+
+        height:
+            62px;
+
+        margin:
+            0 auto 13px;
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        border-radius:
+            50%;
+
+        background:
+            var(--primary-soft, rgba(56,189,248,.12));
+
+        font-size:
+            27px;
+    }
+
+
+    .profile-empty-state strong {
+
+        display:
+            block;
+
+        margin-bottom:
+            5px;
+
+        font-size:
+            15px;
+    }
+
+
+    .profile-empty-state span {
+
+        font-size:
+            12px;
+
+        color:
+            var(--muted);
+    }
+
+
+    /* =========================================================
+       MOBILE BOTTOM NAV
+    ========================================================= */
+
+    .mobile-profile-nav {
+
+        display:
+            none;
+    }
+
+
+    /* =========================================================
+       TABLET / MOBILE
+    ========================================================= */
+
+    @media (max-width: 760px) {
 
         body {
-            margin: 0;
-            min-width: 0;
+            padding-bottom:
+                78px;
         }
 
 
-        /* =========================================================
-           NAVIGATION
-        ========================================================= */
+        .razor-profile-navbar {
 
-        .navbar {
-            display: flex !important;
-            align-items: center !important;
+            min-height:
+                56px;
 
-            width: 100%;
-            min-width: 0;
+            padding:
+                7px 11px;
 
-            gap: 14px;
-
-            padding: 9px 16px;
-
-            background: #38bdf8;
-
-            box-shadow:
-                0 4px 18px rgba(14, 165, 233, 0.22);
-
-            position: sticky;
-            top: 0;
-
-            z-index: 1000;
-
-            overflow: hidden;
-        }
-
-        .navbar .logo {
-            display: flex !important;
-            align-items: center !important;
-
-            flex: 0 0 auto;
-            min-width: 0;
-
-            gap: 8px;
-
-            color: white !important;
-
-            font-size: 23px;
-            font-weight: 850;
-
-            text-decoration: none;
-
-            white-space: nowrap;
-        }
-
-        .navbar .logo img {
-            width: 42px;
-            height: 42px;
-
-            flex: 0 0 42px;
-
-            display: block;
-
-            object-fit: contain;
-        }
-
-        .navbar .logo span {
-            white-space: nowrap;
+            gap:
+                8px;
         }
 
 
-        .nav-links {
-            display: flex !important;
-            align-items: center !important;
+        .profile-nav-logo {
 
-            gap: 4px;
-
-            flex: 1 1 auto;
-
-            min-width: 0;
-
-            overflow-x: auto;
-            overflow-y: hidden;
-
-            scrollbar-width: none;
-
-            white-space: nowrap;
-        }
-
-        .nav-links::-webkit-scrollbar {
-            display: none;
-        }
-
-        .nav-links > a,
-        .nav-links > form {
-            flex: 0 0 auto;
-        }
-
-        .nav-links a {
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            min-height: 38px;
-
-            padding: 8px 10px;
-
-            color: white !important;
-
-            text-decoration: none;
-
-            font-size: 13px;
-            font-weight: 650;
-
-            border-radius: 10px;
-
-            white-space: nowrap;
-
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .nav-links a:hover {
-            background:
-                rgba(255, 255, 255, 0.18);
-
-            transform: translateY(-1px);
+            font-size:
+                17px;
         }
 
 
-        .logout-button {
-            display: inline-flex;
+        .profile-nav-logo img {
 
-            align-items: center;
-            justify-content: center;
+            width:
+                37px;
 
-            min-height: 38px;
-
-            padding: 8px 10px;
-
-            background: transparent;
-
-            border: none;
-
-            border-radius: 10px;
-
-            color: white;
-
-            font-family: inherit;
-
-            font-size: 13px;
-            font-weight: 650;
-
-            cursor: pointer;
-
-            white-space: nowrap;
-
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .logout-button:hover {
-            background:
-                rgba(255, 255, 255, 0.18);
-
-            transform: translateY(-1px);
+            height:
+                37px;
         }
 
 
-        /* =========================================================
-           PROFILE PAGE
-        ========================================================= */
+        .profile-nav-action {
 
-        .profile-container {
-            width: min(950px, calc(100% - 24px));
+            width:
+                38px;
 
-            margin: 24px auto 60px;
-
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: center;
+            height:
+                38px;
         }
 
 
-        /* =========================================================
-           PROFILE CARD
-        ========================================================= */
+        .razor-profile-page {
 
-        .profile-card {
-            width: min(720px, 100%);
-
-            padding: 34px 28px 28px;
-
-            text-align: center;
-
-            border-radius: 26px;
-
-            background:
-                var(--card-bg, #ffffff);
-
-            border:
-                1px solid rgba(148, 163, 184, 0.20);
-
-            box-shadow:
-                0 15px 45px rgba(15, 23, 42, 0.08);
-
-            overflow: hidden;
-
-            position: relative;
+            padding:
+                8px 8px 25px;
         }
 
 
-        /* =========================================================
-           PROFILE COVER ACCENT
-        ========================================================= */
+        .profile-hero {
+
+            border-radius:
+                17px;
+        }
+
 
         .profile-cover {
-            position: absolute;
 
-            top: 0;
-            left: 0;
-
-            width: 100%;
-            height: 105px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #38bdf8,
-                    #0ea5e9,
-                    #2563eb
-                );
-
-            opacity: 0.95;
-        }
-
-        .profile-cover::after {
-            content: "";
-
-            position: absolute;
-
-            left: 0;
-            right: 0;
-            bottom: -1px;
-
-            height: 45px;
-
-            background:
-                linear-gradient(
-                    to top,
-                    var(--card-bg, #ffffff),
-                    transparent
-                );
+            height:
+                145px;
         }
 
 
-        /* =========================================================
-           PROFILE IMAGE
-        ========================================================= */
+        .profile-main {
 
-        .profile-picture-wrapper {
-            position: relative;
-
-            z-index: 2;
-
-            width: fit-content;
-
-            margin: 30px auto 16px;
+            padding:
+                0 15px 21px;
         }
+
+
+        .profile-picture-area {
+
+            margin-top:
+                -58px;
+        }
+
 
         .profile-image,
         .profile-avatar {
 
-            width: 128px;
-            height: 128px;
+            width:
+                116px;
 
-            margin: 0 auto;
+            height:
+                116px;
 
-            border-radius: 50%;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
+            border-width:
+                5px;
         }
 
-        .profile-image {
-
-            object-fit: cover;
-
-            border:
-                5px solid var(--card-bg, #ffffff);
-
-            box-shadow:
-                0 8px 30px rgba(15, 23, 42, 0.20);
-        }
 
         .profile-avatar {
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #e0f2fe,
-                    #bae6fd
-                );
-
-            font-size: 52px;
-
-            border:
-                5px solid var(--card-bg, #ffffff);
-
-            box-shadow:
-                0 8px 30px rgba(15, 23, 42, 0.16);
+            font-size:
+                46px;
         }
 
-
-        /* =========================================================
-           ONLINE / PROFILE INDICATOR
-        ========================================================= */
 
         .profile-status-dot {
 
-            position: absolute;
+            width:
+                21px;
 
-            right: 7px;
-            bottom: 7px;
+            height:
+                21px;
 
-            width: 22px;
-            height: 22px;
+            right:
+                5px;
 
-            border-radius: 50%;
-
-            background: #22c55e;
-
-            border:
-                4px solid var(--card-bg, #ffffff);
-
-            box-shadow:
-                0 3px 10px rgba(34, 197, 94, 0.35);
+            bottom:
+                6px;
         }
 
 
-        /* =========================================================
-           PROFILE NAME
-        ========================================================= */
+        .profile-identity {
 
-        .profile-card h1 {
+            display:
+                block;
 
-            position: relative;
-
-            z-index: 2;
-
-            margin: 4px 0 7px;
-
-            font-size:
-                clamp(27px, 5vw, 35px);
-
-            font-weight: 850;
-
-            letter-spacing: -0.7px;
-
-            overflow-wrap: anywhere;
+            margin-top:
+                9px;
         }
 
 
-        /* =========================================================
-           PROFILE STATUS BADGES
-        ========================================================= */
+        .profile-edit-area {
 
-        .profile-badges {
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            flex-wrap: wrap;
-
-            gap: 8px;
-
-            margin: 10px auto 14px;
-
-            width: 100%;
+            margin-top:
+                12px;
         }
 
-
-        /* VERIFIED STUDENT */
-
-        .verified-student-badge {
-
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            gap: 7px;
-
-            padding: 8px 13px;
-
-            border-radius: 999px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #2563eb,
-                    #38bdf8
-                );
-
-            color: white;
-
-            font-size: 12px;
-
-            font-weight: 800;
-
-            line-height: 1.3;
-
-            box-shadow:
-                0 5px 16px
-                rgba(37, 99, 235, 0.22);
-
-            white-space: nowrap;
-        }
-
-        .verified-student-icon {
-
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            width: 19px;
-            height: 19px;
-
-            border-radius: 50%;
-
-            background: white;
-
-            color: #2563eb;
-
-            font-size: 12px;
-
-            font-weight: 900;
-        }
-
-
-        /* CAMPUS AMBASSADOR */
-
-        .campus-ambassador-badge {
-
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            gap: 7px;
-
-            padding: 8px 13px;
-
-            border-radius: 999px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #f59e0b,
-                    #f97316
-                );
-
-            color: white;
-
-            font-size: 12px;
-
-            font-weight: 800;
-
-            line-height: 1.3;
-
-            box-shadow:
-                0 5px 16px
-                rgba(245, 158, 11, 0.22);
-
-            white-space: nowrap;
-        }
-
-
-        /* =========================================================
-           AMBASSADOR DETAILS
-        ========================================================= */
-
-        .campus-ambassador-details {
-
-            margin: 8px auto 18px;
-
-            padding: 12px 16px;
-
-            width: min(440px, 100%);
-
-            box-sizing: border-box;
-
-            border-radius: 15px;
-
-            background:
-                rgba(245, 158, 11, 0.07);
-
-            border:
-                1px solid
-                rgba(245, 158, 11, 0.22);
-
-            text-align: center;
-        }
-
-        .campus-ambassador-details p {
-
-            margin: 5px 0;
-
-            font-size: 13px;
-
-            line-height: 1.5;
-        }
-
-        .campus-ambassador-details strong {
-
-            color: #f59e0b;
-        }
-
-
-        /* =========================================================
-           UNIVERSITY
-        ========================================================= */
-
-        .profile-card .university {
-
-            margin: 8px 0 10px;
-
-            font-size: 14px;
-
-            opacity: 0.72;
-
-            overflow-wrap: anywhere;
-        }
-
-
-        /* =========================================================
-           BIO
-        ========================================================= */
-
-        .profile-card .bio {
-
-            width: min(530px, 100%);
-
-            margin: 12px auto 20px;
-
-            line-height: 1.65;
-
-            font-size: 14px;
-
-            opacity: 0.76;
-
-            overflow-wrap: anywhere;
-        }
-
-
-        /* =========================================================
-           EDIT PROFILE
-        ========================================================= */
 
         .edit-profile-btn {
 
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            min-height: 44px;
-
-            padding: 0 21px;
-
-            border-radius: 13px;
-
-            background: #38bdf8;
-
-            color: #082f49 !important;
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            font-weight: 800;
-
-            box-shadow:
-                0 8px 22px
-                rgba(56, 189, 248, 0.20);
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .edit-profile-btn:hover {
-
-            transform:
-                translateY(-2px);
-
-            box-shadow:
-                0 12px 28px
-                rgba(56, 189, 248, 0.30);
+            width:
+                100%;
         }
 
 
-        /* =========================================================
-           PROFILE STATS
-        ========================================================= */
+        .profile-name {
+
+            font-size:
+                27px;
+        }
+
+
+        .profile-badges {
+            margin-top:
+                11px;
+        }
+
+
+        .profile-info-row {
+            gap:
+                7px 12px;
+        }
+
 
         .profile-stats {
 
-            display: grid;
+            width:
+                100%;
 
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            width: min(430px, 100%);
-
-            margin: 25px auto 0;
-
-            padding-top: 20px;
-
-            border-top:
-                1px solid
-                rgba(148, 163, 184, 0.20);
+            margin-top:
+                17px;
         }
 
-        .stat {
-
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: center;
-
-            gap: 4px;
-        }
-
-        .stat strong {
-
-            font-size: 21px;
-
-            font-weight: 850;
-        }
-
-        .stat span {
-
-            font-size: 12px;
-
-            opacity: 0.60;
-        }
-
-
-        /* =========================================================
-           POSTS SECTION
-        ========================================================= */
-
-        .profile-posts {
-
-            width: min(720px, 100%);
-
-            margin-top: 26px;
-        }
 
         .profile-posts-header {
 
-            display: flex;
-
-            align-items: center;
-            justify-content: space-between;
-
-            gap: 12px;
-
-            margin-bottom: 14px;
-
-            padding: 0 3px;
+            padding:
+                0 2px 9px;
         }
 
-        .profile-posts h2 {
 
-            margin: 0;
+        .profile-posts-title {
 
-            font-size: 21px;
-
-            font-weight: 850;
-
-            letter-spacing: -0.3px;
+            font-size:
+                18px;
         }
+
 
         .profile-posts-subtitle {
-
-            font-size: 12px;
-
-            opacity: 0.55;
+            display:
+                none;
         }
 
-
-        /* =========================================================
-           POST CARD
-        ========================================================= */
 
         .profile-posts .post-card {
 
-            padding: 19px;
+            padding:
+                15px;
 
-            margin-bottom: 13px;
+            border-radius:
+                15px;
+        }
 
-            border-radius: 18px;
+
+        /* Mobile social bottom bar */
+
+        .mobile-profile-nav {
+
+            position:
+                fixed;
+
+            left:
+                0;
+
+            right:
+                0;
+
+            bottom:
+                0;
+
+            z-index:
+                1100;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            height:
+                66px;
+
+            padding:
+                6px 7px;
 
             background:
-                var(--card-bg, #ffffff);
+                var(--nav, rgba(255,255,255,.96));
 
-            border:
-                1px solid
-                rgba(148, 163, 184, 0.18);
-
-            box-shadow:
-                0 7px 24px
-                rgba(15, 23, 42, 0.05);
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .profile-posts .post-card:hover {
-
-            transform:
-                translateY(-1px);
+            border-top:
+                1px solid var(--border);
 
             box-shadow:
-                0 10px 28px
-                rgba(15, 23, 42, 0.08);
+                0 -7px 25px rgba(15,23,42,.09);
+
+            backdrop-filter:
+                blur(18px);
+
+            -webkit-backdrop-filter:
+                blur(18px);
         }
 
-        .post-author-row {
 
-            display: flex;
+        .mobile-profile-nav a {
 
-            align-items: center;
+            display:
+                flex;
 
-            gap: 10px;
+            flex-direction:
+                column;
 
-            margin-bottom: 12px;
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                2px;
+
+            min-width:
+                0;
+
+            border-radius:
+                12px;
+
+            color:
+                var(--muted);
+
+            text-decoration:
+                none;
+
+            font-size:
+                10px;
+
+            font-weight:
+                700;
         }
 
-        .post-mini-avatar {
 
-            width: 38px;
-            height: 38px;
+        .mobile-profile-nav a span:first-child {
 
-            flex: 0 0 38px;
+            font-size:
+                19px;
 
-            border-radius: 50%;
+            line-height:
+                20px;
+        }
 
-            display: flex;
 
-            align-items: center;
-            justify-content: center;
+        .mobile-profile-nav a.active {
 
-            overflow: hidden;
+            color:
+                #0ea5e9;
 
             background:
-                linear-gradient(
-                    135deg,
-                    #e0f2fe,
-                    #bae6fd
-                );
+                var(--primary-soft, rgba(56,189,248,.12));
+        }
+    }
 
-            font-size: 17px;
+
+    /* =========================================================
+       SMALL PHONES
+    ========================================================= */
+
+    @media (max-width: 420px) {
+
+        .profile-cover {
+            height:
+                126px;
         }
 
-        .post-mini-avatar img {
 
-            width: 100%;
-            height: 100%;
-
-            object-fit: cover;
+        .profile-main {
+            padding:
+                0 12px 19px;
         }
 
-        .post-author-info {
 
-            min-width: 0;
-
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: flex-start;
+        .profile-picture-area {
+            margin-top:
+                -52px;
         }
 
-        .post-author-name {
 
-            font-size: 13px;
+        .profile-image,
+        .profile-avatar {
 
-            font-weight: 800;
+            width:
+                105px;
 
-            overflow-wrap: anywhere;
+            height:
+                105px;
         }
 
-        .post-time {
 
-            margin-top: 2px;
-
-            font-size: 11px;
-
-            opacity: 0.52;
+        .profile-avatar {
+            font-size:
+                42px;
         }
+
+
+        .profile-name {
+            font-size:
+                25px;
+        }
+
+
+        .profile-badges {
+
+            display:
+                flex;
+
+            align-items:
+                flex-start;
+        }
+
+
+        .verified-student-badge,
+        .campus-ambassador-badge {
+
+            font-size:
+                10px;
+
+            padding:
+                5px 8px;
+        }
+
+
+        .profile-info-row {
+
+            flex-direction:
+                column;
+
+            align-items:
+                flex-start;
+        }
+
+
+        .stat strong {
+            font-size:
+                18px;
+        }
+
+
+        .stat span {
+            font-size:
+                10px;
+        }
+
 
         .profile-posts .post-card p {
+            font-size:
+                13px;
+        }
+    }
 
-            margin: 0;
 
-            line-height: 1.65;
+    /* =========================================================
+       VERY SMALL PHONES
+    ========================================================= */
 
-            white-space: pre-wrap;
+    @media (max-width: 340px) {
 
-            overflow-wrap: anywhere;
-
-            font-size: 14px;
+        .profile-nav-logo {
+            font-size:
+                0;
         }
 
 
-        /* =========================================================
-           EMPTY POSTS
-        ========================================================= */
+        .profile-nav-logo img {
 
-        .profile-posts > p {
+            width:
+                36px;
 
-            padding: 30px 20px;
-
-            text-align: center;
-
-            border-radius: 18px;
-
-            background:
-                var(--card-bg, #ffffff);
-
-            border:
-                1px solid
-                rgba(148, 163, 184, 0.16);
-
-            opacity: 0.70;
-
-            font-size: 14px;
+            height:
+                36px;
         }
 
 
-        /* =========================================================
-           MOBILE
-        ========================================================= */
-
-        @media (max-width: 900px) {
-
-            .navbar {
-
-                gap: 10px;
-
-                padding:
-                    8px 10px;
-            }
-
-            .navbar .logo span {
-
-                display: none;
-            }
-
-            .navbar .logo img {
-
-                width: 40px;
-                height: 40px;
-            }
-
-            .nav-links {
-
-                gap: 3px;
-            }
-
-            .nav-links a,
-            .logout-button {
-
-                padding:
-                    8px 8px;
-
-                font-size: 12px;
-            }
-
-            .profile-card {
-
-                border-radius: 22px;
-            }
+        .profile-cover {
+            height:
+                115px;
         }
 
 
-        /* =========================================================
-           SMALL MOBILE
-        ========================================================= */
+        .profile-image,
+        .profile-avatar {
 
-        @media (max-width: 600px) {
+            width:
+                96px;
 
-            .profile-container {
-
-                width:
-                    calc(100% - 12px);
-
-                margin:
-                    16px auto 45px;
-            }
-
-            .profile-card {
-
-                padding:
-                    27px 15px 22px;
-
-                border-radius: 20px;
-            }
-
-            .profile-cover {
-
-                height: 88px;
-            }
-
-            .profile-picture-wrapper {
-
-                margin-top: 27px;
-            }
-
-            .profile-image,
-            .profile-avatar {
-
-                width: 108px;
-                height: 108px;
-            }
-
-            .profile-avatar {
-
-                font-size: 44px;
-            }
-
-            .profile-card h1 {
-
-                font-size: 27px;
-            }
-
-            .profile-badges {
-
-                gap: 7px;
-            }
-
-            .verified-student-badge,
-            .campus-ambassador-badge {
-
-                font-size: 11px;
-
-                padding:
-                    8px 11px;
-            }
-
-            .campus-ambassador-details {
-
-                padding:
-                    10px 12px;
-            }
-
-            .profile-posts {
-
-                margin-top: 20px;
-            }
-
-            .profile-posts .post-card {
-
-                padding: 16px;
-
-                border-radius: 16px;
-            }
+            height:
+                96px;
         }
 
 
-        /* =========================================================
-           VERY SMALL PHONES
-        ========================================================= */
-
-        @media (max-width: 380px) {
-
-            .navbar {
-
-                padding-left: 6px;
-                padding-right: 6px;
-            }
-
-            .navbar .logo img {
-
-                width: 36px;
-                height: 36px;
-            }
-
-            .nav-links a,
-            .logout-button {
-
-                padding:
-                    7px 7px;
-
-                font-size: 11px;
-            }
-
-            .profile-container {
-
-                width:
-                    calc(100% - 8px);
-            }
-
-            .profile-card {
-
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-
-            .profile-image,
-            .profile-avatar {
-
-                width: 100px;
-                height: 100px;
-            }
-
-            .profile-badges {
-
-                flex-direction: column;
-            }
-
-            .verified-student-badge,
-            .campus-ambassador-badge {
-
-                max-width: 100%;
-
-                white-space: normal;
-
-                text-align: center;
-            }
-
-            .profile-stats {
-
-                width: 100%;
-            }
+        .profile-picture-area {
+            margin-top:
+                -48px;
         }
 
-    </style>
+
+        .mobile-profile-nav a span:first-child {
+            font-size:
+                17px;
+        }
+
+
+        .mobile-profile-nav a {
+            font-size:
+                9px;
+        }
+    }
+
+</style>
 
 </head>
 
-
 <body>
 
-
 <!-- =========================================================
-     NAVIGATION
+     RAZOR TOP APP BAR
 ========================================================== -->
 
-<nav class="navbar">
+<nav class="razor-profile-navbar">
 
     <a
         href="{{ url_for('dashboard') }}"
-        class="logo"
-        aria-label="UniCamplink Dashboard"
+        class="profile-nav-logo"
+        aria-label="UniCamplink Home"
     >
 
         <img
@@ -1103,7 +1783,7 @@
                 'static',
                 filename='images/unicamplink-logo.png'
             ) }}"
-            alt="UniCamplink Logo"
+            alt="UniCamplink"
         >
 
         <span>
@@ -1113,399 +1793,484 @@
     </a>
 
 
-    <div class="nav-links">
-
-        <a href="{{ url_for('dashboard') }}">
-            Dashboard
-        </a>
-
-        <a href="{{ url_for('feed') }}">
-            Feed
-        </a>
-
-        <a href="{{ url_for('profile') }}">
-            Profile
-        </a>
-
-        <a href="{{ url_for('groups') }}">
-            Groups 👥
-        </a>
-
-        <a href="{{ url_for('search_students') }}">
-            Search 🔍
-        </a>
-
-        <a href="{{ url_for('messages') }}">
-            Messages 💬
-        </a>
-
-        <a href="{{ url_for('marketplace') }}">
-            Marketplace 🛒
-        </a>
+    <div class="profile-nav-spacer"></div>
 
 
-        <form
-            action="{{ url_for('logout') }}"
-            method="POST"
-            style="display:inline; flex:0 0 auto;"
-        >
+    <a
+        href="{{ url_for('feed') }}"
+        class="profile-nav-action"
+        title="Feed"
+        aria-label="Feed"
+    >
+        📰
+    </a>
 
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{ csrf_token() }}"
-            >
 
-            <button
-                type="submit"
-                class="logout-button"
-            >
-                Logout
-            </button>
-
-        </form>
-
-    </div>
+    <a
+        href="{{ url_for('messages') }}"
+        class="profile-nav-action"
+        title="Messages"
+        aria-label="Messages"
+    >
+        💬
+    </a>
 
 </nav>
 
 
 <!-- =========================================================
-     PROFILE
+     PROFILE PAGE
 ========================================================== -->
 
-<main class="profile-container">
+<main class="razor-profile-page">
 
 
-    <div class="profile-card">
+    <section class="profile-hero">
 
 
-        <!-- PROFILE COVER -->
+        <!-- COVER -->
 
-        <div class="profile-cover"></div>
+        <div class="profile-cover">
 
-
-        <!-- PROFILE PICTURE -->
-
-        <div class="profile-picture-wrapper">
-
-            {% if user["profile_picture"] %}
-
-                <img
-                    src="{{ url_for(
-                        'static',
-                        filename='uploads/' + user['profile_picture']
-                    ) }}"
-                    alt="Profile Picture"
-                    class="profile-image"
-                >
-
-            {% else %}
-
-                <div class="profile-avatar">
-                    👤
-                </div>
-
-            {% endif %}
-
-
-            <span
-                class="profile-status-dot"
-                title="UniCamplink member"
-            ></span>
+            <div class="profile-cover-label">
+                🎓 UniCamplink Student
+            </div>
 
         </div>
 
 
-        <!-- NAME -->
+        <!-- PROFILE MAIN -->
 
-        <h1>
-            {{ user["name"] }}
-        </h1>
+        <div class="profile-main">
 
 
-        <!-- =====================================================
-             VERIFICATION / STATUS BADGES
-        ====================================================== -->
+            <!-- PROFILE IMAGE -->
 
-        <div class="profile-badges">
+            <div class="profile-picture-area">
 
+                {% if user["profile_picture"] %}
 
-            <!-- VERIFIED STUDENT -->
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/' + user['profile_picture']
+                        ) }}"
+                        alt="Profile Picture"
+                        class="profile-image"
+                    >
 
-            {% if user["is_verified_student"] %}
+                {% else %}
 
-                <div
-                    class="verified-student-badge"
-                    title="This student has been verified by UniCamplink"
-                >
-
-                    <span class="verified-student-icon">
-                        ✓
-                    </span>
-
-                    Verified Student
-
-                </div>
-
-            {% endif %}
-
-
-            <!-- CAMPUS AMBASSADOR -->
-
-            {% if campus_ambassador %}
-
-                <div
-                    class="campus-ambassador-badge"
-                    title="Official UniCamplink Campus Ambassador"
-                >
-
-                    🏅
-
-                    Official Campus Ambassador
-
-                </div>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- =====================================================
-             CAMPUS AMBASSADOR DETAILS
-        ====================================================== -->
-
-        {% if campus_ambassador %}
-
-            <div class="campus-ambassador-details">
-
-
-                {% if campus_ambassador["campus"] %}
-
-                    <p>
-
-                        📍
-
-                        <strong>
-                            Campus:
-                        </strong>
-
-                        {{ campus_ambassador["campus"] }}
-
-                    </p>
+                    <div class="profile-avatar">
+                        👤
+                    </div>
 
                 {% endif %}
 
 
-                {% if campus_ambassador["school"] %}
-
-                    <p>
-
-                        🏫
-
-                        <strong>
-                            School:
-                        </strong>
-
-                        {{ campus_ambassador["school"] }}
-
-                    </p>
-
-                {% endif %}
-
-
-            </div>
-
-        {% endif %}
-
-
-        <!-- =====================================================
-             UNIVERSITY
-        ====================================================== -->
-
-        <p class="university">
-
-            🏫
-
-            {{ user["university"] }}
-
-        </p>
-
-
-        <!-- =====================================================
-             BIO
-        ====================================================== -->
-
-        {% if user["bio"] %}
-
-            <p class="bio">
-
-                {{ user["bio"] }}
-
-            </p>
-
-        {% else %}
-
-            <p class="bio">
-
-                No bio added yet.
-
-            </p>
-
-        {% endif %}
-
-
-        <!-- =====================================================
-             EDIT PROFILE
-        ====================================================== -->
-
-        {% if is_owner %}
-    <a
-        href="{{ url_for('edit_profile') }}"
-        class="edit-profile-btn"
-    >
-        ✏️ Edit Profile
-    </a>
-{% endif %}
-
-
-        <!-- =====================================================
-             PROFILE STATS
-        ====================================================== -->
-
-        <div class="profile-stats">
-
-
-            <div class="stat">
-
-                <strong>
-                    {{ post_count }}
-                </strong>
-
-                <span>
-                    Posts
-                </span>
+                <span
+                    class="profile-status-dot"
+                    title="UniCamplink member"
+                ></span>
 
             </div>
 
 
-            <div class="stat">
+            <!-- IDENTITY -->
 
-                <strong>
-                    {{ total_likes }}
-                </strong>
-
-                <span>
-                    Total Likes
-                </span>
-
-            </div>
+            <div class="profile-identity">
 
 
-        </div>
+                <div class="profile-identity-main">
+
+                    <h1 class="profile-name">
+                        {{ user["name"] }}
+                    </h1>
 
 
-    </div>
+                    <div class="profile-handle">
+                        @{{ user["name"]|lower|replace(" ", "") }}
+                    </div>
 
 
-    <!-- =========================================================
-         USER POSTS
-    ========================================================== -->
+                    <!-- BADGES -->
 
-    <section class="profile-posts">
+                    <div class="profile-badges">
 
+                        {% if user["is_verified_student"] %}
 
-        <div class="profile-posts-header">
+                            <div
+                                class="verified-student-badge"
+                                title="This student has been verified by UniCamplink"
+                            >
 
-            <h2>
-                {{ user["name"] }}'s Posts
-            </h2>
+                                <span class="verified-student-icon">
+                                    ✓
+                                </span>
 
-            <span class="profile-posts-subtitle">
-                Recent activity
-            </span>
+                                Verified Student
 
-        </div>
+                            </div>
 
-
-        {% if posts %}
-
-
-            {% for post in posts %}
+                        {% endif %}
 
 
-                <div class="post-card">
+                        {% if campus_ambassador %}
+
+                            <div
+                                class="campus-ambassador-badge"
+                                title="Official UniCamplink Campus Ambassador"
+                            >
+
+                                🏅
+
+                                Official Campus Ambassador
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
 
 
-                    <div class="post-author-row">
+                    <!-- BIO -->
+
+                    {% if user["bio"] %}
+
+                        <p class="profile-bio">
+                            {{ user["bio"] }}
+                        </p>
+
+                    {% else %}
+
+                        <p class="profile-bio empty">
+                            No bio added yet.
+                        </p>
+
+                    {% endif %}
 
 
-                        <div class="post-mini-avatar">
+                    <!-- INFO -->
 
-                            {% if user["profile_picture"] %}
+                    <div class="profile-info-row">
 
-                                <img
-                                    src="{{ url_for(
-                                        'static',
-                                        filename='uploads/' + user['profile_picture']
-                                    ) }}"
-                                    alt=""
-                                >
+                        {% if user["university"] %}
 
-                            {% else %}
+                            <div class="profile-info-item">
+                                🏫
+                                <span>
+                                    {{ user["university"] }}
+                                </span>
+                            </div>
 
-                                👤
+                        {% endif %}
+
+                        <div class="profile-info-item">
+                            🎓
+                            <span>
+                                UniCamplink Student
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- AMBASSADOR DETAILS -->
+
+                    {% if campus_ambassador %}
+
+                        <div class="campus-ambassador-details">
+
+                            <div class="campus-ambassador-details-title">
+                                🏅 Official UniCamplink Campus Ambassador
+                            </div>
+
+
+                            {% if campus_ambassador["campus"] %}
+
+                                <p>
+
+                                    📍
+
+                                    <strong>
+                                        Campus:
+                                    </strong>
+
+                                    {{ campus_ambassador["campus"] }}
+
+                                </p>
+
+                            {% endif %}
+
+
+                            {% if campus_ambassador["school"] %}
+
+                                <p>
+
+                                    🏫
+
+                                    <strong>
+                                        School:
+                                    </strong>
+
+                                    {{ campus_ambassador["school"] }}
+
+                                </p>
 
                             {% endif %}
 
                         </div>
 
-
-                        <div class="post-author-info">
-
-                            <span class="post-author-name">
-                                {{ user["name"] }}
-                            </span>
-
-                            <span class="post-time">
-
-                                {{ post["created_at"]|nigeria_time }}
-
-                            </span>
-
-                        </div>
-
-
-                    </div>
-
-
-                    <p>
-                        {{ post["content"] }}
-                    </p>
-
+                    {% endif %}
 
                 </div>
 
 
-            {% endfor %}
+                <!-- EDIT PROFILE -->
+
+                {% if is_owner %}
+
+                    <div class="profile-edit-area">
+
+                        <a
+                            href="{{ url_for('edit_profile') }}"
+                            class="edit-profile-btn"
+                        >
+                            ✏️ Edit Profile
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
 
 
-        {% else %}
+            <!-- STATS -->
+
+            <div class="profile-stats">
+
+                <div class="stat">
+
+                    <strong>
+                        {{ post_count }}
+                    </strong>
+
+                    <span>
+                        Posts
+                    </span>
+
+                </div>
 
 
-            <p>
-                {{ user["name"] }} hasn't created any posts yet.
-            </p>
+                <div class="stat">
 
+                    <strong>
+                        {{ total_likes }}
+                    </strong>
 
-        {% endif %}
+                    <span>
+                        Likes
+                    </span>
 
+                </div>
+
+            </div>
+
+        </div>
 
     </section>
 
 
+    <!-- =====================================================
+         POSTS
+    ====================================================== -->
+
+    <section class="profile-content-grid">
+
+        <div class="profile-posts">
+
+
+            <div class="profile-posts-header">
+
+                <h2 class="profile-posts-title">
+
+                    <span class="profile-posts-title-icon">
+                        📰
+                    </span>
+
+                    Posts
+
+                </h2>
+
+
+                <span class="profile-posts-subtitle">
+                    Recent activity
+                </span>
+
+            </div>
+
+
+            {% if posts %}
+
+
+                {% for post in posts %}
+
+                    <article class="post-card">
+
+
+                        <div class="post-author-row">
+
+
+                            <div class="post-mini-avatar">
+
+                                {% if user["profile_picture"] %}
+
+                                    <img
+                                        src="{{ url_for(
+                                            'static',
+                                            filename='uploads/' + user['profile_picture']
+                                        ) }}"
+                                        alt=""
+                                    >
+
+                                {% else %}
+
+                                    👤
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="post-author-info">
+
+                                <span class="post-author-name">
+
+                                    {{ user["name"] }}
+
+                                </span>
+
+
+                                <span class="post-time">
+
+                                    {{ post["created_at"]|nigeria_time }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <p>
+                            {{ post["content"] }}
+                        </p>
+
+
+                        <div class="post-card-footer">
+
+                            <span class="post-card-label">
+                                🌐 UniCamplink
+                            </span>
+
+                            <span class="post-card-label">
+                                Student Community
+                            </span>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+
+            {% else %}
+
+
+                <div class="profile-empty-state">
+
+                    <div class="profile-empty-icon">
+                        📝
+                    </div>
+
+                    <strong>
+                        No posts yet
+                    </strong>
+
+                    <span>
+                        {{ user["name"] }} hasn't created any posts yet.
+                    </span>
+
+                </div>
+
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
 </main>
 
+
+<!-- =========================================================
+     MOBILE SOCIAL NAVIGATION
+========================================================== -->
+
+<nav class="mobile-profile-nav">
+
+    <a
+        href="{{ url_for('dashboard') }}"
+    >
+
+        <span>🏠</span>
+        <span>Home</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('feed') }}"
+    >
+
+        <span>📰</span>
+        <span>Feed</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('messages') }}"
+    >
+
+        <span>💬</span>
+        <span>Chats</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('search_students') }}"
+    >
+
+        <span>🔍</span>
+        <span>Search</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('profile') }}"
+        class="active"
+    >
+
+        <span>👤</span>
+        <span>Profile</span>
+
+    </a>
+
+</nav>
 
 </body>
 

@@ -1152,6 +1152,25 @@ def update_campus_ambassadors_table():
 
     conn.commit()
     conn.close()
+    def update_announcements_table():
+    conn = get_db_connection()
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS announcements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_by INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+
+    conn.commit()
+    conn.close()
 
 
 # ============================================================
@@ -1164,6 +1183,7 @@ update_posts_table()
 update_comments_table()
 update_advertisement_requests_table()
 update_campus_ambassadors_table()
+update_announcements_table()
 # ============================================================
 # USER ONLINE / LAST SEEN TRACKER
 # ============================================================
@@ -4748,6 +4768,355 @@ def admin_dashboard():
         pending_advertisements=pending_advertisements,
         total_ambassadors=total_ambassadors,
         recent_users=recent_users
+    )
+    # ============================================================
+# ADMIN — ANNOUNCEMENTS
+# ============================================================
+
+@app.route(
+    "/admin/announcements",
+    methods=["GET"]
+)
+def admin_announcements():
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    announcements = conn.execute(
+        """
+        SELECT
+            announcements.id,
+            announcements.title,
+            announcements.message,
+            announcements.is_active,
+            announcements.created_by,
+            announcements.created_at,
+            announcements.updated_at,
+            users.name AS creator_name
+        FROM announcements
+
+        LEFT JOIN users
+            ON users.id = announcements.created_by
+
+        ORDER BY
+            announcements.is_active DESC,
+            announcements.created_at DESC,
+            announcements.id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "admin_announcements.html",
+        current_user=current_user,
+        announcements=announcements
+    )
+
+
+# ============================================================
+# CREATE ANNOUNCEMENT
+# ============================================================
+
+@app.route(
+    "/admin/announcements/create",
+    methods=["POST"]
+)
+def admin_create_announcement():
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    title = clean_text(
+        request.form.get("title"),
+        150
+    )
+
+    message = clean_text(
+        request.form.get("message"),
+        3000
+    )
+
+    is_active = (
+        1
+        if request.form.get("is_active") == "1"
+        else 0
+    )
+
+    notify_users = (
+        request.form.get("notify_users") == "1"
+    )
+
+    if not title:
+        conn.close()
+        return "Announcement title is required.", 400
+
+    if not message:
+        conn.close()
+        return "Announcement message is required.", 400
+
+    cursor = conn.execute(
+        """
+        INSERT INTO announcements
+        (
+            title,
+            message,
+            is_active,
+            created_by
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            title,
+            message,
+            is_active,
+            current_user["id"]
+        )
+    )
+
+    announcement_id = cursor.lastrowid
+
+    # --------------------------------------------------------
+    # SEND POPUP NOTIFICATION
+    # --------------------------------------------------------
+
+    if notify_users:
+
+        notification_message = (
+            f"📢 {title}: {message}"
+        )
+
+        users = conn.execute(
+            """
+            SELECT id
+            FROM users
+            WHERE id != ?
+            """,
+            (
+                current_user["id"],
+            )
+        ).fetchall()
+
+        for user in users:
+
+            conn.execute(
+                """
+                INSERT INTO notifications
+                (
+                    user_id,
+                    sender_id,
+                    type,
+                    message,
+                    link
+                )
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    user["id"],
+                    current_user["id"],
+                    "announcement",
+                    notification_message,
+                    "/dashboard"
+                )
+            )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
+    )
+
+
+# ============================================================
+# EDIT ANNOUNCEMENT
+# ============================================================
+
+@app.route(
+    "/admin/announcements/<int:announcement_id>/edit",
+    methods=["POST"]
+)
+def admin_edit_announcement(announcement_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    title = clean_text(
+        request.form.get("title"),
+        150
+    )
+
+    message = clean_text(
+        request.form.get("message"),
+        3000
+    )
+
+    if not title or not message:
+        conn.close()
+        return (
+            "Announcement title and message are required."
+        ), 400
+
+    announcement = conn.execute(
+        """
+        SELECT id
+        FROM announcements
+        WHERE id = ?
+        """,
+        (
+            announcement_id,
+        )
+    ).fetchone()
+
+    if not announcement:
+        conn.close()
+        return "Announcement not found.", 404
+
+    conn.execute(
+        """
+        UPDATE announcements
+        SET
+            title = ?,
+            message = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (
+            title,
+            message,
+            announcement_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
+    )
+
+
+# ============================================================
+# TOGGLE ANNOUNCEMENT
+# ============================================================
+
+@app.route(
+    "/admin/announcements/<int:announcement_id>/toggle",
+    methods=["POST"]
+)
+def admin_toggle_announcement(announcement_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    announcement = conn.execute(
+        """
+        SELECT
+            id,
+            is_active
+        FROM announcements
+        WHERE id = ?
+        """,
+        (
+            announcement_id,
+        )
+    ).fetchone()
+
+    if not announcement:
+        conn.close()
+        return "Announcement not found.", 404
+
+    new_status = (
+        0
+        if announcement["is_active"]
+        else 1
+    )
+
+    conn.execute(
+        """
+        UPDATE announcements
+        SET
+            is_active = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (
+            new_status,
+            announcement_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
+    )
+
+
+# ============================================================
+# DELETE ANNOUNCEMENT
+# ============================================================
+
+@app.route(
+    "/admin/announcements/<int:announcement_id>/delete",
+    methods=["POST"]
+)
+def admin_delete_announcement(announcement_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    announcement = conn.execute(
+        """
+        SELECT id
+        FROM announcements
+        WHERE id = ?
+        """,
+        (
+            announcement_id,
+        )
+    ).fetchone()
+
+    if not announcement:
+        conn.close()
+        return "Announcement not found.", 404
+
+    conn.execute(
+        """
+        DELETE FROM announcements
+        WHERE id = ?
+        """,
+        (
+            announcement_id,
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
     )
 
 # ============================================================

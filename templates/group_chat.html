@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ group['name'] }} | UniCamplink
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                var(--bg, #07111f);
+
+            color:
+                var(--text, #e8f0f8);
+
+            padding-bottom: 85px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        /* =====================================================
+           TOP BAR
+        ===================================================== */
+
+        .group-chat-navbar {
+
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            min-height: 66px;
+
+            padding:
+                9px 16px;
+
+            background:
+                var(--nav, rgba(7, 17, 31, .96));
+
+            border-bottom:
+                1px solid
+                var(--border, #20344b);
+
+            backdrop-filter:
+                blur(18px);
+        }
+
+        .back-button {
+
+            width: 38px;
+            height: 38px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            color:
+                var(--text, #e8f0f8);
+
+            background:
+                var(--primary-soft,
+                rgba(56, 189, 248, .12));
+
+            font-size: 1.2rem;
+
+            flex-shrink: 0;
+        }
+
+        .group-chat-avatar {
+
+            width: 43px;
+            height: 43px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0284c7
+                );
+
+            color: white;
+
+            font-size: 1.15rem;
+
+            flex-shrink: 0;
+        }
+
+        .group-chat-header-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .group-chat-name {
+
+            overflow: hidden;
+
+            font-size: .95rem;
+            font-weight: 850;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .group-chat-members {
+
+            margin-top: 2px;
+
+            color:
+                var(--muted, #8ea3bb);
+
+            font-size: .70rem;
+        }
+
+        .group-chat-group-link {
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            min-height: 36px;
+
+            padding:
+                7px 10px;
+
+            border-radius: 10px;
+
+            background:
+                var(--primary-soft,
+                rgba(56, 189, 248, .12));
+
+            color:
+                var(--primary, #38bdf8);
+
+            font-size: .72rem;
+            font-weight: 800;
+
+            flex-shrink: 0;
+        }
+
+        /* =====================================================
+           CHAT PAGE
+        ===================================================== */
+
+        .group-chat-page {
+
+            width:
+                min(920px, 100%);
+
+            margin:
+                0 auto;
+
+            padding:
+                18px 12px;
+        }
+
+        .group-chat-shell {
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                var(--border, #20344b);
+
+            border-radius: 22px;
+
+            background:
+                var(--surface, #0d1a2b);
+
+            box-shadow:
+                var(--shadow,
+                0 16px 45px rgba(0,0,0,.24));
+        }
+
+        /* =====================================================
+           MEMBERS
+        ===================================================== */
+
+        .members-strip {
+
+            display: flex;
+
+            gap: 8px;
+
+            padding:
+                11px 12px;
+
+            overflow-x: auto;
+
+            border-bottom:
+                1px solid
+                var(--border-soft, #182b40);
+
+            scrollbar-width: none;
+        }
+
+        .members-strip::-webkit-scrollbar {
+            display: none;
+        }
+
+        .member-chip {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            min-width: max-content;
+
+            padding:
+                6px 9px 6px 6px;
+
+            border-radius: 999px;
+
+            background:
+                var(--surface-2, #101f33);
+
+            border:
+                1px solid
+                var(--border, #20344b);
+
+            font-size: .70rem;
+
+            font-weight: 750;
+        }
+
+        .member-chip-avatar {
+
+            width: 28px;
+            height: 28px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            display: grid;
+            place-items: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0284c7
+                );
+
+            color: white;
+
+            font-size: .68rem;
+            font-weight: 800;
+        }
+
+        /* =====================================================
+           CHAT AREA
+        ===================================================== */
+
+        .chat-messages {
+
+            min-height: 55vh;
+
+            max-height: 65vh;
+
+            overflow-y: auto;
+
+            padding:
+                18px 14px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(56,189,248,.025),
+                    transparent
+                );
+        }
+
+        .message-row {
+
+            display: flex;
+
+            margin-bottom: 11px;
+        }
+
+        .message-row.mine {
+            justify-content: flex-end;
+        }
+
+        .message-row.other {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            display: flex;
+
+            align-items: flex-end;
+
+            gap: 7px;
+
+            max-width:
+                min(78%, 620px);
+        }
+
+        .message-row.mine .message-content {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+
+            width: 31px;
+            height: 31px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            flex-shrink: 0;
+
+            display: grid;
+            place-items: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0284c7
+                );
+
+            color: white;
+
+            font-size: .70rem;
+            font-weight: 800;
+        }
+
+        .message-bubble-wrap {
+            min-width: 0;
+        }
+
+        .message-sender {
+
+            margin-bottom: 3px;
+
+            color:
+                var(--primary, #38bdf8);
+
+            font-size: .66rem;
+            font-weight: 800;
+        }
+
+        .message-bubble {
+
+            padding:
+                9px 12px;
+
+            border-radius:
+                16px;
+
+            background:
+                var(--surface-2, #101f33);
+
+            border:
+                1px solid
+                var(--border, #20344b);
+
+            color:
+                var(--text, #e8f0f8);
+
+            font-size: .82rem;
+
+            line-height: 1.5;
+
+            word-break: break-word;
+        }
+
+        .message-row.mine .message-bubble {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0284c7
+                );
+
+            color: white;
+
+            border-color:
+                transparent;
+
+            border-bottom-right-radius:
+                5px;
+        }
+
+        .message-row.other .message-bubble {
+
+            border-bottom-left-radius:
+                5px;
+        }
+
+        .message-time {
+
+            margin-top: 4px;
+
+            color:
+                var(--muted, #8ea3bb);
+
+            font-size: .59rem;
+        }
+
+        .message-row.mine .message-time {
+            text-align: right;
+        }
+
+        /* =====================================================
+           EMPTY CHAT
+        ===================================================== */
+
+        .empty-chat {
+
+            min-height: 55vh;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            padding: 30px;
+        }
+
+        .empty-chat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-chat h2 {
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+        }
+
+        .empty-chat p {
+
+            color:
+                var(--muted, #8ea3bb);
+
+            font-size: .78rem;
+        }
+
+        /* =====================================================
+           COMPOSER
+        ===================================================== */
+
+        .group-chat-composer {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding:
+                10px;
+
+            border-top:
+                1px solid
+                var(--border-soft, #182b40);
+
+            background:
+                var(--surface, #0d1a2b);
+        }
+
+        .group-chat-input {
+
+            flex: 1;
+
+            min-width: 0;
+
+            height: 44px;
+
+            padding:
+                0 14px;
+
+            border:
+                1px solid
+                var(--border, #20344b);
+
+            border-radius: 999px;
+
+            outline: none;
+
+            background:
+                var(--surface-2, #101f33);
+
+            color:
+                var(--text, #e8f0f8);
+        }
+
+        .group-chat-input:focus {
+
+            border-color:
+                var(--primary, #38bdf8);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(56,189,248,.10);
+        }
+
+        .send-button {
+
+            width: 44px;
+            height: 44px;
+
+            display: grid;
+            place-items: center;
+
+            border: 0;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0284c7
+                );
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 1rem;
+
+            flex-shrink: 0;
+        }
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            .group-chat-navbar {
+                min-height: 58px;
+                padding: 7px 10px;
+            }
+
+            .group-chat-page {
+                padding:
+                    8px 7px;
+            }
+
+            .group-chat-shell {
+                border-radius: 17px;
+            }
+
+            .group-chat-group-link {
+                display: none;
+            }
+
+            .chat-messages {
+
+                min-height: calc(100vh - 205px);
+
+                max-height:
+                    calc(100vh - 205px);
+
+                padding:
+                    14px 9px;
+            }
+
+            .message-content {
+                max-width: 88%;
+            }
+
+            .message-bubble {
+                font-size: .79rem;
+            }
+
+            .message-avatar {
+                width: 27px;
+                height: 27px;
+            }
+
+            .group-chat-composer {
+                padding: 8px;
+            }
+
+        }
+
+        /* =====================================================
+           LIGHT MODE
+        ===================================================== */
+
+        html[data-theme="light"] .group-chat-navbar,
+        body.light-mode .group-chat-navbar {
+
+            background:
+                rgba(255,255,255,.96);
+
+            border-bottom-color:
+                var(--border, #e2e8f0);
+        }
+
+        html[data-theme="light"] .group-chat-shell,
+        body.light-mode .group-chat-shell {
+
+            background:
+                var(--surface, #fff);
+
+            border-color:
+                var(--border, #e2e8f0);
+        }
+
+        html[data-theme="light"] .members-strip,
+        body.light-mode .members-strip {
+
+            border-bottom-color:
+                var(--border-soft, #edf2f7);
+        }
+
+        html[data-theme="light"] .member-chip,
+        body.light-mode .member-chip {
+
+            background:
+                var(--surface-2, #f8fafc);
+
+            border-color:
+                var(--border, #e2e8f0);
+        }
+
+        html[data-theme="light"] .message-bubble,
+        body.light-mode .message-bubble {
+
+            background:
+                var(--surface-2, #f8fafc);
+
+            border-color:
+                var(--border, #e2e8f0);
+
+            color:
+                var(--text, #0f172a);
+        }
+
+        html[data-theme="light"] .group-chat-composer,
+        body.light-mode .group-chat-composer {
+
+            background:
+                #fff;
+        }
+
+        html[data-theme="light"] .group-chat-input,
+        body.light-mode .group-chat-input {
+
+            background:
+                #f8fafc;
+
+            border-color:
+                #e2e8f0;
+
+            color:
+                #0f172a;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <nav class="group-chat-navbar">
+
+        <a
+            href="{{ url_for(
+                'group_detail',
+                group_id=group['id']
+            ) }}"
+            class="back-button"
+            aria-label="Back to group"
+        >
+            ←
+        </a>
+
+        <div class="group-chat-avatar">
+            👥
+        </div>
+
+        <div class="group-chat-header-info">
+
+            <div class="group-chat-name">
+                {{ group['name'] }}
+            </div>
+
+            <div class="group-chat-members">
+                {{ members|length }} member{% if members|length != 1 %}s{% endif %}
+            </div>
+
+        </div>
+
+        <a
+            href="{{ url_for(
+                'group_detail',
+                group_id=group['id']
+            ) }}"
+            class="group-chat-group-link"
+        >
+            Group
+        </a>
+
+    </nav>
+
+
+    <main class="group-chat-page">
+
+        <section class="group-chat-shell">
+
+            <!-- =================================================
+                 MEMBERS
+            ================================================== -->
+
+            <div class="members-strip">
+
+                {% for member in members %}
+
+                    <a
+                        href="{{ url_for(
+                            'view_user',
+                            user_id=member['id']
+                        ) }}"
+                        class="member-chip"
+                        title="View {{ member['name'] }}'s profile"
+                    >
+
+                        {% if member['profile_picture'] %}
+
+                            <img
+                                class="member-chip-avatar"
+                                src="{{ url_for(
+                                    'static',
+                                    filename='uploads/' + member['profile_picture']
+                                ) }}"
+                                alt="{{ member['name'] }}"
+                            >
+
+                        {% else %}
+
+                            <div class="member-chip-avatar">
+                                {{ member['name'][0]|upper }}
+                            </div>
+
+                        {% endif %}
+
+                        <span>
+                            {{ member['name'] }}
+                        </span>
+
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- =================================================
+                 MESSAGES
+            ================================================== -->
+
+            {% if group_messages %}
+
+                <div
+                    class="chat-messages"
+                    id="groupChatMessages"
+                >
+
+                    {% for message in group_messages %}
+
+                        {% set mine =
+                            message['sender_id']
+                            == current_user_id
+                        %}
+
+                        <div
+                            class="message-row
+                            {% if mine %}
+                                mine
+                            {% else %}
+                                other
+                            {% endif %}"
+                        >
+
+                            <div class="message-content">
+
+                                {% if message['sender_picture'] %}
+
+                                    <img
+                                        class="message-avatar"
+                                        src="{{ url_for(
+                                            'static',
+                                            filename='uploads/' + message['sender_picture']
+                                        ) }}"
+                                        alt="{{ message['sender_name'] }}"
+                                    >
+
+                                {% else %}
+
+                                    <div class="message-avatar">
+                                        {{ message['sender_name'][0]|upper }}
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="message-bubble-wrap">
+
+                                    {% if not mine %}
+
+                                        <div class="message-sender">
+
+                                            {{ message['sender_name'] }}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="message-bubble">
+
+                                        {{ message['message'] }}
+
+                                    </div>
+
+
+                                    <div class="message-time">
+
+                                        {{ message['created_at']|nigeria_time }}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-chat">
+
+                    <div>
+
+                        <div class="empty-chat-icon">
+                            💬
+                        </div>
+
+                        <h2>
+                            No messages yet
+                        </h2>
+
+                        <p>
+                            Start the conversation with
+                            your group members.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 COMPOSER
+            ================================================== -->
+
+            <form
+                method="POST"
+                class="group-chat-composer"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <input
+                    type="text"
+                    name="message"
+                    class="group-chat-input"
+                    placeholder="Message {{ group['name'] }}..."
+                    maxlength="2000"
+                    autocomplete="off"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="send-button"
+                    aria-label="Send message"
+                >
+                    ➤
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        /*
+         * Always open the group conversation
+         * at the newest message.
+         */
+
+        const chatBox =
+            document.getElementById(
+                "groupChatMessages"
+            );
+
+        if (chatBox) {
+
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

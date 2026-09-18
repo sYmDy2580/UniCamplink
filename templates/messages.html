@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -15,6 +18,7 @@
     >
 
     <style>
+
         /* =========================================================
            UNICAMPLINK RAZOR — MESSAGES
         ========================================================= */
@@ -25,9 +29,12 @@
             padding: 0;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             min-height: 100vh;
-
             font-family:
                 Inter,
                 system-ui,
@@ -38,21 +45,29 @@
 
             background:
                 radial-gradient(
-                    circle at 10% 10%,
-                    rgba(56, 189, 248, 0.08),
-                    transparent 32%
+                    circle at 15% 0%,
+                    rgba(56, 189, 248, .10),
+                    transparent 28%
                 ),
-                var(--bg, #020617);
+                var(--bg, #07111f);
 
-            color: var(--text, #f8fafc);
+            color: var(--text, #e8f0f8);
+            padding-bottom: 0;
         }
 
         a {
+            color: inherit;
             text-decoration: none;
         }
 
+        button,
+        input {
+            font: inherit;
+        }
+
+
         /* =========================================================
-           NAVBAR
+           TOP APP BAR
         ========================================================= */
 
         .messages-navbar {
@@ -66,12 +81,17 @@
             align-items: center;
             justify-content: space-between;
 
-            padding: 12px 4%;
+            min-height: 66px;
 
-            background: rgba(2, 6, 23, 0.82);
+            padding:
+                10px
+                max(16px, 4vw);
+
+            background:
+                var(--nav, rgba(7, 17, 31, .95));
 
             border-bottom:
-                1px solid rgba(148, 163, 184, 0.12);
+                1px solid var(--border, #20344b);
 
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
@@ -80,14 +100,16 @@
         .messages-brand {
             display: flex;
             align-items: center;
+
             gap: 10px;
 
-            color: #f8fafc;
-
-            font-size: 1.1rem;
-            font-weight: 850;
-
             flex-shrink: 0;
+
+            color:
+                var(--text, #e8f0f8);
+
+            font-size: 1.05rem;
+            font-weight: 850;
         }
 
         .messages-brand img {
@@ -96,25 +118,22 @@
 
             object-fit: contain;
 
-            border-radius: 11px;
+            border-radius: 12px;
 
             filter:
                 drop-shadow(
-                    0 4px 12px rgba(56, 189, 248, 0.22)
+                    0 5px 14px
+                    rgba(56, 189, 248, .20)
                 );
         }
 
         .messages-nav-links {
             display: flex;
             align-items: center;
-            gap: 4px;
 
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
+            gap: 3px;
 
-        .messages-nav-links::-webkit-scrollbar {
-            display: none;
+            min-width: 0;
         }
 
         .messages-nav-links a,
@@ -123,36 +142,49 @@
             align-items: center;
             justify-content: center;
 
-            padding: 9px 11px;
+            min-height: 38px;
+
+            padding:
+                8px
+                11px;
 
             border-radius: 10px;
 
-            color: #94a3b8;
+            color:
+                var(--muted, #8ea3bb);
 
-            font-size: 0.82rem;
-            font-weight: 650;
+            font-size: .80rem;
+            font-weight: 700;
 
             white-space: nowrap;
 
             transition:
-                background 0.2s ease,
-                color 0.2s ease,
-                transform 0.2s ease;
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
         }
 
         .messages-nav-links a:hover,
         .logout-button:hover {
-            color: #f8fafc;
+            color:
+                var(--text, #e8f0f8);
 
             background:
-                rgba(56, 189, 248, 0.09);
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .12)
+                );
         }
 
         .messages-nav-links .active {
-            color: #7dd3fc;
+            color:
+                var(--primary, #38bdf8);
 
             background:
-                rgba(56, 189, 248, 0.11);
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .12)
+                );
         }
 
         .logout-form {
@@ -160,132 +192,204 @@
         }
 
         .logout-button {
-            border: none;
+            border: 0;
             background: transparent;
-
-            font-family: inherit;
-
             cursor: pointer;
         }
+
 
         /* =========================================================
            PAGE
         ========================================================= */
 
         .messages-page {
-            width: min(1000px, 100%);
+            width: min(1120px, 100%);
 
-            margin: 0 auto;
+            margin:
+                0 auto;
 
             padding:
-                42px 20px
-                70px;
+                28px
+                20px
+                90px;
         }
+
 
         /* =========================================================
-           HEADER
+           APP HEADER
         ========================================================= */
 
-        .messages-header {
+        .messages-app-header {
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
 
-            gap: 20px;
-
-            margin-bottom: 24px;
-        }
-
-        .messages-heading {
-            display: flex;
-            align-items: flex-start;
             gap: 14px;
+
+            margin-bottom: 18px;
         }
 
-        .messages-heading-icon {
-            width: 52px;
-            height: 52px;
-
-            display: grid;
-            place-items: center;
-
-            flex-shrink: 0;
-
-            border-radius: 16px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(56, 189, 248, 0.16),
-                    rgba(14, 165, 233, 0.05)
-                );
-
-            border:
-                1px solid rgba(56, 189, 248, 0.16);
-
-            font-size: 1.45rem;
+        .messages-title-wrap {
+            min-width: 0;
         }
 
-        .messages-header h1 {
-            color: #f8fafc;
-
+        .messages-title {
             font-size:
-                clamp(1.8rem, 4vw, 2.5rem);
+                clamp(1.65rem, 4vw, 2.15rem);
 
             line-height: 1.1;
 
-            letter-spacing: -0.035em;
+            letter-spacing: -.035em;
 
-            margin-bottom: 6px;
+            color:
+                var(--text, #e8f0f8);
+
+            font-weight: 900;
         }
 
-        .messages-header p {
-            color: #64748b;
+        .messages-subtitle {
+            margin-top: 5px;
 
-            font-size: 0.92rem;
-            line-height: 1.5;
+            color:
+                var(--muted, #8ea3bb);
+
+            font-size: .84rem;
         }
 
         .message-count {
-            padding: 8px 12px;
+            flex-shrink: 0;
 
-            border:
-                1px solid rgba(56, 189, 248, 0.14);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 34px;
+
+            padding:
+                7px
+                12px;
 
             border-radius: 999px;
 
             background:
-                rgba(56, 189, 248, 0.07);
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .12)
+                );
 
-            color: #7dd3fc;
+            border:
+                1px solid
+                rgba(56, 189, 248, .16);
 
-            font-size: 0.78rem;
-            font-weight: 750;
+            color:
+                var(--primary, #38bdf8);
 
-            white-space: nowrap;
+            font-size: .74rem;
+            font-weight: 800;
         }
 
+
         /* =========================================================
-           MESSAGES CARD
+           SEARCH BAR
+        ========================================================= */
+
+        .message-search {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            width: 100%;
+            min-height: 46px;
+
+            margin-bottom: 16px;
+
+            padding:
+                0 15px;
+
+            border:
+                1px solid
+                var(--border, #20344b);
+
+            border-radius: 15px;
+
+            background:
+                var(--surface, #0d1a2b);
+
+            color:
+                var(--muted, #8ea3bb);
+
+            box-shadow:
+                var(
+                    --shadow-sm,
+                    0 2px 12px rgba(0, 0, 0, .18)
+                );
+        }
+
+        .message-search-icon {
+            font-size: 1rem;
+            opacity: .75;
+        }
+
+        .message-search span {
+            font-size: .82rem;
+        }
+
+
+        /* =========================================================
+           CONVERSATIONS PANEL
         ========================================================= */
 
         .messages-box {
             overflow: hidden;
 
             border:
-                1px solid rgba(148, 163, 184, 0.12);
+                1px solid
+                var(--border, #20344b);
 
-            border-radius: 22px;
+            border-radius: 20px;
 
             background:
-                rgba(15, 23, 42, 0.72);
+                var(--surface, #0d1a2b);
 
             box-shadow:
-                0 25px 70px rgba(0, 0, 0, 0.20);
-
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
+                var(
+                    --shadow,
+                    0 16px 45px rgba(0, 0, 0, .24)
+                );
         }
+
+        .messages-box-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 10px;
+
+            padding:
+                16px
+                18px;
+
+            border-bottom:
+                1px solid
+                var(--border-soft, #182b40);
+        }
+
+        .messages-box-title {
+            color:
+                var(--text, #e8f0f8);
+
+            font-size: .92rem;
+            font-weight: 850;
+        }
+
+        .messages-box-label {
+            color:
+                var(--muted, #8ea3bb);
+
+            font-size: .74rem;
+        }
+
 
         /* =========================================================
            CONVERSATION
@@ -299,26 +403,40 @@
 
             gap: 14px;
 
-            padding: 17px 19px;
+            min-height: 82px;
 
-            color: #e2e8f0;
+            padding:
+                13px
+                17px;
+
+            color:
+                var(--text, #e8f0f8);
 
             border-bottom:
-                1px solid rgba(148, 163, 184, 0.09);
+                1px solid
+                var(--border-soft, #182b40);
 
             transition:
-                background 0.2s ease,
-                transform 0.2s ease;
+                background .18s ease,
+                transform .18s ease;
         }
 
         .conversation:last-child {
-            border-bottom: none;
+            border-bottom: 0;
         }
 
         .conversation:hover {
             background:
-                rgba(56, 189, 248, 0.055);
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .07)
+                );
         }
+
+        .conversation:active {
+            transform: scale(.997);
+        }
+
 
         /* =========================================================
            AVATAR
@@ -326,30 +444,28 @@
 
         .avatar-wrapper {
             position: relative;
-
             flex-shrink: 0;
         }
 
         .profile-picture,
         .default-picture {
-            width: 56px;
-            height: 56px;
+            width: 54px;
+            height: 54px;
 
             border-radius: 50%;
 
             object-fit: cover;
-
-            flex-shrink: 0;
         }
 
         .profile-picture {
             display: block;
 
             background:
-                #1e293b;
+                var(--surface-3, #14263d);
 
             border:
-                2px solid rgba(148, 163, 184, 0.10);
+                2px solid
+                rgba(56, 189, 248, .10);
         }
 
         .default-picture {
@@ -360,66 +476,76 @@
             background:
                 linear-gradient(
                     135deg,
-                    #0ea5e9,
-                    #0369a1
+                    #38bdf8,
+                    #0284c7
                 );
 
-            color: #ffffff;
+            color: #fff;
 
-            font-size: 1.25rem;
-            font-weight: 800;
+            font-size: 1.05rem;
+            font-weight: 850;
 
             border:
-                2px solid rgba(56, 189, 248, 0.18);
+                2px solid
+                rgba(56, 189, 248, .18);
+
+            box-shadow:
+                0 6px 18px
+                rgba(14, 165, 233, .16);
         }
 
         .online-dot {
             position: absolute;
 
-            right: 1px;
-            bottom: 2px;
+            right: 0;
+            bottom: 1px;
 
-            width: 12px;
-            height: 12px;
+            width: 13px;
+            height: 13px;
 
             border-radius: 50%;
 
-            background: #22c55e;
+            background:
+                #22c55e;
 
             border:
-                2px solid #0f172a;
+                2px solid
+                var(--surface, #0d1a2b);
 
             box-shadow:
-                0 0 8px rgba(34, 197, 94, 0.45);
+                0 0 8px
+                rgba(34, 197, 94, .45);
         }
 
+
         /* =========================================================
-           CONVERSATION INFO
+           CONVERSATION CONTENT
         ========================================================= */
 
         .conversation-info {
             min-width: 0;
-
             flex: 1;
         }
 
         .conversation-top {
             display: flex;
             align-items: center;
-            justify-content: space-between;
 
-            gap: 12px;
+            gap: 10px;
 
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .conversation-name {
             overflow: hidden;
 
-            color: #f8fafc;
+            min-width: 0;
 
-            font-size: 0.98rem;
-            font-weight: 800;
+            color:
+                var(--text, #e8f0f8);
+
+            font-size: .93rem;
+            font-weight: 850;
 
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -428,42 +554,114 @@
         .last-message {
             overflow: hidden;
 
-            color: #64748b;
+            color:
+                var(--muted, #8ea3bb);
 
-            font-size: 0.86rem;
-            line-height: 1.45;
+            font-size: .80rem;
+
+            line-height: 1.4;
 
             white-space: nowrap;
             text-overflow: ellipsis;
         }
 
         .message-time {
-            color: #64748b;
+            flex-shrink: 0;
 
-            font-size: 0.72rem;
+            color:
+                var(--muted, #8ea3bb);
+
+            font-size: .67rem;
 
             white-space: nowrap;
-
-            align-self: flex-start;
-
-            padding-top: 2px;
         }
 
         .conversation-arrow {
-            color: #475569;
+            flex-shrink: 0;
+
+            display: grid;
+            place-items: center;
+
+            width: 30px;
+            height: 30px;
+
+            border-radius: 50%;
+
+            color:
+                var(--muted, #8ea3bb);
 
             font-size: 1rem;
 
             transition:
-                color 0.2s ease,
-                transform 0.2s ease;
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
         }
 
         .conversation:hover .conversation-arrow {
-            color: #38bdf8;
+            color:
+                var(--primary, #38bdf8);
 
-            transform: translateX(2px);
+            background:
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .12)
+                );
+
+            transform:
+                translateX(2px);
         }
+
+
+        /* =========================================================
+           GROUP CHAT CONVERSATIONS
+        ========================================================= */
+
+        .group-section-header {
+            margin-top: 4px;
+
+            background:
+                var(
+                    --surface-2,
+                    #101f33
+                );
+        }
+
+        .group-conversation-avatar {
+            width: 54px;
+            height: 54px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #38bdf8,
+                    #0284c7
+                );
+
+            color: white;
+
+            font-size: 1.25rem;
+
+            border:
+                2px solid
+                rgba(56, 189, 248, .15);
+
+            box-shadow:
+                0 6px 18px
+                rgba(14, 165, 233, .16);
+        }
+
+        .group-conversation:hover
+        .group-conversation-avatar {
+            transform:
+                scale(1.04);
+        }
+
 
         /* =========================================================
            EMPTY STATE
@@ -486,23 +684,29 @@
 
             margin:
                 0 auto
-                20px;
+                18px;
 
             border-radius: 24px;
 
             background:
-                rgba(56, 189, 248, 0.08);
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .10)
+                );
 
             border:
-                1px solid rgba(56, 189, 248, 0.12);
+                1px solid
+                rgba(56, 189, 248, .15);
 
-            font-size: 2.1rem;
+            font-size: 2rem;
         }
 
         .empty h2 {
-            color: #f8fafc;
+            color:
+                var(--text, #e8f0f8);
 
-            font-size: 1.25rem;
+            font-size: 1.2rem;
+            font-weight: 850;
 
             margin-bottom: 8px;
         }
@@ -510,57 +714,105 @@
         .empty p {
             max-width: 390px;
 
-            margin: 0 auto;
+            margin:
+                0 auto;
 
-            color: #64748b;
+            color:
+                var(--muted, #8ea3bb);
 
-            font-size: 0.88rem;
+            font-size: .83rem;
+
             line-height: 1.65;
         }
 
         .empty-action {
             display: inline-flex;
+            align-items: center;
+            justify-content: center;
 
             margin-top: 20px;
 
-            padding:
-                10px 16px;
+            min-height: 42px;
 
-            border-radius: 11px;
+            padding:
+                0 16px;
+
+            border-radius: 12px;
 
             background:
-                rgba(56, 189, 248, 0.10);
-
-            color: #38bdf8;
-
-            font-size: 0.82rem;
-            font-weight: 750;
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .12)
+                );
 
             border:
-                1px solid rgba(56, 189, 248, 0.13);
+                1px solid
+                rgba(56, 189, 248, .16);
+
+            color:
+                var(--primary, #38bdf8);
+
+            font-size: .80rem;
+            font-weight: 800;
 
             transition:
-                background 0.2s ease,
-                transform 0.2s ease;
+                transform .18s ease,
+                background .18s ease;
         }
 
         .empty-action:hover {
             background:
-                rgba(56, 189, 248, 0.16);
+                rgba(56, 189, 248, .17);
 
-            transform: translateY(-1px);
+            transform:
+                translateY(-1px);
         }
 
+
         /* =========================================================
-           MOBILE
+           MOBILE BOTTOM NAV
         ========================================================= */
 
-        @media (max-width: 850px) {
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 980px) {
+
+            .messages-nav-links a:nth-child(1),
+            .messages-nav-links a:nth-child(2),
+            .messages-nav-links a:nth-child(3) {
+                display: none;
+            }
+
+            .messages-page {
+                padding-top: 24px;
+            }
+        }
+
+
+        @media (max-width: 700px) {
+
+            body {
+                padding-bottom: 74px;
+            }
 
             .messages-navbar {
-                padding: 10px 14px;
+                min-height: 58px;
 
-                gap: 10px;
+                padding:
+                    8px
+                    13px;
+            }
+
+            .messages-brand img {
+                width: 36px;
+                height: 36px;
             }
 
             .messages-brand span {
@@ -568,66 +820,87 @@
             }
 
             .messages-nav-links {
-                flex: 1;
-
-                justify-content: flex-end;
+                display: flex;
+                gap: 4px;
             }
 
             .messages-nav-links a,
             .logout-button {
+                min-height: 34px;
+
                 padding:
-                    8px 9px;
+                    7px
+                    8px;
 
-                font-size: 0.76rem;
+                font-size: .72rem;
             }
 
-            .messages-page {
-                padding:
-                    30px 14px
-                    55px;
-            }
-        }
-
-        @media (max-width: 620px) {
-
-            .messages-header {
-                align-items: flex-start;
-            }
-
-            .message-count {
+            .messages-nav-links a:nth-child(n + 5) {
                 display: none;
             }
 
-            .messages-heading-icon {
-                width: 45px;
-                height: 45px;
+            .messages-page {
+                width: 100%;
 
-                border-radius: 14px;
-
-                font-size: 1.2rem;
+                padding:
+                    20px
+                    12px
+                    24px;
             }
 
-            .messages-header h1 {
-                font-size: 1.7rem;
+            .messages-app-header {
+                margin-bottom: 14px;
             }
 
-            .messages-header p {
-                font-size: 0.83rem;
+            .messages-title {
+                font-size: 1.55rem;
+            }
+
+            .messages-subtitle {
+                font-size: .76rem;
+            }
+
+            .message-count {
+                min-height: 30px;
+
+                padding:
+                    5px
+                    9px;
+
+                font-size: .67rem;
+            }
+
+            .message-search {
+                min-height: 43px;
+
+                margin-bottom: 12px;
+
+                border-radius: 13px;
             }
 
             .messages-box {
-                border-radius: 18px;
+                border-radius: 17px;
+            }
+
+            .messages-box-header {
+                padding:
+                    14px
+                    14px;
             }
 
             .conversation {
                 gap: 12px;
 
+                min-height: 74px;
+
                 padding:
-                    14px 13px;
+                    11px
+                    12px;
             }
 
             .profile-picture,
-            .default-picture {
+            .default-picture,
+            .group-conversation-avatar {
                 width: 50px;
                 height: 50px;
             }
@@ -638,11 +911,11 @@
             }
 
             .conversation-name {
-                font-size: 0.9rem;
+                font-size: .88rem;
             }
 
             .last-message {
-                font-size: 0.79rem;
+                font-size: .75rem;
             }
 
             .message-time {
@@ -650,379 +923,695 @@
             }
 
             .conversation-arrow {
-                font-size: 0.85rem;
+                width: 27px;
+                height: 27px;
             }
 
             .empty {
                 padding:
-                    60px 18px;
+                    60px
+                    18px;
+            }
+
+            .mobile-bottom-nav {
+                position: fixed;
+
+                left: 0;
+                right: 0;
+                bottom: 0;
+
+                z-index: 2000;
+
+                display: grid;
+
+                grid-template-columns:
+                    repeat(5, 1fr);
+
+                min-height: 67px;
+
+                padding:
+                    7px
+                    8px
+                    calc(
+                        7px +
+                        env(safe-area-inset-bottom)
+                    );
+
+                background:
+                    var(
+                        --nav,
+                        rgba(7, 17, 31, .96)
+                    );
+
+                border-top:
+                    1px solid
+                    var(--border, #20344b);
+
+                backdrop-filter:
+                    blur(18px);
+
+                -webkit-backdrop-filter:
+                    blur(18px);
+            }
+
+            .mobile-bottom-nav a {
+                display: flex;
+                flex-direction: column;
+
+                align-items: center;
+                justify-content: center;
+
+                gap: 3px;
+
+                min-width: 0;
+
+                border-radius: 11px;
+
+                color:
+                    var(--muted, #8ea3bb);
+
+                font-size: .59rem;
+                font-weight: 700;
+            }
+
+            .mobile-bottom-nav a span:first-child {
+                display: grid;
+                place-items: center;
+
+                width: 30px;
+                height: 26px;
+
+                font-size: 1.05rem;
+
+                border-radius: 9px;
+            }
+
+            .mobile-bottom-nav a.active {
+                color:
+                    var(--primary, #38bdf8);
+            }
+
+            .mobile-bottom-nav a.active span:first-child {
+                background:
+                    var(
+                        --primary-soft,
+                        rgba(56, 189, 248, .12)
+                    );
             }
         }
 
-        @media (max-width: 460px) {
 
-            .messages-nav-links a:nth-child(1),
-            .messages-nav-links a:nth-child(2),
-            .messages-nav-links a:nth-child(3) {
+        @media (max-width: 430px) {
+
+            .messages-page {
+                padding-left: 9px;
+                padding-right: 9px;
+            }
+
+            .messages-title {
+                font-size: 1.45rem;
+            }
+
+            .messages-subtitle {
+                max-width: 220px;
+            }
+
+            .conversation {
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .profile-picture,
+            .default-picture,
+            .group-conversation-avatar {
+                width: 47px;
+                height: 47px;
+            }
+
+            .conversation-arrow {
                 display: none;
             }
 
-            .messages-brand img {
-                width: 37px;
-                height: 37px;
+            .conversation-name {
+                font-size: .84rem;
             }
 
-            .messages-page {
-                padding-top: 24px;
+            .last-message {
+                font-size: .72rem;
             }
         }
+
 
         /* =========================================================
            LIGHT MODE
         ========================================================= */
 
+        html[data-theme="light"] body,
         body.light-mode {
             background:
                 radial-gradient(
-                    circle at 10% 10%,
-                    rgba(14, 165, 233, 0.08),
-                    transparent 32%
+                    circle at 15% 0%,
+                    rgba(14, 165, 233, .08),
+                    transparent 28%
                 ),
-                #f8fafc;
+                var(--bg, #f4f7fb);
 
-            color: #0f172a;
+            color:
+                var(--text, #0f172a);
         }
 
+        html[data-theme="light"] .messages-navbar,
         body.light-mode .messages-navbar {
             background:
-                rgba(255, 255, 255, 0.88);
+                var(
+                    --nav,
+                    rgba(255, 255, 255, .95)
+                );
 
             border-bottom-color:
-                rgba(15, 23, 42, 0.08);
+                var(--border, #e2e8f0);
         }
 
+        html[data-theme="light"] .messages-brand,
         body.light-mode .messages-brand {
-            color: #0f172a;
+            color:
+                var(--text, #0f172a);
         }
 
+        html[data-theme="light"] .messages-nav-links a,
+        html[data-theme="light"] .logout-button,
         body.light-mode .messages-nav-links a,
         body.light-mode .logout-button {
-            color: #64748b;
+            color:
+                var(--muted, #64748b);
         }
 
+        html[data-theme="light"] .messages-nav-links a:hover,
+        html[data-theme="light"] .logout-button:hover,
         body.light-mode .messages-nav-links a:hover,
         body.light-mode .logout-button:hover {
-            color: #0284c7;
+            color:
+                var(--primary-deep, #0284c7);
 
             background:
-                rgba(14, 165, 233, 0.07);
+                var(
+                    --primary-soft,
+                    rgba(56, 189, 248, .12)
+                );
         }
 
-        body.light-mode .messages-header h1 {
-            color: #0f172a;
+        html[data-theme="light"] .messages-title,
+        body.light-mode .messages-title {
+            color:
+                var(--text, #0f172a);
         }
 
-        body.light-mode .messages-header p {
-            color: #64748b;
+        html[data-theme="light"] .messages-subtitle,
+        body.light-mode .messages-subtitle {
+            color:
+                var(--muted, #64748b);
         }
 
+        html[data-theme="light"] .messages-box,
         body.light-mode .messages-box {
             background:
-                rgba(255, 255, 255, 0.90);
+                var(--surface, #fff);
 
             border-color:
-                rgba(15, 23, 42, 0.08);
+                var(--border, #e2e8f0);
 
             box-shadow:
-                0 20px 55px rgba(15, 23, 42, 0.08);
+                var(
+                    --shadow,
+                    0 10px 35px rgba(15, 23, 42, .07)
+                );
         }
 
+        html[data-theme="light"] .message-search,
+        body.light-mode .message-search {
+            background:
+                var(--surface, #fff);
+
+            border-color:
+                var(--border, #e2e8f0);
+        }
+
+        html[data-theme="light"] .conversation,
         body.light-mode .conversation {
-            color: #0f172a;
-
             border-bottom-color:
-                rgba(15, 23, 42, 0.07);
+                var(--border-soft, #edf2f7);
         }
 
+        html[data-theme="light"] .conversation:hover,
         body.light-mode .conversation:hover {
             background:
-                rgba(14, 165, 233, 0.045);
+                rgba(56, 189, 248, .055);
         }
 
+        html[data-theme="light"] .conversation-name,
         body.light-mode .conversation-name {
-            color: #0f172a;
+            color:
+                var(--text, #0f172a);
         }
 
+        html[data-theme="light"] .last-message,
+        html[data-theme="light"] .message-time,
+        html[data-theme="light"] .messages-box-label,
         body.light-mode .last-message,
-        body.light-mode .message-time {
-            color: #64748b;
+        body.light-mode .message-time,
+        body.light-mode .messages-box-label {
+            color:
+                var(--muted, #64748b);
         }
 
+        html[data-theme="light"] .online-dot,
         body.light-mode .online-dot {
-            border-color: #ffffff;
+            border-color:
+                #ffffff;
         }
 
+        html[data-theme="light"] .empty h2,
         body.light-mode .empty h2 {
-            color: #0f172a;
+            color:
+                var(--text, #0f172a);
         }
+
+        html[data-theme="light"] .mobile-bottom-nav,
+        body.light-mode .mobile-bottom-nav {
+            background:
+                rgba(255, 255, 255, .96);
+
+            border-top-color:
+                var(--border, #e2e8f0);
+        }
+
     </style>
+
 </head>
 
 <body>
 
-    <!-- =========================================================
-         NAVIGATION
-    ========================================================= -->
 
-    <nav class="messages-navbar">
+<!-- =========================================================
+     TOP NAVIGATION
+========================================================= -->
 
-        <a
-            href="/dashboard"
-            class="messages-brand"
+<nav class="messages-navbar">
+
+    <a
+        href="/dashboard"
+        class="messages-brand"
+    >
+
+        <img
+            src="{{ url_for(
+                'static',
+                filename='images/unicamplink-logo.png'
+            ) }}"
+            alt="UniCamplink Logo"
         >
 
-            <img
-                src="{{ url_for(
-                    'static',
-                    filename='images/unicamplink-logo.png'
-                ) }}"
-                alt="UniCamplink Logo"
-            >
+        <span>
+            UniCamplink
+        </span>
 
-            <span>
-                UniCamplink
-            </span>
+    </a>
 
+
+    <div class="messages-nav-links">
+
+        <a href="/dashboard">
+            🏠 Dashboard
         </a>
 
+        <a href="/feed">
+            📰 Feed
+        </a>
 
-        <div class="messages-nav-links">
+        <a href="/profile">
+            👤 Profile
+        </a>
 
-            <a href="/dashboard">
-                🏠 Dashboard
-            </a>
+        <a href="/groups">
+            👥 Groups
+        </a>
 
-            <a href="/feed">
-                📰 Feed
-            </a>
+        <a href="/search">
+            🔍 Search
+        </a>
 
-            <a href="/profile">
-                👤 Profile
-            </a>
+        <a
+            href="/messages"
+            class="active"
+        >
+            💬 Messages
+        </a>
 
-            <a href="/groups">
-                👥 Groups
-            </a>
+        <a href="/marketplace">
+            🛒 Marketplace
+        </a>
 
-            <a href="/search">
-                🔍 Search
-            </a>
+        <form
+            action="{{ url_for('logout') }}"
+            method="POST"
+            class="logout-form"
+        >
 
-            <a
-                href="/messages"
-                class="active"
-            >
-                💬 Messages
-            </a>
-
-            <a href="/marketplace">
-                🛒 Marketplace
-            </a>
-
-
-            <form
-                action="{{ url_for('logout') }}"
-                method="POST"
-                class="logout-form"
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
             >
 
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}"
-                >
+            <button
+                type="submit"
+                class="logout-button"
+            >
+                Logout
+            </button>
 
-                <button
-                    type="submit"
-                    class="logout-button"
-                >
-                    Logout
-                </button>
+        </form>
 
-            </form>
+    </div>
+
+</nav>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="messages-page">
+
+    <header class="messages-app-header">
+
+        <div class="messages-title-wrap">
+
+            <h1 class="messages-title">
+                Messages
+            </h1>
+
+            <p class="messages-subtitle">
+                Stay connected with your campus community.
+            </p>
 
         </div>
 
-    </nav>
+
+        {% if conversations or group_conversations %}
+
+            <div class="message-count">
+
+                {{ conversations|length }}
+
+                {% if conversations|length == 1 %}
+                    chat
+                {% else %}
+                    chats
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </header>
 
 
-    <!-- =========================================================
-         MAIN
-    ========================================================= -->
+    <!-- =====================================================
+         SEARCH-STYLE BAR
+    ====================================================== -->
 
-    <main class="messages-page">
+    <div class="message-search">
 
-        <!-- HEADER -->
+        <span class="message-search-icon">
+            🔍
+        </span>
 
-        <header class="messages-header">
+        <span>
+            Your conversations
+        </span>
 
-            <div class="messages-heading">
+    </div>
 
-                <div class="messages-heading-icon">
-                    💬
-                </div>
 
-                <div>
+    <!-- =====================================================
+         CONVERSATIONS
+    ====================================================== -->
 
-                    <h1>
-                        Messages
-                    </h1>
+    <section class="messages-box">
 
-                    <p>
-                        Chat privately with other students.
-                    </p>
 
-                </div>
+        <!-- =================================================
+             PRIVATE CHATS
+        ================================================== -->
+
+        {% if conversations %}
+
+            <div class="messages-box-header">
+
+                <span class="messages-box-title">
+                    💬 Recent Chats
+                </span>
+
+                <span class="messages-box-label">
+                    UniCamplink
+                </span>
 
             </div>
 
 
-            {% if conversations %}
+            {% for conversation in conversations %}
 
-                <div class="message-count">
+                <a
+                    class="conversation"
+                    href="{{ url_for(
+                        'chat',
+                        user_id=conversation['id']
+                    ) }}"
+                >
 
-                    {{ conversations|length }}
+                    <div class="avatar-wrapper">
 
-                    {% if conversations|length == 1 %}
-                        conversation
-                    {% else %}
-                        conversations
-                    {% endif %}
+                        {% if conversation['profile_picture'] %}
 
-                </div>
+                            <img
+                                class="profile-picture"
+                                src="{{ url_for(
+                                    'static',
+                                    filename='uploads/' + conversation['profile_picture']
+                                ) }}"
+                                alt="{{ conversation['name'] }}"
+                            >
 
-            {% endif %}
+                        {% else %}
 
-        </header>
-
-
-        <!-- CONVERSATIONS -->
-
-        <section class="messages-box">
-
-            {% if conversations %}
-
-                {% for conversation in conversations %}
-
-                    <a
-                        class="conversation"
-                        href="{{ url_for(
-                            'chat',
-                            user_id=conversation['id']
-                        ) }}"
-                    >
-
-                        <!-- AVATAR -->
-
-                        <div class="avatar-wrapper">
-
-                            {% if conversation['profile_picture'] %}
-
-                                <img
-                                    class="profile-picture"
-                                    src="{{ url_for(
-                                        'static',
-                                        filename='uploads/' + conversation['profile_picture']
-                                    ) }}"
-                                    alt="{{ conversation['name'] }}"
-                                >
-
-                            {% else %}
-
-                                <div class="default-picture">
-
-                                    {{ conversation['name'][0]|upper }}
-
-                                </div>
-
-                            {% endif %}
-
-                        </div>
-
-
-                        <!-- MESSAGE INFO -->
-
-                        <div class="conversation-info">
-
-                            <div class="conversation-top">
-
-                                <div class="conversation-name">
-
-                                    {{ conversation['name'] }}
-
-                                </div>
-
-                                <div class="message-time">
-
-                                    {{ conversation['created_at']|nigeria_time }}
-
-                                </div>
-
+                            <div class="default-picture">
+                                {{ conversation['name'][0]|upper }}
                             </div>
 
+                        {% endif %}
 
-                            <div class="last-message">
-
-                                {{ conversation['message'] }}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- ARROW -->
-
-                        <div class="conversation-arrow">
-                            ›
-                        </div>
-
-                    </a>
-
-                {% endfor %}
-
-            {% else %}
-
-                <!-- EMPTY STATE -->
-
-                <div class="empty">
-
-                    <div class="empty-icon">
-                        💬
                     </div>
 
-                    <h2>
-                        No messages yet
-                    </h2>
 
-                    <p>
-                        Search for a student and start your first
-                        conversation on UniCamplink.
-                    </p>
+                    <div class="conversation-info">
 
-                    <a
-                        href="/search"
-                        class="empty-action"
-                    >
-                        🔍 Find Students
-                    </a>
+                        <div class="conversation-top">
 
+                            <div class="conversation-name">
+                                {{ conversation['name'] }}
+                            </div>
+
+                            <div class="message-time">
+                                {{ conversation['created_at']|nigeria_time }}
+                            </div>
+
+                        </div>
+
+                        <div class="last-message">
+                            {{ conversation['message'] }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="conversation-arrow">
+                        ›
+                    </div>
+
+                </a>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- =================================================
+             GROUP CHATS
+        ================================================== -->
+
+        {% if group_conversations %}
+
+            <div class="messages-box-header group-section-header">
+
+                <span class="messages-box-title">
+                    👥 Group Chats
+                </span>
+
+                <span class="messages-box-label">
+                    Communities
+                </span>
+
+            </div>
+
+
+            {% for conversation in group_conversations %}
+
+                <a
+                    class="conversation group-conversation"
+                    href="{{ url_for(
+                        'group_chat',
+                        group_id=conversation['group_id']
+                    ) }}"
+                >
+
+                    <div class="avatar-wrapper">
+
+                        <div class="group-conversation-avatar">
+                            👥
+                        </div>
+
+                    </div>
+
+
+                    <div class="conversation-info">
+
+                        <div class="conversation-top">
+
+                            <div class="conversation-name">
+                                {{ conversation['group_name'] }}
+                            </div>
+
+                            <div class="message-time">
+                                {{ conversation['created_at']|nigeria_time }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="last-message">
+
+                            <strong>
+                                {{ conversation['sender_name'] }}:
+                            </strong>
+
+                            {{ conversation['message'] }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="conversation-arrow">
+                        ›
+                    </div>
+
+                </a>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- =================================================
+             EMPTY STATE
+        ================================================== -->
+
+        {% if not conversations and not group_conversations %}
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    💬
                 </div>
 
-            {% endif %}
+                <h2>
+                    No messages yet
+                </h2>
 
-        </section>
+                <p>
+                    Your private and group conversations
+                    will appear here. Find another student
+                    or join a group and start connecting
+                    through UniCamplink.
+                </p>
 
-    </main>
+                <a
+                    href="/search"
+                    class="empty-action"
+                >
+                    🔍 Find Students
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     MOBILE BOTTOM NAVIGATION
+========================================================= -->
+
+<nav class="mobile-bottom-nav">
+
+    <a href="/dashboard">
+
+        <span>🏠</span>
+        <span>Home</span>
+
+    </a>
+
+
+    <a href="/feed">
+
+        <span>📰</span>
+        <span>Feed</span>
+
+    </a>
+
+
+    <a href="/groups">
+
+        <span>👥</span>
+        <span>Groups</span>
+
+    </a>
+
+
+    <a
+        href="/messages"
+        class="active"
+    >
+
+        <span>💬</span>
+        <span>Messages</span>
+
+    </a>
+
+
+    <a href="/profile">
+
+        <span>👤</span>
+        <span>Profile</span>
+
+    </a>
+
+</nav>
+
 
 </body>
 </html>

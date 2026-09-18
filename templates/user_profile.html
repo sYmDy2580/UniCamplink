@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -17,6 +19,7 @@
     >
 
     <style>
+
         /* =========================================================
            RAZOR PROFILE
            ========================================================= */
@@ -29,6 +32,7 @@
             margin: 0;
             background: var(--bg);
             color: var(--text);
+
             font-family:
                 Inter,
                 -apple-system,
@@ -48,41 +52,61 @@
            ========================================================= */
 
         .profile-navbar {
+
             position: sticky;
             top: 0;
             z-index: 1000;
+
             width: 100%;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
+
             padding: 12px 4%;
+
             background: rgba(7, 17, 31, 0.88);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+
+            border-bottom:
+                1px solid
+                rgba(148, 163, 184, 0.12);
+
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
         }
 
         .profile-navbar .logo {
+
             display: flex;
             align-items: center;
+
             gap: 10px;
+
             color: #fff;
+
             font-weight: 800;
             font-size: 19px;
         }
 
         .profile-navbar .logo img {
+
             width: 40px;
             height: 40px;
+
             object-fit: contain;
+
             border-radius: 11px;
         }
 
         .profile-nav-links {
+
             display: flex;
             align-items: center;
+
             gap: 4px;
+
             overflow-x: auto;
+
             scrollbar-width: none;
         }
 
@@ -92,30 +116,46 @@
 
         .profile-nav-links a,
         .profile-nav-links button {
+
             white-space: nowrap;
+
             padding: 9px 12px;
+
             border-radius: 10px;
+
             color: #cbd5e1;
+
             font-family: inherit;
+
             font-size: 13px;
             font-weight: 650;
+
             transition: 0.2s ease;
         }
 
         .profile-nav-links a:hover,
         .profile-nav-links button:hover {
-            background: rgba(56, 189, 248, 0.10);
+
+            background:
+                rgba(56, 189, 248, 0.10);
+
             color: #fff;
         }
 
         .profile-nav-links .active {
+
             color: #38bdf8;
-            background: rgba(56, 189, 248, 0.10);
+
+            background:
+                rgba(56, 189, 248, 0.10);
         }
 
         .profile-nav-links button {
+
             border: 0;
+
             background: transparent;
+
             cursor: pointer;
         }
 
@@ -124,8 +164,11 @@
            ========================================================= */
 
         .profile-page {
+
             width: min(1050px, 94%);
-            margin: 28px auto 70px;
+
+            margin:
+                28px auto 70px;
         }
 
         /* =========================================================
@@ -133,24 +176,45 @@
            ========================================================= */
 
         .profile-back {
+
             display: inline-flex;
+
             align-items: center;
+
             gap: 7px;
+
             margin-bottom: 18px;
+
             padding: 9px 14px;
-            border: 1px solid var(--border);
+
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 11px;
-            background: var(--card);
-            color: var(--text-secondary);
+
+            background:
+                var(--card);
+
+            color:
+                var(--text-secondary);
+
             font-size: 13px;
             font-weight: 650;
+
             transition: 0.2s ease;
         }
 
         .profile-back:hover {
-            color: var(--primary);
-            border-color: var(--primary);
-            transform: translateX(-2px);
+
+            color:
+                var(--primary);
+
+            border-color:
+                var(--primary);
+
+            transform:
+                translateX(-2px);
         }
 
         /* =========================================================
@@ -158,41 +222,62 @@
            ========================================================= */
 
         .profile-hero {
+
             position: relative;
+
             overflow: hidden;
-            border: 1px solid var(--border);
+
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 24px;
-            background: var(--card);
-            box-shadow: var(--shadow);
+
+            background:
+                var(--card);
+
+            box-shadow:
+                var(--shadow);
         }
 
         .profile-cover {
+
             height: 180px;
+
             background:
+
                 radial-gradient(
                     circle at 20% 20%,
                     rgba(125, 211, 252, 0.30),
                     transparent 30%
                 ),
+
                 radial-gradient(
                     circle at 85% 20%,
                     rgba(14, 165, 233, 0.24),
                     transparent 35%
                 ),
+
                 linear-gradient(
                     135deg,
                     #0f2942,
                     #07111f 60%,
                     #0b2034
                 );
+
             position: relative;
         }
 
         .profile-cover::after {
+
             content: "";
+
             position: absolute;
+
             inset: 0;
+
             background:
+
                 linear-gradient(
                     120deg,
                     transparent 0%,
@@ -202,21 +287,32 @@
         }
 
         .cover-brand {
+
             position: absolute;
+
             right: 28px;
             bottom: 24px;
+
             display: flex;
+
             align-items: center;
+
             gap: 8px;
-            color: rgba(255,255,255,0.55);
+
+            color:
+                rgba(255,255,255,0.55);
+
             font-size: 12px;
             font-weight: 700;
         }
 
         .cover-brand img {
+
             width: 28px;
             height: 28px;
+
             object-fit: contain;
+
             opacity: 0.75;
         }
 
@@ -225,8 +321,11 @@
            ========================================================= */
 
         .profile-main {
+
             position: relative;
-            padding: 0 32px 30px;
+
+            padding:
+                0 32px 30px;
         }
 
         /* =========================================================
@@ -234,51 +333,81 @@
            ========================================================= */
 
         .profile-avatar-wrap {
+
             position: relative;
+
             width: 132px;
             height: 132px;
+
             margin-top: -66px;
+
             margin-bottom: 16px;
         }
 
         .profile-picture,
         .profile-avatar {
+
             width: 132px;
             height: 132px;
+
             border-radius: 50%;
-            border: 5px solid var(--card);
+
+            border:
+                5px solid
+                var(--card);
+
             box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.25);
+                0 10px 30px
+                rgba(0, 0, 0, 0.25);
         }
 
         .profile-picture {
+
             display: block;
+
             object-fit: cover;
-            background: var(--bg-secondary);
+
+            background:
+                var(--bg-secondary);
         }
 
         .profile-avatar {
+
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             background:
+
                 linear-gradient(
                     135deg,
                     rgba(56,189,248,0.15),
                     var(--bg-secondary)
                 );
+
             font-size: 58px;
         }
 
         .online-indicator {
+
             position: absolute;
+
             right: 7px;
             bottom: 8px;
+
             width: 22px;
             height: 22px;
+
             border-radius: 50%;
-            background: #22c55e;
-            border: 4px solid var(--card);
+
+            background:
+                #22c55e;
+
+            border:
+                4px solid
+                var(--card);
+
             display: none;
         }
 
@@ -287,9 +416,13 @@
            ========================================================= */
 
         .profile-heading {
+
             display: flex;
+
             align-items: flex-start;
+
             justify-content: space-between;
+
             gap: 25px;
         }
 
@@ -298,29 +431,110 @@
         }
 
         .profile-name-row {
+
             display: flex;
+
             align-items: center;
+
             flex-wrap: wrap;
+
             gap: 9px;
         }
 
         .profile-name-row h1 {
+
             margin: 0;
-            color: var(--text);
+
+            color:
+                var(--text);
+
             font-size: 30px;
+
             line-height: 1.15;
+
             letter-spacing: -0.7px;
         }
 
+        /* =========================================================
+           VERIFIED STUDENT BADGE
+           ========================================================= */
+
+        .verified-student-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding:
+                5px 10px;
+
+            border-radius: 999px;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #38bdf8
+                );
+
+            color: #fff;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            line-height: 1;
+
+            box-shadow:
+                0 5px 15px
+                rgba(37, 99, 235, .20);
+
+            white-space: nowrap;
+        }
+
+        .verified-student-icon {
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 17px;
+            height: 17px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255, 255, 255, .95);
+
+            color:
+                #2563eb;
+
+            font-size: 11px;
+
+            font-weight: 900;
+        }
+
         .profile-university {
+
             margin-top: 8px;
-            color: var(--text-secondary);
+
+            color:
+                var(--text-secondary);
+
             font-size: 14px;
         }
 
         .profile-email {
+
             margin-top: 5px;
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 12px;
         }
 
@@ -329,60 +543,109 @@
            ========================================================= */
 
         .profile-actions {
+
             display: flex;
+
             align-items: center;
+
             flex-wrap: wrap;
+
             justify-content: flex-end;
+
             gap: 9px;
         }
 
         .profile-action,
         .profile-action-button {
+
             display: inline-flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 7px;
+
             min-height: 42px;
-            padding: 10px 17px;
+
+            padding:
+                10px 17px;
+
             border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text);
+
+            border:
+                1px solid
+                var(--border);
+
+            background:
+                var(--bg-secondary);
+
+            color:
+                var(--text);
+
             font-family: inherit;
+
             font-size: 13px;
+
             font-weight: 750;
+
             cursor: pointer;
+
             transition:
+
                 transform 0.2s ease,
+
                 background 0.2s ease,
+
                 border-color 0.2s ease;
         }
 
         .profile-action:hover,
         .profile-action-button:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
+
+            transform:
+                translateY(-2px);
+
+            border-color:
+                var(--primary);
         }
 
         .primary-action {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: #03111f;
+
+            background:
+                var(--primary);
+
+            border-color:
+                var(--primary);
+
+            color:
+                #03111f;
         }
 
         .primary-action:hover {
-            background: var(--primary-hover);
+
+            background:
+                var(--primary-hover);
         }
 
         .friend-action {
-            background: #22c55e;
-            border-color: #22c55e;
+
+            background:
+                #22c55e;
+
+            border-color:
+                #22c55e;
+
             color: #fff;
         }
 
         .friend-action:hover {
-            background: #16a34a;
-            border-color: #16a34a;
+
+            background:
+                #16a34a;
+
+            border-color:
+                #16a34a;
         }
 
         /* =========================================================
@@ -390,37 +653,68 @@
            ========================================================= */
 
         .friend-status {
+
             display: inline-flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 7px;
+
             min-height: 42px;
-            padding: 10px 17px;
+
+            padding:
+                10px 17px;
+
             border-radius: 12px;
+
             font-size: 13px;
+
             font-weight: 750;
         }
 
         .friends-status {
-            color: #4ade80;
-            background: rgba(34, 197, 94, 0.10);
-            border: 1px solid rgba(34, 197, 94, 0.25);
+
+            color:
+                #4ade80;
+
+            background:
+                rgba(34, 197, 94, 0.10);
+
+            border:
+                1px solid
+                rgba(34, 197, 94, 0.25);
         }
 
         .pending-status {
-            color: #facc15;
-            background: rgba(234, 179, 8, 0.10);
-            border: 1px solid rgba(234, 179, 8, 0.25);
+
+            color:
+                #facc15;
+
+            background:
+                rgba(234, 179, 8, 0.10);
+
+            border:
+                1px solid
+                rgba(234, 179, 8, 0.25);
         }
 
         .respond-action {
-            background: #7c3aed;
-            border-color: #7c3aed;
+
+            background:
+                #7c3aed;
+
+            border-color:
+                #7c3aed;
+
             color: #fff;
         }
 
         .respond-action:hover {
-            background: #6d28d9;
+
+            background:
+                #6d28d9;
         }
 
         /* =========================================================
@@ -428,46 +722,77 @@
            ========================================================= */
 
         .ambassador-section {
+
             margin-top: 20px;
         }
 
         .campus-ambassador-badge {
+
             display: inline-flex;
+
             align-items: center;
+
             gap: 8px;
-            padding: 9px 14px;
+
+            padding:
+                9px 14px;
+
             border-radius: 999px;
+
             background:
+
                 linear-gradient(
                     135deg,
                     #f59e0b,
                     #f97316
                 );
+
             color: white;
+
             font-size: 12px;
+
             font-weight: 850;
+
             box-shadow:
-                0 7px 20px rgba(245,158,11,0.20);
+                0 7px 20px
+                rgba(245,158,11,0.20);
         }
 
         .campus-ambassador-details {
+
             display: flex;
+
             flex-wrap: wrap;
+
             gap: 9px;
+
             margin-top: 10px;
         }
 
         .ambassador-detail {
-            padding: 8px 12px;
+
+            padding:
+                8px 12px;
+
             border-radius: 10px;
-            background: rgba(245,158,11,0.07);
-            border: 1px solid rgba(245,158,11,0.18);
-            color: var(--text-secondary);
+
+            background:
+                rgba(245,158,11,0.07);
+
+            border:
+                1px solid
+                rgba(245,158,11,0.18);
+
+            color:
+                var(--text-secondary);
+
             font-size: 12px;
         }
 
         .ambassador-detail strong {
-            color: #f59e0b;
+
+            color:
+                #f59e0b;
         }
 
         /* =========================================================
@@ -475,11 +800,18 @@
            ========================================================= */
 
         .profile-bio {
+
             max-width: 700px;
+
             margin-top: 20px;
-            color: var(--text-secondary);
+
+            color:
+                var(--text-secondary);
+
             font-size: 14px;
+
             line-height: 1.75;
+
             white-space: pre-wrap;
         }
 
@@ -488,19 +820,37 @@
            ========================================================= */
 
         .profile-stats {
+
             display: flex;
+
             align-items: center;
+
             flex-wrap: wrap;
+
             gap: 0;
+
             margin-top: 25px;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
+
+            border-top:
+                1px solid
+                var(--border);
+
+            border-bottom:
+                1px solid
+                var(--border);
         }
 
         .profile-stat {
+
             min-width: 130px;
-            padding: 16px 20px;
-            border-right: 1px solid var(--border);
+
+            padding:
+                16px 20px;
+
+            border-right:
+                1px solid
+                var(--border);
+
             text-align: center;
         }
 
@@ -509,16 +859,26 @@
         }
 
         .profile-stat strong {
+
             display: block;
-            color: var(--text);
+
+            color:
+                var(--text);
+
             font-size: 19px;
+
             font-weight: 850;
         }
 
         .profile-stat span {
+
             display: block;
+
             margin-top: 3px;
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 11px;
         }
 
@@ -531,21 +891,33 @@
         }
 
         .posts-header {
+
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
+
             margin-bottom: 15px;
         }
 
         .posts-header h2 {
+
             margin: 0;
-            color: var(--text);
+
+            color:
+                var(--text);
+
             font-size: 20px;
+
             font-weight: 800;
         }
 
         .posts-header span {
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 12px;
         }
 
@@ -554,77 +926,136 @@
            ========================================================= */
 
         .post-card {
+
             position: relative;
+
             margin-bottom: 14px;
+
             padding: 20px;
-            border: 1px solid var(--border);
+
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 18px;
-            background: var(--card);
-            box-shadow: var(--shadow);
+
+            background:
+                var(--card);
+
+            box-shadow:
+                var(--shadow);
+
             transition:
+
                 transform 0.2s ease,
+
                 border-color 0.2s ease;
         }
 
         .post-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(56,189,248,0.25);
+
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(56,189,248,0.25);
         }
 
         .post-top {
+
             display: flex;
+
             align-items: center;
+
             gap: 11px;
+
             margin-bottom: 14px;
         }
 
         .post-mini-avatar {
+
             width: 38px;
             height: 38px;
+
             display: grid;
+
             place-items: center;
+
             flex-shrink: 0;
+
             border-radius: 50%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
+
+            background:
+                var(--bg-secondary);
+
+            border:
+                1px solid
+                var(--border);
+
             overflow: hidden;
+
             font-size: 17px;
         }
 
         .post-mini-avatar img {
+
             width: 100%;
             height: 100%;
+
             object-fit: cover;
         }
 
         .post-author-name {
-            color: var(--text);
+
+            color:
+                var(--text);
+
             font-size: 13px;
+
             font-weight: 750;
         }
 
         .post-date {
+
             margin-top: 2px;
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 11px;
         }
 
         .post-content {
-            color: var(--text-secondary);
+
+            color:
+                var(--text-secondary);
+
             font-size: 14px;
+
             line-height: 1.7;
+
             white-space: pre-wrap;
+
             overflow-wrap: anywhere;
         }
 
         .post-image {
+
             display: block;
+
             width: 100%;
+
             max-height: 620px;
+
             margin-top: 14px;
+
             object-fit: cover;
+
             border-radius: 14px;
-            border: 1px solid var(--border);
+
+            border:
+                1px solid
+                var(--border);
         }
 
         /* =========================================================
@@ -632,27 +1063,46 @@
            ========================================================= */
 
         .no-posts {
-            padding: 45px 20px;
-            border: 1px dashed var(--border);
+
+            padding:
+                45px 20px;
+
+            border:
+                1px dashed
+                var(--border);
+
             border-radius: 18px;
-            background: var(--card);
+
+            background:
+                var(--card);
+
             text-align: center;
         }
 
         .empty-icon {
+
             font-size: 35px;
+
             margin-bottom: 10px;
         }
 
         .no-posts strong {
+
             display: block;
-            color: var(--text);
+
+            color:
+                var(--text);
+
             font-size: 15px;
         }
 
         .no-posts p {
+
             margin: 7px 0 0;
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 12px;
         }
 
@@ -661,31 +1111,44 @@
            ========================================================= */
 
         body.light-mode .profile-navbar {
-            background: rgba(255,255,255,0.88);
-            border-color: rgba(15,23,42,0.08);
+
+            background:
+                rgba(255,255,255,0.88);
+
+            border-color:
+                rgba(15,23,42,0.08);
         }
 
         body.light-mode .profile-navbar .logo {
-            color: #0f172a;
+
+            color:
+                #0f172a;
         }
 
         body.light-mode .profile-nav-links a,
         body.light-mode .profile-nav-links button {
-            color: #475569;
+
+            color:
+                #475569;
         }
 
         body.light-mode .profile-nav-links a:hover,
         body.light-mode .profile-nav-links button:hover {
-            color: #0284c7;
+
+            color:
+                #0284c7;
         }
 
         body.light-mode .profile-cover {
+
             background:
+
                 radial-gradient(
                     circle at 20% 20%,
                     rgba(56,189,248,0.25),
                     transparent 30%
                 ),
+
                 linear-gradient(
                     135deg,
                     #dff6ff,
@@ -708,11 +1171,14 @@
             }
 
             .profile-nav-links {
-                max-width: calc(100% - 50px);
+                max-width:
+                    calc(100% - 50px);
             }
 
             .profile-page {
+
                 width: 94%;
+
                 margin-top: 18px;
             }
 
@@ -721,19 +1187,25 @@
             }
 
             .profile-main {
-                padding: 0 18px 23px;
+
+                padding:
+                    0 18px 23px;
             }
 
             .profile-avatar-wrap {
+
                 width: 105px;
                 height: 105px;
+
                 margin-top: -52px;
             }
 
             .profile-picture,
             .profile-avatar {
+
                 width: 105px;
                 height: 105px;
+
                 border-width: 4px;
             }
 
@@ -750,25 +1222,35 @@
             }
 
             .profile-actions {
-                justify-content: flex-start;
+
+                justify-content:
+                    flex-start;
+
                 margin-top: 18px;
             }
 
             .profile-action,
             .profile-action-button,
             .friend-status {
+
                 flex: 1;
+
                 min-width: 130px;
             }
 
             .profile-stats {
+
                 margin-top: 20px;
             }
 
             .profile-stat {
+
                 flex: 1;
+
                 min-width: 33.33%;
-                padding: 13px 8px;
+
+                padding:
+                    13px 8px;
             }
 
             .profile-stat strong {
@@ -791,6 +1273,7 @@
             }
 
             .profile-main {
+
                 padding-left: 14px;
                 padding-right: 14px;
             }
@@ -800,31 +1283,61 @@
             }
 
             .profile-actions {
+
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+
+                grid-template-columns:
+                    1fr 1fr;
             }
 
             .profile-action,
             .profile-action-button,
             .friend-status {
+
                 width: 100%;
+
                 min-width: 0;
             }
 
+            .verified-student-badge {
+
+                padding:
+                    5px 8px;
+
+                font-size: 10px;
+            }
+
+            .verified-student-icon {
+
+                width: 16px;
+                height: 16px;
+
+                font-size: 10px;
+            }
+
             .campus-ambassador-badge {
+
                 width: 100%;
+
                 justify-content: center;
+
                 text-align: center;
+
                 border-radius: 12px;
             }
 
             .campus-ambassador-details {
+
                 display: grid;
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
 
             .profile-stat {
-                padding: 12px 5px;
+
+                padding:
+                    12px 5px;
             }
 
             .profile-stat strong {
@@ -832,11 +1345,15 @@
             }
 
             .post-card {
+
                 padding: 16px;
+
                 border-radius: 15px;
             }
         }
+
     </style>
+
 </head>
 
 <body>
@@ -851,6 +1368,7 @@
         href="{{ url_for('dashboard') }}"
         class="logo"
     >
+
         <img
             src="{{ url_for(
                 'static',
@@ -859,7 +1377,10 @@
             alt="UniCamplink Logo"
         >
 
-        <span>UniCamplink</span>
+        <span>
+            UniCamplink
+        </span>
+
     </a>
 
     <div class="profile-nav-links">
@@ -872,7 +1393,7 @@
             Feed
         </a>
 
-        <a href="{{ url_for('profile') }}" class="active">
+        <a href="{{ url_for('profile') }}">
             Profile
         </a>
 
@@ -901,6 +1422,7 @@
             method="POST"
             style="display:inline;"
         >
+
             <input
                 type="hidden"
                 name="csrf_token"
@@ -910,12 +1432,12 @@
             <button type="submit">
                 Logout
             </button>
+
         </form>
 
     </div>
 
 </nav>
-
 
 <!-- =========================================================
      MAIN
@@ -929,7 +1451,6 @@
     >
         ← Back to Search
     </a>
-
 
     <!-- =====================================================
          PROFILE HERO
@@ -954,7 +1475,6 @@
             </div>
 
         </div>
-
 
         <div class="profile-main">
 
@@ -985,7 +1505,6 @@
 
             </div>
 
-
             <!-- PROFILE HEADING -->
 
             <div class="profile-heading">
@@ -998,18 +1517,38 @@
                             {{ user["name"] }}
                         </h1>
 
-                    </div>
+                        {% if user["is_verified_student"] %}
 
+                            <div
+                                class="verified-student-badge"
+                                title="This student has been verified by UniCamplink"
+                            >
+
+                                <span class="verified-student-icon">
+                                    ✓
+                                </span>
+
+                                Verified Student
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
 
                     <div class="profile-university">
-                        🎓 {{ user["university"] }}
-                    </div>
 
+                        🎓
+                        {{ user["university"] }}
+
+                    </div>
 
                     <div class="profile-email">
-                        📧 {{ user["email"] }}
-                    </div>
 
+                        📧
+                        {{ user["email"] }}
+
+                    </div>
 
                     <!-- CAMPUS AMBASSADOR -->
 
@@ -1018,8 +1557,11 @@
                         <div class="ambassador-section">
 
                             <div class="campus-ambassador-badge">
+
                                 🏅
+
                                 Official UniCamplink Campus Ambassador
+
                             </div>
 
                             <div class="campus-ambassador-details">
@@ -1039,7 +1581,6 @@
                                     </div>
 
                                 {% endif %}
-
 
                                 {% if campus_ambassador["school"] %}
 
@@ -1063,19 +1604,19 @@
 
                     {% endif %}
 
-
                     <!-- BIO -->
 
                     {% if user["bio"] %}
 
                         <div class="profile-bio">
+
                             {{ user["bio"] }}
+
                         </div>
 
                     {% endif %}
 
                 </div>
-
 
                 <!-- ACTIONS -->
 
@@ -1089,7 +1630,10 @@
                             href="{{ url_for('edit_profile') }}"
                             class="profile-action primary-action"
                         >
-                            ✏️ Edit Profile
+
+                            ✏️
+                            Edit Profile
+
                         </a>
 
                     {% else %}
@@ -1103,22 +1647,34 @@
                             ) }}"
                             class="profile-action primary-action"
                         >
-                            💬 Message
-                        </a>
 
+                            💬
+                            Message
+
+                        </a>
 
                         <!-- FRIENDSHIP -->
 
                         {% if is_friend %}
 
-                            <div class="friend-status friends-status">
-                                ❤️ Friends
+                            <div
+                                class="friend-status friends-status"
+                            >
+
+                                ❤️
+                                Friends
+
                             </div>
 
                         {% elif request_sent %}
 
-                            <div class="friend-status pending-status">
-                                ⏳ Request Sent
+                            <div
+                                class="friend-status pending-status"
+                            >
+
+                                ⏳
+                                Request Sent
+
                             </div>
 
                         {% elif request_received %}
@@ -1127,7 +1683,10 @@
                                 href="{{ url_for('friend_requests') }}"
                                 class="profile-action respond-action"
                             >
-                                🤝 Respond
+
+                                🤝
+                                Respond
+
                             </a>
 
                         {% else %}
@@ -1150,7 +1709,10 @@
                                     type="submit"
                                     class="profile-action-button friend-action"
                                 >
-                                    ➕ Add Friend
+
+                                    ➕
+                                    Add Friend
+
                                 </button>
 
                             </form>
@@ -1162,7 +1724,6 @@
                 </div>
 
             </div>
-
 
             <!-- PROFILE STATS -->
 
@@ -1180,7 +1741,6 @@
 
                 </div>
 
-
                 <div class="profile-stat">
 
                     <strong>
@@ -1192,7 +1752,6 @@
                     </span>
 
                 </div>
-
 
                 <div class="profile-stat">
 
@@ -1212,7 +1771,6 @@
 
     </section>
 
-
     <!-- =====================================================
          POSTS
          ===================================================== -->
@@ -1226,12 +1784,14 @@
             </h2>
 
             <span>
+
                 {{ posts|length }}
+
                 post{% if posts|length != 1 %}s{% endif %}
+
             </span>
 
         </div>
-
 
         {% if posts %}
 
@@ -1261,30 +1821,33 @@
 
                         </div>
 
-
                         <div>
 
                             <div class="post-author-name">
+
                                 {{ user["name"] }}
+
                             </div>
 
                             <div class="post-date">
+
                                 {{ post["created_at"]|nigeria_time }}
+
                             </div>
 
                         </div>
 
                     </div>
 
-
                     {% if post["content"] %}
 
                         <div class="post-content">
+
                             {{ post["content"] }}
+
                         </div>
 
                     {% endif %}
-
 
                     {% if post["image"] %}
 
@@ -1317,7 +1880,8 @@
                 </strong>
 
                 <p>
-                    {{ user["name"] }} hasn't made any posts yet.
+                    {{ user["name"] }}
+                    hasn't made any posts yet.
                 </p>
 
             </div>
@@ -1328,10 +1892,11 @@
 
 </main>
 
-
 <script
     src="{{ url_for('static', filename='js/theme.js') }}"
 ></script>
 
 </body>
+
 </html>
+

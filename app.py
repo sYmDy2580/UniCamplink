@@ -989,7 +989,134 @@ def update_users_table():
 
     conn.commit()
     conn.close()
+    # ============================================================
+# GROUP MESSAGES TABLE
+# ============================================================
 
+def update_group_messages_table():
+
+    conn = get_db_connection()
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS group_messages (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            group_id INTEGER NOT NULL,
+
+            sender_id INTEGER NOT NULL,
+
+            message TEXT NOT NULL,
+
+            created_at TIMESTAMP
+                DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (group_id)
+                REFERENCES groups(id)
+                ON DELETE CASCADE,
+
+            FOREIGN KEY (sender_id)
+                REFERENCES users(id)
+                ON DELETE CASCADE
+        )
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS
+        idx_group_messages_group
+
+        ON group_messages(group_id)
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS
+        idx_group_messages_created
+
+        ON group_messages(created_at)
+        """
+    )
+
+    conn.commit()
+    conn.close()
+def update_users_block_status():
+    conn = get_db_connection()
+
+    existing_columns = {
+        row["name"]
+        for row in conn.execute(
+            "PRAGMA table_info(users)"
+        ).fetchall()
+    }
+
+    if "is_blocked" not in existing_columns:
+        conn.execute(
+            """
+            ALTER TABLE users
+            ADD COLUMN is_blocked INTEGER NOT NULL DEFAULT 0
+            """
+        )
+
+    conn.commit()
+    conn.close()
+    # ============================================================
+# GROUP MESSAGES TABLE
+# ============================================================
+
+def update_group_messages_table():
+
+    conn = get_db_connection()
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS group_messages (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            group_id INTEGER NOT NULL,
+
+            sender_id INTEGER NOT NULL,
+
+            message TEXT NOT NULL,
+
+            created_at TIMESTAMP
+                DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (group_id)
+                REFERENCES groups(id)
+                ON DELETE CASCADE,
+
+            FOREIGN KEY (sender_id)
+                REFERENCES users(id)
+                ON DELETE CASCADE
+        )
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS
+        idx_group_messages_group
+
+        ON group_messages(group_id)
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS
+        idx_group_messages_created
+
+        ON group_messages(created_at)
+        """
+    )
+
+    conn.commit()
+    conn.close()
 
 def update_posts_table():
 
@@ -1319,20 +1446,125 @@ def update_announcements_table():
 
     conn.commit()
     conn.close()
+# ============================================================
+# DATABASE MIGRATION — REPORTS
+# ============================================================
 
+def update_reports_table():
 
+    conn = get_db_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            reporter_id INTEGER NOT NULL,
+
+            reported_user_id INTEGER,
+
+            target_type TEXT NOT NULL,
+            target_id INTEGER NOT NULL,
+
+            reason TEXT NOT NULL,
+            details TEXT DEFAULT '',
+
+            status TEXT NOT NULL DEFAULT 'pending',
+
+            reviewed_by INTEGER,
+            reviewed_at TIMESTAMP,
+
+            resolution_note TEXT DEFAULT '',
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (reporter_id)
+            REFERENCES users(id)
+            ON DELETE CASCADE,
+
+            FOREIGN KEY (reported_user_id)
+            REFERENCES users(id)
+            ON DELETE SET NULL,
+
+            FOREIGN KEY (reviewed_by)
+            REFERENCES users(id)
+            ON DELETE SET NULL
+        )
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_reports_status
+        ON reports(status)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_reports_target
+        ON reports(target_type, target_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_reports_reporter
+        ON reports(reporter_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_reports_created
+        ON reports(created_at)
+    """)
+
+    conn.commit()
+    conn.close()
+def update_moderation_logs_table():
+    conn = get_db_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS moderation_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin_id INTEGER NOT NULL,
+            target_user_id INTEGER NOT NULL,
+            action TEXT NOT NULL,
+            reason TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (admin_id)
+                REFERENCES users(id)
+                ON DELETE SET NULL,
+
+            FOREIGN KEY (target_user_id)
+                REFERENCES users(id)
+                ON DELETE SET NULL
+        )
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_moderation_logs_target
+        ON moderation_logs(target_user_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_moderation_logs_created
+        ON moderation_logs(created_at)
+    """)
+
+    conn.commit()
+    conn.close()
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
 
 create_tables()
 update_users_table()
+update_group_messages_table()
+update_users_block_status()
+update_group_messages_table()
 update_posts_table()
 update_comments_table()
 update_advertisement_requests_table()
 update_sponsored_posts_table()
 update_campus_ambassadors_table()
 update_announcements_table()
+update_reports_table()
+update_moderation_logs_table()
 # ============================================================
 # USER ONLINE / LAST SEEN TRACKER
 # ============================================================
@@ -1529,10 +1761,16 @@ def login():
             ""
         )
 
+        # ----------------------------------------------------
+        # INVALID EMAIL LENGTH
+        # ----------------------------------------------------
+
         if len(email) > MAX_EMAIL_LENGTH:
 
-            return (
-                "Invalid email or password."
+            return render_template(
+                "login.html",
+                login_error="Invalid email or password.",
+                login_email=email
             )
 
         conn = get_db_connection()
@@ -1581,10 +1819,14 @@ def login():
 
                         conn.close()
 
-                        return (
-                            "Too many failed login attempts. "
-                            f"Please try again in "
-                            f"{remaining_minutes} minute(s)."
+                        return render_template(
+                            "login.html",
+                            login_error=(
+                                "Too many failed login attempts. "
+                                f"Please try again in "
+                                f"{remaining_minutes} minute(s)."
+                            ),
+                            login_email=email
                         ), 429
 
                     conn.execute(
@@ -1761,9 +2003,13 @@ def login():
             conn.commit()
             conn.close()
 
-            return (
-                "Too many failed login attempts. "
-                "Please try again in 10 minutes."
+            return render_template(
+                "login.html",
+                login_error=(
+                    "Too many failed login attempts. "
+                    "Please try again in 10 minutes."
+                ),
+                login_email=email
             ), 429
 
         # ----------------------------------------------------
@@ -1794,12 +2040,24 @@ def login():
         conn.commit()
         conn.close()
 
-        return (
-            "Invalid email or password."
+        # ----------------------------------------------------
+        # SHOW RAZOR LOGIN PAGE WITH ERROR
+        # ----------------------------------------------------
+
+        return render_template(
+            "login.html",
+            login_error="Invalid email or password.",
+            login_email=email
         )
 
+    # --------------------------------------------------------
+    # NORMAL LOGIN PAGE
+    # --------------------------------------------------------
+
     return render_template(
-        "login.html"
+        "login.html",
+        login_error=None,
+        login_email=""
     )
 
 
@@ -2576,7 +2834,234 @@ def get_comments(post_id):
         "success": True,
         "comments": [dict(row) for row in rows]
     })
+# ============================================================
+# REPORT SYSTEM
+# ============================================================
 
+@app.route(
+    "/api/reports",
+    methods=["POST"]
+)
+def create_report():
+
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Please log in again."
+        }), 401
+
+    data = request.get_json(silent=True) or {}
+
+    target_type = clean_text(
+        data.get("target_type"),
+        30
+    )
+
+    reason = clean_text(
+        data.get("reason"),
+        100
+    )
+
+    details = clean_text(
+        data.get("details"),
+        1000
+    )
+
+    try:
+        target_id = int(
+            data.get("target_id")
+        )
+    except (TypeError, ValueError):
+        return jsonify({
+            "success": False,
+            "error": "Invalid report target."
+        }), 400
+
+    allowed_target_types = {
+        "user",
+        "post",
+        "comment"
+    }
+
+    if target_type not in allowed_target_types:
+        return jsonify({
+            "success": False,
+            "error": "Invalid report type."
+        }), 400
+
+    if not reason:
+        return jsonify({
+            "success": False,
+            "error": "Please select a report reason."
+        }), 400
+
+    if target_id <= 0:
+        return jsonify({
+            "success": False,
+            "error": "Invalid report target."
+        }), 400
+
+    if details is None:
+        return jsonify({
+            "success": False,
+            "error": "Report details are too long."
+        }), 400
+
+    conn = get_db_connection()
+
+    # --------------------------------------------------------
+    # Verify that the reported target actually exists
+    # --------------------------------------------------------
+
+    reported_user_id = None
+
+    if target_type == "user":
+
+        target = conn.execute(
+            """
+            SELECT id
+            FROM users
+            WHERE id = ?
+            """,
+            (target_id,)
+        ).fetchone()
+
+        if not target:
+            conn.close()
+
+            return jsonify({
+                "success": False,
+                "error": "User not found."
+            }), 404
+
+        reported_user_id = target["id"]
+
+    elif target_type == "post":
+
+        target = conn.execute(
+            """
+            SELECT id, user_id
+            FROM posts
+            WHERE id = ?
+            """,
+            (target_id,)
+        ).fetchone()
+
+        if not target:
+            conn.close()
+
+            return jsonify({
+                "success": False,
+                "error": "Post not found."
+            }), 404
+
+        reported_user_id = target["user_id"]
+
+    elif target_type == "comment":
+
+        target = conn.execute(
+            """
+            SELECT id, user_id
+            FROM comments
+            WHERE id = ?
+            """,
+            (target_id,)
+        ).fetchone()
+
+        if not target:
+            conn.close()
+
+            return jsonify({
+                "success": False,
+                "error": "Comment not found."
+            }), 404
+
+        reported_user_id = target["user_id"]
+
+    # --------------------------------------------------------
+    # Prevent users from reporting themselves
+    # --------------------------------------------------------
+
+    if reported_user_id == session["user_id"]:
+
+        conn.close()
+
+        return jsonify({
+            "success": False,
+            "error": "You cannot report yourself."
+        }), 400
+
+    # --------------------------------------------------------
+    # Prevent duplicate pending reports
+    # --------------------------------------------------------
+
+    existing_report = conn.execute(
+        """
+        SELECT id
+        FROM reports
+        WHERE reporter_id = ?
+        AND target_type = ?
+        AND target_id = ?
+        AND status = 'pending'
+        LIMIT 1
+        """,
+        (
+            session["user_id"],
+            target_type,
+            target_id
+        )
+    ).fetchone()
+
+    if existing_report:
+
+        conn.close()
+
+        return jsonify({
+            "success": False,
+            "error": "You have already reported this."
+        }), 409
+
+    # --------------------------------------------------------
+    # Create report
+    # --------------------------------------------------------
+
+    cursor = conn.execute(
+        """
+        INSERT INTO reports
+        (
+            reporter_id,
+            reported_user_id,
+            target_type,
+            target_id,
+            reason,
+            details,
+            status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, 'pending')
+        """,
+        (
+            session["user_id"],
+            reported_user_id,
+            target_type,
+            target_id,
+            reason,
+            details or ""
+        )
+    )
+
+    report_id = cursor.lastrowid
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": (
+            "Thank you. Your report has been submitted "
+            "for review."
+        ),
+        "report_id": report_id
+    }), 201
 
 # ============================================================
 # PROFILE
@@ -3427,6 +3912,241 @@ def group_detail(group_id):
         members=members,
         posts=posts,
         is_member=bool(membership)
+    )
+# ============================================================
+# GROUP CHAT
+# ============================================================
+
+@app.route(
+    "/group/<int:group_id>/chat",
+    methods=["GET", "POST"]
+)
+def group_chat(group_id):
+
+    if "user_id" not in session:
+        return redirect(
+            url_for("login")
+        )
+
+    current_user_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    # --------------------------------------------------------
+    # GET GROUP
+    # --------------------------------------------------------
+
+    group = conn.execute(
+        """
+        SELECT
+            groups.id,
+            groups.name,
+            groups.description,
+            groups.creator_id,
+            users.name AS creator_name
+        FROM groups
+        JOIN users
+        ON users.id = groups.creator_id
+        WHERE groups.id = ?
+        """,
+        (group_id,)
+    ).fetchone()
+
+    if not group:
+        conn.close()
+        return "Group not found.", 404
+
+    # --------------------------------------------------------
+    # CHECK MEMBERSHIP
+    # --------------------------------------------------------
+
+    membership = conn.execute(
+        """
+        SELECT id
+        FROM group_members
+        WHERE group_id = ?
+        AND user_id = ?
+        """,
+        (
+            group_id,
+            current_user_id
+        )
+    ).fetchone()
+
+    if not membership:
+        conn.close()
+
+        return (
+            "You must join this group before "
+            "you can use the group chat."
+        ), 403
+
+    # --------------------------------------------------------
+    # SEND GROUP MESSAGE
+    # --------------------------------------------------------
+
+    if request.method == "POST":
+
+        message = clean_text(
+            request.form.get("message"),
+            MAX_MESSAGE_LENGTH
+        )
+
+        if not message:
+            conn.close()
+
+            return (
+                "Message cannot be empty and must not "
+                "exceed 2000 characters."
+            ), 400
+
+        cursor = conn.execute(
+            """
+            INSERT INTO group_messages
+            (
+                group_id,
+                sender_id,
+                message
+            )
+            VALUES (?, ?, ?)
+            """,
+            (
+                group_id,
+                current_user_id,
+                message
+            )
+        )
+
+        group_message_id = cursor.lastrowid
+
+        # ----------------------------------------------------
+        # NOTIFY OTHER GROUP MEMBERS
+        # ----------------------------------------------------
+
+        sender = conn.execute(
+            """
+            SELECT name
+            FROM users
+            WHERE id = ?
+            """,
+            (current_user_id,)
+        ).fetchone()
+
+        sender_name = (
+            sender["name"]
+            if sender
+            else "A student"
+        )
+
+        group_members = conn.execute(
+            """
+            SELECT user_id
+            FROM group_members
+            WHERE group_id = ?
+            AND user_id != ?
+            """,
+            (
+                group_id,
+                current_user_id
+            )
+        ).fetchall()
+
+        for member in group_members:
+
+            conn.execute(
+                """
+                INSERT INTO notifications
+                (
+                    user_id,
+                    sender_id,
+                    type,
+                    message,
+                    link
+                )
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    member["user_id"],
+                    current_user_id,
+                    "group_message",
+                    f"{sender_name} sent a message in "
+                    f"{group['name']} 💬",
+                    f"/group/{group_id}/chat"
+                )
+            )
+
+        conn.commit()
+        conn.close()
+
+        return redirect(
+            url_for(
+                "group_chat",
+                group_id=group_id
+            )
+        )
+
+    # --------------------------------------------------------
+    # LOAD GROUP MESSAGES
+    # --------------------------------------------------------
+
+    group_messages = conn.execute(
+        """
+        SELECT
+            group_messages.id,
+            group_messages.group_id,
+            group_messages.sender_id,
+            group_messages.message,
+            group_messages.created_at,
+
+            users.name AS sender_name,
+            users.profile_picture AS sender_picture
+
+        FROM group_messages
+
+        JOIN users
+        ON users.id = group_messages.sender_id
+
+        WHERE group_messages.group_id = ?
+
+        ORDER BY
+            group_messages.created_at ASC,
+            group_messages.id ASC
+        """,
+        (group_id,)
+    ).fetchall()
+
+    # --------------------------------------------------------
+    # LOAD MEMBERS
+    # --------------------------------------------------------
+
+    members = conn.execute(
+        """
+        SELECT
+            users.id,
+            users.name,
+            users.university,
+            users.profile_picture
+
+        FROM group_members
+
+        JOIN users
+        ON users.id = group_members.user_id
+
+        WHERE group_members.group_id = ?
+
+        ORDER BY users.name
+        """,
+        (group_id,)
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "group_chat.html",
+        group=group,
+        group_messages=group_messages,
+        members=members,
+        current_user_id=current_user_id
     )
 
 
@@ -4352,7 +5072,6 @@ def mark_product_sold(product_id):
 def messages():
 
     if "user_id" not in session:
-
         return redirect(
             url_for("login")
         )
@@ -4360,6 +5079,10 @@ def messages():
     current_user_id = session["user_id"]
 
     conn = get_db_connection()
+
+    # ========================================================
+    # PRIVATE CONVERSATIONS
+    # ========================================================
 
     conversations = conn.execute(
         """
@@ -4412,11 +5135,65 @@ def messages():
         )
     ).fetchall()
 
+    # ========================================================
+    # GROUP CONVERSATIONS
+    # ========================================================
+
+    group_conversations = conn.execute(
+        """
+        SELECT
+            g.id AS group_id,
+            g.name AS group_name,
+            gm.message,
+            gm.created_at,
+            gm.sender_id,
+            u.name AS sender_name,
+            u.profile_picture AS sender_picture
+
+        FROM group_messages gm
+
+        JOIN groups g
+        ON g.id = gm.group_id
+
+        JOIN users u
+        ON u.id = gm.sender_id
+
+        JOIN group_members membership
+        ON membership.group_id = g.id
+
+        WHERE membership.user_id = ?
+
+        AND gm.id IN (
+
+            SELECT MAX(gm2.id)
+
+            FROM group_messages gm2
+
+            WHERE gm2.group_id IN (
+
+                SELECT group_id
+                FROM group_members
+                WHERE user_id = ?
+
+            )
+
+            GROUP BY gm2.group_id
+        )
+
+        ORDER BY gm.created_at DESC
+        """,
+        (
+            current_user_id,
+            current_user_id
+        )
+    ).fetchall()
+
     conn.close()
 
     return render_template(
         "messages.html",
-        conversations=conversations
+        conversations=conversations,
+        group_conversations=group_conversations
     )
 
 
@@ -5120,20 +5897,20 @@ def chat(user_id):
     # --------------------------------------------------------
 
     other_user = conn.execute(
-    """
-    SELECT
-        id,
-        name,
-        university,
-        profile_picture,
-        last_seen
-    FROM users
-    WHERE id = ?
-    """,
-    (
-        user_id,
-    )
-).fetchone()
+        """
+        SELECT
+            id,
+            name,
+            university,
+            profile_picture,
+            last_seen
+        FROM users
+        WHERE id = ?
+        """,
+        (
+            user_id,
+        )
+    ).fetchone()
 
     if not other_user:
 
@@ -5142,26 +5919,10 @@ def chat(user_id):
         return "Student not found.", 404
 
     # --------------------------------------------------------
-    # CHECK FRIENDSHIP
-    # --------------------------------------------------------
-
-    friendship = conn.execute(
-        """
-        SELECT id
-        FROM friends
-        WHERE user_id = ?
-        AND friend_id = ?
-        """,
-        (
-            current_user_id,
-            user_id
-        )
-    ).fetchone()
-
-    is_friend = bool(friendship)
-
-    # --------------------------------------------------------
     # CHECK MARKETPLACE CONTACT
+    #
+    # This is kept so seller contact through a product
+    # continues to work normally.
     # --------------------------------------------------------
 
     product_id = request.args.get(
@@ -5191,60 +5952,11 @@ def chat(user_id):
             is_marketplace_contact = True
 
     # --------------------------------------------------------
-    # CHECK EXISTING CONVERSATION
-    # --------------------------------------------------------
-
-    existing_conversation = conn.execute(
-        """
-        SELECT id
-        FROM messages
-        WHERE
-            (
-                sender_id = ?
-                AND receiver_id = ?
-            )
-
-            OR
-
-            (
-                sender_id = ?
-                AND receiver_id = ?
-            )
-
-        LIMIT 1
-        """,
-        (
-            current_user_id,
-            user_id,
-            user_id,
-            current_user_id
-        )
-    ).fetchone()
-
-    has_existing_conversation = bool(
-        existing_conversation
-    )
-
-    # --------------------------------------------------------
-    # CHAT AUTHORIZATION
-    # --------------------------------------------------------
-
-    if not (
-        is_friend
-        or is_marketplace_contact
-        or has_existing_conversation
-    ):
-
-        conn.close()
-
-        return (
-            "You can only message students who are "
-            "your friends or contact a seller through "
-            "a marketplace product."
-        ), 403
-
-    # --------------------------------------------------------
     # SEND MESSAGE
+    #
+    # Students can now message other students directly.
+    # Friendship is NOT required.
+    # Marketplace seller contact remains supported.
     # --------------------------------------------------------
 
     if request.method == "POST":
@@ -5303,6 +6015,19 @@ def chat(user_id):
 
         conn.commit()
         conn.close()
+
+        # Keep the user in the same chat.
+        # Preserve product_id when this is a marketplace
+        # seller conversation.
+        if is_marketplace_contact and product_id:
+
+            return redirect(
+                url_for(
+                    "chat",
+                    user_id=user_id,
+                    product_id=product_id
+                )
+            )
 
         return redirect(
             url_for(
@@ -5377,6 +6102,8 @@ def chat(user_id):
         other_user=other_user,
         messages=chat_messages
     )
+
+
 # ============================================================
 # LIVE CHAT MESSAGES API
 # ============================================================
@@ -5731,7 +6458,20 @@ def admin_dashboard():
         WHERE active = 1
         """
     ).fetchone()[0]
+    total_reports = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM reports
+        """
+    ).fetchone()[0]
 
+    pending_reports = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM reports
+        WHERE status = 'pending'
+        """
+    ).fetchone()[0]
     # --------------------------------------------------------
     # VERIFIED STUDENTS
     # --------------------------------------------------------
@@ -5788,6 +6528,8 @@ def admin_dashboard():
         pending_advertisements=pending_advertisements,
 
         total_ambassadors=total_ambassadors,
+        total_reports=total_reports,
+        pending_reports=pending_reports,
         total_verified_students=total_verified_students,
 
         recent_users=recent_users
@@ -7359,7 +8101,383 @@ def advertise_with_us():
         form_data={}
     )
 
+# ============================================================
+# ADMIN — REPORTS
+# ============================================================
 
+@app.route("/admin/reports")
+def admin_reports():
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    # --------------------------------------------------------
+    # BLOCKED USERS COUNT
+    # --------------------------------------------------------
+
+    blocked_users = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM users
+        WHERE is_blocked = 1
+        """
+    ).fetchone()[0]
+
+    # --------------------------------------------------------
+    # REPORTS
+    # --------------------------------------------------------
+
+    reports = conn.execute(
+        """
+        SELECT
+            reports.id,
+            reports.reporter_id,
+            reports.reported_user_id,
+            reports.target_type,
+            reports.target_id,
+            reports.reason,
+            reports.details,
+            reports.status,
+            reports.reviewed_by,
+            reports.reviewed_at,
+            reports.resolution_note,
+            reports.created_at,
+            reports.updated_at,
+
+            reporter.name AS reporter_name,
+            reporter.email AS reporter_email,
+            reporter.profile_picture AS reporter_picture,
+
+            reported_user.name AS reported_name,
+            reported_user.email AS reported_email,
+            reported_user.profile_picture AS reported_picture,
+            reported_user.is_blocked AS reported_user_blocked,
+
+            reviewer.name AS reviewer_name
+
+        FROM reports
+
+        LEFT JOIN users AS reporter
+            ON reporter.id = reports.reporter_id
+
+        LEFT JOIN users AS reported_user
+            ON reported_user.id = reports.reported_user_id
+
+        LEFT JOIN users AS reviewer
+            ON reviewer.id = reports.reviewed_by
+
+        ORDER BY
+            CASE
+                WHEN reports.status = 'pending'
+                THEN 0
+                ELSE 1
+            END,
+
+            reports.created_at DESC,
+            reports.id DESC
+        """
+    ).fetchall()
+
+    # --------------------------------------------------------
+    # REPORT COUNTS
+    # --------------------------------------------------------
+
+    total_reports = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM reports
+        """
+    ).fetchone()[0]
+
+    pending_reports = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM reports
+        WHERE status = 'pending'
+        """
+    ).fetchone()[0]
+
+    resolved_reports = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM reports
+        WHERE status = 'resolved'
+        """
+    ).fetchone()[0]
+
+    dismissed_reports = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM reports
+        WHERE status = 'dismissed'
+        """
+    ).fetchone()[0]
+
+    conn.close()
+
+    return render_template(
+        "admin_reports.html",
+        current_user=current_user,
+        reports=reports,
+        total_reports=total_reports,
+        pending_reports=pending_reports,
+        resolved_reports=resolved_reports,
+        dismissed_reports=dismissed_reports,
+        blocked_users=blocked_users
+    )
+@app.route(
+    "/admin/reports/<int:report_id>/resolve",
+    methods=["POST"]
+)
+def admin_resolve_report(report_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    resolution_note = clean_text(
+        request.form.get("resolution_note"),
+        1000
+    )
+
+    report = conn.execute(
+        """
+        SELECT id
+        FROM reports
+        WHERE id = ?
+        """,
+        (report_id,)
+    ).fetchone()
+
+    if not report:
+        conn.close()
+        return "Report not found.", 404
+
+    conn.execute(
+        """
+        UPDATE reports
+        SET
+            status = 'resolved',
+            reviewed_by = ?,
+            reviewed_at = CURRENT_TIMESTAMP,
+            resolution_note = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (
+            current_user["id"],
+            resolution_note or "",
+            report_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_reports")
+    )
+
+
+@app.route(
+    "/admin/reports/<int:report_id>/dismiss",
+    methods=["POST"]
+)
+def admin_dismiss_report(report_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    resolution_note = clean_text(
+        request.form.get("resolution_note"),
+        1000
+    )
+
+    report = conn.execute(
+        """
+        SELECT id
+        FROM reports
+        WHERE id = ?
+        """,
+        (report_id,)
+    ).fetchone()
+
+    if not report:
+        conn.close()
+        return "Report not found.", 404
+
+    conn.execute(
+        """
+        UPDATE reports
+        SET
+            status = 'dismissed',
+            reviewed_by = ?,
+            reviewed_at = CURRENT_TIMESTAMP,
+            resolution_note = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (
+            current_user["id"],
+            resolution_note or "",
+            report_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_reports")
+    )
+@app.route(
+    "/admin/users/<int:user_id>/block",
+    methods=["POST"]
+)
+def admin_block_user(user_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    # Prevent admin from blocking themselves
+    if user_id == current_user["id"]:
+        conn.close()
+        return "You cannot block your own admin account.", 400
+
+    user = conn.execute(
+        """
+        SELECT id, name, email, is_blocked
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return "User not found.", 404
+
+    if user["is_blocked"]:
+        conn.close()
+        return redirect(url_for("admin_reports"))
+
+    reason = clean_text(
+        request.form.get("reason"),
+        1000
+    )
+
+    conn.execute(
+        """
+        UPDATE users
+        SET is_blocked = 1
+        WHERE id = ?
+        """,
+        (user_id,)
+    )
+
+    conn.execute(
+        """
+        INSERT INTO moderation_logs
+        (
+            admin_id,
+            target_user_id,
+            action,
+            reason
+        )
+        VALUES (?, ?, 'blocked', ?)
+        """,
+        (
+            current_user["id"],
+            user_id,
+            reason or "Blocked through admin moderation."
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("admin_reports"))
+@app.route(
+    "/admin/users/<int:user_id>/unblock",
+    methods=["POST"]
+)
+def admin_unblock_user(user_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    user = conn.execute(
+        """
+        SELECT id, name, email, is_blocked
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return "User not found.", 404
+
+    if not user["is_blocked"]:
+        conn.close()
+        return redirect(url_for("admin_reports"))
+
+    reason = clean_text(
+        request.form.get("reason"),
+        1000
+    )
+
+    conn.execute(
+        """
+        UPDATE users
+        SET is_blocked = 0
+        WHERE id = ?
+        """,
+        (user_id,)
+    )
+
+    conn.execute(
+        """
+        INSERT INTO moderation_logs
+        (
+            admin_id,
+            target_user_id,
+            action,
+            reason
+        )
+        VALUES (?, ?, 'unblocked', ?)
+        """,
+        (
+            current_user["id"],
+            user_id,
+            reason or "User unblocked through admin moderation."
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("admin_reports"))
 # ============================================================
 # ADMIN — ADVERTISEMENT REQUESTS
 # ============================================================

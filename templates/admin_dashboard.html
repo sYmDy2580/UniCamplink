@@ -1879,20 +1879,57 @@
             </span>
 
         </a>
-        <div class="admin-card">
-    <h3>📢 Announcements</h3>
+                                <a
+                            href="{{ url_for('admin_reports') }}"
+                            class="hero-button secondary">
 
-    <p>
-        Create and manage official UniCamplink announcements.
-    </p>
+                            🚩 Reports
 
-    <a
-        class="admin-btn"
-        href="{{ url_for('admin_announcements') }}"
-    >
-        Manage Announcements
-    </a>
-</div>
+                            {% if pending_reports > 0 %}
+                                ({{ pending_reports }})
+                            {% endif %}
+
+                        </a>
+                <!-- ANNOUNCEMENTS -->
+
+        <a
+            href="{{ url_for('admin_announcements') }}"
+            class="sidebar-link">
+
+            <span class="sidebar-icon">
+                📣
+            </span>
+
+            <span class="sidebar-link-text">
+                Announcements
+            </span>
+
+        </a>
+
+
+        <!-- REPORTS -->
+
+        <a
+            href="{{ url_for('admin_reports') }}"
+            class="sidebar-link">
+
+            <span class="sidebar-icon">
+                🚩
+            </span>
+
+            <span class="sidebar-link-text">
+                Reports
+            </span>
+
+            {% if pending_reports > 0 %}
+
+                <span class="sidebar-badge">
+                    {{ pending_reports }}
+                </span>
+
+            {% endif %}
+
+        </a>
 
 
 
@@ -2389,6 +2426,31 @@
                     </div>
 
                 </div>
+                                <!-- REPORTS -->
+
+                <div class="stat-card stat-red">
+
+                    <div class="stat-top">
+
+                        <div class="stat-label">
+                            Reports
+                        </div>
+
+                        <div class="stat-icon">
+                            🚩
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        {{ total_reports }}
+                    </div>
+
+                    <div class="stat-meta">
+                        {{ pending_reports }} pending review
+                    </div>
+
+                </div>
 
 
             </section>
@@ -2555,6 +2617,41 @@
                         </div>
 
                     </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+                                <!-- REPORTS -->
+
+                <a
+                    href="{{ url_for('admin_reports') }}"
+                    class="quick-card">
+
+                    <div class="quick-icon quick-pink">
+                        🚩
+                    </div>
+
+                    <div class="quick-info">
+
+                        <div class="quick-title">
+                            Reports
+                        </div>
+
+                        <div class="quick-description">
+                            Review reports submitted by students
+                        </div>
+
+                    </div>
+
+                    {% if pending_reports > 0 %}
+
+                        <div class="sidebar-badge">
+                            {{ pending_reports }}
+                        </div>
+
+                    {% endif %}
 
                     <div class="quick-arrow">
                         →
@@ -2850,6 +2947,37 @@
                             </div>
 
                         </a>
+                                                <!-- REPORTS -->
+
+                        <a
+                            href="{{ url_for('admin_reports') }}"
+                            class="management-item">
+
+                            <div class="management-icon manage-red">
+                                🚩
+                            </div>
+
+                            <div class="management-info">
+
+                                <div class="management-title">
+                                    Reports
+                                </div>
+
+                                <div class="management-description">
+                                    Review student reports and moderation issues
+                                </div>
+
+                            </div>
+
+                            <div class="management-number">
+                                {{ pending_reports }}
+                            </div>
+
+                            <div class="management-arrow">
+                                →
+                            </div>
+
+                        </a>
 
 
                         <!-- PENDING -->
@@ -2883,6 +3011,7 @@
                             </div>
 
                         </a>
+
 
 
                         <!-- MEMBERS -->

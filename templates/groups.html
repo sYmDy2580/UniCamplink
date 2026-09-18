@@ -1,620 +1,1518 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
 
-    <title>Student Groups - UniCamplink</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
+<title>Groups - UniCamplink</title>
 
-    <style>
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
 
-        /* =========================================================
-           RAZOR GROUPS PAGE
-           ========================================================= */
+<style>
 
-        .groups-page {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 20px 60px;
-        }
+    /* =========================================================
+       RAZOR GROUPS
+       Modern social/community app UI
+       UniCamplink original branding
+    ========================================================= */
 
+    * {
+        box-sizing: border-box;
+    }
 
-        /* =========================
-           NAVBAR
-           ========================= */
+    html {
+        scroll-behavior: smooth;
+    }
 
-        .navbar {
-            background: #38bdf8;
-            min-height: 68px;
-            padding: 0 24px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 4px 18px rgba(14, 165, 233, 0.22);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    body {
+        margin: 0;
+        min-width: 0;
+        padding-bottom: 80px;
+        background: var(--bg, #f4f7fb);
+        color: var(--text, #0f172a);
+    }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white !important;
-            text-decoration: none;
-            font-size: 23px;
-            font-weight: 800;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 44px;
-            height: 44px;
-            object-fit: contain;
-            display: block;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            flex: 1;
-            min-width: 0;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scrollbar-width: none;
-            padding: 5px 0;
-        }
-
-        .nav-links::-webkit-scrollbar {
-            display: none;
-        }
-
-        .nav-links a,
-        .nav-links button {
-            color: white !important;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 650;
-            padding: 9px 11px;
-            border-radius: 9px;
-            white-space: nowrap;
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .nav-links a:hover,
-        .nav-links button:hover {
-            background: rgba(255, 255, 255, 0.18);
-            transform: translateY(-1px);
-        }
-
-        .nav-logout {
-            display: inline-flex;
-            flex-shrink: 0;
-        }
-
-        .nav-logout button {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-        }
+    a,
+    button {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
 
 
-        /* =========================
-           PAGE HEADER
-           ========================= */
+    /* =========================================================
+       TOP APP BAR
+    ========================================================= */
 
-        .groups-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 25px;
-            margin-bottom: 30px;
-            padding: 24px;
-            border-radius: 20px;
+    .razor-groups-navbar {
 
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(56, 189, 248, 0.16),
-                    rgba(56, 189, 248, 0.04)
-                );
+        position: sticky;
+        top: 0;
+        z-index: 1000;
 
-            border: 1px solid rgba(56, 189, 248, 0.2);
-        }
+        min-height: 58px;
 
-        .groups-heading h1 {
-            margin: 0 0 8px;
-            font-size: clamp(26px, 4vw, 36px);
-            font-weight: 850;
-            letter-spacing: -0.6px;
-        }
+        display: flex;
+        align-items: center;
 
-        .groups-heading p {
-            margin: 0;
-            opacity: 0.72;
-            font-size: 15px;
-            line-height: 1.6;
-        }
+        gap: 10px;
 
+        padding:
+            8px 16px;
 
-        /* =========================
-           CREATE GROUP BUTTON
-           ========================= */
+        background:
+            var(--nav, rgba(255,255,255,.95));
 
-        .create-group-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
+        border-bottom:
+            1px solid var(--border);
 
-            min-height: 46px;
-            padding: 0 18px;
+        box-shadow:
+            0 5px 22px rgba(15,23,42,.07);
 
-            background: #38bdf8;
-            color: white !important;
+        backdrop-filter:
+            blur(18px);
 
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 800;
-
-            border-radius: 12px;
-
-            box-shadow:
-                0 8px 20px rgba(56, 189, 248, 0.25);
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        .create-group-button:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 12px 25px rgba(56, 189, 248, 0.32);
-        }
+        -webkit-backdrop-filter:
+            blur(18px);
+    }
 
 
-        /* =========================
-           GROUP GRID
-           ========================= */
+    .groups-nav-logo {
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 8px;
+
+        min-width: 0;
+
+        color:
+            var(--text);
+
+        text-decoration: none;
+
+        font-size: 19px;
+        font-weight: 900;
+
+        letter-spacing: -.5px;
+    }
+
+
+    .groups-nav-logo img {
+
+        width: 38px;
+        height: 38px;
+
+        flex: 0 0 38px;
+
+        object-fit: contain;
+    }
+
+
+    .groups-nav-spacer {
+        flex: 1;
+    }
+
+
+    .groups-nav-action {
+
+        width: 40px;
+        height: 40px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background:
+            var(--surface-2);
+
+        border:
+            1px solid var(--border);
+
+        color:
+            var(--text);
+
+        text-decoration: none;
+
+        font-size: 18px;
+
+        transition:
+            transform .18s ease;
+    }
+
+
+    .groups-nav-action:active {
+        transform: scale(.94);
+    }
+
+
+    /* =========================================================
+       PAGE
+    ========================================================= */
+
+    .razor-groups-page {
+
+        width:
+            min(100%, 1100px);
+
+        margin:
+            0 auto;
+
+        padding:
+            18px 16px 35px;
+    }
+
+
+    /* =========================================================
+       COMMUNITY HERO
+    ========================================================= */
+
+    .groups-hero {
+
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 22px;
+
+        padding:
+            24px;
+
+        margin-bottom:
+            18px;
+
+        border:
+            1px solid rgba(56,189,248,.20);
+
+        border-radius:
+            20px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(56,189,248,.16),
+                rgba(56,189,248,.04)
+            );
+    }
+
+
+    .groups-hero::before {
+
+        content: "";
+
+        position: absolute;
+
+        width: 230px;
+        height: 230px;
+
+        right: -90px;
+        top: -100px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(56,189,248,.10);
+    }
+
+
+    .groups-hero-content {
+
+        position: relative;
+        z-index: 1;
+
+        min-width: 0;
+    }
+
+
+    .groups-eyebrow {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        margin-bottom:
+            8px;
+
+        padding:
+            5px 9px;
+
+        border-radius:
+            999px;
+
+        background:
+            var(--primary-soft, rgba(56,189,248,.12));
+
+        color:
+            #0284c7;
+
+        font-size:
+            10px;
+
+        font-weight:
+            850;
+
+        text-transform:
+            uppercase;
+
+        letter-spacing:
+            .5px;
+    }
+
+
+    .groups-hero h1 {
+
+        margin:
+            0 0 7px;
+
+        font-size:
+            clamp(26px, 4vw, 35px);
+
+        line-height:
+            1.12;
+
+        font-weight:
+            900;
+
+        letter-spacing:
+            -.8px;
+    }
+
+
+    .groups-hero p {
+
+        max-width:
+            650px;
+
+        margin:
+            0;
+
+        color:
+            var(--muted);
+
+        font-size:
+            14px;
+
+        line-height:
+            1.6;
+    }
+
+
+    /* =========================================================
+       CREATE GROUP
+    ========================================================= */
+
+    .create-group-button {
+
+        position:
+            relative;
+
+        z-index:
+            2;
+
+        flex:
+            0 0 auto;
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        gap:
+            7px;
+
+        min-height:
+            45px;
+
+        padding:
+            0 17px;
+
+        border-radius:
+            12px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #38bdf8,
+                #0ea5e9
+            );
+
+        color:
+            white !important;
+
+        text-decoration:
+            none;
+
+        font-size:
+            13px;
+
+        font-weight:
+            850;
+
+        box-shadow:
+            0 8px 20px rgba(14,165,233,.22);
+
+        transition:
+            transform .18s ease,
+            box-shadow .18s ease;
+    }
+
+
+    .create-group-button:hover {
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            0 11px 25px rgba(14,165,233,.28);
+    }
+
+
+    /* =========================================================
+       SECTION HEADER
+    ========================================================= */
+
+    .groups-section-header {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            space-between;
+
+        gap:
+            10px;
+
+        margin:
+            0 2px 11px;
+    }
+
+
+    .groups-section-title {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        gap:
+            8px;
+
+        margin:
+            0;
+
+        font-size:
+            20px;
+
+        font-weight:
+            900;
+
+        letter-spacing:
+            -.3px;
+    }
+
+
+    .groups-section-icon {
+
+        width:
+            34px;
+
+        height:
+            34px;
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        border-radius:
+            10px;
+
+        background:
+            var(--primary-soft, rgba(56,189,248,.12));
+
+        font-size:
+            17px;
+    }
+
+
+    .groups-section-count {
+
+        color:
+            var(--muted);
+
+        font-size:
+            11px;
+
+        font-weight:
+            650;
+    }
+
+
+    /* =========================================================
+       GROUP GRID
+    ========================================================= */
+
+    .groups-grid {
+
+        display:
+            grid;
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        gap:
+            13px;
+    }
+
+
+    /* =========================================================
+       GROUP CARD
+    ========================================================= */
+
+    .group-card {
+
+        position:
+            relative;
+
+        overflow:
+            hidden;
+
+        min-width:
+            0;
+
+        padding:
+            0;
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            18px;
+
+        background:
+            var(--surface);
+
+        box-shadow:
+            var(--shadow-sm);
+
+        transition:
+            transform .18s ease,
+            box-shadow .18s ease,
+            border-color .18s ease;
+    }
+
+
+    .group-card:hover {
+
+        transform:
+            translateY(-2px);
+
+        box-shadow:
+            var(--shadow);
+
+        border-color:
+            rgba(56,189,248,.30);
+    }
+
+
+    /* =========================================================
+       GROUP VISUAL HEADER
+    ========================================================= */
+
+    .group-card-cover {
+
+        position:
+            relative;
+
+        height:
+            92px;
+
+        overflow:
+            hidden;
+
+        background:
+            linear-gradient(
+                135deg,
+                #38bdf8,
+                #0ea5e9,
+                #2563eb
+            );
+    }
+
+
+    .group-card-cover::before {
+
+        content:
+            "👥";
+
+        position:
+            absolute;
+
+        right:
+            17px;
+
+        bottom:
+            7px;
+
+        font-size:
+            45px;
+
+        opacity:
+            .18;
+
+        transform:
+            rotate(-8deg);
+    }
+
+
+    .group-card-cover::after {
+
+        content:
+            "";
+
+        position:
+            absolute;
+
+        width:
+            110px;
+
+        height:
+            110px;
+
+        top:
+            -60px;
+
+        left:
+            -20px;
+
+        border-radius:
+            50%;
+
+        background:
+            rgba(255,255,255,.13);
+    }
+
+
+    /* =========================================================
+       GROUP CONTENT
+    ========================================================= */
+
+    .group-card-body {
+
+        padding:
+            15px;
+    }
+
+
+    .group-card h2 {
+
+        margin:
+            0 0 7px;
+
+        font-size:
+            17px;
+
+        line-height:
+            1.3;
+
+        font-weight:
+            850;
+
+        overflow-wrap:
+            anywhere;
+    }
+
+
+    .group-card h2 a {
+
+        color:
+            var(--text);
+
+        text-decoration:
+            none;
+    }
+
+
+    .group-card h2 a:hover {
+
+        color:
+            #0ea5e9;
+    }
+
+
+    .group-description {
+
+        display:
+            -webkit-box;
+
+        -webkit-line-clamp:
+            3;
+
+        line-clamp:
+            3;
+
+        -webkit-box-orient:
+            vertical;
+
+        overflow:
+            hidden;
+
+        min-height:
+            55px;
+
+        margin:
+            0 0 11px;
+
+        color:
+            var(--muted);
+
+        font-size:
+            12px;
+
+        line-height:
+            1.55;
+    }
+
+
+    /* =========================================================
+       GROUP META
+    ========================================================= */
+
+    .group-meta {
+
+        display:
+            flex;
+
+        flex-direction:
+            column;
+
+        gap:
+            7px;
+
+        margin-bottom:
+            13px;
+    }
+
+
+    .group-creator {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        gap:
+            6px;
+
+        margin:
+            0;
+
+        color:
+            var(--muted);
+
+        font-size:
+            11px;
+
+        overflow-wrap:
+            anywhere;
+    }
+
+
+    .group-creator strong {
+
+        color:
+            #0ea5e9;
+
+        font-weight:
+            800;
+    }
+
+
+    .member-count {
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        gap:
+            5px;
+
+        width:
+            fit-content;
+
+        margin:
+            0;
+
+        padding:
+            5px 9px;
+
+        border-radius:
+            999px;
+
+        background:
+            var(--primary-soft, rgba(56,189,248,.12));
+
+        color:
+            #0284c7;
+
+        font-size:
+            10px;
+
+        font-weight:
+            800;
+    }
+
+
+    /* =========================================================
+       CARD ACTIONS
+    ========================================================= */
+
+    .group-actions {
+
+        display:
+            grid;
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            7px;
+    }
+
+
+    .view-group-button,
+    .join-group-button {
+
+        width:
+            100%;
+
+        min-height:
+            40px;
+
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        border-radius:
+            10px;
+
+        font-family:
+            inherit;
+
+        font-size:
+            12px;
+
+        font-weight:
+            800;
+
+        cursor:
+            pointer;
+
+        text-decoration:
+            none;
+    }
+
+
+    .view-group-button {
+
+        border:
+            1px solid var(--border);
+
+        background:
+            var(--surface-2);
+
+        color:
+            var(--text);
+
+        transition:
+            background .18s ease;
+    }
+
+
+    .view-group-button:hover {
+
+        background:
+            var(--surface-3);
+    }
+
+
+    .join-group-form {
+
+        margin:
+            0;
+    }
+
+
+    .join-group-button {
+
+        border:
+            none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #38bdf8,
+                #0ea5e9
+            );
+
+        color:
+            white;
+
+        box-shadow:
+            0 6px 15px rgba(14,165,233,.18);
+
+        transition:
+            transform .18s ease,
+            box-shadow .18s ease;
+    }
+
+
+    .join-group-button:hover {
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            0 9px 20px rgba(14,165,233,.25);
+    }
+
+
+    .join-group-button:active {
+        transform:
+            scale(.98);
+    }
+
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
+
+    .no-groups {
+
+        grid-column:
+            1 / -1;
+
+        padding:
+            48px 20px;
+
+        text-align:
+            center;
+
+        border:
+            1px dashed var(--border);
+
+        border-radius:
+            18px;
+
+        background:
+            var(--surface);
+
+        box-shadow:
+            var(--shadow-sm);
+    }
+
+
+    .empty-group-icon {
+
+        width:
+            64px;
+
+        height:
+            64px;
+
+        margin:
+            0 auto 13px;
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        border-radius:
+            50%;
+
+        background:
+            var(--primary-soft, rgba(56,189,248,.12));
+
+        font-size:
+            29px;
+    }
+
+
+    .no-groups strong {
+
+        display:
+            block;
+
+        margin-bottom:
+            5px;
+
+        font-size:
+            15px;
+    }
+
+
+    .no-groups span {
+
+        color:
+            var(--muted);
+
+        font-size:
+            12px;
+
+        line-height:
+            1.5;
+    }
+
+
+    /* =========================================================
+       MOBILE BOTTOM NAV
+    ========================================================= */
+
+    .mobile-groups-nav {
+
+        display:
+            none;
+    }
+
+
+    /* =========================================================
+       TABLET
+    ========================================================= */
+
+    @media (max-width: 900px) {
 
         .groups-grid {
-            display: grid;
+
             grid-template-columns:
-                repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+                repeat(2, minmax(0, 1fr));
         }
 
 
-        /* =========================
-           GROUP CARD
-           ========================= */
+        .razor-groups-page {
+
+            padding:
+                14px 12px 30px;
+        }
+    }
+
+
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
+    @media (max-width: 650px) {
+
+        body {
+            padding-bottom:
+                76px;
+        }
+
+
+        .razor-groups-navbar {
+
+            min-height:
+                56px;
+
+            padding:
+                7px 10px;
+        }
+
+
+        .groups-nav-logo {
+
+            font-size:
+                17px;
+        }
+
+
+        .groups-nav-logo img {
+
+            width:
+                37px;
+
+            height:
+                37px;
+        }
+
+
+        .groups-nav-action {
+
+            width:
+                38px;
+
+            height:
+                38px;
+        }
+
+
+        .razor-groups-page {
+
+            padding:
+                8px 8px 25px;
+        }
+
+
+        .groups-hero {
+
+            display:
+                block;
+
+            padding:
+                18px;
+
+            margin-bottom:
+                15px;
+
+            border-radius:
+                17px;
+        }
+
+
+        .groups-hero h1 {
+
+            font-size:
+                25px;
+        }
+
+
+        .groups-hero p {
+
+            font-size:
+                12px;
+        }
+
+
+        .create-group-button {
+
+            width:
+                100%;
+
+            margin-top:
+                14px;
+        }
+
+
+        .groups-section-title {
+
+            font-size:
+                18px;
+        }
+
+
+        .groups-grid {
+
+            grid-template-columns:
+                1fr;
+
+            gap:
+                11px;
+        }
+
 
         .group-card {
-            position: relative;
 
-            padding: 23px;
-
-            border-radius: 18px;
-
-            background: var(
-                --card-bg,
-                rgba(255, 255, 255, 0.96)
-            );
-
-            border: 1px solid var(
-                --border-color,
-                rgba(148, 163, 184, 0.25)
-            );
-
-            box-shadow:
-                0 8px 30px rgba(15, 23, 42, 0.07);
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease,
-                border-color 0.2s ease;
-
-            overflow: hidden;
-        }
-
-        .group-card::before {
-            content: "";
-            position: absolute;
-
-            top: 0;
-            left: 0;
-            right: 0;
-
-            height: 4px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    #38bdf8,
-                    #0ea5e9
-                );
-        }
-
-        .group-card:hover {
-            transform: translateY(-4px);
-
-            box-shadow:
-                0 14px 35px rgba(15, 23, 42, 0.11);
-
-            border-color:
-                rgba(56, 189, 248, 0.35);
+            border-radius:
+                16px;
         }
 
 
-        /* =========================
-           GROUP TITLE
-           ========================= */
+        .group-card-cover {
+
+            height:
+                82px;
+        }
+
+
+        .group-card-body {
+
+            padding:
+                14px;
+        }
+
 
         .group-card h2 {
-            margin: 0 0 12px;
-            font-size: 20px;
-            line-height: 1.35;
+
+            font-size:
+                16px;
         }
 
-        .group-card h2 a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .group-card h2 a:hover {
-            color: #0ea5e9;
-        }
-
-
-        /* =========================
-           DESCRIPTION
-           ========================= */
 
         .group-description {
-            margin: 0 0 18px;
 
-            font-size: 14px;
-            line-height: 1.65;
+            font-size:
+                12px;
 
-            opacity: 0.72;
+            min-height:
+                auto;
 
-            min-height: 45px;
+            -webkit-line-clamp:
+                4;
+
+            line-clamp:
+                4;
         }
 
 
-        /* =========================
-           CREATOR
-           ========================= */
+        /* Mobile bottom navigation */
 
-        .group-creator {
-            margin: 0 0 12px;
+        .mobile-groups-nav {
 
-            font-size: 13px;
+            position:
+                fixed;
 
-            opacity: 0.7;
-        }
+            left:
+                0;
 
-        .group-creator strong {
-            color: #0ea5e9;
-        }
+            right:
+                0;
 
+            bottom:
+                0;
 
-        /* =========================
-           MEMBER COUNT
-           ========================= */
+            z-index:
+                1100;
 
-        .member-count {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
+            display:
+                grid;
 
-            margin: 0 0 18px;
+            grid-template-columns:
+                repeat(5, 1fr);
 
-            padding: 7px 11px;
+            height:
+                66px;
 
-            border-radius: 999px;
+            padding:
+                6px 7px;
 
             background:
-                rgba(56, 189, 248, 0.1);
+                var(--nav, rgba(255,255,255,.96));
 
-            color: #0284c7;
+            border-top:
+                1px solid var(--border);
 
-            font-size: 13px;
-            font-weight: 750;
+            box-shadow:
+                0 -7px 25px rgba(15,23,42,.09);
+
+            backdrop-filter:
+                blur(18px);
+
+            -webkit-backdrop-filter:
+                blur(18px);
         }
 
 
-        /* =========================
-           JOIN BUTTON
-           ========================= */
+        .mobile-groups-nav a {
 
-        .join-group-form {
-            margin: 0;
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                2px;
+
+            min-width:
+                0;
+
+            border-radius:
+                12px;
+
+            color:
+                var(--muted);
+
+            text-decoration:
+                none;
+
+            font-size:
+                10px;
+
+            font-weight:
+                700;
         }
 
-        .join-group-button {
-            width: 100%;
 
-            min-height: 43px;
+        .mobile-groups-nav a span:first-child {
 
-            border: none;
-            border-radius: 11px;
+            font-size:
+                19px;
+
+            line-height:
+                20px;
+        }
+
+
+        .mobile-groups-nav a.active {
+
+            color:
+                #0ea5e9;
 
             background:
-                linear-gradient(
-                    135deg,
-                    #38bdf8,
-                    #0ea5e9
-                );
-
-            color: white;
-
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 800;
-
-            cursor: pointer;
-
-            box-shadow:
-                0 7px 18px rgba(14, 165, 233, 0.2);
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
+                var(--primary-soft, rgba(56,189,248,.12));
         }
+    }
 
-        .join-group-button:hover {
-            transform: translateY(-1px);
 
-            box-shadow:
-                0 10px 23px rgba(14, 165, 233, 0.28);
-        }
+    /* =========================================================
+       VERY SMALL PHONES
+    ========================================================= */
 
-        .join-group-button:active {
-            transform: translateY(0);
+    @media (max-width: 350px) {
+
+        .groups-nav-logo span {
+            display:
+                none;
         }
 
 
-        /* =========================
-           EMPTY STATE
-           ========================= */
+        .groups-nav-logo img {
 
-        .no-groups {
-            grid-column: 1 / -1;
+            width:
+                36px;
 
-            margin: 0;
-
-            padding: 50px 25px;
-
-            text-align: center;
-
-            border-radius: 18px;
-
-            border: 1px dashed
-                rgba(148, 163, 184, 0.35);
-
-            opacity: 0.75;
-
-            font-size: 15px;
+            height:
+                36px;
         }
 
 
-        /* =========================
-           MOBILE
-           ========================= */
+        .groups-hero {
 
-        @media (max-width: 800px) {
-
-            .navbar {
-                padding: 10px 15px;
-                gap: 10px;
-            }
-
-            .logo {
-                font-size: 20px;
-            }
-
-            .logo img {
-                width: 40px;
-                height: 40px;
-            }
-
-            .groups-page {
-                padding:
-                    20px 14px 45px;
-            }
-
-            .groups-header {
-                align-items: stretch;
-                flex-direction: column;
-                padding: 20px;
-            }
-
-            .create-group-button {
-                width: 100%;
-            }
-
+            padding:
+                15px;
         }
 
 
-        @media (max-width: 520px) {
+        .groups-hero h1 {
 
-            .logo span {
-                display: none;
-            }
-
-            .nav-links {
-                gap: 3px;
-            }
-
-            .nav-links a,
-            .nav-links button {
-                font-size: 13px;
-                padding: 8px 9px;
-            }
-
-            .groups-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .group-card {
-                padding: 20px;
-            }
-
+            font-size:
+                23px;
         }
 
-    </style>
+
+        .group-card-cover {
+
+            height:
+                75px;
+        }
+
+
+        .mobile-groups-nav a {
+
+            font-size:
+                9px;
+        }
+
+
+        .mobile-groups-nav a span:first-child {
+
+            font-size:
+                17px;
+        }
+    }
+
+</style>
 
 </head>
 
-
 <body>
 
+<!-- =========================================================
+     TOP APP BAR
+========================================================== -->
 
-    <!-- =========================================================
-         NAVIGATION
-         ========================================================= -->
+<nav class="razor-groups-navbar">
 
-    <nav class="navbar">
+    <a
+        href="{{ url_for('dashboard') }}"
+        class="groups-nav-logo"
+        aria-label="UniCamplink Home"
+    >
 
-        <a
-            href="/dashboard"
-            class="logo"
-            aria-label="UniCamplink Dashboard"
+        <img
+            src="{{ url_for(
+                'static',
+                filename='images/unicamplink-logo.png'
+            ) }}"
+            alt="UniCamplink"
         >
 
-            <img
-                src="{{ url_for(
-                    'static',
-                    filename='images/unicamplink-logo.png'
-                ) }}"
-                alt="UniCamplink Logo"
-            >
+        <span>
+            UniCamplink
+        </span>
 
-            <span>
-                UniCamplink
-            </span>
-
-        </a>
+    </a>
 
 
-        <div class="nav-links">
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/feed">
-                Feed
-            </a>
-
-            <a href="/profile">
-                Profile
-            </a>
-
-            <a href="/groups">
-                Groups 👥
-            </a>
-
-            <a href="/search">
-                Search 🔍
-            </a>
-
-            <a href="/messages">
-                Messages 💬
-            </a>
-
-            <a href="/marketplace">
-                Marketplace 🛒
-            </a>
-
-            <form
-                action="{{ url_for('logout') }}"
-                method="POST"
-                class="nav-logout"
-            >
-
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}"
-                >
-
-                <button type="submit">
-                    Logout
-                </button>
-
-            </form>
-
-        </div>
-
-    </nav>
+    <div class="groups-nav-spacer"></div>
 
 
+    <a
+        href="{{ url_for('feed') }}"
+        class="groups-nav-action"
+        title="Feed"
+        aria-label="Feed"
+    >
+        📰
+    </a>
 
-    <!-- =========================================================
-         MAIN
-         ========================================================= -->
 
-    <main class="groups-page">
+    <a
+        href="{{ url_for('messages') }}"
+        class="groups-nav-action"
+        title="Messages"
+        aria-label="Messages"
+    >
+        💬
+    </a>
+
+</nav>
 
 
-        <!-- PAGE HEADER -->
+<!-- =========================================================
+     MAIN
+========================================================== -->
 
-        <section class="groups-header">
+<main class="razor-groups-page">
 
-            <div class="groups-heading">
 
-                <h1>
-                    Student Communities 👥
-                </h1>
+    <!-- COMMUNITY HERO -->
 
-                <p>
-                    Connect with students who share
-                    your interests, school, goals and
-                    communities.
-                </p>
+    <section class="groups-hero">
 
+        <div class="groups-hero-content">
+
+            <div class="groups-eyebrow">
+                👥 Student Communities
             </div>
 
 
-            <a
-                href="/create-group"
-                class="create-group-button"
-            >
-                ＋ Create Group
-            </a>
-
-        </section>
+            <h1>
+                Find Your Community
+            </h1>
 
 
+            <p>
+                Connect with students who share your
+                school, interests, goals and communities.
+            </p>
 
-        <!-- GROUPS -->
+        </div>
 
-        <section class="groups-grid">
 
-            {% if groups %}
+        <a
+            href="{{ url_for('create_group') }}"
+            class="create-group-button"
+        >
+            ＋ Create Group
+        </a>
 
-                {% for group in groups %}
+    </section>
 
-                    <article class="group-card">
+
+    <!-- GROUP SECTION -->
+
+    <div class="groups-section-header">
+
+        <h2 class="groups-section-title">
+
+            <span class="groups-section-icon">
+                👥
+            </span>
+
+            Student Groups
+
+        </h2>
+
+
+        {% if groups %}
+
+            <span class="groups-section-count">
+
+                {{ groups|length }}
+                {% if groups|length == 1 %}
+                    community
+                {% else %}
+                    communities
+                {% endif %}
+
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- GROUPS -->
+
+    <section class="groups-grid">
+
+        {% if groups %}
+
+
+            {% for group in groups %}
+
+                <article class="group-card">
+
+
+                    <!-- VISUAL COVER -->
+
+                    <div class="group-card-cover"></div>
+
+
+                    <!-- CONTENT -->
+
+                    <div class="group-card-body">
 
 
                         <h2>
@@ -631,7 +1529,6 @@
                         </h2>
 
 
-
                         <p class="group-description">
 
                             {{ group["description"]
@@ -640,83 +1537,178 @@
                         </p>
 
 
-
-                        <p class="group-creator">
-
-                            Created by
-
-                            <strong>
-                                {{ group["creator_name"] }}
-                            </strong>
-
-                        </p>
+                        <div class="group-meta">
 
 
+                            <p class="group-creator">
 
-                        <p class="member-count">
+                                👤
 
-                            👥
+                                <span>
+                                    Created by
+                                </span>
 
-                            {{ group["member_count"] }}
+                                <strong>
+                                    {{ group["creator_name"] }}
+                                </strong>
 
-                            {% if group["member_count"] == 1 %}
-                                Member
-                            {% else %}
-                                Members
-                            {% endif %}
-
-                        </p>
-
+                            </p>
 
 
-                        <form
-                            action="{{ url_for(
-                                'join_group',
-                                group_id=group['id']
-                            ) }}"
-                            method="POST"
-                            class="join-group-form"
-                        >
+                            <p class="member-count">
 
-                            <input
-                                type="hidden"
-                                name="csrf_token"
-                                value="{{ csrf_token() }}"
+                                👥
+
+                                {{ group["member_count"] }}
+
+                                {% if group["member_count"] == 1 %}
+                                    Member
+                                {% else %}
+                                    Members
+                                {% endif %}
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- ACTIONS -->
+
+                        <div class="group-actions">
+
+
+                            <a
+                                href="{{ url_for(
+                                    'group_detail',
+                                    group_id=group['id']
+                                ) }}"
+                                class="view-group-button"
+                            >
+                                View Community
+                            </a>
+
+
+                            <form
+                                action="{{ url_for(
+                                    'join_group',
+                                    group_id=group['id']
+                                ) }}"
+                                method="POST"
+                                class="join-group-form"
                             >
 
-                            <button
-                                type="submit"
-                                class="join-group-button"
-                            >
-                                Join Group
-                            </button>
-
-                        </form>
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
 
 
-                    </article>
+                                <button
+                                    type="submit"
+                                    class="join-group-button"
+                                >
+                                    ＋ Join Group
+                                </button>
 
-                {% endfor %}
+                            </form>
 
-            {% else %}
+                        </div>
 
-                <div class="no-groups">
+                    </div>
 
-                    No groups yet.
+                </article>
 
-                    <br>
+            {% endfor %}
 
-                    Be the first student to create one! 🎉
 
+        {% else %}
+
+
+            <div class="no-groups">
+
+                <div class="empty-group-icon">
+                    👥
                 </div>
 
-            {% endif %}
 
-        </section>
+                <strong>
+                    No groups yet
+                </strong>
 
 
-    </main>
+                <span>
+                    Be the first student to create a
+                    community on UniCamplink. 🎉
+                </span>
 
+            </div>
+
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     MOBILE SOCIAL NAVIGATION
+========================================================== -->
+
+<nav class="mobile-groups-nav">
+
+    <a
+        href="{{ url_for('dashboard') }}"
+    >
+
+        <span>🏠</span>
+        <span>Home</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('feed') }}"
+    >
+
+        <span>📰</span>
+        <span>Feed</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('groups') }}"
+        class="active"
+    >
+
+        <span>👥</span>
+        <span>Groups</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('messages') }}"
+    >
+
+        <span>💬</span>
+        <span>Chats</span>
+
+    </a>
+
+
+    <a
+        href="{{ url_for('profile') }}"
+    >
+
+        <span>👤</span>
+        <span>Profile</span>
+
+    </a>
+
+</nav>
 
 </body>
 

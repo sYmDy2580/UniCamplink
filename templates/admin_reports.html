@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
+
+    <title>Reports Center • Razor Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+        /* =========================================================
+           RAZOR ADMIN REPORTS CENTER
+           ========================================================= */
+
+        .reports-page {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .reports-shell {
+            width: min(1400px, 100%);
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* ---------------------------------------------------------
+           TOP BAR
+           --------------------------------------------------------- */
+
+        .reports-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .reports-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .reports-brand-icon {
+            width: 44px;
+            height: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 14px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            font-size: 21px;
+        }
+
+        .reports-brand-text {
+            min-width: 0;
+        }
+
+        .reports-brand-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .reports-brand-subtitle {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .reports-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .reports-top-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            min-height: 42px;
+            padding: 0 14px;
+
+            border-radius: 12px;
+            border: 1px solid var(--border);
+
+            background: var(--surface-2);
+            color: var(--text);
+
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition:
+                transform var(--transition),
+                background var(--transition),
+                border-color var(--transition);
+        }
+
+        .reports-top-btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        /* ---------------------------------------------------------
+           HERO
+           --------------------------------------------------------- */
+
+        .reports-hero {
+            position: relative;
+            overflow: hidden;
+
+            margin-bottom: 22px;
+            padding: 28px;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--surface),
+                    var(--surface-2)
+                );
+
+            box-shadow: var(--shadow);
+        }
+
+        .reports-hero::after {
+            content: "";
+
+            position: absolute;
+            width: 220px;
+            height: 220px;
+
+            right: -80px;
+            top: -100px;
+
+            border-radius: 50%;
+
+            background: var(--primary-soft);
+
+            pointer-events: none;
+        }
+
+        .reports-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .reports-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            margin-bottom: 10px;
+            padding: 7px 11px;
+
+            border-radius: 999px;
+
+            background: var(--primary-soft);
+            color: var(--primary-strong);
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .reports-hero h1 {
+            margin: 0;
+
+            font-size: clamp(26px, 4vw, 38px);
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        .reports-hero p {
+            max-width: 760px;
+
+            margin: 10px 0 0;
+
+            color: var(--muted);
+
+            line-height: 1.65;
+            font-size: 14px;
+        }
+
+        /* ---------------------------------------------------------
+           SUMMARY CARDS
+           --------------------------------------------------------- */
+
+        .report-stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 16px;
+
+            margin-bottom: 22px;
+        }
+
+        .report-stat {
+            padding: 18px;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .report-stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .report-stat-label {
+            color: var(--muted);
+
+            font-size: 12px;
+            font-weight: 800;
+
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .report-stat-icon {
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            font-size: 17px;
+        }
+
+        .report-stat-value {
+            margin-top: 12px;
+
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+
+        .report-stat-note {
+            margin-top: 4px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+        /* ---------------------------------------------------------
+           FILTER BAR
+           --------------------------------------------------------- */
+
+        .reports-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+
+            margin-bottom: 18px;
+            padding: 15px;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .reports-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .reports-toolbar-title {
+            margin-right: 4px;
+
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .report-filter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 36px;
+            padding: 0 12px;
+
+            border-radius: 10px;
+
+            border: 1px solid var(--border);
+
+            background: var(--surface-2);
+            color: var(--muted);
+
+            text-decoration: none;
+
+            font-size: 12px;
+            font-weight: 800;
+
+            transition:
+                background var(--transition),
+                color var(--transition),
+                border-color var(--transition);
+        }
+
+        .report-filter:hover,
+        .report-filter.active {
+            color: var(--primary-strong);
+            background: var(--primary-soft);
+            border-color: rgba(56, 189, 248, .35);
+        }
+
+        .reports-count {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* ---------------------------------------------------------
+           REPORT LIST
+           --------------------------------------------------------- */
+
+        .reports-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .report-card {
+            overflow: hidden;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+
+            transition:
+                border-color var(--transition),
+                box-shadow var(--transition);
+        }
+
+        .report-card:hover {
+            border-color: rgba(56, 189, 248, .35);
+            box-shadow: var(--shadow);
+        }
+
+        .report-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 16px;
+
+            padding: 18px 20px;
+
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .report-title-wrap {
+            min-width: 0;
+        }
+
+        .report-number {
+            margin: 0;
+
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .report-created {
+            margin-top: 4px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+        /* ---------------------------------------------------------
+           STATUS
+           --------------------------------------------------------- */
+
+        .report-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+
+            flex-shrink: 0;
+
+            min-height: 30px;
+            padding: 0 10px;
+
+            border-radius: 999px;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .report-status.pending {
+            background: rgba(245, 158, 11, .12);
+            color: #d97706;
+        }
+
+        .report-status.resolved {
+            background: rgba(34, 197, 94, .12);
+            color: #16a34a;
+        }
+
+        .report-status.dismissed {
+            background: rgba(100, 116, 139, .14);
+            color: var(--muted);
+        }
+
+        /* ---------------------------------------------------------
+           REPORT BODY
+           --------------------------------------------------------- */
+
+        .report-card-body {
+            padding: 20px;
+        }
+
+        .report-meta-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 12px;
+
+            margin-bottom: 18px;
+        }
+
+        .report-meta-box {
+            min-width: 0;
+
+            padding: 13px;
+
+            border: 1px solid var(--border-soft);
+            border-radius: 13px;
+
+            background: var(--surface-2);
+        }
+
+        .report-meta-label {
+            margin-bottom: 5px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+            font-weight: 900;
+
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .report-meta-value {
+            color: var(--text);
+
+            font-size: 13px;
+            font-weight: 750;
+
+            overflow-wrap: anywhere;
+        }
+
+        .report-meta-value a {
+            color: var(--primary-strong);
+            text-decoration: none;
+        }
+
+        .report-meta-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* ---------------------------------------------------------
+           REASON
+           --------------------------------------------------------- */
+
+        .report-section {
+            margin-top: 16px;
+        }
+
+        .report-section-title {
+            margin-bottom: 7px;
+
+            font-size: 12px;
+            font-weight: 900;
+
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .report-reason {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 8px 11px;
+
+            border-radius: 10px;
+
+            background: var(--primary-soft);
+            color: var(--primary-strong);
+
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .report-details {
+            padding: 13px 14px;
+
+            border: 1px solid var(--border-soft);
+            border-radius: 13px;
+
+            background: var(--surface-2);
+
+            color: var(--text);
+
+            font-size: 13px;
+            line-height: 1.65;
+
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .report-empty-details {
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* ---------------------------------------------------------
+           REVIEW INFORMATION
+           --------------------------------------------------------- */
+
+        .report-review-box {
+            margin-top: 16px;
+            padding: 14px;
+
+            border: 1px solid var(--border-soft);
+            border-radius: 13px;
+
+            background: var(--surface-2);
+        }
+
+        .report-review-title {
+            margin-bottom: 6px;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .report-review-text {
+            color: var(--muted);
+
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ---------------------------------------------------------
+           ACTIONS
+           --------------------------------------------------------- */
+
+        .report-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
+            gap: 9px;
+
+            margin-top: 20px;
+            padding-top: 17px;
+
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .report-action-form {
+            margin: 0;
+        }
+
+        .report-action-btn {
+            min-height: 40px;
+
+            padding: 0 14px;
+
+            border-radius: 11px;
+
+            border: 1px solid var(--border);
+
+            background: var(--surface-2);
+            color: var(--text);
+
+            cursor: pointer;
+
+            font-size: 12px;
+            font-weight: 850;
+
+            transition:
+                transform var(--transition),
+                background var(--transition),
+                border-color var(--transition);
+        }
+
+        .report-action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .report-action-btn.resolve {
+            border-color: rgba(34, 197, 94, .28);
+            background: rgba(34, 197, 94, .10);
+            color: #16a34a;
+        }
+
+        .report-action-btn.resolve:hover {
+            border-color: rgba(34, 197, 94, .5);
+            background: rgba(34, 197, 94, .16);
+        }
+
+        .report-action-btn.dismiss {
+            border-color: rgba(239, 68, 68, .25);
+            background: rgba(239, 68, 68, .08);
+            color: #dc2626;
+        }
+
+        .report-action-btn.dismiss:hover {
+            border-color: rgba(239, 68, 68, .45);
+            background: rgba(239, 68, 68, .13);
+        }
+
+        .report-action-btn.view {
+            color: var(--primary-strong);
+        }
+
+        /* ---------------------------------------------------------
+           EMPTY STATE
+           --------------------------------------------------------- */
+
+        .reports-empty {
+            padding: 55px 20px;
+
+            text-align: center;
+
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-lg);
+
+            background: var(--surface);
+        }
+
+        .reports-empty-icon {
+            width: 64px;
+            height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin: 0 auto 14px;
+
+            border-radius: 20px;
+
+            background: var(--primary-soft);
+            color: var(--primary);
+
+            font-size: 28px;
+        }
+
+        .reports-empty h2 {
+            margin: 0;
+
+            font-size: 18px;
+        }
+
+        .reports-empty p {
+            max-width: 500px;
+
+            margin: 7px auto 0;
+
+            color: var(--muted);
+
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ---------------------------------------------------------
+           RESPONSIVE
+           --------------------------------------------------------- */
+
+        @media (max-width: 1000px) {
+            .report-stats {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+
+            .reports-shell {
+                padding: 14px;
+            }
+
+            .reports-topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .reports-top-actions {
+                width: 100%;
+            }
+
+            .reports-top-btn {
+                flex: 1;
+            }
+
+            .reports-hero {
+                padding: 22px;
+                border-radius: 20px;
+            }
+
+            .report-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .report-stat {
+                padding: 14px;
+            }
+
+            .report-stat-value {
+                font-size: 25px;
+            }
+
+            .reports-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .reports-toolbar-left {
+                width: 100%;
+            }
+
+            .report-filter {
+                flex: 1;
+            }
+
+            .report-card-header {
+                padding: 15px;
+            }
+
+            .report-card-body {
+                padding: 15px;
+            }
+
+            .report-meta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-actions {
+                justify-content: stretch;
+                flex-direction: column;
+            }
+
+            .report-action-form,
+            .report-action-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 450px) {
+
+            .report-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .reports-hero h1 {
+                font-size: 27px;
+            }
+
+            .reports-top-btn {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="reports-page">
+
+    <div class="reports-shell">
+
+        <!-- =====================================================
+             TOP BAR
+             ===================================================== -->
+
+        <header class="reports-topbar">
+
+            <div class="reports-brand">
+
+                <div class="reports-brand-icon">
+                    🚩
+                </div>
+
+                <div class="reports-brand-text">
+
+                    <h1 class="reports-brand-title">
+                        Razor Admin
+                    </h1>
+
+                    <p class="reports-brand-subtitle">
+                        UniCamplink moderation center
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="reports-top-actions">
+
+                <a
+                    href="{{ url_for('admin_dashboard') }}"
+                    class="reports-top-btn"
+                >
+                    ← Dashboard
+                </a>
+
+                <button
+                    type="button"
+                    class="reports-top-btn"
+                    id="themeToggle"
+                >
+                    🌙 Theme
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             HERO
+             ===================================================== -->
+
+        <section class="reports-hero">
+
+            <div class="reports-hero-content">
+
+                <div class="reports-kicker">
+                    🚩 Community Reports
+                </div>
+
+                <h1>
+                    Reports Center
+                </h1>
+
+                <p>
+                    Review reports submitted by UniCamplink students,
+                    investigate reported content or users, and record
+                    the outcome of each moderation review.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SUMMARY
+             ===================================================== -->
+
+        {% set total_reports_count = reports|length %}
+
+        {% set pending_count = reports
+            |selectattr('status', 'equalto', 'pending')
+            |list
+            |length
+        %}
+
+        {% set resolved_count = reports
+            |selectattr('status', 'equalto', 'resolved')
+            |list
+            |length
+        %}
+
+        {% set dismissed_count = reports
+            |selectattr('status', 'equalto', 'dismissed')
+            |list
+            |length
+        %}
+
+
+        <section class="report-stats">
+
+            <div class="report-stat">
+
+                <div class="report-stat-top">
+
+                    <div class="report-stat-label">
+                        Total Reports
+                    </div>
+
+                    <div class="report-stat-icon">
+                        🚩
+                    </div>
+
+                </div>
+
+                <div class="report-stat-value">
+                    {{ total_reports_count }}
+                </div>
+
+                <div class="report-stat-note">
+                    All reports currently loaded
+                </div>
+
+            </div>
+
+
+            <div class="report-stat">
+
+                <div class="report-stat-top">
+
+                    <div class="report-stat-label">
+                        Pending
+                    </div>
+
+                    <div class="report-stat-icon">
+                        ⏳
+                    </div>
+
+                </div>
+
+                <div class="report-stat-value">
+                    {{ pending_count }}
+                </div>
+
+                <div class="report-stat-note">
+                    Waiting for review
+                </div>
+
+            </div>
+
+
+            <div class="report-stat">
+
+                <div class="report-stat-top">
+
+                    <div class="report-stat-label">
+                        Resolved
+                    </div>
+
+                    <div class="report-stat-icon">
+                        ✅
+                    </div>
+
+                </div>
+
+                <div class="report-stat-value">
+                    {{ resolved_count }}
+                </div>
+
+                <div class="report-stat-note">
+                    Reports acted upon
+                </div>
+
+            </div>
+
+
+            <div class="report-stat">
+
+                <div class="report-stat-top">
+
+                    <div class="report-stat-label">
+                        Dismissed
+                    </div>
+                    <div class="report-stat-card">
+
+    <div class="report-stat-icon">
+        🚫
+    </div>
+
+    <div class="report-stat-label">
+        Blocked Users
+    </div>
+
+    <div class="report-stat-value">
+        {{ blocked_users }}
+    </div>
+
+    <div class="report-stat-description">
+        Users currently blocked
+    </div>
+
+</div>
+
+                    <div class="report-stat-icon">
+                        🗂️
+                    </div>
+
+                </div>
+
+                <div class="report-stat-value">
+                    {{ dismissed_count }}
+                </div>
+
+                <div class="report-stat-note">
+                    Reports closed without action
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FILTERS
+             ===================================================== -->
+
+        <section class="reports-toolbar">
+
+            <div class="reports-toolbar-left">
+
+                <span class="reports-toolbar-title">
+                    Filter:
+                </span>
+
+                <a
+                    href="{{ url_for('admin_reports') }}"
+                    class="report-filter {% if not request.args.get('status') %}active{% endif %}"
+                >
+                    All
+                </a>
+
+                <a
+                    href="{{ url_for('admin_reports', status='pending') }}"
+                    class="report-filter {% if request.args.get('status') == 'pending' %}active{% endif %}"
+                >
+                    Pending
+                </a>
+
+                <a
+                    href="{{ url_for('admin_reports', status='resolved') }}"
+                    class="report-filter {% if request.args.get('status') == 'resolved' %}active{% endif %}"
+                >
+                    Resolved
+                </a>
+
+                <a
+                    href="{{ url_for('admin_reports', status='dismissed') }}"
+                    class="report-filter {% if request.args.get('status') == 'dismissed' %}active{% endif %}"
+                >
+                    Dismissed
+                </a>
+
+            </div>
+
+            <div class="reports-count">
+                {{ total_reports_count }} report{% if total_reports_count != 1 %}s{% endif %}
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             REPORT LIST
+             ===================================================== -->
+
+        <main class="reports-list">
+
+            {% if reports %}
+
+                {% for report in reports %}
+
+                    <article class="report-card">
+
+                        <!-- REPORT HEADER -->
+
+                        <div class="report-card-header">
+
+                            <div class="report-title-wrap">
+
+                                <h2 class="report-number">
+                                    Report #{{ report['id'] }}
+                                </h2>
+
+                                <div class="report-created">
+                                    Submitted:
+                                    {{ report['created_at'] }}
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                class="report-status {{ report['status'] }}"
+                            >
+
+                                {% if report['status'] == 'pending' %}
+                                    ⏳ Pending
+                                {% elif report['status'] == 'resolved' %}
+                                    ✅ Resolved
+                                {% elif report['status'] == 'dismissed' %}
+                                    🗂️ Dismissed
+                                {% else %}
+                                    {{ report['status'] }}
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- REPORT BODY -->
+
+                        <div class="report-card-body">
+
+                            <div class="report-meta-grid">
+
+                                <!-- REPORTER -->
+
+                                <div class="report-meta-box">
+
+                                    <div class="report-meta-label">
+                                        Reported By
+                                    </div>
+
+                                    <div class="report-meta-value">
+
+                                        {% if report['reporter_name'] %}
+
+                                            {{ report['reporter_name'] }}
+
+                                            {% if report['reporter_email'] %}
+                                                <br>
+                                                <span
+                                                    style="
+                                                        color: var(--muted);
+                                                        font-size: 11px;
+                                                        font-weight: 500;
+                                                    "
+                                                >
+                                                    report['reported_email']
+                                                </span>
+                                            {% endif %}
+
+                                        {% else %}
+
+                                            Deleted / unavailable user
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- REPORTED USER -->
+
+                                <div class="report-meta-box">
+
+                                    <div class="report-meta-label">
+                                        Reported User
+                                    </div>
+
+                                    <div class="report-meta-value">
+
+                                        {% if report['reported_name'] %}
+
+                                            {% if report['reported_user_id'] %}
+
+                                                <a
+                                                    href="{{ url_for(
+                                                        'view_user',
+                                                        user_id=report['reported_user_id']
+                                                    ) }}"
+                                                >
+                                                    {{ report['reported_name'] }}
+                                                </a>
+
+                                            {% else %}
+
+                                                {{ report['reported_name'] }}
+
+                                            {% endif %}
+
+                                            {% if report['reported_email'] %}
+                                                <br>
+                                                <span
+                                                    style="
+                                                        color: var(--muted);
+                                                        font-size: 11px;
+                                                        font-weight: 500;
+                                                    "
+                                                >
+                                                    {{ report['reported_email'] }}
+                                                </span>
+                                            {% endif %}
+
+                                        {% else %}
+
+                                            Deleted / unavailable user
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- TARGET TYPE -->
+
+                                <div class="report-meta-box">
+
+                                    <div class="report-meta-label">
+                                        Report Type
+                                    </div>
+
+                                    <div class="report-meta-value">
+
+                                        {% if report['target_type'] == 'user' %}
+                                            👤 User
+                                        {% elif report['target_type'] == 'post' %}
+                                            📝 Post
+                                        {% elif report['target_type'] == 'comment' %}
+                                            💬 Comment
+                                        {% else %}
+                                            {{ report['target_type'] }}
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- TARGET ID -->
+
+                                <div class="report-meta-box">
+
+                                    <div class="report-meta-label">
+                                        Target ID
+                                    </div>
+
+                                    <div class="report-meta-value">
+                                        #{{ report['target_id'] }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- REASON -->
+
+                            <section class="report-section">
+
+                                <div class="report-section-title">
+                                    Reason
+                                </div>
+
+                                <div class="report-reason">
+                                    🚩 {{ report['reason'] }}
+                                </div>
+
+                            </section>
+
+
+                            <!-- DETAILS -->
+
+                            <section class="report-section">
+
+                                <div class="report-section-title">
+                                    Additional Details
+                                </div>
+
+                                <div class="report-details">
+
+                                    {% if report['details'] %}
+
+                                        {{ report['details'] }}
+
+                                    {% else %}
+
+                                        <span class="report-empty-details">
+                                            No additional details were provided.
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </section>
+
+
+                            <!-- TARGET LINK -->
+
+                            <section class="report-section">
+
+                                <div class="report-section-title">
+                                    Target
+                                </div>
+
+                                <div>
+
+                                    {% if report['target_type'] == 'user' %}
+
+                                        {% if report['reported_user_id'] %}
+
+                                            <a
+                                                class="reports-top-btn"
+                                                href="{{ url_for(
+                                                    'view_user',
+                                                    user_id=report['reported_user_id']
+                                                ) }}"
+                                            >
+                                                👤 View User
+                                            </a>
+
+                                        {% endif %}
+
+                                    {% elif report['target_type'] == 'post' %}
+
+                                        <a
+    class="reports-top-btn"
+    href="{{ url_for('feed') }}?post={{ report['target_id'] }}"
+>
+    📝 Open Reported Post
+</a>
+
+                                    {% elif report['target_type'] == 'comment' %}
+
+                                        {% if report['reported_user_id'] %}
+
+                                            <a
+                                                class="reports-top-btn"
+                                                href="{{ url_for(
+                                                    'view_user',
+                                                    user_id=report['reported_user_id']
+                                                ) }}"
+                                            >
+                                                👤 View Reported User
+                                            </a>
+
+                                        {% endif %}
+
+                                    {% endif %}
+
+                                </div>
+
+                            </section>
+
+
+                            <!-- REVIEW INFORMATION -->
+
+                            {% if report['reviewed_by'] or report['resolution_note'] %}
+
+                                <div class="report-review-box">
+
+                                    <div class="report-review-title">
+                                        Review Information
+                                    </div>
+
+                                    <div class="report-review-text">
+
+                                        {% if report['reviewer_name'] %}
+                                            Reviewed by
+                                            <strong>
+                                                {{ report['reviewer_name'] }}
+                                            </strong>.
+                                        {% endif %}
+
+                                        {% if report['reviewed_at'] %}
+                                            <br>
+                                            Reviewed:
+                                            {{ report['reviewed_at'] }}
+                                        {% endif %}
+
+                                        {% if report['resolution_note'] %}
+                                            <br><br>
+                                            <strong>
+                                                Resolution note:
+                                            </strong>
+
+                                            <br>
+
+                                            {{ report['resolution_note'] }}
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- ACTIONS -->
+
+                            {% if report['status'] == 'pending' %}
+
+                                <div class="report-actions">
+
+                                    <!-- RESOLVE -->
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'admin_resolve_report',
+                                            report_id=report['id']
+                                        ) }}"
+                                        class="report-action-form"
+                                        onsubmit="
+                                            return confirm(
+                                                'Mark this report as resolved?'
+                                            );
+                                        "
+                                    >
+
+                                        <input
+                                            type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <input
+                                            type="text"
+                                            name="resolution_note"
+                                            placeholder="Resolution note (optional)"
+                                            style="
+                                                min-height: 40px;
+                                                padding: 0 12px;
+                                                border-radius: 11px;
+                                                border: 1px solid var(--border);
+                                                background: var(--surface-2);
+                                                color: var(--text);
+                                                outline: none;
+                                                font-size: 12px;
+                                                margin-right: 6px;
+                                            "
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="report-action-btn resolve"
+                                        >
+                                            ✅ Resolve
+                                        </button>
+
+                                    </form>
+
+
+                                    <!-- DISMISS -->
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'admin_dismiss_report',
+                                            report_id=report['id']
+                                        ) }}"
+                                        class="report-action-form"
+                                        onsubmit="
+                                            return confirm(
+                                                'Dismiss this report?'
+                                            );
+                                        "
+                                    >
+
+                                        <input
+                                            type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <input
+                                            type="text"
+                                            name="resolution_note"
+                                            placeholder="Dismissal note (optional)"
+                                            style="
+                                                min-height: 40px;
+                                                padding: 0 12px;
+                                                border-radius: 11px;
+                                                border: 1px solid var(--border);
+                                                background: var(--surface-2);
+                                                color: var(--text);
+                                                outline: none;
+                                                font-size: 12px;
+                                            "
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="report-action-btn dismiss"
+                                        >
+                                            🗂️ Dismiss
+                                        </button>
+
+                                    </form>
+                                    {% if report['reported_user_id'] %}
+
+    {% if report['reported_user_id'] %}
+
+    {% if report['reported_user_blocked'] %}
+
+        <div
+            class="report-action-btn"
+            style="
+                background: rgba(239, 68, 68, .12);
+                color: #ef4444;
+                border-color: rgba(239, 68, 68, .25);
+                cursor: default;
+            "
+        >
+            🚫 User Blocked
+        </div>
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'admin_unblock_user',
+                user_id=report['reported_user_id']
+            ) }}"
+            class="report-action-form"
+            onsubmit="
+                return confirm(
+                    'Unblock this user?'
+                );
+            "
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <button
+                type="submit"
+                class="report-action-btn"
+            >
+                🔓 Unblock User
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'admin_block_user',
+                user_id=report['reported_user_id']
+            ) }}"
+            class="report-action-form"
+            onsubmit="
+                return confirm(
+                    'Block this user? They will no longer be able to use UniCamplink.'
+                );
+            "
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <input
+                type="text"
+                name="reason"
+                placeholder="Block reason (optional)"
+                style="
+                    min-height: 40px;
+                    padding: 0 12px;
+                    border-radius: 11px;
+                    border: 1px solid var(--border);
+                    background: var(--surface-2);
+                    color: var(--text);
+                    outline: none;
+                    font-size: 12px;
+                    margin-right: 6px;
+                "
+            >
+
+            <button
+                type="submit"
+                class="report-action-btn"
+                style="
+                    background: rgba(239, 68, 68, .12);
+                    color: #ef4444;
+                    border-color: rgba(239, 68, 68, .25);
+                "
+            >
+                🚫 Block User
+            </button>
+
+        </form>
+
+    {% endif %}
+
+{% endif %}
+        class="report-action-form"
+        onsubmit="
+            return confirm(
+                'Block this user? They will no longer be able to log in or use UniCamplink.'
+            );
+        "
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <input
+            type="text"
+            name="reason"
+            placeholder="Block reason (optional)"
+            style="
+                min-height: 40px;
+                padding: 0 12px;
+                border-radius: 11px;
+                border: 1px solid var(--border);
+                background: var(--surface-2);
+                color: var(--text);
+                outline: none;
+                font-size: 12px;
+                margin-right: 6px;
+            "
+        >
+
+        <button
+            type="submit"
+            class="report-action-btn"
+            style="
+                background: rgba(239, 68, 68, .12);
+                color: #ef4444;
+                border-color: rgba(239, 68, 68, .25);
+            "
+        >
+            🚫 Block User
+        </button>
+
+    </form>
+
+{% endif %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            {% else %}
+
+                <section class="reports-empty">
+
+                    <div class="reports-empty-icon">
+                        🛡️
+                    </div>
+
+                    <h2>
+                        No reports found
+                    </h2>
+
+                    <p>
+                        There are currently no reports matching this
+                        filter. New student reports will appear here
+                        automatically when submitted.
+                    </p>
+
+                </section>
+
+            {% endif %}
+
+        </main>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     THEME SCRIPT
+     ============================================================= -->
+
+<script>
+(function () {
+
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+
+    function applyTheme(theme) {
+
+        if (theme === "dark") {
+
+            root.setAttribute(
+                "data-theme",
+                "dark"
+            );
+
+            document.body.classList.add(
+                "dark-mode"
+            );
+
+            if (toggle) {
+                toggle.innerHTML = "☀️ Light";
+            }
+
+        } else {
+
+            root.removeAttribute(
+                "data-theme"
+            );
+
+            document.body.classList.remove(
+                "dark-mode"
+            );
+
+            if (toggle) {
+                toggle.innerHTML = "🌙 Dark";
+            }
+        }
+    }
+
+
+    let savedTheme =
+        localStorage.getItem(
+            "unicamplink-theme"
+        );
+
+
+    if (
+        savedTheme !== "dark" &&
+        savedTheme !== "light"
+    ) {
+        savedTheme = "dark";
+    }
+
+
+    applyTheme(savedTheme);
+
+
+    if (toggle) {
+
+        toggle.addEventListener(
+            "click",
+            function () {
+
+                const nextTheme =
+                    root.getAttribute(
+                        "data-theme"
+                    ) === "dark"
+                        ? "light"
+                        : "dark";
+
+                localStorage.setItem(
+                    "unicamplink-theme",
+                    nextTheme
+                );
+
+                applyTheme(nextTheme);
+            }
+        );
+
+    }
+
+})();
+</script>
+
+
+</body>
+</html>

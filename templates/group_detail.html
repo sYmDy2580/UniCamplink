@@ -17,6 +17,7 @@
         href="{{ url_for('static', filename='style.css') }}"
     >
 
+
     <style>
 
         /* =========================================================
@@ -1034,7 +1035,51 @@
             }
 
         }
+.group-chat-button {
 
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding:
+        0 16px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #38bdf8,
+            #0284c7
+        );
+
+    color: white;
+
+    font-size: .80rem;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 22px
+        rgba(14,165,233,.18);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.group-chat-button:hover {
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 12px 28px
+        rgba(14,165,233,.25);
+}
     </style>
 
 </head>
@@ -1147,6 +1192,15 @@
     <section class="group-hero">
 
         <div class="group-hero-content">
+            <a
+    href="{{ url_for(
+        'group_chat',
+        group_id=group['id']
+    ) }}"
+    class="group-chat-button"
+>
+    💬 Group Chat
+</a>
 
             <div class="group-icon">
                 👥

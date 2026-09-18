@@ -1,7 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Login | UniCamplink</title>
@@ -10,6 +14,7 @@
           href="{{ url_for('static', filename='style.css') }}">
 
     <style>
+
         /* =========================================================
            UNICAMPLINK RAZOR LOGIN
            Frontend only — no backend changes required
@@ -23,6 +28,7 @@
 
         body {
             min-height: 100vh;
+
             background:
                 radial-gradient(
                     circle at 15% 15%,
@@ -35,7 +41,9 @@
                     transparent 35%
                 ),
                 var(--bg, #020617);
+
             color: var(--text, #f8fafc);
+
             font-family:
                 Inter,
                 system-ui,
@@ -49,7 +57,10 @@
             text-decoration: none;
         }
 
-        /* ================= NAVBAR ================= */
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
 
         .login-navbar {
             position: sticky;
@@ -65,10 +76,12 @@
             padding: 14px 5%;
 
             background: rgba(2, 6, 23, 0.82);
+
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
 
-            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            border-bottom:
+                1px solid rgba(148, 163, 184, 0.12);
         }
 
         .login-logo {
@@ -77,6 +90,7 @@
             gap: 10px;
 
             color: #f8fafc;
+
             font-size: 1.15rem;
             font-weight: 800;
         }
@@ -119,44 +133,62 @@
 
         .login-nav a:hover {
             color: #ffffff;
-            background: rgba(56, 189, 248, 0.10);
+
+            background:
+                rgba(56, 189, 248, 0.10);
         }
 
         .login-nav .join-btn {
             color: #ffffff;
+
             background: #0284c7;
+
             box-shadow:
                 0 8px 22px rgba(2, 132, 199, 0.22);
         }
 
         .login-nav .join-btn:hover {
             background: #0369a1;
-            transform: translateY(-1px);
+
+            transform:
+                translateY(-1px);
         }
 
-        /* ================= MAIN ================= */
+
+        /* =========================================================
+           MAIN
+        ========================================================= */
 
         .login-page {
-            min-height: calc(100vh - 71px);
+            min-height:
+                calc(100vh - 71px);
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            padding: 50px 20px 70px;
+            padding:
+                50px 20px 70px;
         }
 
         .login-layout {
-            width: min(1050px, 100%);
+            width:
+                min(1050px, 100%);
 
             display: grid;
-            grid-template-columns: 1fr 430px;
+
+            grid-template-columns:
+                1fr 430px;
+
             gap: 70px;
 
             align-items: center;
         }
 
-        /* ================= LEFT SIDE ================= */
+
+        /* =========================================================
+           LEFT SIDE
+        ========================================================= */
 
         .login-intro {
             max-width: 560px;
@@ -171,10 +203,13 @@
 
             margin-bottom: 20px;
 
-            border: 1px solid rgba(56, 189, 248, 0.20);
+            border:
+                1px solid rgba(56, 189, 248, 0.20);
+
             border-radius: 999px;
 
-            background: rgba(56, 189, 248, 0.08);
+            background:
+                rgba(56, 189, 248, 0.08);
 
             color: #7dd3fc;
 
@@ -199,9 +234,14 @@
 
             color: #f8fafc;
 
-            font-size: clamp(2.4rem, 5vw, 4.5rem);
+            font-size:
+                clamp(2.4rem, 5vw, 4.5rem);
+
             line-height: 1.02;
-            letter-spacing: -0.045em;
+
+            letter-spacing:
+                -0.045em;
+
             font-weight: 900;
         }
 
@@ -215,12 +255,15 @@
             color: #94a3b8;
 
             font-size: 1.08rem;
+
             line-height: 1.75;
         }
 
         .login-benefits {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
 
             gap: 13px;
 
@@ -230,18 +273,23 @@
         .benefit {
             display: flex;
             align-items: center;
+
             gap: 11px;
 
             padding: 13px;
 
-            border: 1px solid rgba(148, 163, 184, 0.10);
+            border:
+                1px solid rgba(148, 163, 184, 0.10);
+
             border-radius: 14px;
 
-            background: rgba(15, 23, 42, 0.55);
+            background:
+                rgba(15, 23, 42, 0.55);
 
             color: #cbd5e1;
 
             font-size: 0.88rem;
+
             font-weight: 600;
         }
 
@@ -256,19 +304,25 @@
 
             border-radius: 10px;
 
-            background: rgba(56, 189, 248, 0.10);
+            background:
+                rgba(56, 189, 248, 0.10);
 
             font-size: 1rem;
         }
 
-        /* ================= LOGIN CARD ================= */
+
+        /* =========================================================
+           LOGIN CARD
+        ========================================================= */
 
         .auth-card {
             width: 100%;
 
             padding: 32px;
 
-            border: 1px solid rgba(148, 163, 184, 0.14);
+            border:
+                1px solid rgba(148, 163, 184, 0.14);
+
             border-radius: 24px;
 
             background:
@@ -304,7 +358,8 @@
                     rgba(14, 165, 233, 0.04)
                 );
 
-            border: 1px solid rgba(56, 189, 248, 0.18);
+            border:
+                1px solid rgba(56, 189, 248, 0.18);
         }
 
         .auth-logo img {
@@ -318,6 +373,7 @@
             color: #f8fafc;
 
             font-size: 1.65rem;
+
             font-weight: 800;
 
             margin-bottom: 7px;
@@ -327,22 +383,169 @@
             color: #94a3b8;
 
             font-size: 0.92rem;
+
             line-height: 1.6;
 
             margin-bottom: 25px;
         }
 
-        /* ================= FORM ================= */
+
+        /* =========================================================
+           LOGIN ERROR
+        ========================================================= */
+
+        .login-error {
+            position: relative;
+
+            display: flex;
+            align-items: flex-start;
+
+            gap: 12px;
+
+            width: 100%;
+
+            margin-bottom: 20px;
+
+            padding:
+                14px 42px 14px 14px;
+
+            border:
+                1px solid rgba(248, 113, 113, 0.28);
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(127, 29, 29, 0.24),
+                    rgba(69, 10, 10, 0.16)
+                );
+
+            color: #fecaca;
+
+            box-shadow:
+                0 10px 25px rgba(127, 29, 29, 0.12);
+
+            animation:
+                loginErrorIn 0.25s ease-out;
+        }
+
+        .login-error-icon {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+            place-items: center;
+
+            flex-shrink: 0;
+
+            border-radius: 10px;
+
+            background:
+                rgba(248, 113, 113, 0.12);
+
+            font-size: 1rem;
+        }
+
+        .login-error-content {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 3px;
+
+            min-width: 0;
+        }
+
+        .login-error-content strong {
+            color: #fca5a5;
+
+            font-size: 0.86rem;
+
+            font-weight: 800;
+        }
+
+        .login-error-content span {
+            color: #fecaca;
+
+            font-size: 0.82rem;
+
+            line-height: 1.5;
+        }
+
+        .login-error-close {
+            position: absolute;
+
+            top: 8px;
+            right: 8px;
+
+            width: 28px;
+            height: 28px;
+
+            display: grid;
+            place-items: center;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: transparent;
+
+            color: #fca5a5;
+
+            font-size: 1.2rem;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .login-error-close:hover {
+            background:
+                rgba(248, 113, 113, 0.12);
+
+            color: #ffffff;
+        }
+
+        @keyframes loginErrorIn {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+        }
+
+
+        /* =========================================================
+           FORM
+        ========================================================= */
 
         .login-form {
             display: flex;
+
             flex-direction: column;
+
             gap: 16px;
         }
 
         .field {
             display: flex;
+
             flex-direction: column;
+
             gap: 7px;
         }
 
@@ -350,6 +553,7 @@
             color: #cbd5e1;
 
             font-size: 0.83rem;
+
             font-weight: 700;
         }
 
@@ -359,10 +563,12 @@
 
         .input-icon {
             position: absolute;
+
             left: 14px;
             top: 50%;
 
-            transform: translateY(-50%);
+            transform:
+                translateY(-50%);
 
             color: #64748b;
 
@@ -374,14 +580,18 @@
         .login-form input {
             width: 100%;
 
-            padding: 13px 14px 13px 42px;
+            padding:
+                13px 14px 13px 42px;
 
-            border: 1px solid rgba(148, 163, 184, 0.15);
+            border:
+                1px solid rgba(148, 163, 184, 0.15);
+
             border-radius: 13px;
 
             outline: none;
 
-            background: rgba(15, 23, 42, 0.75);
+            background:
+                rgba(15, 23, 42, 0.75);
 
             color: #f8fafc;
 
@@ -400,7 +610,8 @@
         .login-form input:focus {
             border-color: #38bdf8;
 
-            background: rgba(15, 23, 42, 0.95);
+            background:
+                rgba(15, 23, 42, 0.95);
 
             box-shadow:
                 0 0 0 3px rgba(56, 189, 248, 0.10);
@@ -412,9 +623,11 @@
             right: 11px;
             top: 50%;
 
-            transform: translateY(-50%);
+            transform:
+                translateY(-50%);
 
             border: none;
+
             background: transparent;
 
             color: #64748b;
@@ -438,6 +651,7 @@
             padding: 14px 18px;
 
             border: none;
+
             border-radius: 13px;
 
             background:
@@ -450,6 +664,7 @@
             color: #ffffff;
 
             font-size: 0.95rem;
+
             font-weight: 800;
 
             cursor: pointer;
@@ -464,26 +679,35 @@
         }
 
         .login-submit:hover {
-            transform: translateY(-2px);
+            transform:
+                translateY(-2px);
 
             box-shadow:
                 0 16px 34px rgba(14, 165, 233, 0.28);
 
-            filter: brightness(1.05);
+            filter:
+                brightness(1.05);
         }
 
         .login-submit:active {
-            transform: translateY(0);
+            transform:
+                translateY(0);
         }
 
-        /* ================= DIVIDER ================= */
+
+        /* =========================================================
+           DIVIDER
+        ========================================================= */
 
         .login-divider {
             display: flex;
+
             align-items: center;
+
             gap: 12px;
 
-            margin: 23px 0 20px;
+            margin:
+                23px 0 20px;
 
             color: #64748b;
 
@@ -498,10 +722,14 @@
 
             height: 1px;
 
-            background: rgba(148, 163, 184, 0.12);
+            background:
+                rgba(148, 163, 184, 0.12);
         }
 
-        /* ================= SIGNUP ================= */
+
+        /* =========================================================
+           SIGNUP
+        ========================================================= */
 
         .signup-prompt {
             text-align: center;
@@ -521,12 +749,18 @@
             text-decoration: underline;
         }
 
-        /* ================= SECURITY NOTE ================= */
+
+        /* =========================================================
+           SECURITY NOTE
+        ========================================================= */
 
         .security-note {
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 7px;
 
             margin-top: 19px;
@@ -536,7 +770,10 @@
             font-size: 0.73rem;
         }
 
-        /* ================= MOBILE ================= */
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
 
         @media (max-width: 850px) {
 
@@ -550,6 +787,7 @@
 
             .login-intro {
                 text-align: center;
+
                 max-width: none;
             }
 
@@ -562,7 +800,8 @@
             }
 
             .login-intro h1 {
-                font-size: clamp(2.4rem, 10vw, 3.4rem);
+                font-size:
+                    clamp(2.4rem, 10vw, 3.4rem);
             }
 
             .login-benefits {
@@ -574,10 +813,12 @@
             }
         }
 
+
         @media (max-width: 520px) {
 
             .login-navbar {
-                padding: 11px 15px;
+                padding:
+                    11px 15px;
             }
 
             .login-logo {
@@ -594,7 +835,8 @@
             }
 
             .login-nav a {
-                padding: 8px 10px;
+                padding:
+                    8px 10px;
 
                 font-size: 0.8rem;
             }
@@ -604,7 +846,8 @@
             }
 
             .login-page {
-                padding: 35px 15px 50px;
+                padding:
+                    35px 15px 50px;
             }
 
             .login-benefits {
@@ -612,7 +855,8 @@
             }
 
             .auth-card {
-                padding: 22px 18px;
+                padding:
+                    22px 18px;
 
                 border-radius: 20px;
             }
@@ -623,9 +867,13 @@
             }
         }
 
-        /* ================= LIGHT MODE ================= */
+
+        /* =========================================================
+           LIGHT MODE
+        ========================================================= */
 
         body.light-mode {
+
             background:
                 radial-gradient(
                     circle at 15% 15%,
@@ -638,9 +886,11 @@
         }
 
         body.light-mode .login-navbar {
-            background: rgba(255, 255, 255, 0.88);
+            background:
+                rgba(255, 255, 255, 0.88);
 
-            border-bottom-color: rgba(15, 23, 42, 0.08);
+            border-bottom-color:
+                rgba(15, 23, 42, 0.08);
         }
 
         body.light-mode .login-logo {
@@ -653,7 +903,9 @@
 
         body.light-mode .login-nav a:hover {
             color: #0284c7;
-            background: rgba(14, 165, 233, 0.08);
+
+            background:
+                rgba(14, 165, 233, 0.08);
         }
 
         body.light-mode .login-intro h1 {
@@ -665,9 +917,11 @@
         }
 
         body.light-mode .benefit {
-            background: rgba(255, 255, 255, 0.85);
+            background:
+                rgba(255, 255, 255, 0.85);
 
-            border-color: rgba(15, 23, 42, 0.08);
+            border-color:
+                rgba(15, 23, 42, 0.08);
 
             color: #334155;
         }
@@ -680,7 +934,8 @@
                     rgba(248, 250, 252, 0.98)
                 );
 
-            border-color: rgba(15, 23, 42, 0.08);
+            border-color:
+                rgba(15, 23, 42, 0.08);
 
             box-shadow:
                 0 25px 70px rgba(15, 23, 42, 0.10);
@@ -694,6 +949,52 @@
             color: #64748b;
         }
 
+
+        /* =========================================================
+           LIGHT MODE LOGIN ERROR
+        ========================================================= */
+
+        body.light-mode .login-error {
+
+            border-color:
+                rgba(220, 38, 38, 0.16);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(254, 226, 226, 0.95),
+                    rgba(255, 241, 242, 0.95)
+                );
+
+            box-shadow:
+                0 10px 25px rgba(220, 38, 38, 0.08);
+        }
+
+        body.light-mode .login-error-icon {
+            background:
+                rgba(220, 38, 38, 0.08);
+        }
+
+        body.light-mode .login-error-content strong {
+            color: #b91c1c;
+        }
+
+        body.light-mode .login-error-content span {
+            color: #7f1d1d;
+        }
+
+        body.light-mode .login-error-close {
+            color: #b91c1c;
+        }
+
+        body.light-mode .login-error-close:hover {
+            background:
+                rgba(220, 38, 38, 0.08);
+
+            color: #7f1d1d;
+        }
+
+
         body.light-mode .field label {
             color: #334155;
         }
@@ -703,14 +1004,18 @@
 
             color: #0f172a;
 
-            border-color: rgba(15, 23, 42, 0.10);
+            border-color:
+                rgba(15, 23, 42, 0.10);
         }
 
         body.light-mode .login-form input:focus {
             background: #ffffff;
         }
+
     </style>
+
 </head>
+
 
 <body>
 
@@ -725,9 +1030,12 @@
                 alt="UniCamplink Logo"
             >
 
-            <span>UniCamplink</span>
+            <span>
+                UniCamplink
+            </span>
 
         </a>
+
 
         <div class="login-nav">
 
@@ -756,25 +1064,36 @@
             <section class="login-intro">
 
                 <div class="login-badge">
+
                     <span></span>
+
                     Your campus community
+
                 </div>
 
+
                 <h1>
+
                     Welcome back to
+
                     <span class="highlight">
                         UniCamplink.
                     </span>
+
                 </h1>
 
+
                 <p>
+
                     Connect with students, discover campus communities,
                     chat with friends, explore opportunities and stay
                     connected with what is happening around you.
+
                 </p>
 
 
                 <div class="login-benefits">
+
 
                     <div class="benefit">
 
@@ -827,6 +1146,7 @@
 
                     </div>
 
+
                 </div>
 
             </section>
@@ -835,6 +1155,7 @@
             <!-- ================= LOGIN CARD ================= -->
 
             <section class="auth-card">
+
 
                 <div class="auth-logo">
 
@@ -850,12 +1171,56 @@
                     Sign in
                 </h2>
 
+
                 <p class="auth-subtitle">
                     Enter your account details to continue.
                 </p>
 
 
-                <!-- LOGIN FORM -->
+                <!-- ================= LOGIN ERROR ================= -->
+
+                {% if login_error %}
+
+                <div
+                    class="login-error"
+                    id="loginError"
+                    role="alert"
+                    aria-live="polite"
+                >
+
+                    <div class="login-error-icon">
+                        ⚠️
+                    </div>
+
+
+                    <div class="login-error-content">
+
+                        <strong>
+                            Login unsuccessful
+                        </strong>
+
+                        <span>
+                            {{ login_error }}
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="login-error-close"
+                        id="closeLoginError"
+                        aria-label="Dismiss error"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+                {% endif %}
+
+
+                <!-- ================= LOGIN FORM ================= -->
 
                 <form
                     action="/login"
@@ -863,7 +1228,9 @@
                     class="login-form"
                 >
 
+
                     <!-- CSRF Protection -->
+
                     <input
                         type="hidden"
                         name="csrf_token"
@@ -879,11 +1246,13 @@
                             Email address
                         </label>
 
+
                         <div class="input-wrapper">
 
                             <span class="input-icon">
                                 ✉
                             </span>
+
 
                             <input
                                 id="email"
@@ -891,6 +1260,7 @@
                                 name="email"
                                 placeholder="Enter your email"
                                 autocomplete="email"
+                                value="{{ login_email|default('') }}"
                                 required
                             >
 
@@ -907,11 +1277,13 @@
                             Password
                         </label>
 
+
                         <div class="input-wrapper">
 
                             <span class="input-icon">
                                 🔒
                             </span>
+
 
                             <input
                                 id="password"
@@ -921,6 +1293,7 @@
                                 autocomplete="current-password"
                                 required
                             >
+
 
                             <button
                                 type="button"
@@ -949,12 +1322,18 @@
                 </form>
 
 
+                <!-- ================= DIVIDER ================= -->
+
                 <div class="login-divider">
-                    <span>UniCamplink Community</span>
+
+                    <span>
+                        UniCamplink Community
+                    </span>
+
                 </div>
 
 
-                <!-- SIGNUP -->
+                <!-- ================= SIGNUP ================= -->
 
                 <p class="signup-prompt">
 
@@ -967,9 +1346,14 @@
                 </p>
 
 
+                <!-- ================= SECURITY NOTE ================= -->
+
                 <div class="security-note">
+
                     🔐 Secure account access
+
                 </div>
+
 
             </section>
 
@@ -982,13 +1366,17 @@
 
     <script>
 
-        /* Password visibility */
+
+        /* =========================================================
+           PASSWORD VISIBILITY
+        ========================================================= */
 
         const passwordInput =
             document.getElementById("password");
 
         const togglePassword =
             document.getElementById("togglePassword");
+
 
         if (passwordInput && togglePassword) {
 
@@ -1000,10 +1388,14 @@
                         passwordInput.type === "password";
 
                     passwordInput.type =
-                        isPassword ? "text" : "password";
+                        isPassword
+                            ? "text"
+                            : "password";
 
                     togglePassword.textContent =
-                        isPassword ? "🙈" : "👁";
+                        isPassword
+                            ? "🙈"
+                            : "👁";
 
                     togglePassword.setAttribute(
                         "aria-label",
@@ -1018,13 +1410,16 @@
         }
 
 
-        /* Prevent accidental double submission */
+        /* =========================================================
+           PREVENT ACCIDENTAL DOUBLE SUBMISSION
+        ========================================================= */
 
         const loginForm =
             document.querySelector(".login-form");
 
         const loginButton =
             document.getElementById("loginButton");
+
 
         if (loginForm && loginButton) {
 
@@ -1042,7 +1437,89 @@
 
         }
 
+
+        /* =========================================================
+           LOGIN ERROR UX
+        ========================================================= */
+
+        const loginError =
+            document.getElementById("loginError");
+
+        const closeLoginError =
+            document.getElementById("closeLoginError");
+
+        const emailInput =
+            document.getElementById("email");
+
+        const passwordErrorInput =
+            document.getElementById("password");
+
+
+        function hideLoginError() {
+
+            if (!loginError) {
+                return;
+            }
+
+            loginError.style.opacity = "0";
+
+            loginError.style.transform =
+                "translateY(-6px)";
+
+            setTimeout(function () {
+
+                if (loginError) {
+                    loginError.remove();
+                }
+
+            }, 180);
+
+        }
+
+
+        if (closeLoginError) {
+
+            closeLoginError.addEventListener(
+                "click",
+                hideLoginError
+            );
+
+        }
+
+
+        if (emailInput) {
+
+            emailInput.addEventListener(
+                "input",
+                function () {
+
+                    if (this.value.trim()) {
+                        hideLoginError();
+                    }
+
+                }
+            );
+
+        }
+
+
+        if (passwordErrorInput) {
+
+            passwordErrorInput.addEventListener(
+                "input",
+                function () {
+
+                    if (this.value.length > 0) {
+                        hideLoginError();
+                    }
+
+                }
+            );
+
+        }
+
     </script>
 
 </body>
+
 </html>
