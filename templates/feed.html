@@ -1436,9 +1436,9 @@ html[data-theme="light"] .razor-sponsored-badge {
 
 <a
     href="{{ url_for(
-        'view_user',
-        user_id=post['user_id']
-    ) }}"
+    'view_profile',
+    user_id=post['user_id']
+) }}"
     class="post-avatar-link"
 >
 
@@ -1480,9 +1480,9 @@ html[data-theme="light"] .razor-sponsored-badge {
 
     <a
         href="{{ url_for(
-            'view_user',
-            user_id=post['user_id']
-        ) }}"
+    'view_profile',
+    user_id=post['user_id']
+) }}"
         class="post-author-name"
     >
         {{ post["author_name"] }}
@@ -2655,7 +2655,7 @@ function addCommentToList(
 
 
     avatarLink.href =
-        `/user/${comment.user_id}`;
+    `/profile/${comment.user_id}`;
 
 
     avatarLink.className =
@@ -2766,7 +2766,7 @@ function addCommentToList(
 
 
     authorLink.href =
-        `/user/${comment.user_id}`;
+    `/profile/${comment.user_id}`;
 
 
     authorLink.className =
@@ -3426,7 +3426,7 @@ function insertNewRazorPost(
 
 
     avatarLink.href =
-        `/user/${postData.user_id}`;
+`/profile/${postData.user_id}`;
 
 
     avatarLink.className =
@@ -3545,7 +3545,7 @@ function insertNewRazorPost(
 
 
     authorName.href =
-        `/user/${postData.user_id}`;
+    `/profile/${postData.user_id}`;
 
 
     authorName.className =

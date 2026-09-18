@@ -1289,6 +1289,36 @@ def update_campus_ambassadors_table():
 
     conn.commit()
     conn.close()
+def update_announcements_table():
+    conn = get_db_connection()
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS announcements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_by INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (created_by)
+            REFERENCES users(id)
+            ON DELETE SET NULL
+        )
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_announcements_active
+        ON announcements(is_active)
+        """
+    )
+
+    conn.commit()
+    conn.close()
 
 
 # ============================================================
@@ -1302,6 +1332,7 @@ update_comments_table()
 update_advertisement_requests_table()
 update_sponsored_posts_table()
 update_campus_ambassadors_table()
+update_announcements_table()
 # ============================================================
 # USER ONLINE / LAST SEEN TRACKER
 # ============================================================
@@ -1797,6 +1828,24 @@ def dashboard():
         )
     ).fetchone()
 
+    # ========================================================
+    # ACTIVE ANNOUNCEMENT
+    # ========================================================
+
+    active_announcement = conn.execute(
+        """
+        SELECT
+            id,
+            title,
+            message,
+            created_at
+        FROM announcements
+        WHERE is_active = 1
+        ORDER BY id DESC
+        LIMIT 1
+        """
+    ).fetchone()
+
     conn.close()
 
     if not user:
@@ -1809,6 +1858,7 @@ def dashboard():
     # ========================================================
     # ADMIN STATUS
     # ========================================================
+
     is_admin = (
         bool(ADMIN_EMAIL)
         and user["email"]
@@ -1816,13 +1866,64 @@ def dashboard():
         == ADMIN_EMAIL.strip().lower()
     )
 
+    # ========================================================
+    # DASHBOARD
+    # ========================================================
+
     return render_template(
         "dashboard.html",
         user=user,
-        is_admin=is_admin
+        is_admin=is_admin,
+        active_announcement=active_announcement
     )
+@app.route("/announcements")
+def announcements():
 
+    if "user_id" not in session:
+        return redirect(url_for("login"))
 
+    conn = get_db_connection()
+
+    user = conn.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE id = ?
+        """,
+        (session["user_id"],)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        session.clear()
+        return redirect(url_for("login"))
+
+    announcements_list = conn.execute(
+        """
+        SELECT
+            announcements.id,
+            announcements.title,
+            announcements.message,
+            announcements.created_at,
+            announcements.updated_at,
+            users.name AS creator_name
+        FROM announcements
+        LEFT JOIN users
+            ON users.id = announcements.created_by
+        WHERE announcements.is_active = 1
+        ORDER BY
+            announcements.created_at DESC,
+            announcements.id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "announcements.html",
+        user=user,
+        announcements=announcements_list
+    )
 # ============================================================
 # FEED
 # ============================================================
@@ -1845,6 +1946,7 @@ def feed():
             users.name AS author_name,
             users.university AS author_university,
             users.profile_picture,
+            users.is_verified_student AS author_is_verified,
 
             (
                 SELECT COUNT(*)
@@ -1888,7 +1990,6 @@ def feed():
 # ============================================================
 # CREATE POST
 # ============================================================
-
 @app.route(
     "/create-post",
     methods=["POST"]
@@ -1914,42 +2015,81 @@ def create_post():
 
     if not content and not (image and image.filename):
         message = "Post cannot be empty. Add text or an image."
+
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return jsonify({"success": False, "error": message}), 400
+            return jsonify({
+                "success": False,
+                "error": message
+            }), 400
+
         return message, 400
 
     if content is None:
-        message = "Post text is too long. Maximum length is 5000 characters."
+        message = (
+            "Post text is too long. "
+            "Maximum length is 5000 characters."
+        )
+
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return jsonify({"success": False, "error": message}), 400
+            return jsonify({
+                "success": False,
+                "error": message
+            }), 400
+
         return message, 400
 
     image_filename = ""
 
     if image and image.filename:
+
         if not validate_image(image):
             message = (
                 "Invalid image. Please upload a genuine PNG, JPG, JPEG "
                 "or GIF image under 4096x4096 pixels."
             )
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify({"success": False, "error": message}), 400
-            return message, 400
 
-        extension = image.filename.rsplit(".", 1)[1].lower()
-        image_filename = "post_" + str(uuid4()) + "." + extension
-
-        try:
-            image.save(safe_upload_path(image_filename))
-        except OSError:
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return jsonify({
                     "success": False,
-                    "error": "The image could not be saved. Please try again."
+                    "error": message
+                }), 400
+
+            return message, 400
+
+        extension = image.filename.rsplit(".", 1)[1].lower()
+
+        image_filename = (
+            "post_"
+            + str(uuid4())
+            + "."
+            + extension
+        )
+
+        try:
+
+            image.save(
+                safe_upload_path(image_filename)
+            )
+
+        except OSError:
+
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({
+                    "success": False,
+                    "error": (
+                        "The image could not be saved. "
+                        "Please try again."
+                    )
                 }), 500
-            return "The image could not be saved. Please try again.", 500
+
+            return (
+                "The image could not be saved. "
+                "Please try again.",
+                500
+            )
 
     conn = get_db_connection()
+
     current_user_id = session["user_id"]
 
     cursor = conn.execute(
@@ -1973,14 +2113,23 @@ def create_post():
 
     author = conn.execute(
         """
-        SELECT id, name, university, profile_picture
+        SELECT
+            id,
+            name,
+            university,
+            profile_picture,
+            is_verified_student
         FROM users
         WHERE id = ?
         """,
         (current_user_id,)
     ).fetchone()
 
-    author_name = author["name"] if author else "A student"
+    author_name = (
+        author["name"]
+        if author
+        else "A student"
+    )
 
     friends = conn.execute(
         """
@@ -1992,6 +2141,7 @@ def create_post():
     ).fetchall()
 
     for friend in friends:
+
         conn.execute(
             """
             INSERT INTO notifications
@@ -2019,9 +2169,26 @@ def create_post():
     post_data = {
         "id": post_id,
         "user_id": current_user_id,
-        "author_name": author["name"] if author else "UniCamplink User",
-        "author_university": author["university"] if author else "",
-        "profile_picture": author["profile_picture"] if author else "",
+        "author_name": (
+            author["name"]
+            if author
+            else "UniCamplink User"
+        ),
+        "author_university": (
+            author["university"]
+            if author
+            else ""
+        ),
+        "profile_picture": (
+            author["profile_picture"]
+            if author
+            else ""
+        ),
+        "author_is_verified": (
+            bool(author["is_verified_student"])
+            if author
+            else False
+        ),
         "content": content or "",
         "image": image_filename,
         "like_count": 0,
@@ -2030,13 +2197,15 @@ def create_post():
     }
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+
         return jsonify({
             "success": True,
             "post": post_data
         }), 201
 
-    return redirect(url_for("feed"))
-
+    return redirect(
+        url_for("feed")
+    )
 
 # ============================================================
 # LIKE POST
@@ -2499,6 +2668,93 @@ def profile():
         post_count=post_count,
         total_likes=total_likes,
         campus_ambassador=campus_ambassador
+    )
+# ============================================================
+# PUBLIC USER PROFILE
+# ============================================================
+
+@app.route("/profile/<int:user_id>")
+def view_profile(user_id):
+
+    if "user_id" not in session:
+        return redirect(
+            url_for("login")
+        )
+
+    conn = get_db_connection()
+
+    user = conn.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    if not user:
+
+        conn.close()
+
+        return "User not found.", 404
+
+    posts = conn.execute(
+        """
+        SELECT *
+        FROM posts
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        """
+    , (user_id,)).fetchall()
+
+    post_count = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM posts
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    ).fetchone()[0]
+
+    total_likes = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM likes
+        JOIN posts
+            ON likes.post_id = posts.id
+        WHERE posts.user_id = ?
+        """,
+        (user_id,)
+    ).fetchone()[0]
+
+    campus_ambassador = conn.execute(
+        """
+        SELECT
+            campus,
+            school,
+            appointed_at
+        FROM campus_ambassadors
+        WHERE user_id = ?
+        AND active = 1
+        LIMIT 1
+        """,
+        (user_id,)
+    ).fetchone()
+
+    conn.close()
+
+    is_owner = (
+        session["user_id"] == user_id
+    )
+
+    return render_template(
+        "profile.html",
+        user=user,
+        posts=posts,
+        post_count=post_count,
+        total_likes=total_likes,
+        campus_ambassador=campus_ambassador,
+        is_owner=is_owner
     )
 
 
@@ -4254,6 +4510,64 @@ def unread_notifications():
         ]
     }
 
+# ============================================================
+# MARK NOTIFICATION AS READ
+# ============================================================
+
+@app.route(
+    "/api/notifications/<int:notification_id>/read",
+    methods=["POST"]
+)
+def mark_notification_as_read(notification_id):
+
+    if "user_id" not in session:
+        return {
+            "success": False,
+            "error": "Please log in."
+        }, 401
+
+    conn = get_db_connection()
+
+    notification = conn.execute(
+        """
+        SELECT id
+        FROM notifications
+        WHERE id = ?
+        AND user_id = ?
+        """,
+        (
+            notification_id,
+            session["user_id"]
+        )
+    ).fetchone()
+
+    if not notification:
+        conn.close()
+
+        return {
+            "success": False,
+            "error": "Notification not found."
+        }, 404
+
+    conn.execute(
+        """
+        UPDATE notifications
+        SET is_read = 1
+        WHERE id = ?
+        AND user_id = ?
+        """,
+        (
+            notification_id,
+            session["user_id"]
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "success": True
+    }
 
 # ============================================================
 # NOTIFICATIONS
@@ -5478,7 +5792,311 @@ def admin_dashboard():
 
         recent_users=recent_users
     )
+@app.route("/admin/announcements", methods=["GET"])
+def admin_announcements():
 
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    announcements = conn.execute(
+        """
+        SELECT
+            announcements.id,
+            announcements.title,
+            announcements.message,
+            announcements.is_active,
+            announcements.created_by,
+            announcements.created_at,
+            announcements.updated_at,
+            users.name AS creator_name
+        FROM announcements
+        LEFT JOIN users
+            ON users.id = announcements.created_by
+        ORDER BY
+            announcements.is_active DESC,
+            announcements.created_at DESC,
+            announcements.id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "admin_announcements.html",
+        current_user=current_user,
+        announcements=announcements
+    )
+@app.route(
+    "/admin/announcements/create",
+    methods=["POST"]
+)
+def admin_create_announcement():
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    title = clean_text(
+        request.form.get("title"),
+        150
+    )
+
+    message = clean_text(
+        request.form.get("message"),
+        3000
+    )
+
+    is_active = (
+        1
+        if request.form.get("is_active") == "1"
+        else 0
+    )
+
+    notify_users = (
+        request.form.get("notify_users") == "1"
+    )
+
+    if not title:
+        conn.close()
+        return "Announcement title is required.", 400
+
+    if not message:
+        conn.close()
+        return "Announcement message is required.", 400
+
+    cursor = conn.execute(
+        """
+        INSERT INTO announcements
+        (
+            title,
+            message,
+            is_active,
+            created_by
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            title,
+            message,
+            is_active,
+            current_user["id"]
+        )
+    )
+
+    announcement_id = cursor.lastrowid
+
+    if notify_users and is_active:
+
+        notification_message = (
+            f"📢 {title}: {message}"
+        )
+
+        users = conn.execute(
+            """
+            SELECT id
+            FROM users
+            WHERE id != ?
+            """,
+            (current_user["id"],)
+        ).fetchall()
+
+        for user in users:
+
+            conn.execute(
+    """
+    INSERT INTO notifications
+    (
+        user_id,
+        sender_id,
+        type,
+        message,
+        link
+    )
+    VALUES (?, ?, ?, ?, ?)
+    """,
+    (
+        user["id"],
+        current_user["id"],
+        "announcement",
+        notification_message,
+        "/announcements"
+    )
+)
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
+    )
+@app.route(
+    "/admin/announcements/<int:announcement_id>/toggle",
+    methods=["POST"]
+)
+def admin_toggle_announcement(announcement_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    announcement = conn.execute(
+        """
+        SELECT id, is_active
+        FROM announcements
+        WHERE id = ?
+        """,
+        (announcement_id,)
+    ).fetchone()
+
+    if not announcement:
+        conn.close()
+        return "Announcement not found.", 404
+
+    new_status = (
+        0
+        if announcement["is_active"]
+        else 1
+    )
+
+    conn.execute(
+        """
+        UPDATE announcements
+        SET
+            is_active = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (
+            new_status,
+            announcement_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
+    )
+@app.route(
+    "/admin/announcements/<int:announcement_id>/delete",
+    methods=["POST"]
+)
+def admin_delete_announcement(announcement_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    announcement = conn.execute(
+        """
+        SELECT id
+        FROM announcements
+        WHERE id = ?
+        """,
+        (announcement_id,)
+    ).fetchone()
+
+    if not announcement:
+        conn.close()
+        return "Announcement not found.", 404
+
+    conn.execute(
+        """
+        DELETE FROM announcements
+        WHERE id = ?
+        """,
+        (announcement_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
+    )
+# ============================================================
+# ADMIN — EDIT ANNOUNCEMENT
+# ============================================================
+
+@app.route(
+    "/admin/announcements/<int:announcement_id>/edit",
+    methods=["POST"]
+)
+def admin_edit_announcement(announcement_id):
+
+    current_user, result = _require_admin()
+
+    if current_user is None:
+        return result
+
+    conn = result
+
+    title = clean_text(
+        request.form.get("title"),
+        150
+    )
+
+    message = clean_text(
+        request.form.get("message"),
+        3000
+    )
+
+    if not title or not message:
+        conn.close()
+        return (
+            "Announcement title and message are required.",
+            400
+        )
+
+    announcement = conn.execute(
+        """
+        SELECT id
+        FROM announcements
+        WHERE id = ?
+        """,
+        (announcement_id,)
+    ).fetchone()
+
+    if not announcement:
+        conn.close()
+        return "Announcement not found.", 404
+
+    conn.execute(
+        """
+        UPDATE announcements
+        SET
+            title = ?,
+            message = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (
+            title,
+            message,
+            announcement_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(
+        url_for("admin_announcements")
+    )
 # ============================================================
 # ADMIN — MEMBERS
 # ============================================================

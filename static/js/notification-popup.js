@@ -1,8 +1,17 @@
 (() => {
     "use strict";
 
-    const API_URL = "/api/notifications/unread";
-    const STORAGE_KEY = "unicamplink-last-notification-id";
+    /* =========================================================
+       UNICAMPLINK NOTIFICATION SYSTEM
+       Razor / Facebook-style notification behavior
+       ========================================================= */
+
+    const API_URL =
+        "/api/notifications/unread";
+
+    const STORAGE_KEY =
+        "unicamplink-last-notification-id";
+
     const POLL_INTERVAL = 5000;
 
     let lastNotificationId = Number(
@@ -11,7 +20,13 @@
 
     let polling = false;
 
+
+    /* =========================================================
+       SECURITY
+       ========================================================= */
+
     function escapeHtml(value) {
+
         return String(value ?? "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -20,75 +35,260 @@
             .replace(/'/g, "&#039;");
     }
 
+
+    /* =========================================================
+       NOTIFICATION ICONS
+       ========================================================= */
+
     function getIcon(type) {
+
         const icons = {
+
             post: "📝",
+
             like: "❤️",
+
             comment: "💬",
+
+            reply: "↩️",
+
             message: "💬",
+
             friend_request: "👥",
-            friend_accepted: "✅"
+
+            friend_accepted: "✅",
+
+            announcement: "📢"
         };
 
         return icons[type] || "🔔";
     }
 
+
+    /* =========================================================
+       NOTIFICATION CONTAINER
+       ========================================================= */
+
     function ensureContainer() {
-        let container = document.getElementById(
-            "unicamplink-notification-container"
-        );
+
+        let container =
+            document.getElementById(
+                "unicamplink-notification-container"
+            );
 
         if (!container) {
-            container = document.createElement("div");
-            container.id = "unicamplink-notification-container";
+
+            container =
+                document.createElement("div");
+
+            container.id =
+                "unicamplink-notification-container";
+
             container.className =
                 "unicamplink-notification-container";
 
-            container.setAttribute("aria-live", "polite");
-            container.setAttribute("aria-atomic", "false");
+            container.setAttribute(
+                "aria-live",
+                "polite"
+            );
 
-            document.body.appendChild(container);
+            container.setAttribute(
+                "aria-atomic",
+                "false"
+            );
+
+            document.body.appendChild(
+                container
+            );
         }
 
         return container;
     }
 
-    function showNotification(notification) {
-        const container = ensureContainer();
 
-        const toast = document.createElement("div");
+    /* =========================================================
+   MARK NOTIFICATION AS READ
+   ========================================================= */
 
-        toast.className = "unicamplink-notification-popup";
+async function markNotificationAsRead(
+    notificationId
+) {
 
-        const senderName = escapeHtml(
-            notification.sender_name || "UniCamplink"
+    if (!notificationId) {
+        return false;
+    }
+
+    try {
+
+        /*
+         * Get the Flask-WTF CSRF token
+         * from the page.
+         */
+
+        const csrfToken =
+            document
+                .querySelector(
+                    'meta[name="csrf-token"]'
+                )
+                ?.getAttribute("content");
+
+
+        if (!csrfToken) {
+
+            console.error(
+                "UniCamplink: CSRF token not found."
+            );
+
+            return false;
+        }
+
+
+        const response =
+            await fetch(
+                `/api/notifications/${notificationId}/read`,
+                {
+                    method: "POST",
+
+                    credentials:
+                        "same-origin",
+
+                    headers: {
+
+                        "Accept":
+                            "application/json",
+
+                        "Content-Type":
+                            "application/json",
+
+                        "X-CSRFToken":
+                            csrfToken
+                    },
+
+                    body:
+                        JSON.stringify({})
+                }
+            );
+
+
+        if (!response.ok) {
+
+            console.error(
+                "Unable to mark notification as read:",
+                response.status
+            );
+
+            return false;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        return (
+            data.success === true
         );
 
-        const message = escapeHtml(
-            notification.message ||
-            "You have a new notification."
+
+    } catch (error) {
+
+        console.error(
+            "Unable to mark notification as read:",
+            error
         );
 
-        const link = notification.link || "/notifications";
+        return false;
+    }
+}
+
+
+    /* =========================================================
+       SHOW NOTIFICATION
+       ========================================================= */
+
+    function showNotification(
+        notification
+    ) {
+
+        const container =
+            ensureContainer();
+
+        const toast =
+            document.createElement("div");
+
+        toast.className =
+            "unicamplink-notification-popup";
+
+        const senderName =
+            escapeHtml(
+                notification.sender_name ||
+                "UniCamplink"
+            );
+
+        const message =
+            escapeHtml(
+                notification.message ||
+                "You have a new notification."
+            );
+
+        const link =
+            notification.link ||
+            "/notifications";
+
+        const icon =
+            getIcon(
+                notification.type
+            );
+
+        const title =
+            notification.type ===
+            "announcement"
+
+                ? "UniCamplink Announcement"
+
+                : "New notification";
+
+
+        /* =====================================================
+           POPUP HTML
+           ===================================================== */
 
         toast.innerHTML = `
-            <div class="unicamplink-notification-icon">
-                ${getIcon(notification.type)}
+
+            <div
+                class="unicamplink-notification-icon"
+                aria-hidden="true"
+            >
+                ${icon}
             </div>
 
-            <div class="unicamplink-notification-content">
-                <div class="unicamplink-notification-title">
-                    New notification
+
+            <div
+                class="unicamplink-notification-content"
+            >
+
+                <div
+                    class="unicamplink-notification-title"
+                >
+                    ${title}
                 </div>
 
-                <div class="unicamplink-notification-sender">
+
+                <div
+                    class="unicamplink-notification-sender"
+                >
                     ${senderName}
                 </div>
 
-                <div class="unicamplink-notification-message">
+
+                <div
+                    class="unicamplink-notification-message"
+                >
                     ${message}
                 </div>
+
             </div>
+
 
             <button
                 type="button"
@@ -97,177 +297,441 @@
             >
                 ×
             </button>
+
         `;
 
-        const closeButton = toast.querySelector(
-            ".unicamplink-notification-close"
+
+        /* =====================================================
+           CLOSE BUTTON
+           ===================================================== */
+
+        const closeButton =
+            toast.querySelector(
+                ".unicamplink-notification-close"
+            );
+
+
+        if (closeButton) {
+
+            closeButton.addEventListener(
+                "click",
+                (event) => {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+                    removeToast(toast);
+                }
+            );
+        }
+
+
+        /* =====================================================
+           NOTIFICATION CLICK
+           ===================================================== */
+
+        toast.addEventListener(
+    "click",
+    () => {
+
+        const notificationId =
+            Number(
+                notification.id || 0
+            );
+
+        console.log(
+            "UniCamplink notification clicked:",
+            {
+                id: notificationId,
+                type: notification.type,
+                link: link,
+                message: notification.message
+            }
         );
 
-        closeButton.addEventListener("click", (event) => {
-            event.stopPropagation();
-            removeToast(toast);
-        });
+        /*
+         * Mark as read in the background.
+         *
+         * Do NOT wait for this request before
+         * opening the destination.
+         */
+        if (notificationId) {
 
-        toast.addEventListener("click", () => {
-            window.location.href = link;
-        });
+            markNotificationAsRead(
+                notificationId
+            ).catch((error) => {
 
-        container.appendChild(toast);
+                console.error(
+                    "Notification read update failed:",
+                    error
+                );
+
+            });
+
+        }
+
+        /*
+         * Remove popup immediately.
+         */
+        removeToast(toast);
+
+        /*
+         * Open the actual notification destination
+         * immediately.
+         */
+        if (link) {
+
+            window.location.assign(
+                link
+            );
+
+        } else {
+
+            window.location.assign(
+                "/dashboard"
+            );
+
+        }
+
+    }
+);
+
+
+        /* =====================================================
+           ADD POPUP
+           ===================================================== */
+
+        container.appendChild(
+            toast
+        );
+
+
+        /* =====================================================
+           ANIMATION
+           ===================================================== */
 
         requestAnimationFrame(() => {
-            toast.classList.add("show");
+
+            toast.classList.add(
+                "show"
+            );
+
         });
 
-        const timeout = setTimeout(() => {
-            removeToast(toast);
-        }, 6500);
 
-        toast.dataset.timeout = String(timeout);
+        /* =====================================================
+           AUTO DISMISS
+           ===================================================== */
+
+        const timeout =
+            setTimeout(
+                () => {
+
+                    removeToast(
+                        toast
+                    );
+
+                },
+                6500
+            );
+
+
+        toast.dataset.timeout =
+            String(timeout);
     }
 
-    function removeToast(toast) {
-        if (!toast || !toast.isConnected) {
+
+    /* =========================================================
+       REMOVE POPUP
+       ========================================================= */
+
+    function removeToast(
+        toast
+    ) {
+
+        if (
+            !toast ||
+            !toast.isConnected
+        ) {
             return;
         }
 
-        const timeout = Number(toast.dataset.timeout);
+
+        const timeout =
+            Number(
+                toast.dataset.timeout
+            );
+
 
         if (timeout) {
-            clearTimeout(timeout);
+
+            clearTimeout(
+                timeout
+            );
         }
 
-        toast.classList.remove("show");
-        toast.classList.add("hide");
 
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
+        toast.classList.remove(
+            "show"
+        );
+
+
+        toast.classList.add(
+            "hide"
+        );
+
+
+        setTimeout(
+            () => {
+
+                if (
+                    toast.isConnected
+                ) {
+
+                    toast.remove();
+                }
+
+            },
+            300
+        );
     }
+
 
     /* =========================================================
        UNREAD NOTIFICATION BADGE
-    ========================================================= */
+       ========================================================= */
 
-    function updateNotificationBadge(count) {
+    function updateNotificationBadge(
+        count
+    ) {
+
         const notificationLinks =
             document.querySelectorAll(
                 ".notification-nav-link"
             );
 
-        notificationLinks.forEach((link) => {
-            let badge = link.querySelector(
-                ".unicamplink-notification-badge"
-            );
 
-            if (count > 0) {
-                if (!badge) {
-                    badge = document.createElement("span");
+        notificationLinks.forEach(
+            (link) => {
 
-                    badge.className =
-                        "unicamplink-notification-badge";
+                let badge =
+                    link.querySelector(
+                        ".unicamplink-notification-badge"
+                    );
 
-                    link.appendChild(badge);
+
+                if (count > 0) {
+
+                    if (!badge) {
+
+                        badge =
+                            document.createElement(
+                                "span"
+                            );
+
+                        badge.className =
+                            "unicamplink-notification-badge";
+
+                        link.appendChild(
+                            badge
+                        );
+                    }
+
+
+                    badge.textContent =
+                        count > 99
+                            ? "99+"
+                            : String(count);
+
+
+                    badge.setAttribute(
+                        "aria-label",
+                        `${count} unread notifications`
+                    );
+
+
+                } else if (badge) {
+
+                    badge.remove();
                 }
 
-                badge.textContent =
-                    count > 99
-                        ? "99+"
-                        : String(count);
-
-                badge.setAttribute(
-                    "aria-label",
-                    count +
-                    " unread notifications"
-                );
-
-            } else if (badge) {
-                badge.remove();
             }
-        });
+        );
     }
 
+
+    /* =========================================================
+       CHECK NOTIFICATIONS
+       ========================================================= */
+
     async function checkNotifications() {
+
         if (
             polling ||
-            document.visibilityState === "hidden"
+            document.visibilityState ===
+            "hidden"
         ) {
             return;
         }
 
+
         polling = true;
 
+
         try {
-            const response = await fetch(
-                `${API_URL}?after_id=${encodeURIComponent(
-                    lastNotificationId
-                )}`,
-                {
-                    method: "GET",
-                    credentials: "same-origin",
-                    headers: {
-                        "Accept": "application/json"
-                    },
-                    cache: "no-store"
-                }
-            );
+
+            const response =
+                await fetch(
+                    `${API_URL}?after_id=${encodeURIComponent(
+                        lastNotificationId
+                    )}`,
+                    {
+                        method: "GET",
+
+                        credentials:
+                            "same-origin",
+
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        },
+
+                        cache:
+                            "no-store"
+                    }
+                );
+
 
             if (!response.ok) {
+
                 return;
             }
 
-            const data = await response.json();
 
-            /* Update unread badge */
+            const data =
+                await response.json();
+
+
+            /* =================================================
+               UPDATE UNREAD BADGE
+               ================================================= */
+
             updateNotificationBadge(
-                Number(data.unread_count || 0)
+                Number(
+                    data.unread_count || 0
+                )
             );
 
+
+            /* =================================================
+               GET NOTIFICATIONS
+               ================================================= */
+
             const notifications =
-                Array.isArray(data.notifications)
+                Array.isArray(
+                    data.notifications
+                )
                     ? data.notifications
                     : [];
 
+
+            /* =================================================
+               SHOW NEW NOTIFICATIONS
+               ================================================= */
+
             notifications.forEach(
                 (notification) => {
-                    const id = Number(
-                        notification.id || 0
-                    );
+
+                    const id =
+                        Number(
+                            notification.id ||
+                            0
+                        );
+
 
                     if (
-                        id > lastNotificationId
+                        id >
+                        lastNotificationId
                     ) {
+
                         showNotification(
                             notification
                         );
 
-                        lastNotificationId = id;
+
+                        lastNotificationId =
+                            id;
                     }
+
                 }
             );
 
-            if (lastNotificationId > 0) {
+
+            /* =================================================
+               SAVE LAST NOTIFICATION ID
+               ================================================= */
+
+            if (
+                lastNotificationId >
+                0
+            ) {
+
                 localStorage.setItem(
                     STORAGE_KEY,
-                    String(lastNotificationId)
+                    String(
+                        lastNotificationId
+                    )
                 );
             }
 
+
         } catch (error) {
-            // Keep the notification system silent
-            // when the network is unavailable.
+
+            /*
+             * Keep the notification system
+             * running even if the network
+             * temporarily fails.
+             */
+
+            console.error(
+                "UniCamplink notification error:",
+                error
+            );
+
+
         } finally {
+
             polling = false;
         }
     }
 
+
+    /* =========================================================
+       START NOTIFICATION POLLING
+       ========================================================= */
+
     function startNotificationPolling() {
+
         if (!document.body) {
+
             return;
         }
 
+
         ensureContainer();
 
+
+        /*
+         * Check immediately.
+         */
+
         checkNotifications();
+
+
+        /*
+         * Continue checking every 5 seconds.
+         */
 
         setInterval(
             checkNotifications,
@@ -275,15 +739,23 @@
         );
     }
 
+
+    /* =========================================================
+       START SYSTEM
+       ========================================================= */
+
     if (
         document.readyState ===
         "loading"
     ) {
+
         document.addEventListener(
             "DOMContentLoaded",
             startNotificationPolling
         );
+
     } else {
+
         startNotificationPolling();
     }
 

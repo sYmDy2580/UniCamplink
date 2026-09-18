@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Announcements | UniCamplink Admin</title>
+
+    <style>
+
+        :root {
+            --primary: #38bdf8;
+            --primary-strong: #0ea5e9;
+            --primary-soft: rgba(56, 189, 248, .12);
+
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --surface-2: #f8fafc;
+            --surface-3: #eef4f8;
+
+            --text: #0f172a;
+            --muted: #64748b;
+
+            --border: #e2e8f0;
+            --border-soft: #edf2f7;
+
+            --shadow:
+                0 10px 35px rgba(15, 23, 42, .07);
+
+            --shadow-lg:
+                0 22px 65px rgba(15, 23, 42, .13);
+
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 26px;
+
+            --transition: 180ms ease;
+        }
+
+        html[data-theme="dark"],
+        body.dark-mode {
+
+            --bg: #07111f;
+            --surface: #0d1a2b;
+            --surface-2: #101f33;
+            --surface-3: #14263d;
+
+            --text: #e8f0f8;
+            --muted: #8ea3bb;
+
+            --border: #20344b;
+            --border-soft: #182b40;
+
+            --shadow:
+                0 16px 45px rgba(0, 0, 0, .24);
+
+            --shadow-lg:
+                0 25px 75px rgba(0, 0, 0, .34);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        textarea {
+            font: inherit;
+        }
+
+        .razor-page {
+            min-height: 100vh;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .razor-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+
+            box-shadow: var(--shadow);
+        }
+
+        .razor-header-inner {
+            width: min(1180px, calc(100% - 28px));
+            margin: auto;
+
+            min-height: 72px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 14px;
+
+            object-fit: contain;
+
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 950;
+        }
+
+        .brand p {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: .78rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+
+            border-radius: 12px;
+
+            padding: 10px 14px;
+
+            background: var(--surface-2);
+            color: var(--text);
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition:
+                transform var(--transition),
+                border-color var(--transition),
+                background var(--transition);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            border-color: transparent;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary-strong)
+                );
+
+            color: #04283b;
+        }
+
+        .btn-danger {
+            color: #fff;
+            background: var(--danger);
+            border-color: transparent;
+        }
+
+        .btn-success {
+            color: #fff;
+            background: var(--success);
+            border-color: transparent;
+        }
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .container {
+            width: min(1180px, calc(100% - 28px));
+            margin: 0 auto;
+
+            padding: 32px 0 60px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 7px 11px;
+
+            border-radius: 999px;
+
+            background: var(--primary-soft);
+            color: var(--primary-strong);
+
+            font-size: .78rem;
+            font-weight: 900;
+        }
+
+        .hero h2 {
+            margin: 12px 0 7px;
+
+            font-size: clamp(
+                1.65rem,
+                4vw,
+                2.35rem
+            );
+
+            line-height: 1.1;
+        }
+
+        .hero p {
+            margin: 0;
+
+            color: var(--muted);
+
+            max-width: 680px;
+        }
+
+        /* =====================================================
+           CREATE CARD
+        ===================================================== */
+
+        .create-card {
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius-xl);
+
+            padding: 22px;
+
+            box-shadow: var(--shadow);
+
+            margin-bottom: 26px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+
+            margin-bottom: 18px;
+        }
+
+        .section-title h3 {
+            margin: 0;
+
+            font-size: 1.05rem;
+        }
+
+        .section-title span {
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: .82rem;
+            font-weight: 850;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+
+            border: 1px solid var(--border);
+
+            border-radius: 13px;
+
+            background: var(--surface-2);
+            color: var(--text);
+
+            padding: 12px 14px;
+
+            outline: none;
+
+            transition:
+                border-color var(--transition),
+                box-shadow var(--transition);
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 4px var(--primary-soft);
+        }
+
+        textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .form-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 14px;
+
+            margin-top: 5px;
+        }
+
+        .checks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            color: var(--muted);
+
+            font-size: .84rem;
+        }
+
+        .check input {
+            width: auto;
+        }
+
+        /* =====================================================
+           ANNOUNCEMENTS
+        ===================================================== */
+
+        .announcement-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .announcement-card {
+            position: relative;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius-lg);
+
+            padding: 20px;
+
+            box-shadow: var(--shadow);
+
+            transition:
+                transform var(--transition),
+                box-shadow var(--transition),
+                border-color var(--transition);
+        }
+
+        .announcement-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .announcement-card.inactive {
+            opacity: .72;
+        }
+
+        .announcement-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+
+            gap: 15px;
+        }
+
+        .announcement-heading {
+            min-width: 0;
+        }
+
+        .announcement-heading h3 {
+            margin: 0;
+
+            font-size: 1.08rem;
+            font-weight: 950;
+
+            overflow-wrap: anywhere;
+        }
+
+        .announcement-meta {
+            margin-top: 6px;
+
+            color: var(--muted);
+
+            font-size: .78rem;
+        }
+
+        .status {
+            flex: 0 0 auto;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            padding: 6px 10px;
+
+            border-radius: 999px;
+
+            font-size: .75rem;
+            font-weight: 900;
+        }
+
+        .status.active {
+            color: #15803d;
+            background: rgba(34,197,94,.12);
+        }
+
+        .status.inactive {
+            color: var(--muted);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+        }
+
+        .announcement-message {
+            margin: 17px 0;
+
+            color: var(--text);
+
+            line-height: 1.65;
+
+            white-space: pre-wrap;
+
+            overflow-wrap: anywhere;
+        }
+
+        .announcement-actions {
+            display: flex;
+            flex-wrap: wrap;
+
+            gap: 8px;
+
+            padding-top: 14px;
+
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .empty {
+            text-align: center;
+
+            padding: 45px 20px;
+
+            background: var(--surface);
+
+            border: 1px dashed var(--border);
+
+            border-radius: var(--radius-lg);
+
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            .razor-header-inner {
+                min-height: auto;
+                padding: 12px 0;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .container {
+                width: min(
+                    100% - 18px,
+                    1180px
+                );
+
+                padding-top: 22px;
+            }
+
+            .create-card,
+            .announcement-card {
+                padding: 16px;
+                border-radius: 18px;
+            }
+
+            .form-footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .form-footer .btn {
+                width: 100%;
+            }
+
+            .announcement-top {
+                flex-direction: column;
+            }
+
+            .status {
+                align-self: flex-start;
+            }
+
+            .announcement-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .announcement-actions form,
+            .announcement-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 430px) {
+
+            .brand p {
+                display: none;
+            }
+
+            .header-actions .btn {
+                padding: 8px 10px;
+                font-size: .78rem;
+            }
+
+            .announcement-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="razor-page">
+
+    <header class="razor-header">
+
+        <div class="razor-header-inner">
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="brand"
+            >
+
+                <img
+                    class="brand-logo"
+                    src="{{ url_for(
+                        'static',
+                        filename='images/unicamplink-logo.png'
+                    ) }}"
+                    alt="UniCamplink"
+                >
+
+                <div>
+                    <h1>UniCamplink Admin</h1>
+                    <p>Razor Control Center</p>
+                </div>
+
+            </a>
+
+            <div class="header-actions">
+
+                <a
+                    class="btn"
+                    href="{{ url_for('admin_dashboard') }}"
+                >
+                    ← Admin
+                </a>
+
+                <a
+                    class="btn"
+                    href="{{ url_for('dashboard') }}"
+                >
+                    UniCamplink ↗
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+        <section class="hero">
+
+            <span class="eyebrow">
+                📢 Communication Center
+            </span>
+
+            <h2>
+                Announcements
+            </h2>
+
+            <p>
+                Keep the UniCamplink community informed with
+                important updates, platform news and official
+                announcements.
+            </p>
+
+        </section>
+
+
+        <!-- CREATE -->
+
+        <section class="create-card">
+
+            <div class="section-title">
+
+                <div>
+                    <h3>
+                        📢 Create Announcement
+                    </h3>
+
+                    <span>
+                        Publish an official UniCamplink update.
+                    </span>
+                </div>
+
+            </div>
+
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'admin_create_announcement'
+                ) }}"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <div class="form-grid">
+
+                    <div>
+
+                        <label for="title">
+                            Announcement title
+                        </label>
+
+                        <input
+                            id="title"
+                            name="title"
+                            type="text"
+                            maxlength="150"
+                            required
+                            placeholder="e.g. New Razor features are live 🚀"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="message">
+                            Message
+                        </label>
+
+                        <textarea
+                            id="message"
+                            name="message"
+                            maxlength="3000"
+                            required
+                            placeholder="Write your announcement..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-footer">
+
+                        <div class="checks">
+
+                            <label class="check">
+
+                                <input
+                                    type="checkbox"
+                                    name="is_active"
+                                    value="1"
+                                    checked
+                                >
+
+                                Active immediately
+
+                            </label>
+
+
+                            <label class="check">
+
+                                <input
+                                    type="checkbox"
+                                    name="notify_users"
+                                    value="1"
+                                    checked
+                                >
+
+                                Notify users
+
+                            </label>
+
+                        </div>
+
+
+                        <button
+                            class="btn btn-primary"
+                            type="submit"
+                        >
+                            📢 Publish Announcement
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- EXISTING ANNOUNCEMENTS -->
+
+        <section>
+
+            <div class="section-title">
+
+                <div>
+                    <h3>
+                        Published Announcements
+                    </h3>
+
+                    <span>
+                        Manage your UniCamplink announcements.
+                    </span>
+                </div>
+
+                <span>
+                    {{ announcements|length }}
+                </span>
+
+            </div>
+
+
+            {% if announcements %}
+
+                <div class="announcement-list">
+
+                    {% for announcement in announcements %}
+
+                        <article
+                            class="
+                                announcement-card
+                                {% if not announcement['is_active'] %}
+                                    inactive
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="announcement-top">
+
+                                <div class="announcement-heading">
+
+                                    <h3>
+                                        📢
+                                        {{ announcement['title'] }}
+                                    </h3>
+
+                                    <div class="announcement-meta">
+
+                                        Published
+                                        {{ announcement['created_at'] }}
+
+                                        {% if announcement['creator_name'] %}
+                                            · by
+                                            {{ announcement['creator_name'] }}
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if announcement['is_active'] %}
+
+                                    <span class="status active">
+                                        ● Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status inactive">
+                                        ● Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="announcement-message">
+                                {{ announcement['message'] }}
+                            </div>
+
+
+                            <div class="announcement-actions">
+
+                                <!-- TOGGLE -->
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin_toggle_announcement',
+                                        announcement_id=announcement['id']
+                                    ) }}"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <button
+                                        class="btn btn-success"
+                                        type="submit"
+                                    >
+                                        {% if announcement['is_active'] %}
+                                            Deactivate
+                                        {% else %}
+                                            Activate
+                                        {% endif %}
+                                    </button>
+
+                                </form>
+
+
+                                <!-- EDIT -->
+
+                                <button
+                                    class="btn"
+                                    type="button"
+                                    data-announcement-id="{{ announcement['id'] }}"
+                                    onclick="toggleEdit(this.dataset.announcementId)"
+                                >
+                                    ✏️ Edit
+                                </button>
+
+
+                                <!-- DELETE -->
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin_delete_announcement',
+                                        announcement_id=announcement['id']
+                                    ) }}"
+                                    onsubmit="
+                                        return confirm(
+                                            'Delete this announcement?'
+                                        );
+                                    "
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <button
+                                        class="btn btn-danger"
+                                        type="submit"
+                                    >
+                                        🗑️ Delete
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+
+                            <!-- EDIT PANEL -->
+
+                            <div
+                                id="edit-{{ announcement['id'] }}"
+                                style="
+                                    display:none;
+                                    margin-top:16px;
+                                    padding-top:16px;
+                                    border-top:1px solid var(--border);
+                                "
+                            >
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin_edit_announcement',
+                                        announcement_id=announcement['id']
+                                    ) }}"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+
+                                    <div class="form-grid">
+
+                                        <div>
+
+                                            <label>
+                                                Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="title"
+                                                maxlength="150"
+                                                value="{{ announcement['title'] }}"
+                                                required
+                                            >
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Message
+                                            </label>
+
+                                            <textarea
+                                                name="message"
+                                                maxlength="3000"
+                                                required
+                                            >{{ announcement['message'] }}</textarea>
+
+                                        </div>
+
+
+                                        <button
+                                            class="btn btn-primary"
+                                            type="submit"
+                                        >
+                                            Save Changes
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        📢
+                    </div>
+
+                    <strong>
+                        No announcements yet
+                    </strong>
+
+                    <p>
+                        Create your first UniCamplink announcement above.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function toggleEdit(id) {
+
+    const panel = document.getElementById(
+        "edit-" + id
+    );
+
+    if (!panel) {
+        return;
+    }
+
+    if (panel.style.display === "none") {
+        panel.style.display = "block";
+    } else {
+        panel.style.display = "none";
+    }
+}
+
+</script>
+
+</body>
+</html>

@@ -1410,6 +1410,18 @@
                 >
                     🔔 Notifications
                 </a>
+                <a
+    href="{{ url_for('announcements') }}"
+    class="notification-nav-link"
+>
+    <span>
+        📣
+    </span>
+
+    <span>
+        Announcements
+    </span>
+</a>
 
                 <a href="{{ url_for('marketplace') }}">
                     🛒 Marketplace
@@ -1855,7 +1867,33 @@
                 </a>
 
             </article>
+            
+{% if active_announcement %}
+<!-- ACTIVE ANNOUNCEMENT -->
+<article class="dashboard-card announcement-dashboard-card">
 
+    <div class="dashboard-card-icon">
+        📣
+    </div>
+
+    <span class="announcement-label">
+        UNI CAMPLINK ANNOUNCEMENT
+    </span>
+
+    <h2>
+        {{ active_announcement["title"] }}
+    </h2>
+
+    <p>
+        {{ active_announcement["message"] }}
+    </p>
+
+    <small>
+        {{ active_announcement["created_at"] }}
+    </small>
+
+</article>
+{% endif %}
 
             <!-- MARKETPLACE -->
 
