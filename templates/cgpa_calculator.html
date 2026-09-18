@@ -1,0 +1,3266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+        name="description"
+        content="UniCamplink CGPA Calculator — calculate semester GPA, cumulative CGPA and target CGPA."
+    >
+
+    <meta
+        name="theme-color"
+        content="#06101d"
+    >
+
+    <title>CGPA Calculator | UniCamplink</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        /* =====================================================
+           UNICAMPLINK CGPA CALCULATOR
+           RAZOR — MOBILE APP STYLE
+        ===================================================== */
+
+        :root {
+
+            --cgpa-primary: #38bdf8;
+            --cgpa-primary-dark: #0ea5e9;
+
+            --cgpa-bg: #06101d;
+
+            --cgpa-card:
+                rgba(15, 23, 42, 0.88);
+
+            --cgpa-card-soft:
+                rgba(30, 41, 59, 0.62);
+
+            --cgpa-border:
+                rgba(148, 163, 184, 0.16);
+
+            --cgpa-text:
+                #f8fafc;
+
+            --cgpa-muted:
+                #94a3b8;
+
+            --cgpa-danger:
+                #f87171;
+
+            --cgpa-success:
+                #4ade80;
+        }
+
+
+        /* =====================================================
+           RESET
+        ===================================================== */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            width: 100%;
+
+            overflow-x: hidden;
+
+            color: var(--cgpa-text);
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            background:
+
+                radial-gradient(
+                    circle at 5% 0%,
+                    rgba(56, 189, 248, 0.14),
+                    transparent 28%
+                ),
+
+                radial-gradient(
+                    circle at 100% 15%,
+                    rgba(14, 165, 233, 0.08),
+                    transparent 25%
+                ),
+
+                linear-gradient(
+                    180deg,
+                    #06101d,
+                    #081423 65%,
+                    #06101d
+                );
+        }
+
+
+        a,
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+
+        input,
+        select,
+        textarea {
+
+            font-size: 16px;
+        }
+
+
+        button {
+
+            touch-action: manipulation;
+        }
+
+
+        /* =====================================================
+           NAVIGATION
+        ===================================================== */
+
+        .cgpa-nav {
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 1000;
+
+            width: 100%;
+
+            border-bottom:
+                1px solid var(--cgpa-border);
+
+            background:
+                rgba(6, 16, 29, 0.86);
+
+            backdrop-filter:
+                blur(20px);
+
+            -webkit-backdrop-filter:
+                blur(20px);
+        }
+
+
+        .cgpa-nav-inner {
+
+            width:
+                min(1180px, 100%);
+
+            min-height: 66px;
+
+            margin: auto;
+
+            padding:
+                9px 16px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+
+        .cgpa-brand {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            color: #fff;
+
+            text-decoration: none;
+
+            font-weight: 850;
+
+            white-space: nowrap;
+
+            flex-shrink: 0;
+        }
+
+
+        .cgpa-brand img {
+
+            width: 40px;
+
+            height: 40px;
+
+            object-fit: contain;
+
+            border-radius: 11px;
+        }
+
+
+        .cgpa-nav-links {
+
+            margin-left: auto;
+
+            display: flex;
+
+            gap: 7px;
+
+            min-width: 0;
+
+            overflow-x: auto;
+
+            scrollbar-width: none;
+
+            -webkit-overflow-scrolling:
+                touch;
+        }
+
+
+        .cgpa-nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+
+        .cgpa-nav-links a,
+        .cgpa-theme {
+
+            flex: 0 0 auto;
+
+            min-height: 40px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding:
+                8px 12px;
+
+            border:
+                1px solid transparent;
+
+            border-radius: 11px;
+
+            color: #cbd5e1;
+
+            background: transparent;
+
+            text-decoration: none;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            white-space: nowrap;
+        }
+
+
+        .cgpa-nav-links a:hover,
+        .cgpa-theme:hover {
+
+            color: #ffffff;
+
+            background:
+                rgba(56, 189, 248, 0.09);
+
+            border-color:
+                rgba(56, 189, 248, 0.16);
+        }
+
+
+        /* =====================================================
+           PAGE
+        ===================================================== */
+
+        .cgpa-page {
+
+            width:
+                min(1180px, 100%);
+
+            margin: auto;
+
+            padding:
+                28px 16px 80px;
+        }
+
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .cgpa-hero {
+
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 28px;
+
+            margin-bottom: 18px;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 24px;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    rgba(14, 165, 233, 0.14),
+                    rgba(15, 23, 42, 0.94) 50%,
+                    rgba(30, 41, 59, 0.72)
+                );
+
+            box-shadow:
+                0 18px 55px rgba(0, 0, 0, 0.18);
+        }
+
+
+        .cgpa-hero::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 240px;
+
+            height: 240px;
+
+            right: -100px;
+
+            top: -130px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(56, 189, 248, 0.11);
+
+            pointer-events: none;
+        }
+
+
+        .cgpa-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            margin-bottom: 12px;
+
+            padding:
+                7px 11px;
+
+            border:
+                1px solid rgba(56, 189, 248, 0.2);
+
+            border-radius: 999px;
+
+            color: #7dd3fc;
+
+            background:
+                rgba(56, 189, 248, 0.07);
+
+            font-size: 11px;
+
+            font-weight: 800;
+        }
+
+
+        .cgpa-hero h1 {
+
+            margin:
+                0 0 8px;
+
+            font-size:
+                clamp(28px, 5vw, 44px);
+
+            line-height: 1.05;
+
+            letter-spacing: -1.4px;
+        }
+
+
+        .cgpa-hero p {
+
+            max-width: 760px;
+
+            margin: 0;
+
+            color: var(--cgpa-muted);
+
+            line-height: 1.7;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           MAIN GRID
+        ===================================================== */
+
+        .cgpa-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1.45fr)
+                minmax(280px, 0.75fr);
+
+            gap: 18px;
+
+            align-items: start;
+        }
+
+
+        .cgpa-card {
+
+            min-width: 0;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 20px;
+
+            background:
+                var(--cgpa-card);
+
+            box-shadow:
+                0 14px 45px rgba(0, 0, 0, 0.12);
+        }
+
+
+        .cgpa-card-head {
+
+            padding:
+                19px 20px 13px;
+
+            border-bottom:
+                1px solid var(--cgpa-border);
+        }
+
+
+        .cgpa-card-head h2 {
+
+            margin:
+                0 0 4px;
+
+            font-size: 18px;
+        }
+
+
+        .cgpa-card-head p {
+
+            margin: 0;
+
+            color: var(--cgpa-muted);
+
+            font-size: 12px;
+        }
+
+
+        .cgpa-card-body {
+
+            padding:
+                18px 20px 20px;
+        }
+
+
+        /* =====================================================
+           CONTROLS
+        ===================================================== */
+
+        .controls {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 12px;
+
+            margin-bottom: 16px;
+        }
+
+
+        .field label {
+
+            display: block;
+
+            margin-bottom: 6px;
+
+            color: #cbd5e1;
+
+            font-size: 11px;
+
+            font-weight: 750;
+        }
+
+
+        .field input,
+        .field select {
+
+            width: 100%;
+
+            min-height: 44px;
+
+            padding:
+                9px 11px;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 11px;
+
+            outline: none;
+
+            color: var(--cgpa-text);
+
+            background:
+                rgba(30, 41, 59, 0.62);
+
+            appearance: auto;
+        }
+
+
+        .field input:focus,
+        .field select:focus {
+
+            border-color:
+                rgba(56, 189, 248, 0.65);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(56, 189, 248, 0.09);
+        }
+
+
+        /* =====================================================
+           COURSE TABLE — DESKTOP
+        ===================================================== */
+
+        .table-wrap {
+
+            width: 100%;
+
+            overflow-x: auto;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 14px;
+        }
+
+
+        .course-table {
+
+            width: 100%;
+
+            min-width: 650px;
+
+            border-collapse: collapse;
+        }
+
+
+        .course-table th {
+
+            padding: 10px;
+
+            text-align: left;
+
+            color: #94a3b8;
+
+            background:
+                rgba(30, 41, 59, 0.55);
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.45px;
+        }
+
+
+        .course-table td {
+
+            padding:
+                8px 10px;
+
+            border-top:
+                1px solid
+                rgba(148, 163, 184, 0.09);
+        }
+
+
+        .course-table input,
+        .course-table select {
+
+            width: 100%;
+
+            min-height: 40px;
+
+            padding:
+                7px 9px;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 9px;
+
+            outline: none;
+
+            color: var(--cgpa-text);
+
+            background:
+                rgba(30, 41, 59, 0.5);
+        }
+
+
+        .course-table input:focus,
+        .course-table select:focus {
+
+            border-color:
+                rgba(56, 189, 248, 0.65);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(56, 189, 248, 0.08);
+        }
+
+
+        .grade-point {
+
+            color: #7dd3fc;
+
+            font-weight: 800;
+        }
+
+
+        .remove-course {
+
+            width: 38px;
+
+            height: 38px;
+
+            border: 0;
+
+            border-radius: 9px;
+
+            color: #fca5a5;
+
+            background:
+                rgba(239, 68, 68, 0.08);
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+
+        .remove-course:hover {
+
+            background:
+                rgba(239, 68, 68, 0.16);
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .actions {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 9px;
+
+            margin-top: 14px;
+        }
+
+
+        .btn {
+
+            min-height: 43px;
+
+            padding:
+                9px 14px;
+
+            border:
+                1px solid
+                rgba(56, 189, 248, 0.2);
+
+            border-radius: 11px;
+
+            color: #cbd5e1;
+
+            background:
+                rgba(56, 189, 248, 0.07);
+
+            font-weight: 750;
+
+            cursor: pointer;
+        }
+
+
+        .btn:hover {
+
+            color: #ffffff;
+
+            background:
+                rgba(56, 189, 248, 0.13);
+        }
+
+
+        .btn-primary {
+
+            color: #03111d;
+
+            border-color: transparent;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--cgpa-primary),
+                    var(--cgpa-primary-dark)
+                );
+        }
+
+
+        /* =====================================================
+           RESULT
+        ===================================================== */
+
+        .result-main {
+
+            text-align: center;
+
+            padding:
+                24px 15px;
+
+            border:
+                1px solid
+                rgba(56, 189, 248, 0.16);
+
+            border-radius: 16px;
+
+            background:
+                rgba(56, 189, 248, 0.055);
+        }
+
+
+        .result-label {
+
+            color: var(--cgpa-muted);
+
+            font-size: 11px;
+
+            font-weight: 750;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.6px;
+        }
+
+
+        .gpa-value {
+
+            margin:
+                6px 0;
+
+            color: #7dd3fc;
+
+            font-size:
+                clamp(42px, 8vw, 64px);
+
+            line-height: 1;
+
+            font-weight: 900;
+
+            letter-spacing: -2px;
+        }
+
+
+        .result-sub {
+
+            color: var(--cgpa-muted);
+
+            font-size: 12px;
+        }
+
+
+        .stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 9px;
+
+            margin-top: 12px;
+        }
+
+
+        .stat {
+
+            padding: 12px;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 12px;
+
+            background:
+                var(--cgpa-card-soft);
+        }
+
+
+        .stat span {
+
+            display: block;
+
+            color: var(--cgpa-muted);
+
+            font-size: 10px;
+
+            margin-bottom: 4px;
+        }
+
+
+        .stat strong {
+
+            font-size: 16px;
+        }
+
+
+        /* =====================================================
+           TARGET CGPA
+        ===================================================== */
+
+        .target-box {
+
+            margin-top: 16px;
+
+            padding: 16px;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 15px;
+
+            background:
+                rgba(30, 41, 59, 0.38);
+        }
+
+
+        .target-box h3 {
+
+            margin:
+                0 0 5px;
+
+            font-size: 14px;
+        }
+
+
+        .target-box > p {
+
+            margin:
+                0 0 12px;
+
+            color: var(--cgpa-muted);
+
+            font-size: 11px;
+
+            line-height: 1.55;
+        }
+
+
+        .target-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 9px;
+        }
+
+
+        .target-result {
+
+            margin-top: 10px;
+
+            padding: 11px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(56, 189, 248, 0.07);
+
+            color: #cbd5e1;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+        }
+
+
+        .target-result strong {
+
+            color: #7dd3fc;
+        }
+
+
+        .info {
+
+            margin-top: 15px;
+
+            padding: 13px;
+
+            border:
+                1px solid var(--cgpa-border);
+
+            border-radius: 13px;
+
+            color: var(--cgpa-muted);
+
+            background:
+                rgba(30, 41, 59, 0.35);
+
+            font-size: 11px;
+
+            line-height: 1.6;
+        }
+
+
+        .error {
+
+            margin-top: 10px;
+
+            color: var(--cgpa-danger);
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           LIGHT MODE
+        ===================================================== */
+
+        html[data-theme="light"] body {
+
+            color: #0f172a;
+
+            background:
+                #f1f5f9;
+        }
+
+
+        html[data-theme="light"] .cgpa-nav {
+
+            background:
+                rgba(255, 255, 255, 0.92);
+        }
+
+
+        html[data-theme="light"] .cgpa-brand {
+
+            color: #0f172a;
+        }
+
+
+        html[data-theme="light"]
+        .cgpa-nav-links a,
+        html[data-theme="light"]
+        .cgpa-theme {
+
+            color: #475569;
+        }
+
+
+        html[data-theme="light"]
+        .cgpa-nav-links a:hover,
+        html[data-theme="light"]
+        .cgpa-theme:hover {
+
+            color: #0f172a;
+
+            background:
+                rgba(14, 165, 233, 0.08);
+        }
+
+
+        html[data-theme="light"]
+        .cgpa-hero,
+        html[data-theme="light"]
+        .cgpa-card {
+
+            background:
+                #ffffff;
+
+            color: #0f172a;
+        }
+
+
+        html[data-theme="light"]
+        .cgpa-hero {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #e0f2fe,
+                    #ffffff 58%,
+                    #f8fafc
+                );
+        }
+
+
+        html[data-theme="light"]
+        .cgpa-hero h1,
+        html[data-theme="light"]
+        .cgpa-card-head h2,
+        html[data-theme="light"]
+        .target-box h3 {
+
+            color: #0f172a;
+        }
+
+
+        html[data-theme="light"]
+        .field label {
+
+            color: #334155;
+        }
+
+
+        html[data-theme="light"]
+        .field input,
+        html[data-theme="light"]
+        .field select,
+        html[data-theme="light"]
+        .course-table input,
+        html[data-theme="light"]
+        .course-table select {
+
+            color: #0f172a;
+
+            background:
+                #f8fafc;
+        }
+
+
+        html[data-theme="light"]
+        .course-table th {
+
+            color: #64748b;
+
+            background:
+                #f1f5f9;
+        }
+
+
+        html[data-theme="light"]
+        .course-table input:focus,
+        html[data-theme="light"]
+        .course-table select:focus {
+
+            background: #ffffff;
+        }
+
+
+        html[data-theme="light"]
+        .target-box,
+        html[data-theme="light"]
+        .stat,
+        html[data-theme="light"]
+        .info {
+
+            background:
+                #f8fafc;
+        }
+
+
+        html[data-theme="light"]
+        .course-table tr {
+
+            background:
+                #f8fafc;
+        }
+
+
+        html[data-theme="light"]
+        .grade-point {
+
+            color: #0284c7;
+        }
+
+
+        html[data-theme="light"]
+        .target-result {
+
+            color: #334155;
+        }
+
+
+        html[data-theme="light"]
+        .btn {
+
+            color: #334155;
+
+            background:
+                rgba(14, 165, 233, 0.06);
+        }
+
+
+        html[data-theme="light"]
+        .btn-primary {
+
+            color: #ffffff;
+        }
+
+
+        html[data-theme="light"]
+        .remove-course {
+
+            background:
+                #fff1f2;
+        }
+
+
+        /* =====================================================
+           TABLET
+        ===================================================== */
+
+        @media (max-width: 850px) {
+
+            .cgpa-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+        }
+
+
+        /* =====================================================
+           MOBILE — APP STYLE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            body {
+
+                min-width: 0;
+
+                width: 100%;
+
+                overflow-x: hidden;
+
+                -webkit-text-size-adjust: 100%;
+            }
+
+
+            .cgpa-nav {
+
+                position: sticky;
+
+                top: 0;
+            }
+
+
+            .cgpa-nav-inner {
+
+                min-height: 58px;
+
+                padding:
+                    7px 10px;
+
+                gap: 7px;
+            }
+
+
+            .cgpa-brand img {
+
+                width: 37px;
+
+                height: 37px;
+
+                border-radius: 10px;
+            }
+
+
+            .cgpa-brand span {
+
+                display: none;
+            }
+
+
+            .cgpa-nav-links {
+
+                margin-left: 0;
+
+                flex: 1;
+
+                min-width: 0;
+
+                gap: 5px;
+
+                overflow-x: auto;
+
+                -webkit-overflow-scrolling:
+                    touch;
+            }
+
+
+            .cgpa-nav-links a {
+
+                min-height: 38px;
+
+                padding:
+                    7px 10px;
+
+                border-radius: 10px;
+
+                font-size: 11px;
+
+                white-space: nowrap;
+            }
+
+
+            .cgpa-theme {
+
+                flex: 0 0 auto;
+
+                min-height: 38px;
+
+                width: 42px;
+
+                padding: 7px;
+
+                border-radius: 10px;
+
+                font-size: 0;
+            }
+
+
+            .cgpa-theme::before {
+
+                content: "🌙";
+
+                font-size: 16px;
+            }
+
+
+            html[data-theme="light"]
+            .cgpa-theme::before {
+
+                content: "☀️";
+            }
+
+
+            .cgpa-page {
+
+                width: 100%;
+
+                padding:
+                    12px 9px 90px;
+            }
+
+
+            .cgpa-hero {
+
+                margin-bottom: 12px;
+
+                padding:
+                    20px 16px;
+
+                border-radius: 18px;
+            }
+
+
+            .cgpa-badge {
+
+                margin-bottom: 10px;
+
+                padding:
+                    6px 9px;
+
+                font-size: 10px;
+            }
+
+
+            .cgpa-hero h1 {
+
+                margin-bottom: 8px;
+
+                font-size: 30px;
+
+                line-height: 1.08;
+
+                letter-spacing: -1px;
+            }
+
+
+            .cgpa-hero p {
+
+                font-size: 13px;
+
+                line-height: 1.6;
+            }
+
+
+            .cgpa-grid {
+
+                display: flex;
+
+                flex-direction: column;
+
+                gap: 12px;
+            }
+
+
+            .cgpa-card {
+
+                width: 100%;
+
+                border-radius: 17px;
+            }
+
+
+            .cgpa-card-head {
+
+                padding:
+                    16px 15px 12px;
+            }
+
+
+            .cgpa-card-head h2 {
+
+                font-size: 17px;
+            }
+
+
+            .cgpa-card-head p {
+
+                font-size: 11px;
+
+                line-height: 1.5;
+            }
+
+
+            .cgpa-card-body {
+
+                padding: 13px;
+            }
+
+
+            /* ---------------------------------------------
+               MOBILE CONTROLS
+            --------------------------------------------- */
+
+            .controls {
+
+                grid-template-columns: 1fr;
+
+                gap: 10px;
+
+                margin-bottom: 13px;
+            }
+
+
+            .field label {
+
+                margin-bottom: 6px;
+
+                font-size: 11px;
+            }
+
+
+            .field input,
+            .field select {
+
+                min-height: 48px;
+
+                padding:
+                    10px 12px;
+
+                border-radius: 12px;
+
+                font-size: 16px;
+            }
+
+
+            /* ---------------------------------------------
+               MOBILE COURSE CARDS
+            --------------------------------------------- */
+
+            .table-wrap {
+
+                border: 0;
+
+                overflow: visible;
+            }
+
+
+            .course-table {
+
+                width: 100%;
+
+                min-width: 0;
+
+                display: block;
+            }
+
+
+            .course-table thead {
+
+                display: none;
+            }
+
+
+            .course-table tbody {
+
+                display: flex;
+
+                flex-direction: column;
+
+                gap: 10px;
+            }
+
+
+            .course-table tr {
+
+                display: grid;
+
+                grid-template-columns:
+                    1fr 1fr;
+
+                gap: 9px;
+
+                padding: 12px;
+
+                border:
+                    1px solid var(--cgpa-border);
+
+                border-radius: 15px;
+
+                background:
+                    rgba(30, 41, 59, 0.38);
+            }
+
+
+            .course-table td {
+
+                display: block;
+
+                padding: 0;
+
+                border: 0;
+            }
+
+
+            .course-table td:nth-child(1) {
+                grid-column: 1;
+            }
+
+
+            .course-table td:nth-child(2) {
+                grid-column: 2;
+            }
+
+
+            .course-table td:nth-child(3) {
+                grid-column: 1;
+            }
+
+
+            .course-table td:nth-child(4) {
+                grid-column: 2;
+            }
+
+
+            .course-table td:nth-child(5) {
+                grid-column: 1;
+            }
+
+
+            .course-table td:nth-child(6) {
+
+                grid-column: 2;
+
+                display: flex;
+
+                justify-content: flex-end;
+
+                align-items: center;
+            }
+
+
+            .course-table td:nth-child(1)::before,
+            .course-table td:nth-child(2)::before,
+            .course-table td:nth-child(3)::before,
+            .course-table td:nth-child(4)::before,
+            .course-table td:nth-child(5)::before {
+
+                display: block;
+
+                margin-bottom: 5px;
+
+                color:
+                    var(--cgpa-muted);
+
+                font-size: 9px;
+
+                font-weight: 800;
+
+                text-transform: uppercase;
+
+                letter-spacing: 0.5px;
+            }
+
+
+            .course-table td:nth-child(1)::before {
+                content: "Course Code";
+            }
+
+
+            .course-table td:nth-child(2)::before {
+                content: "Course Title";
+            }
+
+
+            .course-table td:nth-child(3)::before {
+                content: "Credit Units";
+            }
+
+
+            .course-table td:nth-child(4)::before {
+                content: "Grade";
+            }
+
+
+            .course-table td:nth-child(5)::before {
+                content: "Grade Point";
+            }
+
+
+            .course-table input,
+            .course-table select {
+
+                width: 100%;
+
+                min-height: 46px;
+
+                padding:
+                    9px 10px;
+
+                border-radius: 11px;
+
+                font-size: 16px;
+            }
+
+
+            .grade-point {
+
+                display: flex !important;
+
+                align-items: center;
+
+                min-height: 46px;
+
+                padding:
+                    0 11px !important;
+
+                border:
+                    1px solid var(--cgpa-border);
+
+                border-radius: 11px;
+
+                background:
+                    rgba(30, 41, 59, 0.5);
+
+                color:
+                    #7dd3fc;
+
+                font-size: 15px;
+
+                font-weight: 850;
+            }
+
+
+            .remove-course {
+
+                width: 46px;
+
+                height: 46px;
+
+                border-radius: 11px;
+
+                font-size: 21px;
+            }
+
+
+            /* ---------------------------------------------
+               MOBILE ACTIONS
+            --------------------------------------------- */
+
+            .actions {
+
+                display: grid;
+
+                grid-template-columns:
+                    1fr 1fr;
+
+                gap: 8px;
+
+                margin-top: 12px;
+            }
+
+
+            .actions .btn {
+
+                width: 100%;
+
+                min-height: 48px;
+
+                padding:
+                    10px 12px;
+
+                border-radius: 12px;
+
+                font-size: 13px;
+            }
+
+
+            .actions .btn-primary {
+
+                grid-column:
+                    1 / -1;
+
+                min-height: 52px;
+
+                font-size: 14px;
+            }
+
+
+            /* ---------------------------------------------
+               MOBILE RESULT
+            --------------------------------------------- */
+
+            .result-main {
+
+                padding:
+                    24px 12px;
+
+                border-radius: 15px;
+            }
+
+
+            .gpa-value {
+
+                font-size: 58px;
+
+                letter-spacing: -2px;
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    1fr 1fr;
+
+                gap: 8px;
+            }
+
+
+            .stat {
+
+                min-width: 0;
+
+                padding:
+                    12px 9px;
+
+                border-radius: 11px;
+
+                text-align: center;
+            }
+
+
+            .stat span {
+
+                font-size: 9px;
+
+                line-height: 1.4;
+            }
+
+
+            .stat strong {
+
+                font-size: 15px;
+            }
+
+
+            /* ---------------------------------------------
+               TARGET CGPA
+            --------------------------------------------- */
+
+            .target-box {
+
+                margin-top: 13px;
+
+                padding: 13px;
+
+                border-radius: 14px;
+            }
+
+
+            .target-grid {
+
+                grid-template-columns:
+                    1fr;
+
+                gap: 9px;
+            }
+
+
+            .target-result {
+
+                padding: 12px;
+
+                border-radius: 11px;
+
+                font-size: 12px;
+            }
+
+
+            .info {
+
+                padding: 12px;
+
+                border-radius: 12px;
+
+                font-size: 10px;
+            }
+
+        }
+
+
+        /* =====================================================
+           SMALL ANDROID / IPHONE
+        ===================================================== */
+
+        @media (max-width: 390px) {
+
+            .cgpa-nav-inner {
+
+                padding-inline: 7px;
+            }
+
+
+            .cgpa-nav-links a {
+
+                padding-inline: 8px;
+
+                font-size: 10px;
+            }
+
+
+            .cgpa-page {
+
+                padding-inline: 7px;
+            }
+
+
+            .cgpa-hero {
+
+                padding:
+                    18px 14px;
+            }
+
+
+            .cgpa-hero h1 {
+
+                font-size: 27px;
+            }
+
+
+            .cgpa-card-body {
+
+                padding: 11px;
+            }
+
+
+            .course-table tr {
+
+                padding: 10px;
+
+                gap: 7px;
+            }
+
+
+            .actions {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .actions .btn-primary {
+
+                grid-column: auto;
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+        }
+
+
+        /* =====================================================
+           VERY SMALL PHONES
+        ===================================================== */
+
+        @media (max-width: 340px) {
+
+            .cgpa-nav-links {
+
+                display: none;
+            }
+
+
+            .cgpa-nav-inner {
+
+                justify-content:
+                    space-between;
+            }
+
+
+            .cgpa-hero h1 {
+
+                font-size: 25px;
+            }
+
+
+            .course-table tr {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .course-table td:nth-child(1),
+            .course-table td:nth-child(2),
+            .course-table td:nth-child(3),
+            .course-table td:nth-child(4),
+            .course-table td:nth-child(5),
+            .course-table td:nth-child(6) {
+
+                grid-column: 1;
+            }
+
+
+            .course-table td:nth-child(6) {
+
+                justify-content:
+                    flex-start;
+            }
+
+
+            .gpa-value {
+
+                font-size: 52px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVIGATION
+========================================================= -->
+
+<nav class="cgpa-nav">
+
+    <div class="cgpa-nav-inner">
+
+
+        <a
+            class="cgpa-brand"
+            href="{{ url_for('dashboard') }}"
+        >
+
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='images/unicamplink-logo.png'
+                ) }}"
+                alt="UniCamplink"
+            >
+
+            <span>
+                UniCamplink
+            </span>
+
+        </a>
+
+
+        <div class="cgpa-nav-links">
+
+            <a
+                href="{{ url_for('dashboard') }}"
+                title="Dashboard"
+            >
+                🏠 Dashboard
+            </a>
+
+
+            <a
+                href="{{ url_for('feed') }}"
+                title="Feed"
+            >
+                📰 Feed
+            </a>
+
+
+            <a
+                href="{{ url_for('profile') }}"
+                title="Profile"
+            >
+                👤 Profile
+            </a>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="cgpa-theme"
+            id="themeToggle"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+        >
+            🌙 Theme
+        </button>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="cgpa-page">
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="cgpa-hero">
+
+
+        <div class="cgpa-badge">
+            🎓 UniCamplink Student Tool
+        </div>
+
+
+        <h1>
+            CGPA Calculator
+        </h1>
+
+
+        <p>
+
+            Calculate your semester GPA, estimate your
+            cumulative CGPA, and see what average GPA
+            you need to reach a target CGPA.
+
+            Your calculations happen in your browser.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MAIN GRID
+    ====================================================== -->
+
+    <section class="cgpa-grid">
+
+
+        <!-- =================================================
+             COURSE INPUT
+        ================================================== -->
+
+        <div class="cgpa-card">
+
+
+            <div class="cgpa-card-head">
+
+                <h2>
+                    Semester Courses
+                </h2>
+
+                <p>
+                    Add each course, credit unit and grade.
+                </p>
+
+            </div>
+
+
+            <div class="cgpa-card-body">
+
+
+                <div class="controls">
+
+
+                    <div class="field">
+
+                        <label for="scale">
+                            Grading Scale
+                        </label>
+
+
+                        <select id="scale">
+
+                            <option value="5">
+                                5.0 — A=5, B=4, C=3, D=2, E=1, F=0
+                            </option>
+
+                            <option value="4">
+                                4.0 — A=4, B=3, C=2, D=1, F=0
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="semesterName">
+                            Semester
+                        </label>
+
+
+                        <input
+                            id="semesterName"
+                            type="text"
+                            maxlength="80"
+                            placeholder="e.g. 200 Level — First Semester"
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="table-wrap">
+
+                    <table class="course-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Course Code
+                                </th>
+
+                                <th>
+                                    Course Title
+                                </th>
+
+                                <th>
+                                    Units
+                                </th>
+
+                                <th>
+                                    Grade
+                                </th>
+
+                                <th>
+                                    Point
+                                </th>
+
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="courseBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                <div class="actions">
+
+
+                    <button
+                        type="button"
+                        class="btn"
+                        id="addCourse"
+                    >
+                        ＋ Add Course
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn"
+                        id="clearCourses"
+                    >
+                        Clear
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="calculate"
+                    >
+                        🧮 Calculate GPA
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="courseError"
+                    class="error"
+                    role="alert"
+                    aria-live="polite"
+                ></div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             RESULTS
+        ================================================== -->
+
+        <aside class="cgpa-card">
+
+
+            <div class="cgpa-card-head">
+
+                <h2>
+                    Your Result
+                </h2>
+
+                <p>
+                    Calculated from the courses above.
+                </p>
+
+            </div>
+
+
+            <div class="cgpa-card-body">
+
+
+                <div class="result-main">
+
+                    <div class="result-label">
+                        Semester GPA
+                    </div>
+
+
+                    <div
+                        class="gpa-value"
+                        id="gpaValue"
+                    >
+                        0.00
+                    </div>
+
+
+                    <div
+                        class="result-sub"
+                        id="gpaScale"
+                    >
+                        5.0 scale
+                    </div>
+
+                </div>
+
+
+
+                <div class="stats">
+
+
+                    <div class="stat">
+
+                        <span>
+                            Total Credit Units
+                        </span>
+
+                        <strong id="totalUnits">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <span>
+                            Quality Points
+                        </span>
+
+                        <strong id="qualityPoints">
+                            0.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     TARGET CGPA
+                ================================================== -->
+
+                <div class="target-box">
+
+
+                    <h3>
+                        🎯 Target CGPA
+                    </h3>
+
+
+                    <p>
+
+                        Enter your current CGPA and
+                        accumulated credits to estimate
+                        the average GPA required over
+                        your next set of credits.
+
+                    </p>
+
+
+                    <div class="target-grid">
+
+
+                        <div class="field">
+
+                            <label for="currentCgpa">
+                                Current CGPA
+                            </label>
+
+                            <input
+                                id="currentCgpa"
+                                type="number"
+                                min="0"
+                                max="5"
+                                step="0.01"
+                                inputmode="decimal"
+                                placeholder="e.g. 3.72"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="currentCredits">
+                                Current Credits
+                            </label>
+
+                            <input
+                                id="currentCredits"
+                                type="number"
+                                min="0"
+                                step="1"
+                                inputmode="numeric"
+                                placeholder="e.g. 42"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="targetCgpa">
+                                Target CGPA
+                            </label>
+
+                            <input
+                                id="targetCgpa"
+                                type="number"
+                                min="0"
+                                max="5"
+                                step="0.01"
+                                inputmode="decimal"
+                                placeholder="e.g. 4.00"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="futureCredits">
+                                Future Credits
+                            </label>
+
+                            <input
+                                id="futureCredits"
+                                type="number"
+                                min="1"
+                                step="1"
+                                inputmode="numeric"
+                                placeholder="e.g. 18"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="target-result"
+                        id="targetResult"
+                    >
+
+                        Enter your figures to calculate
+                        the required future GPA.
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="info">
+
+                    <strong>
+                        Note:
+                    </strong>
+
+                    Grading systems can differ between
+                    institutions. UniCamplink uses the
+                    selected scale for this calculation.
+                    Always compare your result with your
+                    university's official grading policy.
+
+                </div>
+
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</main>
+
+
+
+<script>
+
+(() => {
+
+    "use strict";
+
+
+    /* =========================================================
+       ELEMENTS
+    ========================================================= */
+
+    const body =
+        document.getElementById("courseBody");
+
+    const scale =
+        document.getElementById("scale");
+
+    const addCourse =
+        document.getElementById("addCourse");
+
+    const clearCourses =
+        document.getElementById("clearCourses");
+
+    const calculate =
+        document.getElementById("calculate");
+
+    const errorBox =
+        document.getElementById("courseError");
+
+    const gpaValue =
+        document.getElementById("gpaValue");
+
+    const gpaScale =
+        document.getElementById("gpaScale");
+
+    const totalUnits =
+        document.getElementById("totalUnits");
+
+    const qualityPoints =
+        document.getElementById("qualityPoints");
+
+
+    /* =========================================================
+       GRADING SYSTEMS
+    ========================================================= */
+
+    const gradeMaps = {
+
+        "5": {
+
+            A: 5,
+            B: 4,
+            C: 3,
+            D: 2,
+            E: 1,
+            F: 0
+
+        },
+
+
+        "4": {
+
+            A: 4,
+            B: 3,
+            C: 2,
+            D: 1,
+            F: 0
+
+        }
+
+    };
+
+
+    /* =========================================================
+       GRADE OPTIONS
+    ========================================================= */
+
+    function gradeOptions() {
+
+        const map =
+            gradeMaps[scale.value];
+
+
+        return Object.entries(map)
+
+            .map(
+                ([grade, point]) =>
+
+                    `<option value="${grade}">
+                        ${grade} (${point})
+                    </option>`
+            )
+
+            .join("");
+
+    }
+
+
+    /* =========================================================
+       ADD COURSE
+    ========================================================= */
+
+    function addRow() {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+
+                <input
+                    type="text"
+                    maxlength="30"
+                    class="course-code"
+                    placeholder="CPE 201"
+                    autocomplete="off"
+                >
+
+            </td>
+
+
+            <td>
+
+                <input
+                    type="text"
+                    maxlength="100"
+                    class="course-title"
+                    placeholder="Course title"
+                    autocomplete="off"
+                >
+
+            </td>
+
+
+            <td>
+
+                <input
+                    type="number"
+                    min="1"
+                    max="30"
+                    step="1"
+                    inputmode="numeric"
+                    class="course-units"
+                    value="3"
+                >
+
+            </td>
+
+
+            <td>
+
+                <select
+                    class="course-grade"
+                >
+
+                    ${gradeOptions()}
+
+                </select>
+
+            </td>
+
+
+            <td
+                class="grade-point"
+            >
+                ${gradeMaps[scale.value]["A"]}
+            </td>
+
+
+            <td>
+
+                <button
+                    type="button"
+                    class="remove-course"
+                    title="Remove course"
+                    aria-label="Remove course"
+                >
+                    ×
+                </button>
+
+            </td>
+
+        `;
+
+
+        body.appendChild(row);
+
+
+        const grade =
+            row.querySelector(
+                ".course-grade"
+            );
+
+
+        const pointCell =
+            row.querySelector(
+                ".grade-point"
+            );
+
+
+        grade.addEventListener(
+            "change",
+            () => {
+
+                pointCell.textContent =
+                    gradeMaps[
+                        scale.value
+                    ][grade.value];
+
+                calculateGpa();
+
+                calculateTarget();
+
+            }
+        );
+
+
+        row.querySelector(
+            ".course-units"
+        ).addEventListener(
+            "input",
+            () => {
+
+                calculateGpa();
+
+            }
+        );
+
+
+        row.querySelector(
+            ".remove-course"
+        ).addEventListener(
+            "click",
+            () => {
+
+                row.remove();
+
+
+                if (!body.children.length) {
+
+                    addRow();
+
+                }
+
+
+                calculateGpa();
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       REFRESH GRADES
+    ========================================================= */
+
+    function refreshGradeOptions() {
+
+        body.querySelectorAll(
+            "tr"
+        ).forEach(row => {
+
+            const select =
+                row.querySelector(
+                    ".course-grade"
+                );
+
+
+            const previous =
+                select.value;
+
+
+            select.innerHTML =
+                gradeOptions();
+
+
+            if (
+                gradeMaps[
+                    scale.value
+                ][previous] !== undefined
+            ) {
+
+                select.value =
+                    previous;
+
+            }
+
+
+            row.querySelector(
+                ".grade-point"
+            ).textContent =
+
+                gradeMaps[
+                    scale.value
+                ][select.value];
+
+        });
+
+    }
+
+
+    /* =========================================================
+       CALCULATE GPA
+    ========================================================= */
+
+    function calculateGpa() {
+
+        errorBox.textContent = "";
+
+
+        const rows =
+            [
+                ...body.querySelectorAll("tr")
+            ];
+
+
+        if (!rows.length) {
+
+            errorBox.textContent =
+                "Add at least one course.";
+
+            return;
+
+        }
+
+
+        let totalUnitsValue = 0;
+
+        let totalQualityPoints = 0;
+
+
+        for (
+            const row of rows
+        ) {
+
+
+            const units =
+                Number(
+                    row.querySelector(
+                        ".course-units"
+                    ).value
+                );
+
+
+            const grade =
+                row.querySelector(
+                    ".course-grade"
+                ).value;
+
+
+            if (
+                !Number.isFinite(units) ||
+                units <= 0 ||
+                units > 30
+            ) {
+
+                errorBox.textContent =
+                    "Every course must have valid credit units.";
+
+                return;
+
+            }
+
+
+            const point =
+                gradeMaps[
+                    scale.value
+                ][grade];
+
+
+            if (
+                point === undefined
+            ) {
+
+                errorBox.textContent =
+                    "Please select a valid grade.";
+
+                return;
+
+            }
+
+
+            totalUnitsValue +=
+                units;
+
+
+            totalQualityPoints +=
+                units * point;
+
+        }
+
+
+        if (
+            totalUnitsValue <= 0
+        ) {
+
+            errorBox.textContent =
+                "Your total credit units must be greater than zero.";
+
+            return;
+
+        }
+
+
+        const gpa =
+            totalQualityPoints /
+            totalUnitsValue;
+
+
+        gpaValue.textContent =
+            gpa.toFixed(2);
+
+
+        gpaScale.textContent =
+            `${scale.value}.0 scale`;
+
+
+        totalUnits.textContent =
+            totalUnitsValue;
+
+
+        qualityPoints.textContent =
+            totalQualityPoints.toFixed(2);
+
+    }
+
+
+    /* =========================================================
+       CLEAR
+    ========================================================= */
+
+    function clearAll() {
+
+        body.innerHTML = "";
+
+
+        addRow();
+
+
+        gpaValue.textContent =
+            "0.00";
+
+
+        gpaScale.textContent =
+            `${scale.value}.0 scale`;
+
+
+        totalUnits.textContent =
+            "0";
+
+
+        qualityPoints.textContent =
+            "0.00";
+
+
+        errorBox.textContent =
+            "";
+
+
+        document.getElementById(
+            "semesterName"
+        ).value = "";
+
+
+        document.getElementById(
+            "currentCgpa"
+        ).value = "";
+
+
+        document.getElementById(
+            "currentCredits"
+        ).value = "";
+
+
+        document.getElementById(
+            "targetCgpa"
+        ).value = "";
+
+
+        document.getElementById(
+            "futureCredits"
+        ).value = "";
+
+
+        document.getElementById(
+            "targetResult"
+        ).innerHTML =
+            "Enter your figures to calculate the required future GPA.";
+
+    }
+
+
+    /* =========================================================
+       TARGET CGPA
+    ========================================================= */
+
+    function calculateTarget() {
+
+        const current =
+            Number(
+                document.getElementById(
+                    "currentCgpa"
+                ).value
+            );
+
+
+        const currentCredits =
+            Number(
+                document.getElementById(
+                    "currentCredits"
+                ).value
+            );
+
+
+        const target =
+            Number(
+                document.getElementById(
+                    "targetCgpa"
+                ).value
+            );
+
+
+        const futureCredits =
+            Number(
+                document.getElementById(
+                    "futureCredits"
+                ).value
+            );
+
+
+        const result =
+            document.getElementById(
+                "targetResult"
+            );
+
+
+        const maxScale =
+            Number(scale.value);
+
+
+        const anyEntered =
+            document.getElementById(
+                "currentCgpa"
+            ).value ||
+            document.getElementById(
+                "currentCredits"
+            ).value ||
+            document.getElementById(
+                "targetCgpa"
+            ).value ||
+            document.getElementById(
+                "futureCredits"
+            ).value;
+
+
+        if (!anyEntered) {
+
+            result.innerHTML =
+                "Enter your figures to calculate the required future GPA.";
+
+            return;
+
+        }
+
+
+        if (
+
+            !Number.isFinite(current) ||
+
+            !Number.isFinite(currentCredits) ||
+
+            !Number.isFinite(target) ||
+
+            !Number.isFinite(futureCredits) ||
+
+            currentCredits < 0 ||
+
+            futureCredits <= 0 ||
+
+            current < 0 ||
+
+            target < 0 ||
+
+            current > maxScale ||
+
+            target > maxScale
+
+        ) {
+
+            result.innerHTML =
+                "Enter valid figures for the target calculation.";
+
+            return;
+
+        }
+
+
+        const required =
+
+            (
+                target *
+                (
+                    currentCredits +
+                    futureCredits
+                )
+
+                -
+
+                (
+                    current *
+                    currentCredits
+                )
+
+            )
+            /
+            futureCredits;
+
+
+        if (
+            required <= 0
+        ) {
+
+            result.innerHTML =
+
+                "Based on these figures, you have already reached or exceeded the target.";
+
+            return;
+
+        }
+
+
+        if (
+            required > maxScale
+        ) {
+
+            result.innerHTML =
+
+                `You would need a future GPA of
+                <strong>${required.toFixed(2)}</strong>,
+                which is above the ${maxScale}.0
+                maximum on this scale.`;
+
+            return;
+
+        }
+
+
+        result.innerHTML =
+
+            `You need an average future GPA of
+            <strong>${required.toFixed(2)}</strong>
+            over the next
+            <strong>${futureCredits}</strong>
+            credit units to reach
+            <strong>${target.toFixed(2)}</strong>.`;
+
+    }
+
+
+    /* =========================================================
+       EVENTS
+    ========================================================= */
+
+    addCourse.addEventListener(
+        "click",
+        addRow
+    );
+
+
+    clearCourses.addEventListener(
+        "click",
+        clearAll
+    );
+
+
+    calculate.addEventListener(
+        "click",
+        calculateGpa
+    );
+
+
+    scale.addEventListener(
+        "change",
+        () => {
+
+            refreshGradeOptions();
+
+
+            gpaScale.textContent =
+                `${scale.value}.0 scale`;
+
+
+            calculateGpa();
+
+            calculateTarget();
+
+
+            document.getElementById(
+                "currentCgpa"
+            ).max =
+                scale.value;
+
+
+            document.getElementById(
+                "targetCgpa"
+            ).max =
+                scale.value;
+
+        }
+    );
+
+
+    [
+        "currentCgpa",
+        "currentCredits",
+        "targetCgpa",
+        "futureCredits"
+
+    ].forEach(id => {
+
+        document.getElementById(
+            id
+        ).addEventListener(
+            "input",
+            calculateTarget
+        );
+
+    });
+
+
+    /* =========================================================
+       UNICAMPLINK THEME
+    ========================================================= */
+
+    const themeToggle =
+        document.getElementById(
+            "themeToggle"
+        );
+
+
+    function applyTheme(theme) {
+
+        document.documentElement
+            .setAttribute(
+                "data-theme",
+                theme
+            );
+
+
+        themeToggle.textContent =
+
+            theme === "light"
+
+                ? "☀️ Theme"
+
+                : "🌙 Theme";
+
+
+        themeToggle.setAttribute(
+            "aria-label",
+            theme === "light"
+                ? "Switch to dark mode"
+                : "Switch to light mode"
+        );
+
+    }
+
+
+    const savedTheme =
+
+        localStorage.getItem(
+            "unicamplink-theme"
+        )
+
+        || "dark";
+
+
+    applyTheme(
+        savedTheme
+    );
+
+
+    themeToggle.addEventListener(
+        "click",
+        () => {
+
+            const next =
+
+                document.documentElement
+                    .getAttribute(
+                        "data-theme"
+                    )
+
+                === "light"
+
+                    ? "dark"
+
+                    : "light";
+
+
+            localStorage.setItem(
+                "unicamplink-theme",
+                next
+            );
+
+
+            applyTheme(
+                next
+            );
+
+        }
+    );
+
+
+    /* =========================================================
+       INITIAL COURSES
+    ========================================================= */
+
+    addRow();
+
+    addRow();
+
+    addRow();
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>

@@ -2059,7 +2059,13 @@ def login():
         login_error=None,
         login_email=""
     )
-
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, "static", "icons"),
+        "icon-192.png",
+        mimetype="image/png"
+    )
 
 # ============================================================
 # DASHBOARD
@@ -2133,6 +2139,21 @@ def dashboard():
         user=user,
         is_admin=is_admin,
         active_announcement=active_announcement
+    )
+# ============================================================
+# CGPA CALCULATOR
+# ============================================================
+
+@app.route("/cgpa-calculator")
+def cgpa_calculator():
+
+    if "user_id" not in session:
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "cgpa_calculator.html"
     )
 @app.route("/announcements")
 def announcements():

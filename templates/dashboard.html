@@ -14,6 +14,43 @@
         name="description"
         content="UniCamplink student community — connect, communicate, discover opportunities and interact with your campus community."
     >
+    <link
+    rel="icon"
+    type="image/png"
+    href="{{ url_for(
+        'static',
+        filename='icons/icon-192.png'
+    ) }}"
+>
+    <link
+    rel="manifest"
+    href="{{ url_for('static', filename='manifest.json') }}"
+>
+
+<meta
+    name="theme-color"
+    content="#38bdf8"
+>
+
+<meta
+    name="mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+>
+
+<meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+>
+
+<meta
+    name="apple-mobile-web-app-title"
+    content="UniCamplink"
+>
 
     <title>UniCamplink</title>
 
@@ -2527,6 +2564,43 @@
 <script
     src="{{ url_for('static', filename='js/theme.js') }}"
 ></script>
+
+<!-- =====================================================
+     UNICAMPLINK PWA SERVICE WORKER
+====================================================== -->
+
+<script>
+
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+        navigator.serviceWorker
+            .register(
+                "{{ url_for('static', filename='service-worker.js') }}"
+            )
+            .then(registration => {
+
+                console.log(
+                    "UniCamplink PWA service worker registered:",
+                    registration.scope
+                );
+
+            })
+            .catch(error => {
+
+                console.error(
+                    "UniCamplink PWA registration failed:",
+                    error
+                );
+
+            });
+
+    });
+
+}
+
+</script>
 
 
 </body>
