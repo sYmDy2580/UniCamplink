@@ -2063,9 +2063,19 @@ def login():
 def favicon():
     return send_from_directory(
         os.path.join(app.root_path, "static", "icons"),
-        "icon-192.png",
+                       "icon-192.png",
         mimetype="image/png"
     )
+
+
+@app.route("/service-worker.js")
+def service_worker():
+    return send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "service-worker.js",
+        mimetype="application/javascript"
+    )
+
 
 # ============================================================
 # DASHBOARD
