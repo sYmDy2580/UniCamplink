@@ -1,4 +1,4 @@
-﻿import json
+import json
 from pywebpush import webpush, WebPushException
 import os
 import math
@@ -3041,6 +3041,13 @@ def comment(post_id):
 f"/feed#post-{post_id}"
             )
         )
+        send_push_notification(
+            post_owner["user_id"],
+            "💬 New Comment",
+            "Someone commented on your post.",
+            f"/feed#post-{post_id}",
+            "unicamplink-comment"
+        )
 
     # Notify the parent-comment author for replies, when different.
     if parent_comment_id is not None:
@@ -3065,6 +3072,14 @@ f"/feed#post-{post_id}"
                 )
             )
 
+
+            send_push_notification(
+                parent_user["user_id"],
+                "New Reply",
+                "Someone replied to your comment.",
+                f"/feed#post-{post_id}",
+                "unicamplink-reply"
+            )
     conn.commit()
 
     comment_row = conn.execute(

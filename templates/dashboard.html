@@ -666,6 +666,105 @@
 
 
         /* =========================================================
+           PUSH NOTIFICATION CARD
+        ========================================================= */
+
+        .rz-push-card {
+            display: none;
+            margin-bottom: 14px;
+            padding: 16px;
+            border: 1px solid rgba(56, 189, 248, .25);
+            border-radius: var(--rz-radius);
+            background: linear-gradient(
+                135deg,
+                rgba(56, 189, 248, .12),
+                var(--rz-surface)
+            );
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .12);
+        }
+
+        .rz-push-card-inner {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .rz-push-icon {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 13px;
+            background: rgba(56, 189, 248, .15);
+            color: var(--rz-primary);
+            font-size: 20px;
+        }
+
+        .rz-push-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .rz-push-content strong {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--rz-text);
+            font-size: 13px;
+        }
+
+        .rz-push-content p {
+            margin: 0;
+            color: var(--rz-muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .rz-push-status {
+            margin-top: 6px;
+            color: var(--rz-primary);
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .rz-push-button {
+            flex: 0 0 auto;
+            min-height: 38px;
+            padding: 0 14px;
+            border: 0;
+            border-radius: 999px;
+            background: var(--rz-primary);
+            color: #03111c;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .15s ease, opacity .15s ease;
+        }
+
+        .rz-push-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .rz-push-button:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 600px) {
+
+            .rz-push-card-inner {
+                align-items: flex-start;
+            }
+
+            .rz-push-button {
+                padding: 0 11px;
+                font-size: 10px;
+            }
+
+        }
+/* =========================================================
            QUICK SOCIAL ACTION BAR
         ========================================================= */
 
@@ -1938,7 +2037,52 @@
 
 
 
-            <!-- CREATE POST -->
+            <!-- =========================================================
+     PUSH NOTIFICATION CARD
+========================================================== -->
+
+<div
+    class="rz-push-card"
+    id="pushNotificationCard"
+>
+
+    <div class="rz-push-card-inner">
+
+        <div class="rz-push-icon">
+            &#128276;
+        </div>
+
+        <div class="rz-push-content">
+
+            <strong>
+                Stay updated on UniCamplink
+            </strong>
+
+            <p>
+                Enable notifications to receive alerts for
+                messages, likes, comments, replies and friend requests.
+            </p>
+
+            <div
+                class="rz-push-status"
+                id="pushNotificationStatus"
+            ></div>
+
+        </div>
+
+        <button
+            type="button"
+            class="rz-push-button"
+            id="enablePushBtn"
+        >
+            Enable Notifications
+        </button>
+
+    </div>
+
+</div>
+
+<!-- CREATE POST -->
 
             <section class="rz-create-box">
 
@@ -2580,6 +2724,223 @@
 <script
     src="{{ url_for('static', filename='js/theme.js') }}"
 ></script>
+
+<!-- =========================================================
+     UNICAMPLINK WEB PUSH NOTIFICATIONS
+========================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const card =
+        document.getElementById("pushNotificationCard");
+
+    const button =
+        document.getElementById("enablePushBtn");
+
+    const status =
+        document.getElementById("pushNotificationStatus");
+
+    if (!card || !button || !status) {
+        return;
+    }
+
+    if (
+        !("Notification" in window) ||
+        !("serviceWorker" in navigator) ||
+        !("PushManager" in window)
+    ) {
+        return;
+    }
+
+    if (Notification.permission === "granted") {
+        return;
+    }
+
+    if (Notification.permission === "denied") {
+
+        status.textContent =
+            "Notifications are blocked in your browser.";
+
+        card.style.display = "block";
+
+        button.disabled = true;
+
+        button.textContent =
+            "Notifications Blocked";
+
+        return;
+    }
+
+    card.style.display = "block";
+
+    button.addEventListener("click", async () => {
+
+        button.disabled = true;
+
+        button.textContent = "Enabling...";
+
+        status.textContent =
+            "Requesting notification permission...";
+
+        try {
+
+            const permission =
+                await Notification.requestPermission();
+
+            if (permission !== "granted") {
+                throw new Error(
+                    "Notification permission was not granted."
+                );
+            }
+
+            const registration =
+                await navigator.serviceWorker.ready;
+
+            const configResponse =
+                await fetch(
+                    "/api/push/config",
+                    {
+                        credentials: "same-origin"
+                    }
+                );
+
+            if (!configResponse.ok) {
+                throw new Error(
+                    "Could not load push notification configuration."
+                );
+            }
+
+            const config =
+                await configResponse.json();
+
+            if (!config.success || !config.publicKey) {
+                throw new Error(
+                    config.error ||
+                    "Push notifications are not configured."
+                );
+            }
+
+            let subscription =
+                await registration
+                    .pushManager
+                    .getSubscription();
+
+            if (!subscription) {
+
+                subscription =
+                    await registration
+                        .pushManager
+                        .subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey:
+                                urlBase64ToUint8Array(
+                                    config.publicKey
+                                )
+                        });
+            }
+
+            const csrfToken =
+                "{{ csrf_token() }}";
+
+            const saveResponse =
+                await fetch(
+                    "/api/push/subscribe",
+                    {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                            "X-CSRFToken":
+                                csrfToken
+                        },
+                        body:
+                            JSON.stringify(
+                                subscription.toJSON()
+                            )
+                    }
+                );
+
+            const result =
+                await saveResponse.json();
+
+            if (
+                !saveResponse.ok ||
+                !result.success
+            ) {
+                throw new Error(
+                    result.error ||
+                    "Could not save push subscription."
+                );
+            }
+
+            status.textContent =
+                "Notifications Enabled";
+
+            button.textContent =
+                "Notifications Enabled";
+
+            button.disabled = true;
+
+        } catch (error) {
+
+            console.error(
+                "UniCamplink push setup error:",
+                error
+            );
+
+            status.textContent =
+                error.message ||
+                "Could not enable notifications.";
+
+            button.disabled = false;
+
+            button.textContent =
+                "Enable Notifications";
+        }
+    });
+
+    function urlBase64ToUint8Array(base64String) {
+
+        const padding =
+            "=".repeat(
+                (
+                    4 -
+                    base64String.length % 4
+                ) % 4
+            );
+
+        const base64 =
+            (
+                base64String +
+                padding
+            )
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+
+        const rawData =
+            window.atob(base64);
+
+        const outputArray =
+            new Uint8Array(rawData.length);
+
+        for (
+            let i = 0;
+            i < rawData.length;
+            ++i
+        ) {
+            outputArray[i] =
+                rawData.charCodeAt(i);
+        }
+
+        return outputArray;
+    }
+
+});
+
+</script>
 
 <!-- =====================================================
      UNICAMPLINK PWA SERVICE WORKER
