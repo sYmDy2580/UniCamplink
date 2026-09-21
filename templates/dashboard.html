@@ -2755,7 +2755,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (Notification.permission === "granted") {
-        return;
+
+        status.textContent =
+            "Enable notifications to stay updated.";
+
+        button.textContent =
+            "Enable Notifications";
+
+        button.disabled = false;
+
     }
 
     if (Notification.permission === "denied") {
