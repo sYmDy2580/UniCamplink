@@ -1,3 +1,5 @@
+﻿import json
+from pywebpush import webpush, WebPushException
 import os
 import math
 import sqlite3
@@ -380,7 +382,266 @@ os.makedirs(
     UPLOAD_FOLDER,
     exist_ok=True
 )
+# ============================================================
+# WEB PUSH SUBSCRIPTIONS
+# ============================================================
 
+@app.route(
+    "/api/push/subscribe",
+    methods=["POST"]
+)
+def push_subscribe():
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Please log in."
+        }), 401
+
+    data = request.get_json(silent=True) or {}
+
+    endpoint = data.get("endpoint")
+    keys = data.get("keys") or {}
+
+    p256dh = keys.get("p256dh")
+    auth = keys.get("auth")
+
+    if not endpoint or not p256dh or not auth:
+        return jsonify({
+            "success": False,
+            "error": "Invalid push subscription."
+        }), 400
+
+    conn = get_db_connection()
+
+    try:
+        conn.execute("""
+            INSERT INTO push_subscriptions
+                (user_id, endpoint, p256dh, auth)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(endpoint)
+            DO UPDATE SET
+                user_id = excluded.user_id,
+                p256dh = excluded.p256dh,
+                auth = excluded.auth
+        """, (
+            session["user_id"],
+            endpoint,
+            p256dh,
+            auth
+        ))
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Push notifications enabled."
+        })
+
+    except sqlite3.Error:
+        conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "error": "Could not save push subscription."
+        }), 500
+
+    finally:
+        conn.close()
+
+
+@app.route(
+    "/api/push/unsubscribe",
+    methods=["POST"]
+)
+def push_unsubscribe():
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Please log in."
+        }), 401
+
+    data = request.get_json(silent=True) or {}
+    endpoint = data.get("endpoint")
+
+    if not endpoint:
+        return jsonify({
+            "success": False,
+            "error": "Missing subscription endpoint."
+        }), 400
+
+    conn = get_db_connection()
+
+    try:
+        conn.execute("""
+            DELETE FROM push_subscriptions
+            WHERE user_id = ?
+              AND endpoint = ?
+        """, (
+            session["user_id"],
+            endpoint
+        ))
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Push notifications disabled."
+        })
+
+    except sqlite3.Error:
+        conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "error": "Could not remove push subscription."
+        }), 500
+
+    finally:
+        conn.close()
+
+
+@app.route("/api/push/config")
+def push_config():
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Please log in."
+        }), 401
+
+    public_key = os.environ.get("VAPID_PUBLIC_KEY")
+
+    if not public_key:
+        return jsonify({
+            "success": False,
+            "error": "Push notifications are not configured."
+        }), 500
+
+    return jsonify({
+        "success": True,
+        "publicKey": public_key
+    })
+# ============================================================
+# WEB PUSH DELIVERY
+# ============================================================
+
+def send_push_notification(
+    user_id,
+    title,
+    message,
+    link="/notifications",
+    tag="unicamplink-notification"
+):
+    """
+    Send a browser push notification to all active
+    subscriptions belonging to a UniCamplink user.
+
+    This helper does not create database notifications.
+    It only handles browser push delivery.
+    """
+
+    private_key = os.environ.get(
+        "VAPID_PRIVATE_KEY"
+    )
+
+    claim_email = os.environ.get(
+        "VAPID_CLAIM_EMAIL"
+    )
+
+    if not private_key or not claim_email:
+        return 0
+
+    conn = get_db_connection()
+
+    try:
+        subscriptions = conn.execute("""
+            SELECT
+                id,
+                endpoint,
+                p256dh,
+                auth
+            FROM push_subscriptions
+            WHERE user_id = ?
+        """, (user_id,)).fetchall()
+
+        if not subscriptions:
+            return 0
+
+        payload = {
+            "title": title,
+            "message": message,
+            "link": link,
+            "tag": tag
+        }
+
+        sent = 0
+
+        for subscription in subscriptions:
+
+            subscription_info = {
+                "endpoint": subscription["endpoint"],
+                "keys": {
+                    "p256dh": subscription["p256dh"],
+                    "auth": subscription["auth"]
+                }
+            }
+
+            try:
+                webpush(
+                    subscription_info=subscription_info,
+                    data=json.dumps(payload),
+                    vapid_private_key=private_key,
+                    vapid_claims={
+                        "sub": claim_email
+                    },
+                    ttl=300
+                )
+
+                sent += 1
+
+            except WebPushException as error:
+
+                status_code = getattr(
+                    error.response,
+                    "status_code",
+                    None
+                ) if getattr(error, "response", None) else None
+
+                print(
+                    "UniCamplink push delivery error:",
+                    error
+                )
+
+                # Remove expired/invalid browser subscriptions.
+                if status_code in (404, 410):
+
+                    try:
+                        conn.execute("""
+                            DELETE FROM push_subscriptions
+                            WHERE id = ?
+                        """, (subscription["id"],))
+
+                        conn.commit()
+
+                    except sqlite3.Error as cleanup_error:
+
+                        print(
+                            "UniCamplink push cleanup error:",
+                            cleanup_error
+                        )
+
+        return sent
+
+    except sqlite3.Error as error:
+
+        print(
+            "UniCamplink push database error:",
+            error
+        )
+
+        return 0
+
+    finally:
+        conn.close()
 
 # ============================================================
 # STATIC FILE SERVING
@@ -1514,6 +1775,26 @@ def update_reports_table():
 
     conn.commit()
     conn.close()
+def update_push_subscriptions_table():
+    conn = get_db_connection()
+
+    try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS push_subscriptions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                endpoint TEXT NOT NULL UNIQUE,
+                p256dh TEXT NOT NULL,
+                auth TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+        conn.commit()
+
+    finally:
+        conn.close()
 def update_moderation_logs_table():
     conn = get_db_connection()
 
@@ -1565,6 +1846,7 @@ update_campus_ambassadors_table()
 update_announcements_table()
 update_reports_table()
 update_moderation_logs_table()
+update_push_subscriptions_table()
 # ============================================================
 # USER ONLINE / LAST SEEN TRACKER
 # ============================================================
@@ -2615,6 +2897,13 @@ def like_post(post_id):
                     "liked your post ❤️",
 f"/feed#post-{post_id}"
                 )
+            )
+            send_push_notification(
+                post_owner["user_id"],
+                "❤️ New Like",
+                "Someone liked your post.",
+                f"/feed#post-{post_id}",
+                "unicamplink-like"
             )
 
     conn.commit()
