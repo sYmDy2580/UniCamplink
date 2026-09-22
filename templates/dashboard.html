@@ -2756,14 +2756,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (Notification.permission === "granted") {
 
-        status.textContent =
-            "Enable notifications to stay updated.";
+        navigator.serviceWorker.ready
+            .then(async registration => {
 
-        button.textContent =
-            "Enable Notifications";
+                const existingSubscription =
+                    await registration.pushManager.getSubscription();
 
-        button.disabled = false;
+                if (existingSubscription) {
 
+                    status.textContent =
+                        "Notifications are enabled.";
+
+                    button.textContent =
+                        "Notifications Enabled";
+
+                    button.disabled = true;
+
+                } else {
+
+                    status.textContent =
+                        "Enable notifications to stay updated.";
+
+                    button.textContent =
+                        "Enable Notifications";
+
+                    button.disabled = false;
+
+                }
+
+            })
+            .catch(error => {
+
+                console.error(
+                    "UniCamplink push subscription check failed:",
+                    error
+                );
+
+                status.textContent =
+                    "Enable notifications to stay updated.";
+
+                button.textContent =
+                    "Enable Notifications";
+
+                button.disabled = false;
+            });
     }
 
     if (Notification.permission === "denied") {
