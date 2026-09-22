@@ -1,4 +1,4 @@
-const CACHE_NAME = "unicamplink-pwa-v4";
+const CACHE_NAME = "unicamplink-pwa-v5";
 
 const APP_SHELL = [
     "/dashboard",
@@ -13,11 +13,17 @@ const APP_SHELL = [
    ========================================================= */
 
 self.addEventListener("install", event => {
+
     event.waitUntil(
+
         caches.open(CACHE_NAME)
+
             .then(cache => cache.addAll(APP_SHELL))
+
             .then(() => self.skipWaiting())
+
     );
+
 });
 
 
@@ -26,15 +32,29 @@ self.addEventListener("install", event => {
    ========================================================= */
 
 self.addEventListener("activate", event => {
+
     event.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(
-                keys
-                    .filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
-            );
-        }).then(() => self.clients.claim())
+
+        caches.keys()
+
+            .then(keys => {
+
+                return Promise.all(
+
+                    keys
+
+                        .filter(key => key !== CACHE_NAME)
+
+                        .map(key => caches.delete(key))
+
+                );
+
+            })
+
+            .then(() => self.clients.claim())
+
     );
+
 });
 
 
@@ -45,49 +65,110 @@ self.addEventListener("activate", event => {
 self.addEventListener("push", event => {
 
     let data = {
+
         title: "UniCamplink",
+
         message: "You have a new notification.",
-        link: "/notifications"
+
+        link: "/notifications",
+
+        tag: "unicamplink-notification"
+
     };
 
+
     if (event.data) {
+
         try {
+
             data = {
+
                 ...data,
+
                 ...event.data.json()
+
             };
+
         } catch (error) {
+
             console.error(
                 "UniCamplink push data error:",
                 error
             );
+
         }
+
     }
 
-    const title = data.title || "UniCamplink";
+
+    const title =
+        data.title ||
+        "UniCamplink";
+
+
+    const body =
+        data.message ||
+        "You have a new notification.";
+
+
+    const link =
+        data.link ||
+        "/notifications";
+
+
+    const tag =
+        data.tag ||
+        "unicamplink-notification";
+
 
     const options = {
-        body: data.message || "You have a new notification.",
+
+        body: body,
 
         icon: "/static/icons/icon-192.png",
 
         badge: "/static/icons/icon-192.png",
 
-        tag: data.tag || "unicamplink-notification",
+        tag: tag,
+
+        renotify: true,
+
+        requireInteraction: false,
+
+        timestamp: Date.now(),
 
         data: {
-            link: data.link || "/notifications"
+
+            link: link,
+
+            type: data.type || "general",
+
+            notificationId:
+                data.notificationId || null
+
         },
 
-        requireInteraction: false
+        actions: [
+
+            {
+                action: "open",
+                title: "Open"
+            }
+
+        ]
+
     };
 
+
     event.waitUntil(
+
         self.registration.showNotification(
             title,
             options
         )
+
     );
+
 });
 
 
@@ -99,46 +180,84 @@ self.addEventListener("notificationclick", event => {
 
     event.notification.close();
 
+
+    const notificationData =
+        event.notification.data || {};
+
+
     const link =
-        event.notification.data?.link ||
+        notificationData.link ||
         "/notifications";
+
 
     event.waitUntil(
 
         clients.matchAll({
+
             type: "window",
+
             includeUncontrolled: true
+
         })
 
         .then(clientList => {
 
+            /*
+             * Prefer an existing UniCamplink tab.
+             */
+
             for (const client of clientList) {
 
                 if (
+
                     client.url.startsWith(
                         self.location.origin
-                    ) &&
+                    )
+
+                    &&
+
                     "focus" in client
+
                 ) {
 
-                    return client.focus().then(() => {
+                    return client.focus()
 
-                        if ("navigate" in client) {
-                            return client.navigate(link);
-                        }
+                        .then(() => {
 
-                    });
+                            if (
+                                "navigate" in client
+                            ) {
+
+                                return client.navigate(
+                                    link
+                                );
+
+                            }
+
+                        });
 
                 }
+
             }
 
+
+            /*
+             * If UniCamplink is not open,
+             * open it in a new window/tab.
+             */
+
             if (clients.openWindow) {
-                return clients.openWindow(link);
+
+                return clients.openWindow(
+                    link
+                );
+
             }
 
         })
 
     );
+
 });
 
 
@@ -150,80 +269,155 @@ self.addEventListener("fetch", event => {
 
     const request = event.request;
 
-    // Only handle GET requests.
+
+    /*
+     * Only handle GET requests.
+     */
+
     if (request.method !== "GET") {
+
         return;
+
     }
 
-    const url = new URL(request.url);
 
-    // Only handle UniCamplink requests.
-    if (url.origin !== self.location.origin) {
-        return;
-    }
+    const url =
+        new URL(request.url);
 
-    // Never cache API or authentication-sensitive routes.
+
+    /*
+     * Only handle UniCamplink requests.
+     */
+
     if (
-        url.pathname.startsWith("/api/") ||
-        url.pathname === "/login" ||
-        url.pathname === "/logout" ||
-        url.pathname === "/register" ||
-        url.pathname === "/messages" ||
-        url.pathname === "/notifications"
+        url.origin !== self.location.origin
     ) {
+
         return;
+
     }
 
-    // Network-first for pages.
+
+    /*
+     * Never cache API or
+     * authentication-sensitive routes.
+     */
+
+    if (
+
+        url.pathname.startsWith("/api/")
+
+        ||
+
+        url.pathname === "/login"
+
+        ||
+
+        url.pathname === "/logout"
+
+        ||
+
+        url.pathname === "/register"
+
+        ||
+
+        url.pathname === "/messages"
+
+        ||
+
+        url.pathname === "/notifications"
+
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+     * Network-first for pages.
+     */
+
     if (request.mode === "navigate") {
 
         event.respondWith(
+
             fetch(request)
+
                 .then(response => response)
-                .catch(() => caches.match("/dashboard"))
+
+                .catch(() =>
+                    caches.match("/dashboard")
+                )
+
         );
 
         return;
+
     }
 
-    // Cache-first for static assets.
-    if (url.pathname.startsWith("/static/")) {
+
+    /*
+     * Cache-first for static assets.
+     */
+
+    if (
+        url.pathname.startsWith("/static/")
+    ) {
 
         event.respondWith(
 
             caches.match(request)
+
                 .then(cachedResponse => {
 
                     if (cachedResponse) {
+
                         return cachedResponse;
+
                     }
 
+
                     return fetch(request)
+
                         .then(response => {
 
                             if (
-                                response &&
+
+                                response
+
+                                &&
+
                                 response.ok
+
                             ) {
 
                                 const responseClone =
                                     response.clone();
 
+
                                 caches.open(CACHE_NAME)
+
                                     .then(cache => {
+
                                         cache.put(
                                             request,
                                             responseClone
                                         );
+
                                     });
+
                             }
 
+
                             return response;
+
                         });
 
                 })
 
         );
+
     }
 
 });
