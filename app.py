@@ -6348,6 +6348,38 @@ def chat(user_id):
             )
         )
 
+        # --------------------------------------------------------
+        # BROWSER PUSH - NEW DIRECT MESSAGE
+        # --------------------------------------------------------
+
+        sender = conn.execute(
+            """
+            SELECT name
+            FROM users
+            WHERE id = ?
+            """,
+            (current_user_id,)
+        ).fetchone()
+
+        sender_name = (
+            sender["name"]
+            if sender and sender["name"]
+            else "Someone"
+        )
+
+        push_message = message[:180]
+
+        if len(message) > 180:
+            push_message += "..."
+
+        send_push_notification(
+            user_id,
+            "\U0001F4AC " + sender_name,
+            push_message,
+            "/chat/" + str(current_user_id),
+            "unicamplink-message"
+        )
+
         conn.commit()
         conn.close()
 
