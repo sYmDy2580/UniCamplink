@@ -6987,25 +6987,35 @@ def admin_create_announcement():
         for user in users:
 
             conn.execute(
-    """
-    INSERT INTO notifications
-    (
-        user_id,
-        sender_id,
-        type,
-        message,
-        link
-    )
-    VALUES (?, ?, ?, ?, ?)
-    """,
-    (
-        user["id"],
-        current_user["id"],
-        "announcement",
-        notification_message,
-        "/announcements"
-    )
-)
+                """
+                INSERT INTO notifications
+                (
+                    user_id,
+                    sender_id,
+                    type,
+                    message,
+                    link
+                )
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    user["id"],
+                    current_user["id"],
+                    "announcement",
+                    notification_message,
+                    "/announcements"
+                )
+            )
+
+            push_body = message[:180] + ("..." if len(message) > 180 else "")
+
+            send_push_notification(
+                user["id"],
+                "\U0001F4E2 " + title,
+                push_body,
+                "/announcements",
+                "unicamplink-announcement"
+            )
 
     conn.commit()
     conn.close()
