@@ -958,6 +958,207 @@
 
 
         /* =========================================================
+           PEOPLE YOU MAY KNOW — LINKEDIN STYLE
+        ========================================================= */
+
+        .rz-people-section {
+            margin-top: 18px;
+        }
+
+        .rz-people-heading-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .rz-people-heading-copy p {
+            margin: 0;
+            color: var(--rz-muted);
+            font-size: 10px;
+        }
+
+        .rz-people-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .rz-people-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 14px;
+            border: 1px solid var(--rz-border);
+            border-radius: 14px;
+            background: var(--rz-surface);
+            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        }
+
+        .rz-people-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, .28);
+            background: var(--rz-surface-2);
+        }
+
+        .rz-people-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+        }
+
+        .rz-people-avatar-link {
+            flex: 0 0 auto;
+            text-decoration: none;
+        }
+
+        .rz-people-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(56, 189, 248, .25), rgba(14, 165, 233, .08));
+            border: 2px solid rgba(56, 189, 248, .18);
+            color: var(--rz-primary);
+            font-size: 20px;
+            font-weight: 850;
+        }
+
+        .rz-people-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rz-people-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .rz-people-name-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .rz-people-name {
+            margin: 0;
+            color: var(--rz-text);
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+        .rz-verified-badge {
+            width: 17px;
+            height: 17px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #0ea5e9;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            flex: 0 0 auto;
+        }
+
+        .rz-ambassador-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 5px;
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, .10);
+            border: 1px solid rgba(56, 189, 248, .18);
+            color: var(--rz-primary);
+            font-size: 8.5px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .rz-people-school,
+        .rz-people-friends {
+            margin-top: 6px;
+            color: var(--rz-muted);
+            font-size: 9.5px;
+            line-height: 1.45;
+        }
+
+        .rz-people-school {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rz-people-bio {
+            margin: 0;
+            color: var(--rz-muted);
+            font-size: 9.5px;
+            line-height: 1.55;
+            min-height: 30px;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .rz-people-reason {
+            padding: 7px 9px;
+            border-radius: 9px;
+            background: var(--rz-surface-2);
+            color: var(--rz-muted);
+            font-size: 9px;
+            line-height: 1.4;
+        }
+
+        .rz-people-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+            margin-top: auto;
+        }
+
+        .rz-people-actions form {
+            margin: 0;
+        }
+
+        .rz-people-btn {
+            width: 100%;
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            text-decoration: none;
+            font-size: 9.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .15s ease, background .15s ease, border-color .15s ease;
+        }
+
+        .rz-people-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .rz-people-btn-primary {
+            border: 1px solid var(--rz-primary);
+            background: var(--rz-primary);
+            color: #03101b;
+        }
+
+        .rz-people-btn-secondary {
+            border: 1px solid var(--rz-border);
+            background: transparent;
+            color: var(--rz-text);
+        }
+
+        /* =========================================================
            SOCIAL DISCOVERY CARDS
         ========================================================= */
 
@@ -2189,6 +2390,167 @@
 
 
 
+            <!-- PEOPLE YOU MAY KNOW -->
+
+            {% if people_you_may_know %}
+
+                <section
+                    class="rz-people-section"
+                    aria-labelledby="rzPeopleTitle"
+                >
+
+                    <div class="rz-section-title">
+
+                        <div class="rz-people-heading-copy">
+
+                            <h2 id="rzPeopleTitle">
+                                People You May Know
+                            </h2>
+
+                            <p>
+                                Connect with students in your UniCamplink network
+                            </p>
+
+                        </div>
+
+                        <a href="{{ url_for('friends') }}">
+                            My Friends
+                        </a>
+
+                    </div>
+
+                    <section class="rz-people-grid">
+
+                        {% for person in people_you_may_know %}
+
+                            <article class="rz-people-card">
+
+                                <div class="rz-people-main">
+
+                                    <a
+                                        href="{{ url_for('view_user', user_id=person['id']) }}"
+                                        class="rz-people-avatar-link"
+                                        aria-label="View {{ person['name'] }} profile"
+                                    >
+
+                                        <div class="rz-people-avatar">
+
+                                            {% if person['profile_picture'] %}
+
+                                                <img
+                                                    src="{{ url_for('static', filename='uploads/' ~ person['profile_picture']) }}"
+                                                    alt="{{ person['name'] }}"
+                                                >
+
+                                            {% else %}
+
+                                                {{ person['name'][0]|upper }}
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </a>
+
+                                    <div class="rz-people-info">
+
+                                        <div class="rz-people-name-row">
+
+                                            <h3 class="rz-people-name">
+                                                {{ person['name'] }}
+                                            </h3>
+
+                                            {% if person['is_verified_student'] %}
+
+                                                <span
+                                                    class="rz-verified-badge"
+                                                    title="Verified Student"
+                                                    aria-label="Verified Student"
+                                                >
+                                                    ✓
+                                                </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                        {% if person['is_campus_ambassador'] %}
+
+                                            <div class="rz-ambassador-badge">
+                                                🎓 Campus Ambassador
+                                            </div>
+
+                                        {% endif %}
+
+                                        <div
+                                            class="rz-people-school"
+                                            title="{{ person['university'] }}"
+                                        >
+                                            🏫 {{ person['university'] }}
+                                        </div>
+
+                                        <div class="rz-people-friends">
+                                            👥 {{ person['friend_count'] }} friends
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <p class="rz-people-bio">
+                                    {% if person['bio'] %}
+                                        {{ person['bio'] }}
+                                    {% else %}
+                                        Connect with {{ person['name'].split(' ')[0] }} on UniCamplink.
+                                    {% endif %}
+                                </p>
+
+                                <div class="rz-people-reason">
+                                    {{ person['suggestion_reason'] }}
+                                </div>
+
+                                <div class="rz-people-actions">
+
+                                    <form
+                                        action="{{ url_for('send_friend_request', user_id=person['id']) }}"
+                                        method="POST"
+                                    >
+
+                                        <input
+                                            type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="rz-people-btn rz-people-btn-primary"
+                                        >
+                                            Add Friend
+                                        </button>
+
+                                    </form>
+
+                                    <a
+                                        href="{{ url_for('view_user', user_id=person['id']) }}"
+                                        class="rz-people-btn rz-people-btn-secondary"
+                                    >
+                                        View Profile
+                                    </a>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </section>
+
+                </section>
+
+            {% endif %}
+
+
             <!-- DISCOVER -->
 
             <div class="rz-section-title">
@@ -3021,6 +3383,95 @@ if ("serviceWorker" in navigator) {
 
 </script>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const csrfToken = "{{ csrf_token() }}";
+
+    document.querySelectorAll(
+        ".rz-suggestion-friend-form"
+    ).forEach(function (form) {
+
+        form.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            const button = form.querySelector(
+                ".rz-suggestion-add-btn"
+            );
+
+            if (!button) {
+                return;
+            }
+
+            if (button.dataset.sending === "true") {
+                return;
+            }
+
+            button.dataset.sending = "true";
+            button.disabled = true;
+            button.textContent = "Sending...";
+
+            try {
+
+                const response = await fetch(
+                    form.action,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "X-Requested-With":
+                                "XMLHttpRequest",
+
+                            "X-CSRFToken":
+                                csrfToken
+                        },
+
+                        body: new FormData(form),
+
+                        credentials: "same-origin"
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Friend request failed."
+                    );
+                }
+
+                button.textContent =
+                    "Request Sent ✓";
+
+                button.classList.add(
+                    "request-sent"
+                );
+
+                button.dataset.sending =
+                    "false";
+
+            } catch (error) {
+
+                console.error(
+                    "Friend request error:",
+                    error
+                );
+
+                button.disabled = false;
+
+                button.dataset.sending =
+                    "false";
+
+                button.textContent =
+                    "Add Friend";
+            }
+
+        });
+
+    });
+
+});
+</script>
 
 </body>
 

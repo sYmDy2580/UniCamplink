@@ -2402,6 +2402,163 @@ def dashboard():
         """
     ).fetchone()
 
+    # ========================================================
+    # PEOPLE YOU MAY KNOW
+    # ========================================================
+    #
+    # Uses the existing users, friends, friend_requests and
+    # campus_ambassadors tables. No new table or migration is
+    # required for this feature.
+    #
+    # Candidates are excluded when they are:
+    # - the current user
+    # - already friends with the current user
+    # - already involved in an existing friend request
+    #
+    # Suggestions are ranked using:
+    # - same university
+    # - mutual friends
+    # - campus ambassador status
+    # - friend count
+    #
+    people_you_may_know = conn.execute(
+        """
+        SELECT
+            candidate.id,
+            candidate.name,
+            candidate.university,
+            candidate.bio,
+            candidate.profile_picture,
+            COALESCE(candidate.is_verified_student, 0)
+                AS is_verified_student,
+
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM campus_ambassadors ca
+                    WHERE ca.user_id = candidate.id
+                    AND ca.active = 1
+                )
+                THEN 1
+                ELSE 0
+            END AS is_campus_ambassador,
+
+            (
+                SELECT COUNT(*)
+                FROM friends fc
+                WHERE fc.user_id = candidate.id
+            ) AS friend_count,
+
+            (
+                SELECT COUNT(*)
+                FROM friends myf
+                WHERE myf.user_id = ?
+                AND EXISTS (
+                    SELECT 1
+                    FROM friends cf
+                    WHERE cf.user_id = candidate.id
+                    AND cf.friend_id = myf.friend_id
+                )
+            ) AS mutual_friend_count,
+
+            CASE
+                WHEN LOWER(COALESCE(candidate.university, ''))
+                     = LOWER(COALESCE(?, ''))
+                THEN 1
+                ELSE 0
+            END AS same_university
+
+        FROM users candidate
+
+        WHERE candidate.id != ?
+
+        AND NOT EXISTS (
+            SELECT 1
+            FROM friends existing_friendship
+            WHERE
+                (
+                    existing_friendship.user_id = ?
+                    AND existing_friendship.friend_id = candidate.id
+                )
+                OR
+                (
+                    existing_friendship.user_id = candidate.id
+                    AND existing_friendship.friend_id = ?
+                )
+        )
+
+        AND NOT EXISTS (
+            SELECT 1
+            FROM friend_requests existing_request
+            WHERE
+                existing_request.status = 'pending'
+                AND (
+                    (
+                        existing_request.sender_id = ?
+                        AND existing_request.receiver_id = candidate.id
+                    )
+                    OR
+                    (
+                        existing_request.sender_id = candidate.id
+                        AND existing_request.receiver_id = ?
+                    )
+                )
+        )
+
+        ORDER BY
+            same_university DESC,
+            mutual_friend_count DESC,
+            is_campus_ambassador DESC,
+            friend_count DESC,
+            candidate.joined_at DESC,
+            candidate.id DESC
+
+        LIMIT 6
+        """,
+        (
+            current_user_id,
+            user["university"],
+            current_user_id,
+            current_user_id,
+            current_user_id,
+            current_user_id,
+            current_user_id
+        )
+    ).fetchall()
+
+    people_you_may_know = [
+        {
+            "id": person["id"],
+            "name": person["name"],
+            "university": person["university"],
+            "bio": person["bio"] or "",
+            "profile_picture": person["profile_picture"] or "",
+            "is_verified_student": bool(
+                person["is_verified_student"]
+            ),
+            "is_campus_ambassador": bool(
+                person["is_campus_ambassador"]
+            ),
+            "friend_count": person["friend_count"],
+            "mutual_friend_count": person["mutual_friend_count"],
+            "same_university": bool(
+                person["same_university"]
+            ),
+            "suggestion_reason": (
+                f"{person['mutual_friend_count']} mutual "
+                f"friend{'s' if person['mutual_friend_count'] != 1 else ''}"
+                if person["mutual_friend_count"]
+                else (
+                    "Same university as you"
+                    if person["same_university"]
+                    else "Suggested on UniCamplink"
+                )
+            )
+        }
+        for person in people_you_may_know
+    ]
+
+
     conn.close()
 
     if not user:
@@ -2430,7 +2587,8 @@ def dashboard():
         "dashboard.html",
         user=user,
         is_admin=is_admin,
-        active_announcement=active_announcement
+        active_announcement=active_announcement,
+        people_you_may_know=people_you_may_know
     )
 # ============================================================
 # CGPA CALCULATOR
