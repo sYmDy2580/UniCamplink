@@ -1695,7 +1695,26 @@
                 min-height: 62px;
             }
 
+            .rz-people-grid {
+                display: flex;
+                gap: 10px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                padding: 2px 2px 8px;
+                scrollbar-width: none;
+            }
+
+            .rz-people-grid::-webkit-scrollbar {
+                display: none;
+            }
+
             .rz-people-card {
+                flex: 0 0 82%;
+                max-width: 82%;
+                box-sizing: border-box;
+                scroll-snap-align: start;
                 gap: 8px;
                 padding: 10px;
                 border-radius: 12px;
