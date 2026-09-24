@@ -3647,7 +3647,8 @@ def profile():
         posts=posts,
         post_count=post_count,
         total_likes=total_likes,
-        campus_ambassador=campus_ambassador
+        campus_ambassador=campus_ambassador,
+        is_owner=True
     )
 # ============================================================
 # PUBLIC USER PROFILE
