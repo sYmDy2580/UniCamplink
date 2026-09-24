@@ -1,4 +1,4 @@
-import json
+﻿import json
 from pywebpush import webpush, WebPushException
 import os
 import math
@@ -3252,7 +3252,7 @@ f"/feed#post-{post_id}"
             c.content,
             c.created_at,
             c.parent_comment_id,
-            u.name,
+            u.name AS author_name,
             u.profile_picture
         FROM comments c
         JOIN users u ON u.id = c.user_id
@@ -3314,7 +3314,7 @@ def get_comments(post_id):
             c.content,
             c.created_at,
             c.parent_comment_id,
-            u.name,
+            u.name AS author_name,
             u.profile_picture
         FROM comments c
         JOIN users u ON u.id = c.user_id
