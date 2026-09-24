@@ -2,6 +2,7 @@ import json
 from pywebpush import webpush, WebPushException
 import os
 import math
+import hmac
 import sqlite3
 from dotenv import load_dotenv
 load_dotenv()
@@ -9571,6 +9572,278 @@ def admin_reject_advertisement(advertisement_id):
         url_for("admin_advertisements")
     )
 
+
+
+# ============================================================
+# INTERNAL FRIEND SUGGESTION PUSH JOB
+# ============================================================
+
+def get_people_you_may_know_for_user(current_user_id, university):
+    conn = get_db_connection()
+
+    try:
+        return conn.execute(
+            """
+            SELECT
+                candidate.id,
+                candidate.name,
+                candidate.university,
+                candidate.bio,
+                candidate.profile_picture,
+
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM campus_ambassadors ca
+                        WHERE ca.user_id = candidate.id
+                        AND ca.active = 1
+                    )
+                    THEN 1
+                    ELSE 0
+                END AS is_campus_ambassador,
+
+                (
+                    SELECT COUNT(*)
+                    FROM friends fc
+                    WHERE fc.user_id = candidate.id
+                ) AS friend_count,
+
+                (
+                    SELECT COUNT(*)
+                    FROM friends myf
+                    WHERE myf.user_id = ?
+                    AND EXISTS (
+                        SELECT 1
+                        FROM friends cf
+                        WHERE cf.user_id = candidate.id
+                        AND cf.friend_id = myf.friend_id
+                    )
+                ) AS mutual_friend_count,
+
+                CASE
+                    WHEN LOWER(COALESCE(candidate.university, ''))
+                         = LOWER(COALESCE(?, ''))
+                    THEN 1
+                    ELSE 0
+                END AS same_university
+
+            FROM users candidate
+
+            WHERE candidate.id != ?
+
+            AND NOT EXISTS (
+                SELECT 1
+                FROM friends existing_friendship
+                WHERE
+                    (
+                        existing_friendship.user_id = ?
+                        AND existing_friendship.friend_id = candidate.id
+                    )
+                    OR
+                    (
+                        existing_friendship.user_id = candidate.id
+                        AND existing_friendship.friend_id = ?
+                    )
+            )
+
+            AND NOT EXISTS (
+                SELECT 1
+                FROM friend_requests existing_request
+                WHERE
+                    existing_request.status = 'pending'
+                    AND (
+                        (
+                            existing_request.sender_id = ?
+                            AND existing_request.receiver_id = candidate.id
+                        )
+                        OR
+                        (
+                            existing_request.sender_id = candidate.id
+                            AND existing_request.receiver_id = ?
+                        )
+                    )
+            )
+
+            ORDER BY
+                same_university DESC,
+                mutual_friend_count DESC,
+                is_campus_ambassador DESC,
+                friend_count DESC,
+                candidate.joined_at DESC,
+                candidate.id DESC
+
+            LIMIT 6
+            """,
+            (
+                current_user_id,
+                university,
+                current_user_id,
+                current_user_id,
+                current_user_id,
+                current_user_id,
+                current_user_id,
+            )
+        ).fetchall()
+
+    finally:
+        conn.close()
+
+
+def process_friend_suggestion_pushes():
+    conn = get_db_connection()
+
+    try:
+        users = conn.execute(
+            """
+            SELECT
+                u.id,
+                u.name,
+                u.university
+            FROM users u
+            WHERE EXISTS (
+                SELECT 1
+                FROM push_subscriptions ps
+                WHERE ps.user_id = u.id
+            )
+            ORDER BY u.id ASC
+            """
+        ).fetchall()
+    finally:
+        conn.close()
+
+    processed_users = 0
+    sent_notifications = 0
+
+    for user in users:
+        suggestions = get_people_you_may_know_for_user(
+            user["id"],
+            user["university"]
+        )
+
+        for person in suggestions:
+            conn = get_db_connection()
+
+            try:
+                already_notified = conn.execute(
+                    """
+                    SELECT 1
+                    FROM notifications
+                    WHERE user_id = ?
+                    AND sender_id = ?
+                    AND type = 'friend_suggestion'
+                    LIMIT 1
+                    """,
+                    (
+                        user["id"],
+                        person["id"],
+                    )
+                ).fetchone()
+            finally:
+                conn.close()
+
+            if already_notified:
+                continue
+
+            message = (
+                f"You may know {person['name']} on UniCamplink."
+            )
+
+            sent_count = send_push_notification(
+                user["id"],
+                "People You May Know",
+                message,
+                link="/dashboard",
+                tag="unicamplink-friend-suggestion"
+            )
+
+            if sent_count <= 0:
+                continue
+
+            conn = get_db_connection()
+
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO notifications (
+                        user_id,
+                        sender_id,
+                        type,
+                        message,
+                        link,
+                        is_read
+                    )
+                    VALUES (?, ?, ?, ?, ?, 0)
+                    """,
+                    (
+                        user["id"],
+                        person["id"],
+                        "friend_suggestion",
+                        message,
+                        "/dashboard",
+                    )
+                )
+
+                conn.commit()
+                sent_notifications += 1
+
+            finally:
+                conn.close()
+
+        processed_users += 1
+
+    return {
+        "processed_users": processed_users,
+        "sent_notifications": sent_notifications,
+    }
+
+
+@app.route(
+    "/api/internal/friend-suggestions/run",
+    methods=["POST"]
+)
+@csrf.exempt
+def run_friend_suggestion_job():
+
+    configured_secret = os.environ.get(
+        "FRIEND_SUGGESTION_CRON_SECRET",
+        ""
+    )
+
+    supplied_secret = request.headers.get(
+        "X-UniCamplink-Cron-Secret",
+        ""
+    )
+
+    if (
+        not configured_secret
+        or not supplied_secret
+        or not hmac.compare_digest(
+            supplied_secret,
+            configured_secret
+        )
+    ):
+        return {
+            "success": False,
+            "error": "Unauthorized."
+        }, 401
+
+    try:
+        result = process_friend_suggestion_pushes()
+
+        return {
+            "success": True,
+            **result
+        }, 200
+
+    except Exception:
+        app.logger.exception(
+            "Friend suggestion push job failed."
+        )
+
+        return {
+            "success": False,
+            "error": "Friend suggestion job failed."
+        }, 500
 
 
 # ============================================================
