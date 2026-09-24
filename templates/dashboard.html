@@ -2514,6 +2514,7 @@
                                     <form
                                         action="{{ url_for('send_friend_request', user_id=person['id']) }}"
                                         method="POST"
+                                        class="rz-suggestion-friend-form"
                                     >
 
                                         <input
@@ -2524,7 +2525,7 @@
 
                                         <button
                                             type="submit"
-                                            class="rz-people-btn rz-people-btn-primary"
+                                            class="rz-people-btn rz-people-btn-primary rz-suggestion-add-btn"
                                         >
                                             Add Friend
                                         </button>
