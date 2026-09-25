@@ -3596,12 +3596,34 @@ def profile():
 
     posts = conn.execute(
         """
-        SELECT *
+        SELECT
+            posts.*,
+
+            (
+                SELECT COUNT(*)
+                FROM likes
+                WHERE likes.post_id = posts.id
+            ) AS like_count,
+
+            (
+                SELECT COUNT(*)
+                FROM comments
+                WHERE comments.post_id = posts.id
+            ) AS comment_count,
+
+            EXISTS (
+                SELECT 1
+                FROM likes
+                WHERE likes.post_id = posts.id
+                AND likes.user_id = ?
+            ) AS user_liked
+
         FROM posts
-        WHERE user_id = ?
-        ORDER BY created_at DESC
+        WHERE posts.user_id = ?
+        ORDER BY posts.created_at DESC
         """,
         (
+            session["user_id"],
             session["user_id"],
         )
     ).fetchall()
@@ -3682,12 +3704,37 @@ def view_profile(user_id):
 
     posts = conn.execute(
         """
-        SELECT *
+        SELECT
+            posts.*,
+
+            (
+                SELECT COUNT(*)
+                FROM likes
+                WHERE likes.post_id = posts.id
+            ) AS like_count,
+
+            (
+                SELECT COUNT(*)
+                FROM comments
+                WHERE comments.post_id = posts.id
+            ) AS comment_count,
+
+            EXISTS (
+                SELECT 1
+                FROM likes
+                WHERE likes.post_id = posts.id
+                AND likes.user_id = ?
+            ) AS user_liked
+
         FROM posts
-        WHERE user_id = ?
-        ORDER BY created_at DESC
-        """
-    , (user_id,)).fetchall()
+        WHERE posts.user_id = ?
+        ORDER BY posts.created_at DESC
+        """,
+        (
+            session["user_id"],
+            user_id,
+        )
+    ).fetchall()
 
     post_count = conn.execute(
         """
