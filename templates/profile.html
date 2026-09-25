@@ -1760,6 +1760,313 @@
         }
     }
 
+
+
+    /* ============================================================
+       RAZOR COMMENTS
+       Shared comment engine styling for Profile
+    ============================================================ */
+
+    .post-media {
+    margin: 13px 0 5px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: rgba(148,163,184,.07);
+    display: flex;
+    justify-content: center;
+    max-width: 100%;
+}
+
+.post-media img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 540px;
+    object-fit: contain;
+    cursor: zoom-in;
+}
+
+@media (max-width: 640px) {
+    .post-media {
+        border-radius: 12px;
+    }
+
+    .post-media img {
+        width: 100%;
+        max-height: 390px;
+        object-fit: cover;
+    }
+}
+
+.post-stats form.like-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .post-action-btn.like-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 34px;
+        padding: 7px 13px;
+        border: 1px solid var(--border, #e5e7eb);
+        border-radius: 999px;
+        background: var(--surface-2, rgba(148,163,184,.09));
+        color: var(--text, #0f172a);
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1;
+        transition:
+            background .18s ease,
+            color .18s ease,
+            border-color .18s ease,
+            transform .18s ease;
+    }
+
+    .post-action-btn.like-button:hover {
+        border-color: rgba(56,189,248,.45);
+        background: var(--primary-soft, rgba(56,189,248,.10));
+        color: #38bdf8;
+        transform: translateY(-1px);
+    }
+
+    .post-action-btn.like-button:active {
+        transform: translateY(0);
+    }
+
+    .post-action-btn.like-button.liked {
+        border-color: rgba(56,189,248,.35);
+        background: var(--primary-soft, rgba(56,189,248,.12));
+        color: #38bdf8;
+    }
+
+    .post-action-btn.like-button:disabled {
+        opacity: .65;
+        cursor: wait;
+        transform: none;
+    }
+    .post-stats {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 0;
+        color: var(--text, #64748b);
+        font-size: 12px;
+    }
+
+    .like-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .like-count {
+        font-weight: 700;
+    }
+
+    .comment-count-btn {
+        border: 0;
+        background: transparent;
+        color: var(--text, #64748b);
+        cursor: pointer;
+        padding: 3px 0;
+        font-size: 12px;
+    }
+
+    .comment-count-btn:hover {
+        color: #38bdf8;
+    }
+
+    .post-comments {
+        display: none;
+        padding-top: 13px;
+    }
+
+    .post-comments.visible {
+        display: block;
+    }
+
+    .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+        margin-bottom: 13px;
+    }
+
+    .razor-comment {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .comment-avatar {
+        flex: 0 0 auto;
+    }
+
+    .comment-avatar-link {
+        display: block;
+        text-decoration: none;
+    }
+
+    .comment-avatar-image,
+    .comment-avatar-placeholder {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+    }
+
+    .comment-avatar-image {
+        display: block;
+        object-fit: cover;
+    }
+
+    .comment-avatar-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0ea5e9, #0369a1);
+        color: #fff;
+        font-size: 14px;
+    }
+
+    .comment-body {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .comment-author-link {
+        display: inline-block;
+        color: var(--text, #0f172a);
+        text-decoration: none;
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .comment-author-link:hover {
+        color: #38bdf8;
+    }
+
+    .comment-bubble {
+        width: fit-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 8px 11px;
+        border-radius: 14px;
+        background: var(--surface-2, rgba(148,163,184,.09));
+        color: var(--text, #0f172a);
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .comment-actions {
+        margin-top: 4px;
+    }
+
+    .comment-reply-btn {
+        border: 0;
+        background: transparent;
+        color: var(--text, #64748b);
+        cursor: pointer;
+        padding: 2px 4px;
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    .comment-reply-btn:hover {
+        color: #38bdf8;
+    }
+
+    .comment-replies {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin-top: 9px;
+        padding-left: 15px;
+        border-left: 2px solid rgba(56,189,248,.12);
+    }
+
+    .comment-form {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .comment-form input {
+        min-width: 0;
+        flex: 1;
+        height: 40px;
+        box-sizing: border-box;
+        border: 1px solid var(--border, #e5e7eb);
+        border-radius: 999px;
+        outline: none;
+        padding: 0 14px;
+        background: rgba(148,163,184,.08);
+        color: var(--text, #0f172a);
+    }
+
+    .comment-form input:focus {
+        border-color: rgba(56,189,248,.55);
+        box-shadow: 0 0 0 3px rgba(56,189,248,.08);
+    }
+
+    .comment-form input::placeholder {
+        color: var(--text, #64748b);
+    }
+
+    .comment-form > button[type="submit"] {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border: 0;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #38bdf8, #0284c7);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 900;
+    }
+
+    .cancel-reply-btn {
+        display: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: rgba(244,63,94,.10);
+        color: #fb7185;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    html[data-theme="light"] .comment-form input {
+        background: #f8fafc;
+        color: #111827;
+        border-color: #e5e7eb;
+    }
+
+    html[data-theme="light"] .comment-bubble {
+        background: #f1f5f9;
+        color: #111827;
+    }
+
+    html[data-theme="light"] .comment-author-link {
+        color: #111827;
+    }
+
+    html[data-theme="light"] .post-stats,
+    html[data-theme="light"] .comment-count-btn {
+        color: var(--text, #64748b);
+    }
+
 </style>
 
 </head>
@@ -2116,11 +2423,13 @@
 
                 {% for post in posts %}
 
-                    <article class="post-card">
-
+                    <article
+                        class="post-card razor-post"
+                        id="post-{{ post['id'] }}"
+                        data-post-id="{{ post['id'] }}"
+                    >
 
                         <div class="post-author-row">
-
 
                             <div class="post-mini-avatar">
 
@@ -2167,16 +2476,128 @@
                             {{ post["content"] }}
                         </p>
 
+                        {% if post["image"] %}
+                            <div class="post-media">
+                                <img
+                                    src="{{ url_for(
+                                        'static',
+                                        filename='uploads/' + post['image']
+                                    ) }}"
+                                    alt="Post image"
+                                    loading="lazy"
+                                >
+                            </div>
+                        {% endif %}
+
 
                         <div class="post-card-footer">
 
-                            <span class="post-card-label">
-                                🌐 UniCamplink
-                            </span>
+    <span class="post-card-label like-total-label">
 
-                            <span class="post-card-label">
-                                Student Community
-                            </span>
+        ♥
+        <span class="like-count">
+            {{ post["like_count"] }}
+        </span>
+        <span>Likes</span>
+
+    </span>
+
+</div>
+
+
+                        <div class="post-stats">
+
+                            <form
+                                class="like-form"
+                                data-post-id="{{ post['id'] }}"
+                                action="{{ url_for(
+                                    'like_post',
+                                    post_id=post['id']
+                                ) }}"
+                                method="POST"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="post-action-btn like-button{% if post['user_liked'] %} liked{% endif %}"
+                                >
+
+                                    {% if post["user_liked"] %}
+                                        ♥
+                                        <span>Unlike</span>
+                                    {% else %}
+                                        ♥
+                                        <span>Like</span>
+                                    {% endif %}
+
+                                </button>
+
+                            </form>
+
+
+                            <button
+                                type="button"
+                                class="comment-count-btn"
+                                onclick="focusComment('{{ post['id'] }}')"
+                            >
+
+                                <span class="comment-count">
+                                    {{ post["comment_count"] }}
+                                </span>
+
+                                comments
+
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            class="post-comments"
+                            id="comments-{{ post['id'] }}"
+                        >
+
+                            <div class="comments-list"></div>
+
+
+                            <form
+                                class="comment-form"
+                                data-post-id="{{ post['id'] }}"
+                                action="{{ url_for(
+                                    'comment',
+                                    post_id=post['id']
+                                ) }}"
+                                method="POST"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+
+                                <input
+                                    type="text"
+                                    name="content"
+                                    placeholder="Write a comment..."
+                                    maxlength="2000"
+                                    autocomplete="off"
+                                    required
+                                >
+
+
+                                <button type="submit">
+                                    →
+                                </button>
+
+                            </form>
 
                         </div>
 
@@ -2272,6 +2693,115 @@
 
 </nav>
 
+
+    <script>
+        document.querySelectorAll(
+            ".like-form"
+        ).forEach(
+            form => {
+                form.addEventListener(
+                    "submit",
+                    async function(event) {
+                        event.preventDefault();
+
+                        const button =
+                            form.querySelector(
+                                ".like-button"
+                            );
+
+                        const postId =
+                            form.dataset.postId;
+
+                        if (
+                            !button ||
+                            !postId ||
+                            button.disabled
+                        ) {
+                            return;
+                        }
+
+                        button.disabled = true;
+
+                        try {
+                            const response =
+                                await fetch(
+                                    form.action,
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "X-CSRFToken":
+                                                form.querySelector(
+                                                    'input[name="csrf_token"]'
+                                                )?.value || "",
+                                            "X-Requested-With":
+                                                "XMLHttpRequest",
+                                            "Accept":
+                                                "application/json"
+                                        },
+                                        credentials:
+                                            "same-origin"
+                                    }
+                                );
+
+                            const data =
+                                await response.json();
+
+                            if (!response.ok || data.error) {
+                                throw new Error(
+                                    data.error ||
+                                    "Unable to update like."
+                                );
+                            }
+
+                            const post =
+                                document.getElementById(
+                                    `post-${postId}`
+                                );
+
+                            if (!post) {
+                                return;
+                            }
+
+                            const count =
+                                post.querySelector(
+                                    ".like-count"
+                                );
+
+                            if (count) {
+                                count.textContent =
+                                    data.like_count;
+                            }
+
+                            if (data.user_liked) {
+                                button.classList.add(
+                                    "liked"
+                                );
+
+                                button.innerHTML =
+                                    "♥ <span>Unlike</span>";
+                            } else {
+                                button.classList.remove(
+                                    "liked"
+                                );
+
+                                button.innerHTML =
+                                    "♥ <span>Like</span>";
+                            }
+                        } catch (error) {
+                            console.error(
+                                "Profile like error:",
+                                error
+                            );
+                        } finally {
+                            button.disabled = false;
+                        }
+                    }
+                );
+            }
+        );
+    </script>
+
+    <script src="{{ url_for('static', filename='js/razor-comments.js') }}"></script>
 </body>
 
 </html>
