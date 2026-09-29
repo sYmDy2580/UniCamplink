@@ -1667,6 +1667,7 @@ html[data-theme="light"] .razor-sponsored-badge {
     ) }}"
     controls
     playsinline
+    muted
     preload="metadata"
 ></video>
 
@@ -6195,6 +6196,154 @@ if (
     openTargetPostFromUrl();
 
 }
+</script>
+
+
+<script>
+/* =========================================================
+   UNICAMPLINK FEED VIDEO AUTOPLAY
+========================================================= */
+
+(function () {
+
+    "use strict";
+
+
+    function setupFeedVideoAutoplay() {
+
+        const videos =
+            document.querySelectorAll(
+                ".post-media video"
+            );
+
+
+        if (!videos.length) {
+            return;
+        }
+
+
+        function pauseOtherVideos(
+            currentVideo
+        ) {
+
+            videos.forEach(
+                function (video) {
+
+                    if (
+                        video !== currentVideo
+                    ) {
+
+                        video.pause();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        const observer =
+            new IntersectionObserver(
+                function (entries) {
+
+                    entries.forEach(
+                        function (entry) {
+
+                            const video =
+                                entry.target;
+
+
+                            if (
+                                entry.isIntersecting &&
+                                entry.intersectionRatio >= 0.55
+                            ) {
+
+                                pauseOtherVideos(
+                                    video
+                                );
+
+
+                                /*
+                                 * Muted autoplay is used
+                                 * for browser compatibility.
+                                 */
+                                video.muted = true;
+
+
+                                const playPromise =
+                                    video.play();
+
+
+                                if (
+                                    playPromise &&
+                                    typeof playPromise.catch ===
+                                        "function"
+                                ) {
+
+                                    playPromise.catch(
+                                        function () {
+                                            /*
+                                             * Autoplay may be
+                                             * blocked by the browser.
+                                             * Native controls remain
+                                             * available.
+                                             */
+                                        }
+                                    );
+
+                                }
+
+                            } else {
+
+                                video.pause();
+
+                            }
+
+                        }
+                    );
+
+                },
+                {
+                    threshold: [
+                        0,
+                        0.55,
+                        1
+                    ]
+                }
+            );
+
+
+        videos.forEach(
+            function (video) {
+
+                observer.observe(
+                    video
+                );
+
+            }
+        );
+
+    }
+
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            setupFeedVideoAutoplay
+        );
+
+    } else {
+
+        setupFeedVideoAutoplay();
+
+    }
+
+})();
 </script>
 
 </body>
