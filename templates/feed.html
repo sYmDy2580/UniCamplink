@@ -568,6 +568,17 @@ a {
     overflow-wrap: anywhere;
 }
 
+.post-external-link {
+    color: #38bdf8;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    overflow-wrap: anywhere;
+}
+
+.post-external-link:hover {
+    opacity: 0.85;
+}
+
 
 /* ============================================================
    POST MEDIA
@@ -3904,9 +3915,11 @@ function insertNewRazorPost(
         "post-content";
 
 
-    content.textContent =
+    renderPostContent(
+        content,
         postData.content ||
-        "";
+        ""
+    );
 
 
     post.appendChild(
@@ -4636,6 +4649,162 @@ function insertNewRazorPost(
 
 }
 
+
+/* ============================================================
+   SAFE POST URL LINKIFIER
+============================================================ */
+
+function renderPostContent(
+    container,
+    text
+) {
+
+    const postText =
+        String(
+            text ||
+            ""
+        );
+
+    container.textContent =
+        "";
+
+    const urlPattern =
+        /https?:\/\/[^\s<]+/gi;
+
+    let lastIndex =
+        0;
+
+    let match;
+
+    while (
+        (
+            match =
+                urlPattern.exec(
+                    postText
+                )
+        ) !== null
+    ) {
+
+        const textBefore =
+            postText.slice(
+                lastIndex,
+                match.index
+            );
+
+        if (textBefore) {
+
+            container.appendChild(
+                document.createTextNode(
+                    textBefore
+                )
+            );
+
+        }
+
+        let url =
+            match[0];
+
+        let trailing =
+            "";
+
+        while (
+            /[.,!?;:)]+$/.test(
+                url
+            )
+        ) {
+
+            trailing =
+                url.slice(-1) +
+                trailing;
+
+            url =
+                url.slice(
+                    0,
+                    -1
+                );
+
+        }
+
+        if (url) {
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+            link.href =
+                url;
+
+            link.textContent =
+                url;
+
+            link.target =
+                "_blank";
+
+            link.rel =
+                "noopener noreferrer";
+
+            link.className =
+                "post-external-link";
+
+            container.appendChild(
+                link
+            );
+
+        }
+
+        if (trailing) {
+
+            container.appendChild(
+                document.createTextNode(
+                    trailing
+                )
+            );
+
+        }
+
+        lastIndex =
+            match.index +
+            match[0].length;
+
+    }
+
+    if (
+        lastIndex <
+        postText.length
+    ) {
+
+        container.appendChild(
+            document.createTextNode(
+                postText.slice(
+                    lastIndex
+                )
+            )
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   LINKIFY EXISTING SERVER POSTS
+============================================================ */
+
+document
+    .querySelectorAll(
+        ".post-content"
+    )
+    .forEach(
+        content => {
+
+            renderPostContent(
+                content,
+                content.textContent
+            );
+
+        }
+    );
 
 /* ============================================================
    POST IMAGE PICKER
