@@ -6268,7 +6268,9 @@ if (
                                  * Muted autoplay is used
                                  * for browser compatibility.
                                  */
-                                video.muted = true;
+                                if (!video.dataset.userAudioPreference) {
+                                    video.muted = true;
+                                }
 
 
                                 const playPromise =
@@ -6319,6 +6321,17 @@ if (
 
                 observer.observe(
                     video
+                );
+
+
+                video.addEventListener(
+                    "volumechange",
+                    function () {
+
+                        video.dataset.userAudioPreference =
+                            "true";
+
+                    }
                 );
 
             }
