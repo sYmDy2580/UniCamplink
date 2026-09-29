@@ -14,6 +14,11 @@
 
     const POLL_INTERVAL = 5000;
 
+    const NOTIFICATION_SOUND_URL =
+        "/static/sounds/unicamplink-notification.wav";
+
+    let notificationSound = null;
+
     let lastNotificationId = Number(
         localStorage.getItem(STORAGE_KEY) || 0
     );
@@ -206,6 +211,85 @@ async function markNotificationAsRead(
        SHOW NOTIFICATION
        ========================================================= */
 
+    /* =========================================================
+       NOTIFICATION SOUND
+       ========================================================= */
+
+    function prepareNotificationSound() {
+
+        if (notificationSound) {
+            return;
+        }
+
+        notificationSound =
+            new Audio(
+                NOTIFICATION_SOUND_URL
+            );
+
+        notificationSound.preload =
+            "auto";
+
+        notificationSound.volume =
+            0.65;
+    }
+
+
+    function playNotificationSound() {
+
+        prepareNotificationSound();
+
+        if (!notificationSound) {
+            return;
+        }
+
+        /*
+         * Restart the sound if another notification
+         * arrives while the previous chime is playing.
+         */
+        notificationSound.currentTime = 0;
+
+        const playPromise =
+            notificationSound.play();
+
+        /*
+         * Browsers can reject autoplay.
+         * This should never break the notification popup.
+         */
+        if (
+            playPromise &&
+            typeof playPromise.catch === "function"
+        ) {
+
+            playPromise.catch(
+                () => {
+                    /*
+                     * Autoplay was blocked.
+                     * The popup itself still works normally.
+                     */
+                }
+            );
+        }
+    }
+
+
+    /*
+     * Prepare the audio after the user interacts
+     * with UniCamplink.
+     */
+    document.addEventListener(
+        "pointerdown",
+        () => {
+
+            prepareNotificationSound();
+
+        },
+        {
+            once: true,
+            passive: true
+        }
+    );
+
+
     function showNotification(
         notification
     ) {
@@ -218,6 +302,7 @@ async function markNotificationAsRead(
 
         toast.className =
             "unicamplink-notification-popup";
+        playNotificationSound();
 
         const senderName =
             escapeHtml(
