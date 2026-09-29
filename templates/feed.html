@@ -605,6 +605,26 @@ a {
 }
 
 
+.post-media video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 540px;
+    object-fit: contain;
+}
+
+
+.post-image-preview video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: 390px;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+
 /* ============================================================
    STATISTICS
 ============================================================ */
@@ -1095,6 +1115,14 @@ html[data-theme="light"] .razor-sponsored-badge {
         object-fit: cover;
     }
 
+
+    .post-media video {
+        width: 100%;
+        max-height: 390px;
+        object-fit: contain;
+    }
+
+
     .composer-footer {
         align-items: center;
     }
@@ -1362,6 +1390,48 @@ html[data-theme="light"] .razor-sponsored-badge {
 
         </div>
 
+
+        <label
+            for="postVideo"
+            class="image-upload-button"
+        >
+            &#127909;
+            <span>Video</span>
+        </label>
+
+        <input
+            type="file"
+            id="postVideo"
+            name="video"
+            accept="video/mp4,video/webm"
+            hidden
+        >
+
+
+        <div
+            id="postVideoPreview"
+            class="post-image-preview"
+            hidden
+        >
+
+            <video
+                id="postVideoPreviewPlayer"
+                controls
+                playsinline
+                preload="metadata"
+            ></video>
+
+            <button
+                type="button"
+                id="removePostVideo"
+                class="remove-post-image"
+                aria-label="Remove selected video"
+            >
+                &times;
+            </button>
+
+        </div>
+
     </div>
 
 
@@ -1584,6 +1654,22 @@ html[data-theme="light"] .razor-sponsored-badge {
     loading="lazy"
     onclick="openPostImage(this.src)"
 >
+</div>
+
+{% elif post["video"] %}
+
+<div class="post-media">
+
+<video
+    src="{{ url_for(
+        'static',
+        filename='uploads/' + post['video']
+    ) }}"
+    controls
+    playsinline
+    preload="metadata"
+></video>
+
 </div>
 
 {% endif %}
@@ -3980,6 +4066,51 @@ function insertNewRazorPost(
             media
         );
 
+    } else if (postData.video) {
+
+        const media =
+            document.createElement(
+                "div"
+            );
+
+
+        media.className =
+            "post-media";
+
+
+        const mediaVideo =
+            document.createElement(
+                "video"
+            );
+
+
+        mediaVideo.src =
+            `/static/uploads/${encodeURIComponent(
+                postData.video
+            )}`;
+
+
+        mediaVideo.controls =
+            true;
+
+
+        mediaVideo.playsInline =
+            true;
+
+
+        mediaVideo.preload =
+            "metadata";
+
+
+        media.appendChild(
+            mediaVideo
+        );
+
+
+        post.appendChild(
+            media
+        );
+
     }
 
 
@@ -4834,6 +4965,34 @@ const removePostImageButton =
     );
 
 
+const postVideoInput =
+    document.getElementById(
+        "postVideo"
+    );
+
+
+const postVideoPreview =
+    document.getElementById(
+        "postVideoPreview"
+    );
+
+
+const postVideoPreviewPlayer =
+    document.getElementById(
+        "postVideoPreviewPlayer"
+    );
+
+
+const removePostVideoButton =
+    document.getElementById(
+        "removePostVideo"
+    );
+
+
+let postVideoPreviewUrl =
+    "";
+
+
 if (postImageInput) {
 
     postImageInput.addEventListener(
@@ -4847,6 +5006,26 @@ if (postImageInput) {
 
             if (!file) {
                 return;
+            }
+
+
+            if (
+                postVideoInput &&
+                postVideoInput.files &&
+                postVideoInput.files.length > 0
+            ) {
+
+                alert(
+                    "Please choose either an image or a video, not both."
+                );
+
+
+                this.value =
+                    "";
+
+
+                return;
+
             }
 
 
@@ -4920,6 +5099,122 @@ if (postImageInput) {
 }
 
 
+if (postVideoInput) {
+
+    postVideoInput.addEventListener(
+        "change",
+        function() {
+
+            const file =
+                this.files &&
+                this.files[0];
+
+
+            if (!file) {
+                return;
+            }
+
+
+            if (
+                postImageInput &&
+                postImageInput.files &&
+                postImageInput.files.length > 0
+            ) {
+
+                alert(
+                    "Please choose either an image or a video, not both."
+                );
+
+
+                this.value =
+                    "";
+
+
+                return;
+
+            }
+
+
+            if (
+                ![
+                    "video/mp4",
+                    "video/webm"
+                ].includes(
+                    file.type
+                )
+            ) {
+
+                alert(
+                    "Please choose an MP4 or WebM video."
+                );
+
+
+                this.value =
+                    "";
+
+
+                return;
+
+            }
+
+
+            if (
+                file.size >
+                50 * 1024 * 1024
+            ) {
+
+                alert(
+                    "Video must be 50 MB or smaller."
+                );
+
+
+                this.value =
+                    "";
+
+
+                return;
+
+            }
+
+
+            if (postVideoPreviewUrl) {
+
+                URL.revokeObjectURL(
+                    postVideoPreviewUrl
+                );
+
+            }
+
+
+            postVideoPreviewUrl =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            if (postVideoPreviewPlayer) {
+
+                postVideoPreviewPlayer.src =
+                    postVideoPreviewUrl;
+
+                postVideoPreviewPlayer.load();
+
+            }
+
+
+            if (postVideoPreview) {
+
+                postVideoPreview.hidden =
+                    false;
+
+            }
+
+        }
+    );
+
+}
+
+
 if (
     removePostImageButton
 ) {
@@ -4947,6 +5242,60 @@ if (
             if (postImagePreview) {
 
                 postImagePreview.hidden =
+                    true;
+
+            }
+
+        }
+    );
+
+}
+
+
+if (
+    removePostVideoButton
+) {
+
+    removePostVideoButton.addEventListener(
+        "click",
+        function() {
+
+            if (postVideoInput) {
+
+                postVideoInput.value =
+                    "";
+
+            }
+
+
+            if (postVideoPreviewPlayer) {
+
+                postVideoPreviewPlayer.pause();
+
+                postVideoPreviewPlayer.removeAttribute(
+                    "src"
+                );
+
+                postVideoPreviewPlayer.load();
+
+            }
+
+
+            if (postVideoPreviewUrl) {
+
+                URL.revokeObjectURL(
+                    postVideoPreviewUrl
+                );
+
+                postVideoPreviewUrl =
+                    "";
+
+            }
+
+
+            if (postVideoPreview) {
+
+                postVideoPreview.hidden =
                     true;
 
             }
@@ -5090,13 +5439,42 @@ if (createPostForm) {
                     0;
 
 
+            const videoInput =
+                document.getElementById(
+                    "postVideo"
+                );
+
+
+            const hasVideo =
+                videoInput &&
+                videoInput.files &&
+                videoInput.files.length >
+                    0;
+
+
             if (
-                !content &&
-                !hasImage
+                hasImage &&
+                hasVideo
             ) {
 
                 alert(
-                    "Write something or select an image."
+                    "Please choose either an image or a video, not both."
+                );
+
+
+                return;
+
+            }
+
+
+            if (
+                !content &&
+                !hasImage &&
+                !hasVideo
+            ) {
+
+                alert(
+                    "Write something, select an image, or select a video."
                 );
 
 
@@ -5217,6 +5595,47 @@ if (createPostForm) {
                 ) {
 
                     postImagePreview.hidden =
+                        true;
+
+                }
+
+
+                if (videoInput) {
+
+                    videoInput.value =
+                        "";
+
+                }
+
+
+                if (postVideoPreviewPlayer) {
+
+                    postVideoPreviewPlayer.pause();
+
+                    postVideoPreviewPlayer.removeAttribute(
+                        "src"
+                    );
+
+                    postVideoPreviewPlayer.load();
+
+                }
+
+
+                if (postVideoPreviewUrl) {
+
+                    URL.revokeObjectURL(
+                        postVideoPreviewUrl
+                    );
+
+                    postVideoPreviewUrl =
+                        "";
+
+                }
+
+
+                if (postVideoPreview) {
+
+                    postVideoPreview.hidden =
                         true;
 
                 }

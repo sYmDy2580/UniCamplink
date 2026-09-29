@@ -101,8 +101,9 @@ app.config.update(
         ).lower() in {"1", "true", "yes", "on"}
     ),
 
-    # Maximum request size: 5 MB
-    MAX_CONTENT_LENGTH=5 * 1024 * 1024
+    # Maximum request size: 60 MB
+    # Individual image/video limits are enforced separately.
+    MAX_CONTENT_LENGTH=60 * 1024 * 1024
 )
 
 
@@ -159,7 +160,7 @@ def method_not_allowed(error):
 def request_too_large(error):
     return (
         "File or request is too large. "
-        "Maximum allowed size is 5 MB.",
+        "Maximum allowed size is 60 MB.",
         413
     )
 
@@ -373,6 +374,13 @@ ALLOWED_EXTENSIONS = {
     "jpeg",
     "gif"
 }
+
+ALLOWED_VIDEO_EXTENSIONS = {
+    "mp4",
+    "webm"
+}
+
+MAX_VIDEO_SIZE = 50 * 1024 * 1024
 
 os.makedirs(
     DATA_DIR,
@@ -875,6 +883,76 @@ def validate_image(image):
             pass
 
         return False
+
+
+# ============================================================
+# SECURE VIDEO VALIDATION
+# ============================================================
+
+def validate_video(video):
+
+    """
+    Validate an uploaded MP4 or WebM video.
+
+    Security checks:
+
+    - File must exist
+    - Extension must be allowed
+    - MIME type must be video/mp4 or video/webm
+    - File size must not exceed 50 MB
+
+    Returns:
+
+        True  -> valid video
+        False -> invalid or oversized video
+    """
+
+    if not video or not video.filename:
+        return False
+
+    extension = (
+        video.filename.rsplit(".", 1)[1].lower()
+        if "." in video.filename
+        else ""
+    )
+
+    if extension not in ALLOWED_VIDEO_EXTENSIONS:
+        return False
+
+    content_type = (
+        (video.mimetype or "")
+        .split(";", 1)[0]
+        .strip()
+        .lower()
+    )
+
+    allowed_content_types = {
+        "mp4": "video/mp4",
+        "webm": "video/webm"
+    }
+
+    if content_type != allowed_content_types.get(extension):
+        return False
+
+    try:
+
+        video.seek(0, os.SEEK_END)
+        file_size = video.tell()
+        video.seek(0)
+
+    except (OSError, ValueError):
+
+        try:
+            video.seek(0)
+        except Exception:
+            pass
+
+        return False
+
+    if file_size <= 0 or file_size > MAX_VIDEO_SIZE:
+        return False
+
+    return True
 
 
 # ============================================================
@@ -1398,6 +1476,14 @@ def update_posts_table():
         conn.execute("""
             ALTER TABLE posts
             ADD COLUMN image TEXT DEFAULT ''
+        """)
+    # Additive migration for Razor video posts.
+    # Existing posts are preserved and receive an empty video value.
+    if not column_exists("posts", "video"):
+
+        conn.execute("""
+            ALTER TABLE posts
+            ADD COLUMN video TEXT DEFAULT ''
         """)
     # ------------------------------------------------------------
     # RAZOR SPONSORED EXISTING POSTS
@@ -2744,9 +2830,35 @@ def create_post():
     )
 
     image = request.files.get("image")
+    video = request.files.get("video")
 
-    if not content and not (image and image.filename):
-        message = "Post cannot be empty. Add text or an image."
+    has_image = bool(
+        image and image.filename
+    )
+
+    has_video = bool(
+        video and video.filename
+    )
+
+    if not content and not has_image and not has_video:
+        message = (
+            "Post cannot be empty. "
+            "Add text, an image, or a video."
+        )
+
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({
+                "success": False,
+                "error": message
+            }), 400
+
+        return message, 400
+
+    if has_image and has_video:
+        message = (
+            "Please choose either an image or a video, "
+            "not both."
+        )
 
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({
@@ -2771,6 +2883,7 @@ def create_post():
         return message, 400
 
     image_filename = ""
+    video_filename = ""
 
     if image and image.filename:
 
@@ -2820,6 +2933,54 @@ def create_post():
                 500
             )
 
+    if video and video.filename:
+
+        if not validate_video(video):
+            message = (
+                "Invalid video. Please upload an MP4 or WebM "
+                "video under 50 MB."
+            )
+
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({
+                    "success": False,
+                    "error": message
+                }), 400
+
+            return message, 400
+
+        extension = video.filename.rsplit(".", 1)[1].lower()
+
+        video_filename = (
+            "post_"
+            + str(uuid4())
+            + "."
+            + extension
+        )
+
+        try:
+
+            video.save(
+                safe_upload_path(video_filename)
+            )
+
+        except OSError:
+
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({
+                    "success": False,
+                    "error": (
+                        "The video could not be saved. "
+                        "Please try again."
+                    )
+                }), 500
+
+            return (
+                "The video could not be saved. "
+                "Please try again.",
+                500
+            )
+
     conn = get_db_connection()
 
     current_user_id = session["user_id"]
@@ -2830,14 +2991,16 @@ def create_post():
         (
             user_id,
             content,
-            image
+            image,
+            video
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
         """,
         (
             current_user_id,
             content or "",
-            image_filename
+            image_filename,
+            video_filename
         )
     )
 
@@ -2923,6 +3086,7 @@ def create_post():
         ),
         "content": content or "",
         "image": image_filename,
+        "video": video_filename,
         "like_count": 0,
         "comment_count": 0,
         "user_liked": False
