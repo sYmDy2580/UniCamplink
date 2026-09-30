@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en">
 
@@ -2580,8 +2580,89 @@ document.querySelectorAll(
                 }
 
 
+                const post =
+                    document.getElementById(
+                        `post-${postId}`
+                    );
+
+
+                if (!post) {
+                    return;
+                }
+
+
+                const count =
+                    post.querySelector(
+                        ".like-count"
+                    );
+
+
+                const wasLiked =
+                    button.classList.contains(
+                        "liked"
+                    );
+
+
+                const previousCount =
+                    count
+                        ? parseInt(
+                            count.textContent,
+                            10
+                        ) || 0
+                        : 0;
+
+
+                const nextLiked =
+                    !wasLiked;
+
+
+                const nextCount =
+                    Math.max(
+                        0,
+                        previousCount +
+                        (nextLiked ? 1 : -1)
+                    );
+
+
                 button.disabled =
                     true;
+
+
+                /* =================================================
+                   OPTIMISTIC UI
+                   Update immediately before waiting for the server.
+                ================================================= */
+
+
+                if (count) {
+
+                    count.textContent =
+                        nextCount;
+
+                }
+
+
+                if (nextLiked) {
+
+                    button.classList.add(
+                        "liked"
+                    );
+
+
+                    button.innerHTML =
+                        "❤️ <span>Unlike</span>";
+
+                } else {
+
+                    button.classList.remove(
+                        "liked"
+                    );
+
+
+                    button.innerHTML =
+                        "🤍 <span>Like</span>";
+
+                }
 
 
                 try {
@@ -2615,21 +2696,10 @@ document.querySelectorAll(
                         );
 
 
-                    const post =
-                        document.getElementById(
-                            `post-${postId}`
-                        );
-
-
-                    if (!post) {
-                        return;
-                    }
-
-
-                    const count =
-                        post.querySelector(
-                            ".like-count"
-                        );
+                    /* =============================================
+                       SERVER CONFIRMATION
+                       Keep the server's authoritative values.
+                    ============================================= */
 
 
                     if (count) {
@@ -2669,6 +2739,43 @@ document.querySelectorAll(
                         "Like error:",
                         error
                     );
+
+
+                    /* =============================================
+                       ROLLBACK
+                       Restore the UI if the server request fails.
+                    ============================================= */
+
+
+                    if (count) {
+
+                        count.textContent =
+                            previousCount;
+
+                    }
+
+
+                    if (wasLiked) {
+
+                        button.classList.add(
+                            "liked"
+                        );
+
+
+                        button.innerHTML =
+                            "❤️ <span>Unlike</span>";
+
+                    } else {
+
+                        button.classList.remove(
+                            "liked"
+                        );
+
+
+                        button.innerHTML =
+                            "🤍 <span>Like</span>";
+
+                    }
 
 
                     alert(
@@ -6362,3 +6469,4 @@ if (
 </body>
 
 </html>
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en">
 
@@ -2750,7 +2750,74 @@
                             return;
                         }
 
+                        const post =
+                            document.getElementById(
+                                `post-${postId}`
+                            );
+
+                        if (!post) {
+                            return;
+                        }
+
+                        const count =
+                            post.querySelector(
+                                ".like-count"
+                            );
+
+                        const wasLiked =
+                            button.classList.contains(
+                                "liked"
+                            );
+
+                        const previousCount =
+                            count
+                                ? parseInt(
+                                    count.textContent,
+                                    10
+                                ) || 0
+                                : 0;
+
+                        const nextLiked =
+                            !wasLiked;
+
+                        const nextCount =
+                            Math.max(
+                                0,
+                                previousCount +
+                                (nextLiked ? 1 : -1)
+                            );
+
                         button.disabled = true;
+
+
+                        /* =========================================
+                           OPTIMISTIC UI
+                           Update immediately before waiting for
+                           the server response.
+                        ========================================= */
+
+
+                        if (count) {
+                            count.textContent =
+                                nextCount;
+                        }
+
+                        if (nextLiked) {
+                            button.classList.add(
+                                "liked"
+                            );
+
+                            button.innerHTML =
+                                "♥ <span>Unlike</span>";
+                        } else {
+                            button.classList.remove(
+                                "liked"
+                            );
+
+                            button.innerHTML =
+                                "♥ <span>Like</span>";
+                        }
+
 
                         try {
                             const response =
@@ -2783,19 +2850,11 @@
                                 );
                             }
 
-                            const post =
-                                document.getElementById(
-                                    `post-${postId}`
-                                );
 
-                            if (!post) {
-                                return;
-                            }
+                            /* =====================================
+                               SERVER CONFIRMATION
+                            ===================================== */
 
-                            const count =
-                                post.querySelector(
-                                    ".like-count"
-                                );
 
                             if (count) {
                                 count.textContent =
@@ -2817,11 +2876,43 @@
                                 button.innerHTML =
                                     "♥ <span>Like</span>";
                             }
+
+
                         } catch (error) {
+
                             console.error(
                                 "Profile like error:",
                                 error
                             );
+
+
+                            /* ================================
+                               ROLLBACK
+                               Restore the previous UI state.
+                            ================================= */
+
+
+                            if (count) {
+                                count.textContent =
+                                    previousCount;
+                            }
+
+                            if (wasLiked) {
+                                button.classList.add(
+                                    "liked"
+                                );
+
+                                button.innerHTML =
+                                    "♥ <span>Unlike</span>";
+                            } else {
+                                button.classList.remove(
+                                    "liked"
+                                );
+
+                                button.innerHTML =
+                                    "♥ <span>Like</span>";
+                            }
+
                         } finally {
                             button.disabled = false;
                         }
@@ -2835,3 +2926,4 @@
 </body>
 
 </html>
+
