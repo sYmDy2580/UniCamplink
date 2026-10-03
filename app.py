@@ -54,6 +54,7 @@ from ai_service import (
     AIConfigurationError,
     AIProviderError
 )
+from unicamplink_ai import detect_action
 
 # ============================================================
 # APP CONFIGURATION
@@ -640,6 +641,184 @@ def api_ai_chat_stream():
     def generate():
 
         try:
+
+            action = detect_action(message)
+
+            if (
+                action
+                and action.get("type") == "opportunity_search"
+            ):
+
+                conn = get_db_connection()
+
+                try:
+
+                    opportunity_terms = [
+                        "opportunity",
+                        "opportunities",
+                        "scholarship",
+                        "scholarships",
+                        "competition",
+                        "competitions",
+                        "internship",
+                        "internships",
+                        "fellowship",
+                        "fellowships",
+                        "grant",
+                        "grants",
+                        "hackathon",
+                        "hackathons",
+                        "contest",
+                        "contests",
+                        "funding",
+                        "business opportunity",
+                        "business opportunities",
+                        "startup",
+                        "entrepreneurship",
+                        "job",
+                        "jobs"
+                    ]
+
+                    conditions = []
+                    parameters = []
+
+                    for term in opportunity_terms:
+
+                        conditions.append(
+                            """
+                            LOWER(posts.content)
+                            LIKE ?
+                            """
+                        )
+
+                        parameters.append(
+                            "%" + term.lower() + "%"
+                        )
+
+                    user_query = (
+                        action.get("query") or ""
+                    ).strip().lower()
+
+                    if user_query:
+
+                        conditions.append(
+                            """
+                            LOWER(posts.content)
+                            LIKE ?
+                            """
+                        )
+
+                        parameters.append(
+                            "%" + user_query + "%"
+                        )
+
+                    query = """
+                        SELECT
+                            posts.id,
+                            posts.content,
+                            posts.image,
+                            posts.video,
+                            posts.created_at,
+                            posts.is_sponsored,
+                            users.name AS author_name,
+                            users.university AS author_university,
+                            users.profile_picture
+                        FROM posts
+                        JOIN users
+                            ON users.id = posts.user_id
+                        WHERE posts.is_sponsored = 1
+                        AND (
+                            {}
+                        )
+                        ORDER BY posts.created_at DESC
+                        LIMIT 10
+                    """.format(
+                        " OR ".join(conditions)
+                    )
+
+                    rows = conn.execute(
+                        query,
+                        parameters
+                    ).fetchall()
+
+                    results = []
+
+                    for post in rows:
+
+                        results.append({
+                            "id": post["id"],
+                            "content": post["content"],
+                            "image": post["image"],
+                            "video": post["video"],
+                            "created_at": post["created_at"],
+                            "author_name": post["author_name"],
+                            "author_university": (
+                                post["author_university"]
+                            ),
+                            "profile_picture": (
+                                post["profile_picture"]
+                            ),
+                            "is_sponsored": True,
+                            "url": (
+                                url_for("feed")
+                                + "?post="
+                                + str(post["id"])
+                            )
+                        })
+
+                    if results:
+
+                        heading = (
+                            "I found "
+                            + str(len(results))
+                            + " sponsored "
+                            + (
+                                "opportunity"
+                                if len(results) == 1
+                                else "opportunities"
+                            )
+                            + " in the UniCamplink Feed."
+                        )
+
+                    else:
+
+                        heading = (
+                            "I couldn't find any matching "
+                            "sponsored opportunities in the "
+                            "UniCamplink Feed right now."
+                        )
+
+                    yield (
+                        "data: "
+                        + json.dumps({
+                            "type": "text",
+                            "text": heading
+                        })
+                        + "\n\n"
+                    )
+
+                    yield (
+                        "data: "
+                        + json.dumps({
+                            "type": "opportunity_results",
+                            "results": results
+                        })
+                        + "\n\n"
+                    )
+
+                    yield (
+                        "data: "
+                        + json.dumps({
+                            "type": "done"
+                        })
+                        + "\n\n"
+                    )
+
+                    return
+
+                finally:
+
+                    conn.close()
 
             for chunk in ai_service.chat_stream(
                 message=message,
