@@ -11,6 +11,11 @@
     >
 
     <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
+
+    <meta
         name="description"
         content="UniCamplink student community — connect, communicate, discover opportunities and interact with your campus community."
     >
@@ -217,6 +222,34 @@
                 0 6px 20px rgba(0, 0, 0, .20);
         }
 
+
+        /* MOBILE UNICAMPLINK AI */
+        .rz-mobile-ai {
+            display: none;
+            width: 40px;
+            height: 40px;
+            flex: 0 0 40px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--rz-border);
+            border-radius: 50%;
+            background: var(--rz-card);
+            color: var(--rz-text);
+            text-decoration: none;
+            font-size: 18px;
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
+        }
+
+        .rz-mobile-ai:hover {
+            color: var(--rz-primary);
+        }
+
+        .rz-mobile-ai:active {
+            transform: scale(.92);
+        }
 
         /* =========================================================
            SEARCH
@@ -1617,6 +1650,10 @@
                 height: 37px;
             }
 
+            .rz-mobile-ai {
+                display: inline-flex;
+            }
+
             .rz-search {
                 flex: 1;
             }
@@ -1887,6 +1924,18 @@
 
         </a>
 
+
+
+        <!-- MOBILE UNICAMPLINK AI -->
+
+        <a
+            href="{{ url_for('ai_page') }}"
+            class="rz-mobile-ai"
+            aria-label="UniCamplink AI"
+            title="UniCamplink AI"
+        >
+            🤖
+        </a>
 
         <!-- SEARCH -->
 
@@ -2162,6 +2211,22 @@
 
 
             <!-- FRIENDS -->
+
+            <!-- UNICAMPLINK AI -->
+
+            <a
+                href="{{ url_for('ai_page') }}"
+                class="rz-side-link"
+            >
+
+                <span class="rz-side-link-icon">
+                    🤖
+                </span>
+
+                UniCamplink AI
+
+            </a>
+
 
             <a
                 href="{{ url_for('friends') }}"

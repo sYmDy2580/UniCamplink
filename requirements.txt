@@ -10,3 +10,4 @@ gunicorn==26.2.0
 python-dotenv
 
 pywebpush==2.5.0
+google-genai

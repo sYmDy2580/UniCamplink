@@ -13,14 +13,27 @@ from uuid import uuid4
 from datetime import datetime, timedelta
 
 from flask import (
+
     Flask,
+
     redirect,
+
     send_from_directory,
+
     render_template,
+
     request,
+
     session,
+
     url_for,
-    jsonify
+
+    jsonify,
+
+    Response,
+
+    stream_with_context
+
 )
 
 from flask_wtf.csrf import (
@@ -35,7 +48,12 @@ from werkzeug.security import (
 )
 
 from PIL import Image, UnidentifiedImageError
-
+from ai_service import (
+    ai_service,
+    AIServiceError,
+    AIConfigurationError,
+    AIProviderError
+)
 
 # ============================================================
 # APP CONFIGURATION
@@ -529,6 +547,178 @@ def push_config():
         "success": True,
         "publicKey": public_key
     })
+# ============================================================
+# UNICAMPLINK AI PAGE
+# ============================================================
+
+@app.route("/ai")
+def ai_page():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    return render_template("ai.html")
+# ============================================================
+# UNICAMPLINK AI
+# ============================================================
+
+@app.route(
+    "/api/ai/chat",
+    methods=["POST"]
+)
+def api_ai_chat():
+
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Please log in."
+        }), 401
+
+    data = request.get_json(silent=True) or {}
+
+    message = data.get("message")
+    conversation = data.get("conversation")
+
+    try:
+
+        answer = ai_service.chat(
+            message=message,
+            conversation=conversation
+        )
+
+        return jsonify({
+            "success": True,
+            "response": answer
+        })
+
+    except AIConfigurationError:
+
+        return jsonify({
+            "success": False,
+            "error": "AI service is not configured."
+        }), 503
+
+    except AIProviderError:
+
+        return jsonify({
+            "success": False,
+            "error": "The AI service is temporarily unavailable."
+        }), 503
+
+    except AIServiceError as error:
+
+        return jsonify({
+            "success": False,
+            "error": str(error)
+        }), 400
+
+    except Exception:
+
+        return jsonify({
+            "success": False,
+            "error": "Could not process your AI request."
+        }), 500
+
+
+@app.route(
+    "/api/ai/chat/stream",
+    methods=["POST"]
+)
+def api_ai_chat_stream():
+
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Please log in."
+        }), 401
+
+    data = request.get_json(silent=True) or {}
+
+    message = data.get("message")
+    conversation = data.get("conversation")
+
+    def generate():
+
+        try:
+
+            for chunk in ai_service.chat_stream(
+                message=message,
+                conversation=conversation
+            ):
+
+                yield (
+                    "data: "
+                    + json.dumps({
+                        "type": "text",
+                        "text": chunk
+                    })
+                    + "\n\n"
+                )
+
+            yield (
+                "data: "
+                + json.dumps({
+                    "type": "done"
+                })
+                + "\n\n"
+            )
+
+        except AIConfigurationError:
+
+            yield (
+                "data: "
+                + json.dumps({
+                    "type": "error",
+                    "error": "AI service is not configured."
+                })
+                + "\n\n"
+            )
+
+        except AIProviderError:
+
+            yield (
+                "data: "
+                + json.dumps({
+                    "type": "error",
+                    "error": (
+                        "The AI service is temporarily unavailable."
+                    )
+                })
+                + "\n\n"
+            )
+
+        except AIServiceError as error:
+
+            yield (
+                "data: "
+                + json.dumps({
+                    "type": "error",
+                    "error": str(error)
+                })
+                + "\n\n"
+            )
+
+        except Exception:
+
+            yield (
+                "data: "
+                + json.dumps({
+                    "type": "error",
+                    "error": (
+                        "Could not process your AI request."
+                    )
+                })
+                + "\n\n"
+            )
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no"
+        }
+    )
 # ============================================================
 # WEB PUSH DELIVERY
 # ============================================================
