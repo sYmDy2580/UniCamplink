@@ -585,53 +585,144 @@
 
         @media (max-width: 700px) {
 
-            .group-chat-navbar {
-                min-height: 58px;
-                padding: 7px 10px;
-            }
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
 
-            .group-chat-page {
-                padding:
-                    8px 7px;
-            }
+    body {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding-bottom: 0;
+    }
 
-            .group-chat-shell {
-                border-radius: 17px;
-            }
+    .group-chat-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
 
-            .group-chat-group-link {
-                display: none;
-            }
+        min-height: 58px;
+        height: 58px;
 
-            .chat-messages {
+        padding: 7px 10px;
 
-                min-height: calc(100vh - 205px);
+        z-index: 1000;
+        flex-shrink: 0;
+    }
 
-                max-height:
-                    calc(100vh - 205px);
+    .group-chat-page {
+        position: fixed;
 
-                padding:
-                    14px 9px;
-            }
+        top: 58px;
+        left: 0;
+        right: 0;
+        bottom: 0;
 
-            .message-content {
-                max-width: 88%;
-            }
+        width: 100%;
+        max-width: none;
 
-            .message-bubble {
-                font-size: .79rem;
-            }
+        margin: 0;
+        padding: 0;
 
-            .message-avatar {
-                width: 27px;
-                height: 27px;
-            }
+        overflow: hidden;
+    }
 
-            .group-chat-composer {
-                padding: 8px;
-            }
+    .group-chat-shell {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
 
-        }
+        margin: 0;
+
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow: hidden;
+    }
+
+    .group-chat-group-link {
+        display: none;
+    }
+
+    .members-strip {
+        flex-shrink: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chat-messages {
+        flex: 1 1 auto;
+
+        min-height: 0;
+        max-height: none;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+
+        padding: 14px 9px;
+
+        scroll-behavior: smooth;
+    }
+
+    .empty-chat {
+        min-height: 0;
+        flex: 1 1 auto;
+    }
+
+    .message-content {
+        max-width: 88%;
+    }
+
+    .message-bubble {
+        font-size: .79rem;
+    }
+
+    .message-avatar {
+        width: 27px;
+        height: 27px;
+    }
+
+    .group-chat-composer {
+        flex-shrink: 0;
+
+        padding: 8px;
+        padding-bottom:
+            max(8px, env(safe-area-inset-bottom));
+
+        position: relative;
+
+        z-index: 20;
+
+        background:
+            var(--surface, #0d1a2b);
+
+        transform: translateZ(0);
+        will-change: transform;
+    }
+
+    .group-chat-input {
+        min-width: 0;
+        height: 44px;
+    }
+
+}
 
         /* =====================================================
            LIGHT MODE
@@ -981,6 +1072,106 @@
         }
 
     </script>
+    <script>
+/* =========================================================
+   MESSAGING 2.0
+   GROUP CHAT MOBILE KEYBOARD-AWARE SHELL
+   ========================================================= */
+
+(function () {
+
+    const navbar =
+        document.querySelector(".group-chat-navbar");
+
+    const chatPage =
+        document.querySelector(".group-chat-page");
+
+    if (!navbar || !chatPage) {
+        return;
+    }
+
+    function updateGroupChatViewport() {
+
+        /*
+         * The group header stays fixed.
+         * JavaScript only adjusts the available
+         * conversation viewport.
+         */
+
+        navbar.style.top = "0px";
+
+        if (!window.visualViewport) {
+            return;
+        }
+
+        const viewportHeight =
+            window.visualViewport.height;
+
+        const headerHeight =
+            navbar.offsetHeight;
+
+        chatPage.style.top =
+            headerHeight + "px";
+
+        chatPage.style.height =
+            Math.max(
+                0,
+                viewportHeight - headerHeight
+            ) + "px";
+    }
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener(
+            "resize",
+            updateGroupChatViewport
+        );
+    }
+
+    window.addEventListener(
+        "resize",
+        updateGroupChatViewport
+    );
+
+    updateGroupChatViewport();
+
+})();
+</script>
+<script>
+/* =========================================================
+   MESSAGING 2.0
+   GROUP CHAT COMPOSER STABILITY
+   ========================================================= */
+
+(function () {
+
+    const messageInput =
+        document.querySelector(".group-chat-input");
+
+    const messages =
+        document.getElementById("groupChatMessages");
+
+    if (!messageInput) {
+        return;
+    }
+
+    messageInput.addEventListener(
+        "focus",
+        function () {
+
+            requestAnimationFrame(function () {
+
+                if (messages) {
+                    messages.scrollTop =
+                        messages.scrollHeight;
+                }
+
+            });
+
+        }
+    );
+
+})();
+</script>
 
 </body>
 

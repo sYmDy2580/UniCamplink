@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -302,6 +302,95 @@
 
             .ai-prompt {
                 white-space: nowrap;
+            }
+                        /* =================================================
+               MESSAGING 2.0
+               AI MOBILE KEYBOARD-AWARE SHELL
+               ================================================= */
+
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                min-height: 100%;
+                margin: 0;
+                overflow: hidden;
+                overscroll-behavior: none;
+            }
+
+            .ai-page {
+                position: fixed;
+                inset: 0;
+
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+
+                overflow: hidden;
+            }
+
+            .ai-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+
+                height: 58px;
+
+                z-index: 1000;
+                flex-shrink: 0;
+            }
+
+            .ai-main {
+                position: fixed;
+
+                top: 58px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+
+                width: 100%;
+                max-width: none;
+
+                margin: 0;
+
+                padding: 12px 10px 14px;
+
+                overflow: hidden;
+
+                display: flex;
+                flex-direction: column;
+
+                min-height: 0;
+            }
+
+            .ai-messages {
+                flex: 1 1 auto;
+
+                min-height: 0;
+
+                overflow-y: auto;
+                overflow-x: hidden;
+
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: contain;
+
+                scroll-behavior: smooth;
+            }
+
+            .ai-input-area {
+                flex-shrink: 0;
+
+                position: relative;
+
+                z-index: 20;
+
+                transform: translateZ(0);
+                will-change: transform;
+            }
+
+            .ai-input {
+                min-width: 0;
             }
 
         }
@@ -1102,8 +1191,101 @@
         });
 
 
-    aiInput.focus();
+        aiInput.focus();
 
+</script>
+
+<script>
+/* =========================================================
+   MESSAGING 2.0
+   AI MOBILE KEYBOARD-AWARE VIEWPORT
+   ========================================================= */
+
+(function () {
+
+    const aiHeader =
+        document.querySelector(".ai-header");
+
+    const aiMain =
+        document.querySelector(".ai-main");
+
+    const aiMessages =
+        document.getElementById("aiMessages");
+
+    const aiInput =
+        document.getElementById("aiInput");
+
+    if (
+        !aiHeader ||
+        !aiMain ||
+        !aiMessages ||
+        !aiInput
+    ) {
+        return;
+    }
+
+    function updateAIViewport() {
+
+        /*
+         * The AI header stays fixed.
+         * Only the available main viewport
+         * changes when the mobile keyboard opens.
+         */
+
+        aiHeader.style.top = "0px";
+
+        if (!window.visualViewport) {
+            return;
+        }
+
+        const viewportHeight =
+            window.visualViewport.height;
+
+        const headerHeight =
+            aiHeader.offsetHeight;
+
+        aiMain.style.top =
+            headerHeight + "px";
+
+        aiMain.style.height =
+            Math.max(
+                0,
+                viewportHeight - headerHeight
+            ) + "px";
+
+    }
+
+    if (window.visualViewport) {
+
+        window.visualViewport.addEventListener(
+            "resize",
+            updateAIViewport
+        );
+
+    }
+
+    window.addEventListener(
+        "resize",
+        updateAIViewport
+    );
+
+    aiInput.addEventListener(
+        "focus",
+        function () {
+
+            requestAnimationFrame(function () {
+
+                aiMessages.scrollTop =
+                    aiMessages.scrollHeight;
+
+            });
+
+        }
+    );
+
+    updateAIViewport();
+
+})();
 </script>
 
 </body>

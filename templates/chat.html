@@ -717,138 +717,186 @@
            ========================================================= */
 
         @media (max-width: 650px) {
-            html,
-            body {
-                width: 100%;
-                height: 100%;
-                min-height: 100%;
-                overflow: hidden;
-            }
 
-            body {
-                position: fixed;
-                inset: 0;
-            }
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
 
-
-            .chat-topbar {
-
-                height: 60px;
-
-                padding:
-                    7px 10px;
-
-                gap: 8px;
-            }
+    body {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
 
 
-            .chat-container {
+    .chat-topbar {
 
-                position: fixed;
+        position: fixed;
 
-                top: 60px;
-                right: 0;
-                bottom: 0;
-                left: 0;
+        top: 0;
+        left: 0;
+        right: 0;
 
-                width: 100%;
-            }
+        height: 60px;
 
+        padding:
+            7px 10px;
 
-            .back-button {
+        gap: 8px;
 
-                width: 36px;
-                height: 36px;
+        z-index: 1000;
 
-                font-size: 20px;
-            }
-
-
-            .chat-user-avatar {
-
-                width: 38px;
-                height: 38px;
-            }
+        flex-shrink: 0;
+    }
 
 
-            .chat-user-info h2 {
+    .chat-container {
 
-                font-size: 15px;
-            }
+        position: fixed;
 
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
 
-            .chat-user-info p {
+        width: 100%;
+        max-width: none;
 
-                font-size: 10px;
-            }
+        margin: 0;
 
+        display: flex;
 
-            #user-status {
+        flex-direction: column;
 
-                font-size: 10px;
-            }
+        overflow: hidden;
 
+        min-height: 0;
 
-            .profile-button {
+        height: calc(100vh - 60px);
 
-                min-height: 35px;
-
-                padding:
-                    0 10px;
-
-                font-size: 11px;
-            }
-
-
-            #messages {
-
-                padding:
-                    15px 9px 15px;
-
-                gap: 6px;
-            }
+        height: calc(100dvh - 60px);
+    }
 
 
-            .message {
+    #messages {
 
-                max-width: 82%;
+        flex: 1 1 auto;
 
-                padding:
-                    8px 11px;
+        min-height: 0;
 
-                font-size: 14px;
-            }
+        overflow-y: auto;
+        overflow-x: hidden;
 
+        -webkit-overflow-scrolling: touch;
 
-            .message-avatar {
+        overscroll-behavior-y: contain;
 
-                width: 24px;
-                height: 24px;
-            }
+        padding:
+            15px 9px 15px;
 
+        gap: 6px;
 
-            .message-form {
-
-                padding:
-                    8px;
-            }
+        scroll-behavior: smooth;
+    }
 
 
-            .message-form input[type="text"] {
+    .back-button {
 
-                min-height: 41px;
+        width: 36px;
+        height: 36px;
 
-                font-size: 14px;
-            }
+        font-size: 20px;
+    }
 
 
-            .message-form button {
+    .chat-user-avatar {
 
-                width: 41px;
-                height: 41px;
-            }
+        width: 38px;
+        height: 38px;
+    }
 
-        }
+
+    .chat-user-info h2 {
+
+        font-size: 15px;
+    }
+
+
+    .chat-user-info p {
+
+        font-size: 10px;
+    }
+
+
+    #user-status {
+
+        font-size: 10px;
+    }
+
+
+    .profile-button {
+
+        min-height: 35px;
+
+        padding:
+            0 10px;
+
+        font-size: 11px;
+    }
+
+
+    .message {
+
+        max-width: 82%;
+
+        padding:
+            8px 11px;
+
+        font-size: 14px;
+    }
+
+
+    .message-avatar {
+
+        width: 24px;
+        height: 24px;
+    }
+
+
+.message-form {
+    flex-shrink: 0;
+    padding: 8px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    position: relative;
+    z-index: 20;
+    background: var(--background);
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+
+    .message-form input[type="text"] {
+
+        min-height: 41px;
+
+        font-size: 14px;
+    }
+
+
+    .message-form button {
+
+        width: 41px;
+        height: 41px;
+    }
+
+}
 
 
         @media (max-width: 430px) {
@@ -1756,8 +1804,12 @@
 
         }</script>
 <script>
+
+</script>
+<script>
 /* =========================================================
-   MOBILE CHAT KEYBOARD VIEWPORT LOCK
+   MESSAGING 2.0
+   MOBILE COMPOSER STABILITY
    ========================================================= */
 
 (function () {
@@ -1765,59 +1817,39 @@
     const messageInput =
         document.getElementById("message-input");
 
-    if (!messageInput) {
+    const messages =
+        document.getElementById("messages");
+
+    if (!messageInput || !messages) {
         return;
-    }
-
-    function keepChatViewportStable() {
-
-        window.scrollTo(0, 0);
-
-        if (window.visualViewport) {
-
-            window.visualViewport.scrollTo(
-                0,
-                0
-            );
-
-        }
-
     }
 
     messageInput.addEventListener(
         "focus",
         function () {
 
-            requestAnimationFrame(
-                keepChatViewportStable
-            );
+            /*
+             * Prevent the browser from automatically
+             * scrolling the entire page when the keyboard
+             * opens. The message list remains independently
+             * scrollable.
+             */
 
-            setTimeout(
-                keepChatViewportStable,
-                50
-            );
+            requestAnimationFrame(function () {
 
-            setTimeout(
-                keepChatViewportStable,
-                150
-            );
+                messageInput.scrollIntoView({
+                    block: "nearest",
+                    inline: "nearest",
+                    behavior: "instant"
+                });
 
-            setTimeout(
-                keepChatViewportStable,
-                300
-            );
+                messages.scrollTop =
+                    messages.scrollHeight;
+
+            });
 
         }
     );
-
-    if (window.visualViewport) {
-
-        window.visualViewport.addEventListener(
-            "scroll",
-            keepChatViewportStable
-        );
-
-    }
 
 })();
 </script>
