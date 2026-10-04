@@ -1853,6 +1853,60 @@
 
 })();
 </script>
+<script>
+/* =========================================================
+   MESSAGING 2.0
+   PRIVATE CHAT KEYBOARD-AWARE VIEWPORT
+   ========================================================= */
+(function () {
+    const chatContainer =
+        document.querySelector(".chat-container");
+
+    const chatTopbar =
+        document.querySelector(".chat-topbar");
+
+    if (!chatContainer || !chatTopbar) {
+        return;
+    }
+
+    function updateChatViewport() {
+        chatTopbar.style.top = "0px";
+
+        if (!window.visualViewport) {
+            return;
+        }
+
+        const viewportHeight =
+            window.visualViewport.height;
+
+        const headerHeight =
+            chatTopbar.offsetHeight;
+
+        chatContainer.style.top =
+            headerHeight + "px";
+
+        chatContainer.style.height =
+            Math.max(
+                0,
+                viewportHeight - headerHeight
+            ) + "px";
+    }
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener(
+            "resize",
+            updateChatViewport
+        );
+    }
+
+    window.addEventListener(
+        "resize",
+        updateChatViewport
+    );
+
+    updateChatViewport();
+})();
+</script>
 
 </body>
 
