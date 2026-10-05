@@ -549,6 +549,109 @@
 
 
         /* =========================================================
+           REPLY UI
+           ========================================================= */
+
+        .reply-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            margin: 0 0 8px;
+            border-left: 3px solid var(--primary);
+            border-radius: 8px;
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .reply-preview.active {
+            display: flex;
+        }
+
+        .reply-preview-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .reply-preview-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .reply-preview-message {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .reply-preview-cancel {
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .reply-preview-cancel:hover {
+            background: rgba(148, 163, 184, 0.15);
+        }
+
+        .message-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+
+        .reply-button {
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 4px;
+            cursor: pointer;
+            opacity: 0.75;
+        }
+
+        .reply-button:hover {
+            color: var(--primary);
+            opacity: 1;
+        }
+
+        .message-reply {
+            margin-bottom: 7px;
+            padding: 6px 8px;
+            border-left: 3px solid var(--primary);
+            border-radius: 5px;
+            background: rgba(56, 189, 248, 0.08);
+            overflow: hidden;
+        }
+
+        .message-reply-sender {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .message-reply-text {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        /* =========================================================
            MESSAGE COMPOSER
            ========================================================= */
 
@@ -1054,6 +1157,46 @@
                 value="{{ csrf_token() }}"
             >
 
+            <input
+                type="hidden"
+                name="reply_to_message_id"
+                id="reply-to-message-id"
+                value=""
+            >
+
+            <div
+                class="reply-preview"
+                id="reply-preview"
+            >
+
+                <div class="reply-preview-content">
+
+                    <div
+                        class="reply-preview-label"
+                        id="reply-preview-label"
+                    >
+                        Replying to
+                    </div>
+
+                    <div
+                        class="reply-preview-message"
+                        id="reply-preview-message"
+                    ></div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="reply-preview-cancel"
+                    id="reply-preview-cancel"
+                    aria-label="Cancel reply"
+                    title="Cancel reply"
+                >
+                    &times;
+                </button>
+
+            </div>
+
 
             <div class="message-input-wrapper">
 
@@ -1121,6 +1264,32 @@
 
         let lastMessageSignature = "";
 
+        let renderedMessages = [];
+
+        let activeReplyMessageId = null;
+
+
+        const replyPreview =
+            document.getElementById("reply-preview");
+
+
+        const replyPreviewLabel =
+            document.getElementById("reply-preview-label");
+
+
+        const replyPreviewMessage =
+            document.getElementById("reply-preview-message");
+
+
+        const replyToMessageId =
+            document.getElementById("reply-to-message-id");
+
+
+        const replyPreviewCancel =
+            document.getElementById("reply-preview-cancel");
+
+
+
 
         /* =====================================================
            ESCAPE HTML
@@ -1141,6 +1310,83 @@
         /* =====================================================
            FORMAT MESSAGE TIME
            ===================================================== */
+
+         function clearReply() {
+
+            activeReplyMessageId = null;
+
+
+            if (replyToMessageId) {
+                replyToMessageId.value = "";
+            }
+
+
+            if (replyPreviewLabel) {
+                replyPreviewLabel.textContent =
+                    "Replying to";
+            }
+
+
+            if (replyPreviewMessage) {
+                replyPreviewMessage.textContent =
+                    "";
+            }
+
+
+            if (replyPreview) {
+                replyPreview.classList.remove(
+                    "active"
+                );
+            }
+
+        }
+
+
+        function setReplyTarget(message) {
+
+            if (!message || !message.id) {
+                return;
+            }
+
+
+            activeReplyMessageId =
+                Number(message.id);
+
+
+            if (replyToMessageId) {
+                replyToMessageId.value =
+                    String(message.id);
+            }
+
+
+            if (replyPreviewLabel) {
+                replyPreviewLabel.textContent =
+                    `Replying to ${
+                        message.sender_name ||
+                        "UniCamplink User"
+                    }`;
+            }
+
+
+            if (replyPreviewMessage) {
+                replyPreviewMessage.textContent =
+                    message.message || "";
+            }
+
+
+            if (replyPreview) {
+                replyPreview.classList.add(
+                    "active"
+                );
+            }
+
+
+            if (messageInput) {
+                messageInput.focus();
+            }
+
+        }
+
 
         function formatMessageTime(createdAt) {
 
@@ -1406,6 +1652,10 @@
                 signature;
 
 
+            renderedMessages =
+                messageList;
+
+
             messagesContainer.innerHTML =
                 messageList
                     .map(message => {
@@ -1486,9 +1736,52 @@
 
                                 <div class="message">
 
+                                    ${
+                                        message.reply_to_message_id &&
+                                        message.reply_message
+                                            ? `
+                                                <div class="message-reply">
+
+                                                    <div class="message-reply-sender">
+                                                        ${escapeHtml(
+                                                            message.reply_sender_name ||
+                                                            "UniCamplink User"
+                                                        )}
+                                                    </div>
+
+                                                    <div class="message-reply-text">
+                                                        ${escapeHtml(
+                                                            message.reply_message
+                                                        )}
+                                                    </div>
+
+                                                </div>
+                                            `
+                                            : ""
+                                    }
+
+
                                     ${escapeHtml(
                                         message.message
                                     )}
+
+
+                                    <div class="message-actions">
+
+                                        <button
+                                            type="button"
+                                            class="reply-button"
+                                            data-message-id="${
+                                                Number(message.id)
+                                            }"
+                                            aria-label="Reply to message"
+                                            title="Reply to message"
+                                        >
+                                            ↩ Reply
+                                        </button>
+
+                                    </div>
+
 
                                     <span class="time">
 
@@ -1524,6 +1817,59 @@
         /* =====================================================
            LOAD CHAT
         ===================================================== */
+
+        if (messagesContainer) {
+
+            messagesContainer.addEventListener(
+                "click",
+                function(event) {
+
+                    const replyButton =
+                        event.target.closest(
+                            ".reply-button"
+                        );
+
+
+                    if (!replyButton) {
+                        return;
+                    }
+
+
+                    const messageId =
+                        Number(
+                            replyButton.dataset.messageId
+                        );
+
+
+                    const targetMessage =
+                        renderedMessages.find(
+                            message =>
+                                Number(message.id) ===
+                                messageId
+                        );
+
+
+                    if (targetMessage) {
+                        setReplyTarget(
+                            targetMessage
+                        );
+                    }
+
+                }
+            );
+
+        }
+
+
+        if (replyPreviewCancel) {
+
+            replyPreviewCancel.addEventListener(
+                "click",
+                clearReply
+            );
+
+        }
+
 
         async function loadChatMessages() {
 
@@ -1683,7 +2029,12 @@
                                                 csrfToken,
 
                                             message:
-                                                message
+                                                message,
+
+                                            reply_to_message_id:
+                                                replyToMessageId
+                                                    ? replyToMessageId.value
+                                                    : ""
                                         })
                                 }
                             );
@@ -1707,6 +2058,7 @@
                         messageInput.value =
                             "";
 
+                        clearReply();
 
                         /*
                          * Reset the signature so the

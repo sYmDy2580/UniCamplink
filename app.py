@@ -1935,6 +1935,22 @@ def update_comments_table():
 
     conn.commit()
     conn.close()
+def update_messages_table():
+
+    conn = get_db_connection()
+
+    if not column_exists(
+        "messages",
+        "reply_to_message_id"
+    ):
+
+        conn.execute("""
+            ALTER TABLE messages
+            ADD COLUMN reply_to_message_id INTEGER
+        """)
+
+    conn.commit()
+    conn.close()
     # ============================================================
 # DATABASE MIGRATION — ADVERTISEMENT REQUESTS
 # ============================================================
@@ -2296,6 +2312,7 @@ update_users_block_status()
 update_group_messages_table()
 update_posts_table()
 update_comments_table()
+update_messages_table()
 update_advertisement_requests_table()
 update_sponsored_posts_table()
 update_campus_ambassadors_table()
@@ -7052,20 +7069,85 @@ def chat(user_id):
                 "exceed 2000 characters."
             ), 400
 
+        # --------------------------------------------------------
+        # OPTIONAL REPLY TARGET
+        # --------------------------------------------------------
+
+        reply_to_message_id = request.form.get(
+            "reply_to_message_id",
+            ""
+        ).strip()
+
+        if reply_to_message_id:
+
+            try:
+                reply_to_message_id = int(
+                    reply_to_message_id
+                )
+
+            except (TypeError, ValueError):
+
+                conn.close()
+
+                return (
+                    "Invalid reply message."
+                ), 400
+
+            reply_target = conn.execute(
+                """
+                SELECT id
+                FROM messages
+                WHERE id = ?
+                AND (
+                    (
+                        sender_id = ?
+                        AND receiver_id = ?
+                    )
+                    OR
+                    (
+                        sender_id = ?
+                        AND receiver_id = ?
+                    )
+                )
+                """,
+                (
+                    reply_to_message_id,
+                    current_user_id,
+                    user_id,
+                    user_id,
+                    current_user_id
+                )
+            ).fetchone()
+
+            if not reply_target:
+
+                conn.close()
+
+                return (
+                    "The message you are replying to "
+                    "was not found in this conversation."
+                ), 400
+
+        else:
+
+            reply_to_message_id = None
+
         conn.execute(
             """
             INSERT INTO messages
             (
                 sender_id,
                 receiver_id,
-                message
+                message,
+                reply_to_message_id
             )
-            VALUES (?, ?, ?)
+            VALUES (?, ?, ?, ?)
             """,
             (
                 current_user_id,
                 user_id,
-                message
+                message,
+                reply_to_message_id
             )
         )
 
@@ -7154,12 +7236,20 @@ def chat(user_id):
         SELECT
             messages.*,
             users.name AS sender_name,
-            users.profile_picture
+            users.profile_picture,
+            reply_messages.message AS reply_message,
+            reply_users.name AS reply_sender_name
 
         FROM messages
 
         JOIN users
         ON users.id = messages.sender_id
+
+        LEFT JOIN messages AS reply_messages
+        ON reply_messages.id = messages.reply_to_message_id
+
+        LEFT JOIN users AS reply_users
+        ON reply_users.id = reply_messages.sender_id
 
         WHERE
             (
@@ -7361,13 +7451,22 @@ def api_chat_messages(user_id):
             messages.receiver_id,
             messages.message,
             messages.created_at,
+            messages.reply_to_message_id,
             users.name AS sender_name,
-            users.profile_picture
+            users.profile_picture,
+            reply_messages.message AS reply_message,
+            reply_users.name AS reply_sender_name
 
         FROM messages
 
         JOIN users
         ON users.id = messages.sender_id
+
+        LEFT JOIN messages AS reply_messages
+        ON reply_messages.id = messages.reply_to_message_id
+
+        LEFT JOIN users AS reply_users
+        ON reply_users.id = reply_messages.sender_id
 
         WHERE
             (
@@ -7422,6 +7521,19 @@ def api_chat_messages(user_id):
                 "receiver_id": message["receiver_id"],
                 "message": message["message"],
                 "created_at": message["created_at"],
+                "reply_to_message_id": (
+                    message["reply_to_message_id"]
+                    if message["reply_to_message_id"]
+                    else None
+                ),
+                "reply_message": (
+                    message["reply_message"]
+                    or ""
+                ),
+                "reply_sender_name": (
+                    message["reply_sender_name"]
+                    or ""
+                ),
                 "sender_name": (
                     message["sender_name"]
                     or "UniCamplink User"
