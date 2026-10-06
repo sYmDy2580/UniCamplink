@@ -1,4 +1,4 @@
-﻿import json
+import json
 from pywebpush import webpush, WebPushException
 import os
 import math
@@ -1379,7 +1379,7 @@ def create_tables():
         )
     """)
         # ============================================================
-    # SAFE MIGRATION — ADVERTISEMENT REQUESTS
+    # SAFE MIGRATION â€” ADVERTISEMENT REQUESTS
     # ============================================================
 
     conn.execute("""
@@ -1952,7 +1952,7 @@ def update_messages_table():
     conn.commit()
     conn.close()
     # ============================================================
-# DATABASE MIGRATION — ADVERTISEMENT REQUESTS
+# DATABASE MIGRATION â€” ADVERTISEMENT REQUESTS
 # ============================================================
 
 def update_advertisement_requests_table():
@@ -2037,7 +2037,7 @@ def update_advertisement_requests_table():
     conn.commit()
     conn.close()
     # ============================================================
-# DATABASE MIGRATION — SPONSORED POSTS
+# DATABASE MIGRATION â€” SPONSORED POSTS
 # ============================================================
 
 def update_sponsored_posts_table():
@@ -2104,7 +2104,7 @@ def update_sponsored_posts_table():
 
 
 # ============================================================
-# DATABASE MIGRATION — CAMPUS AMBASSADORS
+# DATABASE MIGRATION â€” CAMPUS AMBASSADORS
 # ============================================================
 
 def update_campus_ambassadors_table():
@@ -2180,7 +2180,7 @@ def update_announcements_table():
     conn.commit()
     conn.close()
 # ============================================================
-# DATABASE MIGRATION — REPORTS
+# DATABASE MIGRATION â€” REPORTS
 # ============================================================
 
 def update_reports_table():
@@ -2302,6 +2302,605 @@ def update_moderation_logs_table():
     conn.commit()
     conn.close()
 # ============================================================
+# DATABASE MIGRATION - GAMIFICATION
+# ============================================================
+
+def update_gamification_tables():
+    """Create the UniCamplink gamification foundation.
+
+    This migration is intentionally non-destructive:
+    - It creates only new tables.
+    - It does not alter existing users/posts data.
+    - It does not award points.
+    - It is safe to run repeatedly.
+    """
+
+    conn = get_db_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS campus_progress (
+            user_id INTEGER PRIMARY KEY,
+            points INTEGER NOT NULL DEFAULT 0,
+            level INTEGER NOT NULL DEFAULT 1,
+            current_streak INTEGER NOT NULL DEFAULT 0,
+            longest_streak INTEGER NOT NULL DEFAULT 0,
+            last_activity_date TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS campus_point_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            action TEXT NOT NULL,
+            points INTEGER NOT NULL,
+            reference_type TEXT,
+            reference_id INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS badges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            description TEXT NOT NULL DEFAULT '',
+            icon TEXT DEFAULT '',
+            requirement_type TEXT,
+            requirement_value INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS user_badges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            badge_id INTEGER NOT NULL,
+            awarded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, badge_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (badge_id) REFERENCES badges(id) ON DELETE CASCADE
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS challenges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL DEFAULT '',
+            challenge_type TEXT NOT NULL,
+            target_value INTEGER NOT NULL DEFAULT 1,
+            reward_points INTEGER NOT NULL DEFAULT 0,
+            starts_at TIMESTAMP,
+            ends_at TIMESTAMP,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS user_challenges (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            challenge_id INTEGER NOT NULL,
+            progress INTEGER NOT NULL DEFAULT 0,
+            completed INTEGER NOT NULL DEFAULT 0,
+            completed_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, challenge_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+        )
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_campus_point_events_user
+        ON campus_point_events(user_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_campus_point_events_created
+        ON campus_point_events(created_at)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_user_badges_user
+        ON user_badges(user_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_user_challenges_user
+        ON user_challenges(user_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_challenges_active
+        ON challenges(is_active, starts_at, ends_at)
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+# ============================================================
+# GAMIFICATION ENGINE
+# ============================================================
+
+def get_level_for_points(points):
+    """Return the player's current campus level."""
+    try:
+        points = max(0, int(points or 0))
+    except (TypeError, ValueError):
+        points = 0
+
+    return max(1, (points // 100) + 1)
+
+
+def update_activity_streak(conn, user_id):
+    """Update a user's daily activity streak using Nigeria time (UTC+1).
+
+    The streak changes at most once per calendar day.
+    Same-day activity does not increase the streak.
+    Missing a full day resets the current streak to 1.
+    The longest streak is preserved.
+    """
+
+    if not user_id:
+        return {
+            "updated": False,
+            "current_streak": 0,
+            "longest_streak": 0
+        }
+
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO campus_progress
+        (
+            user_id,
+            points,
+            level,
+            current_streak,
+            longest_streak,
+            last_activity_date
+        )
+        VALUES (?, 0, 1, 0, 0, NULL)
+        """,
+        (user_id,)
+    )
+
+    progress = conn.execute(
+        """
+        SELECT
+            current_streak,
+            longest_streak,
+            last_activity_date
+        FROM campus_progress
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    if not progress:
+        return {
+            "updated": False,
+            "current_streak": 0,
+            "longest_streak": 0
+        }
+
+    nigeria_now = datetime.utcnow() + timedelta(hours=1)
+    today = nigeria_now.date()
+    today_string = today.isoformat()
+
+    last_activity_date = progress["last_activity_date"]
+
+    if last_activity_date == today_string:
+        return {
+            "updated": False,
+            "current_streak": progress["current_streak"],
+            "longest_streak": progress["longest_streak"]
+        }
+
+    current_streak = int(progress["current_streak"] or 0)
+    longest_streak = int(progress["longest_streak"] or 0)
+
+    if last_activity_date:
+        try:
+            last_date = datetime.strptime(
+                last_activity_date,
+                "%Y-%m-%d"
+            ).date()
+        except (ValueError, TypeError):
+            last_date = None
+    else:
+        last_date = None
+
+    if last_date == today - timedelta(days=1):
+        current_streak += 1
+    else:
+        current_streak = 1
+
+    longest_streak = max(
+        longest_streak,
+        current_streak
+    )
+
+    conn.execute(
+        """
+        UPDATE campus_progress
+        SET current_streak = ?,
+            longest_streak = ?,
+            last_activity_date = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ?
+        """,
+        (
+            current_streak,
+            longest_streak,
+            today_string,
+            user_id
+        )
+    )
+
+    return {
+        "updated": True,
+        "current_streak": current_streak,
+        "longest_streak": longest_streak,
+        "activity_date": today_string
+    }
+
+def award_points(
+    conn,
+    user_id,
+    action,
+    points,
+    reference_type=None,
+    reference_id=None
+):
+    """
+    Award gamification points safely.
+
+    The point ledger is the source of truth.
+    campus_progress stores the aggregate for fast dashboard reads.
+
+    If reference_type + reference_id identify an already rewarded
+    action, no additional points are awarded.
+    """
+
+    if not user_id or not action:
+        return {
+            "awarded": False,
+            "points": 0,
+            "level": 1
+        }
+
+    try:
+        points = int(points)
+    except (TypeError, ValueError):
+        return {
+            "awarded": False,
+            "points": 0,
+            "level": 1
+        }
+
+    if points <= 0:
+        return {
+            "awarded": False,
+            "points": 0,
+            "level": 1
+        }
+
+    # Prevent duplicate rewards for the same real action.
+    if reference_type is not None and reference_id is not None:
+        existing_event = conn.execute(
+            """
+            SELECT id
+            FROM campus_point_events
+            WHERE user_id = ?
+              AND action = ?
+              AND reference_type = ?
+              AND reference_id = ?
+            LIMIT 1
+            """,
+            (
+                user_id,
+                action,
+                str(reference_type),
+                str(reference_id)
+            )
+        ).fetchone()
+
+        if existing_event:
+            progress = conn.execute(
+                """
+                SELECT points, level
+                FROM campus_progress
+                WHERE user_id = ?
+                """,
+                (user_id,)
+            ).fetchone()
+
+            return {
+                "awarded": False,
+                "points": 0,
+                "level": progress["level"] if progress else 1
+            }
+
+    # Record the immutable point event.
+    conn.execute(
+        """
+        INSERT INTO campus_point_events
+        (
+            user_id,
+            action,
+            points,
+            reference_type,
+            reference_id
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            user_id,
+            action,
+            points,
+            str(reference_type) if reference_type is not None else None,
+            str(reference_id) if reference_id is not None else None
+        )
+    )
+
+    # Create progress row if this is the user's first reward.
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO campus_progress
+        (
+            user_id,
+            points,
+            level,
+            current_streak,
+            longest_streak,
+            last_activity_date
+        )
+        VALUES (?, 0, 1, 0, 0, NULL)
+        """,
+        (user_id,)
+    )
+
+    progress = conn.execute(
+        """
+        SELECT points
+        FROM campus_progress
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    current_points = progress["points"] if progress else 0
+    new_points = current_points + points
+    new_level = get_level_for_points(new_points)
+
+    conn.execute(
+        """
+        UPDATE campus_progress
+        SET points = ?,
+            level = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ?
+        """,
+        (
+            new_points,
+            new_level,
+            user_id
+        )
+    )
+
+    # Evaluate milestone badges after the reward.
+    award_gamification_badges(
+        conn,
+        user_id,
+        new_points,
+        new_level
+    )
+
+    return {
+        "awarded": True,
+        "points": points,
+        "total_points": new_points,
+        "level": new_level
+    }
+
+
+def award_gamification_badges(
+    conn,
+    user_id,
+    total_points,
+    current_level
+):
+    """Award milestone badges that the user has newly earned."""
+
+    badges = conn.execute(
+        """
+        SELECT
+            id,
+            requirement_type,
+            requirement_value
+        FROM badges
+        """
+    ).fetchall()
+
+    for badge in badges:
+        already_awarded = conn.execute(
+            """
+            SELECT id
+            FROM user_badges
+            WHERE user_id = ?
+              AND badge_id = ?
+            LIMIT 1
+            """,
+            (
+                user_id,
+                badge["id"]
+            )
+        ).fetchone()
+
+        if already_awarded:
+            continue
+
+        requirement_type = badge["requirement_type"]
+        requirement_value = badge["requirement_value"]
+
+        try:
+            requirement_value = int(requirement_value)
+        except (TypeError, ValueError):
+            continue
+
+        earned = False
+
+        if requirement_type == "points":
+            earned = total_points >= requirement_value
+
+        elif requirement_type == "level":
+            earned = current_level >= requirement_value
+
+        elif requirement_type == "posts":
+            count = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM posts
+                WHERE user_id = ?
+                """,
+                (user_id,)
+            ).fetchone()[0]
+
+            earned = count >= requirement_value
+
+        elif requirement_type == "comments":
+            count = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM comments
+                WHERE user_id = ?
+                """,
+                (user_id,)
+            ).fetchone()[0]
+
+            earned = count >= requirement_value
+
+        elif requirement_type == "friends":
+            count = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM friends
+                WHERE user_id = ?
+                """,
+                (user_id,)
+            ).fetchone()[0]
+
+            earned = count >= requirement_value
+
+        if earned:
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO user_badges
+                (
+                    user_id,
+                    badge_id
+                )
+                VALUES (?, ?)
+                """,
+                (
+                    user_id,
+                    badge["id"]
+                )
+            )
+
+
+def seed_gamification_badges(conn):
+    """Create the initial milestone badges without duplicating them."""
+
+    badges = [
+        (
+            "First Step",
+            "Create your first post on UniCamplink.",
+            "??",
+            "posts",
+            1
+        ),
+        (
+            "Campus Voice",
+            "Create 10 posts.",
+            "??",
+            "posts",
+            10
+        ),
+        (
+            "Conversation Starter",
+            "Leave 10 comments.",
+            "??",
+            "comments",
+            10
+        ),
+        (
+            "Social Circle",
+            "Make 5 friends.",
+            "??",
+            "friends",
+            5
+        ),
+        (
+            "Rising Student",
+            "Reach 100 campus points.",
+            "?",
+            "points",
+            100
+        ),
+        (
+            "Campus Champion",
+            "Reach 500 campus points.",
+            "??",
+            "points",
+            500
+        ),
+        (
+            "Level Up",
+            "Reach level 5.",
+            "??",
+            "level",
+            5
+        )
+    ]
+
+    for badge in badges:
+        conn.execute(
+            """
+            INSERT INTO badges
+            (
+                name,
+                description,
+                icon,
+                requirement_type,
+                requirement_value
+            )
+            SELECT ?, ?, ?, ?, ?
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM badges
+                WHERE name = ?
+            )
+            """,
+            (
+                badge[0],
+                badge[1],
+                badge[2],
+                badge[3],
+                badge[4],
+                badge[0]
+            )
+        )
+
+# ============================================================
 # INITIALIZE DATABASE
 # ============================================================
 
@@ -2320,6 +2919,14 @@ update_announcements_table()
 update_reports_table()
 update_moderation_logs_table()
 update_push_subscriptions_table()
+update_gamification_tables()
+
+# Seed the initial gamification badges.
+_gamification_conn = get_db_connection()
+seed_gamification_badges(_gamification_conn)
+_gamification_conn.commit()
+_gamification_conn.close()
+
 # ============================================================
 # USER ONLINE / LAST SEEN TRACKER
 # ============================================================
@@ -3392,6 +3999,19 @@ def create_post():
 
     post_id = cursor.lastrowid
 
+    # GAMIFICATION: reward the successful post creation.
+    award_points(
+        conn,
+        current_user_id,
+        "CREATE_POST",
+        10,
+        reference_type="post",
+        reference_id=post_id
+    )
+
+    # GAMIFICATION: record daily activity for the streak.
+    update_activity_streak(conn, current_user_id)
+
     author = conn.execute(
         """
         SELECT
@@ -3439,7 +4059,7 @@ def create_post():
                 friend["friend_id"],
                 current_user_id,
                 "post",
-                f"{author_name} shared a new campus update 📝",
+                f"{author_name} shared a new campus update ðŸ“",
                 f"/feed#post-{post_id}"
             )
         )
@@ -3605,13 +4225,13 @@ def like_post(post_id):
                     post_owner["user_id"],
                     session["user_id"],
                     "like",
-                    "liked your post ❤️",
+                    "liked your post â¤ï¸",
 f"/feed#post-{post_id}"
                 )
             )
             send_push_notification(
                 post_owner["user_id"],
-                "❤️ New Like",
+                "â¤ï¸ New Like",
                 "Someone liked your post.",
                 f"/feed#post-{post_id}",
                 "unicamplink-like"
@@ -3736,6 +4356,19 @@ def comment(post_id):
 
     comment_id = cursor.lastrowid
 
+    # GAMIFICATION: reward the successful comment/reply.
+    award_points(
+        conn,
+        session["user_id"],
+        "CREATE_COMMENT",
+        3,
+        reference_type="comment",
+        reference_id=comment_id
+    )
+
+    # GAMIFICATION: record daily activity for the streak.
+    update_activity_streak(conn, session["user_id"])
+
     # Notify the post owner for top-level comments.
     if post_owner["user_id"] != session["user_id"]:
         conn.execute(
@@ -3748,13 +4381,13 @@ def comment(post_id):
                 post_owner["user_id"],
                 session["user_id"],
                 "comment",
-                "commented on your post 💬",
+                "commented on your post ðŸ’¬",
 f"/feed#post-{post_id}"
             )
         )
         send_push_notification(
             post_owner["user_id"],
-            "💬 New Comment",
+            "ðŸ’¬ New Comment",
             "Someone commented on your post.",
             f"/feed#post-{post_id}",
             "unicamplink-comment"
@@ -3778,7 +4411,7 @@ f"/feed#post-{post_id}"
                     parent_user["user_id"],
                     session["user_id"],
                     "reply",
-                    "replied to your comment 💬",
+                    "replied to your comment ðŸ’¬",
                     f"/feed#post-{post_id}"
                 )
             )
@@ -3829,7 +4462,7 @@ f"/feed#post-{post_id}"
 
 
 # ============================================================
-# COMMENTS API — LOAD EXISTING COMMENTS
+# COMMENTS API â€” LOAD EXISTING COMMENTS
 # ============================================================
 
 @app.route("/comments/<int:post_id>", methods=["GET"])
@@ -5164,7 +5797,7 @@ def group_chat(group_id):
                     current_user_id,
                     "group_message",
                     f"{sender_name} sent a message in "
-                    f"{group['name']} 💬",
+                    f"{group['name']} ðŸ’¬",
                     f"/group/{group_id}/chat"
                 )
             )
@@ -5329,6 +5962,19 @@ def create_group_post(group_id):
 
     post_id = cursor.lastrowid
 
+    # GAMIFICATION: reward the successful group post creation.
+    award_points(
+        conn,
+        session["user_id"],
+        "CREATE_GROUP_POST",
+        10,
+        reference_type="post",
+        reference_id=post_id
+    )
+
+    # GAMIFICATION: record daily activity for the streak.
+    update_activity_streak(conn, session["user_id"])
+
     # --------------------------------------------------------
     # NOTIFY GROUP MEMBERS
     # --------------------------------------------------------
@@ -5386,7 +6032,7 @@ def create_group_post(group_id):
                 member["user_id"],
                 session["user_id"],
                 "group",
-                f"{author_name} posted in {group_name} 👥",
+                f"{author_name} posted in {group_name} ðŸ‘¥",
                 f"/group/{group_id}"
             )
         )
@@ -5898,7 +6544,7 @@ def add_product():
 
                         (
                             f"{seller_name} listed "
-                            f"{name} on Marketplace 🛍️"
+                            f"{name} on Marketplace ðŸ›ï¸"
                         ),
 
                         (
@@ -6647,7 +7293,7 @@ def send_friend_request(user_id):
             user_id,
             current_user_id,
             "friend_request",
-            "sent you a friend request ❤️",
+            "sent you a friend request â¤ï¸",
             "/friend-requests"
         )
     )
@@ -6859,10 +7505,23 @@ def accept_friend_request(request_id):
             friend_request["sender_id"],
             current_user_id,
             "friend_accepted",
-            "accepted your friend request ❤️",
+            "accepted your friend request â¤ï¸",
             "/profile"
         )
     )
+
+    # GAMIFICATION: reward the successful friend-request acceptance.
+    award_points(
+        conn,
+        current_user_id,
+        "ACCEPT_FRIEND",
+        10,
+        reference_type="friend_request",
+        reference_id=request_id
+    )
+
+    # GAMIFICATION: record daily activity for the streak.
+    update_activity_streak(conn, current_user_id)
 
     conn.commit()
     conn.close()
@@ -7167,7 +7826,7 @@ def chat(user_id):
                 user_id,
                 current_user_id,
                 "message",
-                "sent you a message 💬",
+                "sent you a message ðŸ’¬",
                 "/chat/" + str(current_user_id)
             )
         )
@@ -7555,7 +8214,7 @@ def api_chat_messages(user_id):
 # ============================================================
 # UPDATE USER LAST SEEN
 # ============================================================
-# ADMIN — DASHBOARD
+# ADMIN â€” DASHBOARD
 # ============================================================
 
 @app.route("/admin")
@@ -7858,7 +8517,7 @@ def admin_create_announcement():
     if notify_users and is_active:
 
         notification_message = (
-            f"📢 {title}: {message}"
+            f"ðŸ“¢ {title}: {message}"
         )
 
         users = conn.execute(
@@ -8002,7 +8661,7 @@ def admin_delete_announcement(announcement_id):
         url_for("admin_announcements")
     )
 # ============================================================
-# ADMIN — EDIT ANNOUNCEMENT
+# ADMIN â€” EDIT ANNOUNCEMENT
 # ============================================================
 
 @app.route(
@@ -8071,7 +8730,7 @@ def admin_edit_announcement(announcement_id):
         url_for("admin_announcements")
     )
 # ============================================================
-# ADMIN — MEMBERS
+# ADMIN â€” MEMBERS
 # ============================================================
 
 @app.route("/admin/members")
@@ -8203,7 +8862,7 @@ def admin_members():
     )
 
 # ============================================================
-# ADMIN — CAMPUS AMBASSADORS
+# ADMIN â€” CAMPUS AMBASSADORS
 # ============================================================
 
 
@@ -8227,7 +8886,7 @@ def _require_admin():
 
     return current_user, conn
 # ============================================================
-# ADMIN — VERIFIED STUDENTS
+# ADMIN â€” VERIFIED STUDENTS
 # RAZOR / FACEBOOK-TIKTOK STYLE ADMIN PAGE
 # ============================================================
 
@@ -8386,7 +9045,7 @@ def admin_verified_students():
         total_students=total_students
     )
 # ============================================================
-# ADMIN — VERIFIED STUDENTS
+# ADMIN â€” VERIFIED STUDENTS
 # RAZOR / FACEBOOK-TIKTOK STYLE ADMIN SYSTEM
 # ============================================================
 
@@ -8489,7 +9148,7 @@ def admin_verify_student(user_id):
             user["id"],
             current_user["id"],
             "verification",
-            "Your account has been verified as an Official UniCamplink Verified Student. ✅",
+            "Your account has been verified as an Official UniCamplink Verified Student. âœ…",
             "/profile"
         )
     )
@@ -8511,7 +9170,7 @@ def admin_verify_student(user_id):
 
 
 # ============================================================
-# ADMIN — UNVERIFY STUDENT
+# ADMIN â€” UNVERIFY STUDENT
 # ============================================================
 
 
@@ -8629,7 +9288,7 @@ def admin_unverify_student(user_id):
 
 
 # ============================================================
-# ADMIN — CAMPUS AMBASSADORS
+# ADMIN â€” CAMPUS AMBASSADORS
 # RAZOR / FACEBOOK-TIKTOK STYLE ADMIN SYSTEM
 # ============================================================
 
@@ -8844,7 +9503,7 @@ def admin_campus_ambassadors():
 
 
 # ============================================================
-# ADMIN — APPOINT CAMPUS AMBASSADOR
+# ADMIN â€” APPOINT CAMPUS AMBASSADOR
 # ============================================================
 
 
@@ -9013,7 +9672,7 @@ def admin_appoint_campus_ambassador(user_id):
             user_id,
             current_user["id"],
             "campus_ambassador",
-            "You have been appointed as an Official UniCamplink Campus Ambassador 🎓",
+            "You have been appointed as an Official UniCamplink Campus Ambassador ðŸŽ“",
             "/profile"
         )
     )
@@ -9031,7 +9690,7 @@ def admin_appoint_campus_ambassador(user_id):
 
 
 # ============================================================
-# ADMIN — REMOVE CAMPUS AMBASSADOR
+# ADMIN â€” REMOVE CAMPUS AMBASSADOR
 # ============================================================
 
 
@@ -9333,7 +9992,7 @@ def advertise_with_us():
     )
 
 # ============================================================
-# ADMIN — REPORTS
+# ADMIN â€” REPORTS
 # ============================================================
 
 @app.route("/admin/reports")
@@ -9710,7 +10369,7 @@ def admin_unblock_user(user_id):
 
     return redirect(url_for("admin_reports"))
 # ============================================================
-# ADMIN — ADVERTISEMENT REQUESTS
+# ADMIN â€” ADVERTISEMENT REQUESTS
 # ============================================================
 
 @app.route("/admin/advertisements")
@@ -9783,7 +10442,7 @@ def admin_advertisements():
 
 
 # ============================================================
-# ADMIN — APPROVE ADVERTISEMENT
+# ADMIN â€” APPROVE ADVERTISEMENT
 # ============================================================
 
 @app.route(
@@ -9891,7 +10550,7 @@ def admin_approve_advertisement(advertisement_id):
                 advertisement["user_id"],
                 current_user["id"],
                 "advertisement",
-                "Your UniCamplink advertising request has been approved. 📢",
+                "Your UniCamplink advertising request has been approved. ðŸ“¢",
                 "/admin/advertisements"
             )
         )
@@ -9903,7 +10562,7 @@ def admin_approve_advertisement(advertisement_id):
         url_for("admin_advertisements")
     )
 # ============================================================
-# ADMIN — SPONSORED POSTS
+# ADMIN â€” SPONSORED POSTS
 # ============================================================
 
 @app.route("/admin/sponsored-posts")
@@ -9987,7 +10646,7 @@ def admin_sponsored_posts():
         normal_posts=normal_posts
     )
 # ============================================================
-# ADMIN — ACTIVATE SPONSORED POST
+# ADMIN â€” ACTIVATE SPONSORED POST
 # ============================================================
 
 @app.route(
@@ -10055,7 +10714,7 @@ def admin_activate_sponsored_post(sponsored_post_id):
         url_for("admin_sponsored_posts")
     )
 # ============================================================
-# ADMIN — PAUSE SPONSORED POST
+# ADMIN â€” PAUSE SPONSORED POST
 # ============================================================
 
 @app.route(
@@ -10119,7 +10778,7 @@ def admin_pause_sponsored_post(sponsored_post_id):
 
 
 # ============================================================
-# ADMIN — MARK NORMAL POST AS SPONSORED
+# ADMIN â€” MARK NORMAL POST AS SPONSORED
 # ============================================================
 
 @app.route(
@@ -10166,7 +10825,7 @@ def admin_mark_post_sponsored(post_id):
 
 
 # ============================================================
-# ADMIN — REMOVE SPONSORED FROM NORMAL POST
+# ADMIN â€” REMOVE SPONSORED FROM NORMAL POST
 # ============================================================
 
 @app.route(
@@ -10199,7 +10858,7 @@ def admin_remove_post_sponsored(post_id):
     return redirect(url_for("admin_sponsored_posts"))
 
 # ============================================================
-# ADMIN — REJECT ADVERTISEMENT
+# ADMIN â€” REJECT ADVERTISEMENT
 # ============================================================
 
 @app.route(
