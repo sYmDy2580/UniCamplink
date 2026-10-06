@@ -2900,7 +2900,26 @@ def seed_gamification_badges(conn):
             )
         )
 
-# ============================================================
+    # ============================================================
+    # NORMALIZE EXISTING GAMIFICATION BADGE ICONS
+    # Keeps older database rows in sync with the current badge icons.
+    # ============================================================
+    badge_icon_fixes = {
+        "First Step": "&#127775;",
+        "Campus Voice": "&#127775;",
+        "Conversation Starter": "&#128172;",
+        "Social Circle": "&#128101;",
+        "Rising Student": "&#11088;",
+        "Campus Champion": "&#127942;",
+        "Level Up": "&#127941;",
+    }
+
+    for badge_name, badge_icon in badge_icon_fixes.items():
+        conn.execute(
+            "UPDATE badges SET icon = ? WHERE name = ?",
+            (badge_icon, badge_name)
+        )
+
 # INITIALIZE DATABASE
 # ============================================================
 
