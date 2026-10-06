@@ -231,6 +231,78 @@
         }
 
 
+
+        .typing-indicator {
+
+            display: none;
+
+            align-items: center;
+
+            gap: 4px;
+
+            margin-top: 2px;
+
+            min-height: 14px;
+
+            font-size: 11px;
+
+            color: var(--primary);
+
+            font-weight: 700;
+
+        }
+
+        .typing-indicator.active {
+
+            display: flex;
+
+        }
+
+        .typing-indicator::before {
+
+            content: "";
+
+            width: 5px;
+
+            height: 5px;
+
+            border-radius: 50%;
+
+            background: var(--primary);
+
+            box-shadow:
+                8px 0 0 var(--primary),
+                16px 0 0 var(--primary);
+
+            animation: typingDots 1.2s infinite ease-in-out;
+
+        }
+
+        @keyframes typingDots {
+
+            0%,
+            60%,
+            100% {
+
+                opacity: 0.35;
+
+                transform: translateX(0);
+
+            }
+
+            30% {
+
+                opacity: 1;
+
+                transform: translateX(1px);
+
+            }
+
+        }
+
+
+
+
         /* =========================================================
            PROFILE BUTTON
            ========================================================= */
@@ -1088,6 +1160,13 @@
                 Checking status...
             </div>
 
+            <div
+                id="typing-indicator"
+                class="typing-indicator"
+                aria-live="polite"
+                aria-hidden="true"
+            ></div>
+
         </div>
 
 
@@ -1246,10 +1325,33 @@
         const statusElement =
             document.getElementById("user-status");
 
+        const typingIndicator =
+            document.getElementById("typing-indicator");
+
         const connectionIndicator =
             document.getElementById(
                 "connection-indicator"
             );
+
+        function updateTypingIndicator(isTyping) {
+
+            if (!typingIndicator) {
+                return;
+            }
+
+            typingIndicator.textContent =
+                isTyping ? "typing..." : "";
+
+            typingIndicator.classList.toggle(
+                "active",
+                isTyping
+            );
+
+            typingIndicator.setAttribute(
+                "aria-hidden",
+                isTyping ? "false" : "true"
+            );
+        }
 
 
         const currentUserId =
@@ -1918,6 +2020,18 @@
 
                 if (
                     data &&
+                    typeof data.other_user_typing === "boolean"
+                ) {
+
+                    updateTypingIndicator(
+                        data.other_user_typing
+                    );
+
+                }
+
+
+                if (
+                    data &&
                     Array.isArray(
                         data.messages
                     )
@@ -1944,6 +2058,184 @@
 
 
         /* =====================================================
+           TYPING INDICATOR
+        ===================================================== */
+
+        let typingStopTimer = null;
+        let typingHeartbeatTimer = null;
+
+        async function sendTypingStatus(isTyping) {
+
+            if (!messageForm) {
+                return;
+            }
+
+            const csrfInput =
+                messageForm.querySelector(
+                    'input[name="csrf_token"]'
+                );
+
+            const csrfToken =
+                csrfInput
+                    ? csrfInput.value
+                    : "";
+
+            try {
+
+                await fetch(
+                    `/api/chat/${otherUserId}/typing`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                            "Accept":
+                                "application/json",
+                            "X-CSRFToken":
+                                csrfToken
+                        },
+                        body: JSON.stringify({
+                            typing: isTyping
+                        })
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.debug(
+                    "Typing status update failed:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        function stopTyping() {
+
+            if (typingStopTimer) {
+
+                clearTimeout(
+                    typingStopTimer
+                );
+
+                typingStopTimer = null;
+
+            }
+
+
+            if (typingHeartbeatTimer) {
+
+                clearInterval(
+                    typingHeartbeatTimer
+                );
+
+                typingHeartbeatTimer = null;
+
+            }
+
+
+            sendTypingStatus(false);
+
+        }
+
+
+        function startTyping() {
+
+            if (!messageInput) {
+                return;
+            }
+
+
+            const hasText =
+                messageInput.value.trim().length > 0;
+
+
+            if (!hasText) {
+
+                stopTyping();
+
+                return;
+
+            }
+
+
+            sendTypingStatus(true);
+
+
+            if (typingHeartbeatTimer) {
+
+                clearInterval(
+                    typingHeartbeatTimer
+                );
+
+            }
+
+
+            typingHeartbeatTimer =
+                setInterval(
+                    function() {
+
+                        if (
+                            messageInput.value.trim()
+                                .length === 0
+                        ) {
+
+                            stopTyping();
+
+                            return;
+
+                        }
+
+                        sendTypingStatus(true);
+
+                    },
+                    1500
+                );
+
+
+            if (typingStopTimer) {
+
+                clearTimeout(
+                    typingStopTimer
+                );
+
+            }
+
+
+            typingStopTimer =
+                setTimeout(
+                    function() {
+
+                        stopTyping();
+
+                    },
+                    2500
+                );
+
+        }
+
+
+        if (messageInput) {
+
+            messageInput.addEventListener(
+                "input",
+                startTyping
+            );
+
+
+            messageInput.addEventListener(
+                "blur",
+                stopTyping
+            );
+
+        }
+
+
+        /* =====================================================
            SEND MESSAGE
         ===================================================== */
 
@@ -1954,6 +2246,8 @@
                 async function(event) {
 
                     event.preventDefault();
+
+                    stopTyping();
 
 
                     const message =

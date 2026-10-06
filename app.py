@@ -12,6 +12,9 @@ from urllib.parse import quote
 from uuid import uuid4
 from datetime import datetime, timedelta
 
+import threading
+import time
+
 from flask import (
 
     Flask,
@@ -61,6 +64,17 @@ from unicamplink_ai import detect_action
 # ============================================================
 
 app = Flask(__name__, static_folder=None)
+
+# ============================================================
+# CHAT TYPING INDICATOR
+# In-memory only - no SQLite writes.
+# ============================================================
+CHAT_TYPING_TIMEOUT = 4.0
+
+chat_typing_state = {}
+
+chat_typing_lock = threading.Lock()
+
 
 
 # ============================================================
@@ -4477,7 +4491,7 @@ f"/feed#post-{post_id}"
                     parent_user["user_id"],
                     session["user_id"],
                     "reply",
-                    "replied to your comment ðŸ’¬",
+                    "replied to your comment 💬",
                     f"/feed#post-{post_id}"
                 )
             )
@@ -5903,7 +5917,7 @@ def group_chat(group_id):
                     current_user_id,
                     "group_message",
                     f"{sender_name} sent a message in "
-                    f"{group['name']} ðŸ’¬",
+                    f"{group['name']} 💬",
                     f"/group/{group_id}/chat"
                 )
             )
@@ -6138,7 +6152,7 @@ def create_group_post(group_id):
                 member["user_id"],
                 session["user_id"],
                 "group",
-                f"{author_name} posted in {group_name} ðŸ‘¥",
+                f"{author_name} posted in {group_name} 👥",
                 f"/group/{group_id}"
             )
         )
@@ -6650,7 +6664,7 @@ def add_product():
 
                         (
                             f"{seller_name} listed "
-                            f"{name} on Marketplace ðŸ›ï¸"
+                            f"{name} on Marketplace 🛒"
                         ),
 
                         (
@@ -7932,7 +7946,7 @@ def chat(user_id):
                 user_id,
                 current_user_id,
                 "message",
-                "sent you a message ðŸ’¬",
+                "sent you a message 💬",
                 "/chat/" + str(current_user_id)
             )
         )
@@ -8259,6 +8273,38 @@ def api_chat_messages(user_id):
     ).fetchall()
 
     # --------------------------------------------------------
+    # CHECK OTHER USER TYPING STATUS
+    # In-memory only - no SQLite writes.
+    # --------------------------------------------------------
+
+    typing_key = (
+        user_id,
+        current_user_id
+    )
+
+    now = time.monotonic()
+
+    with chat_typing_lock:
+
+        last_typing = chat_typing_state.get(
+            typing_key
+        )
+
+        if (
+            last_typing is not None
+            and now - last_typing <= CHAT_TYPING_TIMEOUT
+        ):
+            other_user_typing = True
+
+        else:
+            chat_typing_state.pop(
+                typing_key,
+                None
+            )
+
+            other_user_typing = False
+
+    # --------------------------------------------------------
     # MARK RECEIVED MESSAGES AS READ
     # --------------------------------------------------------
 
@@ -8313,9 +8359,168 @@ def api_chat_messages(user_id):
     "other_user_last_seen": (
         other_user["last_seen"]
         or ""
-    )
+    ),
+    "other_user_typing": other_user_typing
 }
     
+
+# ============================================================
+# CHAT TYPING STATUS
+# In-memory only - no SQLite writes.
+# ============================================================
+@app.route("/api/chat/<int:user_id>/typing", methods=["POST"])
+def api_chat_typing(user_id):
+
+    if "user_id" not in session:
+        return {
+            "ok": False
+        }, 401
+
+    current_user_id = session["user_id"]
+
+    # Prevent self-chat
+    if user_id == current_user_id:
+        return {
+            "ok": False
+        }, 400
+
+    conn = get_db_connection()
+
+    # Check that the other user exists
+    other_user = conn.execute(
+        """
+        SELECT id
+        FROM users
+        WHERE id = ?
+        """,
+        (
+            user_id,
+        )
+    ).fetchone()
+
+    if not other_user:
+        conn.close()
+
+        return {
+            "ok": False
+        }, 404
+
+    # CHECK FRIENDSHIP
+    friendship = conn.execute(
+        """
+        SELECT id
+        FROM friends
+        WHERE user_id = ?
+        AND friend_id = ?
+        """,
+        (
+            current_user_id,
+            user_id
+        )
+    ).fetchone()
+
+    is_friend = bool(friendship)
+
+    # CHECK EXISTING CONVERSATION
+    existing_conversation = conn.execute(
+        """
+        SELECT id
+        FROM messages
+        WHERE
+            (
+                sender_id = ?
+                AND receiver_id = ?
+            )
+            OR
+            (
+                sender_id = ?
+                AND receiver_id = ?
+            )
+        LIMIT 1
+        """,
+        (
+            current_user_id,
+            user_id,
+            user_id,
+            current_user_id
+        )
+    ).fetchone()
+
+    has_existing_conversation = bool(
+        existing_conversation
+    )
+
+    # CHECK MARKETPLACE CONTACT
+    product_id = request.args.get(
+        "product_id",
+        type=int
+    )
+
+    is_marketplace_contact = False
+
+    if product_id:
+
+        product = conn.execute(
+            """
+            SELECT id
+            FROM products
+            WHERE id = ?
+            AND seller_id = ?
+            """,
+            (
+                product_id,
+                user_id
+            )
+        ).fetchone()
+
+        if product:
+            is_marketplace_contact = True
+
+    # AUTHORIZE CHAT
+    if not (
+        is_friend
+        or is_marketplace_contact
+        or has_existing_conversation
+    ):
+        conn.close()
+
+        return {
+            "ok": False
+        }, 403
+
+    conn.close()
+
+    payload = request.get_json(
+        silent=True
+    ) or {}
+
+    is_typing = bool(
+        payload.get("typing")
+    )
+
+    typing_key = (
+        current_user_id,
+        user_id
+    )
+
+    with chat_typing_lock:
+
+        if is_typing:
+            chat_typing_state[
+                typing_key
+            ] = time.monotonic()
+
+        else:
+            chat_typing_state.pop(
+                typing_key,
+                None
+            )
+
+    return {
+        "ok": True
+    }
+
+
 
 # ============================================================
 # UPDATE USER LAST SEEN
@@ -8623,7 +8828,7 @@ def admin_create_announcement():
     if notify_users and is_active:
 
         notification_message = (
-            f"ðŸ“¢ {title}: {message}"
+            f"📢 {title}: {message}"
         )
 
         users = conn.execute(
@@ -9778,7 +9983,7 @@ def admin_appoint_campus_ambassador(user_id):
             user_id,
             current_user["id"],
             "campus_ambassador",
-            "You have been appointed as an Official UniCamplink Campus Ambassador ðŸŽ“",
+            "You have been appointed as an Official UniCamplink Campus Ambassador 🎓",
             "/profile"
         )
     )
@@ -10656,7 +10861,7 @@ def admin_approve_advertisement(advertisement_id):
                 advertisement["user_id"],
                 current_user["id"],
                 "advertisement",
-                "Your UniCamplink advertising request has been approved. ðŸ“¢",
+                "Your UniCamplink advertising request has been approved. 📢",
                 "/admin/advertisements"
             )
         )
