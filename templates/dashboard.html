@@ -699,6 +699,167 @@
 
 
         /* =========================================================
+           CAMPUS PROGRESS
+        ========================================================= */
+
+        .rz-progress-card {
+            margin-bottom: 14px;
+            padding: 16px;
+            border: 1px solid rgba(56, 189, 248, .22);
+            border-radius: var(--rz-radius);
+            background: linear-gradient(
+                135deg,
+                rgba(56, 189, 248, .10),
+                rgba(56, 189, 248, .03)
+            );
+            box-shadow: var(--rz-shadow);
+        }
+
+        .rz-progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .rz-progress-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .rz-progress-subtitle {
+            margin: 3px 0 0;
+            color: var(--rz-muted);
+            font-size: 11px;
+        }
+
+        .rz-progress-level {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(56, 189, 248, .25);
+            background: rgba(56, 189, 248, .08);
+            color: var(--rz-accent);
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .rz-progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 9px;
+        }
+
+        .rz-progress-stat {
+            min-width: 0;
+            padding: 11px 9px;
+            border: 1px solid var(--rz-border);
+            border-radius: 12px;
+            background: var(--rz-card);
+            text-align: center;
+        }
+
+        .rz-progress-stat-icon {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 17px;
+        }
+
+        .rz-progress-stat-value {
+            display: block;
+            font-size: 16px;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .rz-progress-stat-label {
+            display: block;
+            margin-top: 3px;
+            color: var(--rz-muted);
+            font-size: 10px;
+        }
+
+        .rz-progress-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 12px;
+        }
+
+        .rz-progress-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 9px;
+            border: 1px solid var(--rz-border);
+            border-radius: 999px;
+            background: var(--rz-card);
+            color: var(--rz-text);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .rz-progress-badge-icon {
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .rz-progress-card {
+                padding: 13px;
+                margin-bottom: 10px;
+                border-radius: 15px;
+            }
+
+            .rz-progress-header {
+                margin-bottom: 11px;
+            }
+
+            .rz-progress-title {
+                font-size: 14px;
+            }
+
+            .rz-progress-subtitle {
+                font-size: 10px;
+            }
+
+            .rz-progress-level {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+
+            .rz-progress-stats {
+                gap: 6px;
+            }
+
+            .rz-progress-stat {
+                padding: 9px 5px;
+                border-radius: 10px;
+            }
+
+            .rz-progress-stat-value {
+                font-size: 14px;
+            }
+
+            .rz-progress-stat-label {
+                font-size: 9px;
+            }
+
+            .rz-progress-badges {
+                gap: 5px;
+                margin-top: 9px;
+            }
+
+            .rz-progress-badge {
+                padding: 5px 7px;
+                font-size: 9px;
+            }
+        }
+
+        /* =========================================================
            PUSH NOTIFICATION CARD
         ========================================================= */
 
@@ -2390,6 +2551,127 @@
 
             </section>
 
+
+
+            <!-- =========================================================
+     CAMPUS PROGRESS
+========================================================== -->
+
+            <section class="rz-progress-card">
+
+                <div class="rz-progress-header">
+
+                    <div>
+                        <div class="rz-progress-title">
+                            &#127922;
+                            Campus Progress
+                        </div>
+
+                        <p class="rz-progress-subtitle">
+                            Keep participating and grow your campus profile.
+                        </p>
+                    </div>
+
+                    <div class="rz-progress-level">
+                        Level {{ gamification["current_level"] }}
+                    </div>
+
+                </div>
+
+
+                <div class="rz-progress-stats">
+
+                    <div class="rz-progress-stat">
+
+                        <span class="rz-progress-stat-icon">
+                            &#11088;
+                        </span>
+
+                        <span class="rz-progress-stat-value">
+                            {{ gamification["total_points"] }}
+                        </span>
+
+                        <span class="rz-progress-stat-label">
+                            Points
+                        </span>
+
+                    </div>
+
+
+                    <div class="rz-progress-stat">
+
+                        <span class="rz-progress-stat-icon">
+                            &#127941;
+                        </span>
+
+                        <span class="rz-progress-stat-value">
+                            {{ gamification["current_level"] }}
+                        </span>
+
+                        <span class="rz-progress-stat-label">
+                            Level
+                        </span>
+
+                    </div>
+
+
+                    <div class="rz-progress-stat">
+
+                        <span class="rz-progress-stat-icon">
+                            &#128293;
+                        </span>
+
+                        <span class="rz-progress-stat-value">
+                            {{ gamification["current_streak"] }}
+                        </span>
+
+                        <span class="rz-progress-stat-label">
+                            Day Streak
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="rz-progress-badges">
+
+                    {% if gamification_badges %}
+
+                        {% for badge in gamification_badges %}
+
+                            <span
+                                class="rz-progress-badge"
+                                title="{{ badge['description'] }}"
+                            >
+
+                                <span class="rz-progress-badge-icon">
+                                    {{ badge["icon"]|safe if badge["icon"] else "&#127942;" }}
+                                </span>
+
+                                {{ badge["name"] }}
+
+                            </span>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <span class="rz-progress-badge">
+
+                            <span class="rz-progress-badge-icon">
+                                &#127942;
+                            </span>
+
+                            No badges yet &mdash; keep participating!
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
 
 
             <!-- =========================================================

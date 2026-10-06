@@ -2824,49 +2824,49 @@ def seed_gamification_badges(conn):
         (
             "First Step",
             "Create your first post on UniCamplink.",
-            "??",
+            "&#127775;",
             "posts",
             1
         ),
         (
             "Campus Voice",
             "Create 10 posts.",
-            "??",
+            "&#127775;",
             "posts",
             10
         ),
         (
             "Conversation Starter",
             "Leave 10 comments.",
-            "??",
+            "&#128172;",
             "comments",
             10
         ),
         (
             "Social Circle",
             "Make 5 friends.",
-            "??",
+            "&#128101;",
             "friends",
             5
         ),
         (
             "Rising Student",
             "Reach 100 campus points.",
-            "?",
+            "&#11088;",
             "points",
             100
         ),
         (
             "Campus Champion",
             "Reach 500 campus points.",
-            "??",
+            "&#127942;",
             "points",
             500
         ),
         (
             "Level Up",
             "Reach level 5.",
-            "??",
+            "&#127941;",
             "level",
             5
         )
@@ -3640,6 +3640,51 @@ def dashboard():
         for person in people_you_may_know
     ]
 
+    # ========================================================
+    # GAMIFICATION / CAMPUS PROGRESS
+    # ========================================================
+
+    gamification = conn.execute(
+        """
+        SELECT
+            points AS total_points,
+            level AS current_level,
+            current_streak,
+            longest_streak
+        FROM campus_progress
+        WHERE user_id = ?
+        """,
+        (
+            current_user_id,
+        )
+    ).fetchone()
+
+    if not gamification:
+        gamification = {
+            "total_points": 0,
+            "current_level": 1,
+            "current_streak": 0,
+            "longest_streak": 0
+        }
+
+    gamification_badges = conn.execute(
+        """
+        SELECT
+            b.id,
+            b.name,
+            b.description,
+            b.icon
+        FROM user_badges ub
+        JOIN badges b
+            ON b.id = ub.badge_id
+        WHERE ub.user_id = ?
+        ORDER BY ub.awarded_at DESC, b.id ASC
+        """,
+        (
+            current_user_id,
+        )
+    ).fetchall()
+
 
     conn.close()
 
@@ -3670,7 +3715,9 @@ def dashboard():
         user=user,
         is_admin=is_admin,
         active_announcement=active_announcement,
-        people_you_may_know=people_you_may_know
+        people_you_may_know=people_you_may_know,
+        gamification=gamification,
+        gamification_badges=gamification_badges
     )
 # ============================================================
 # CGPA CALCULATOR
@@ -4059,7 +4106,7 @@ def create_post():
                 friend["friend_id"],
                 current_user_id,
                 "post",
-                f"{author_name} shared a new campus update ðŸ“",
+                f"{author_name} shared a new campus update \U0001F4DD",
                 f"/feed#post-{post_id}"
             )
         )
@@ -4225,13 +4272,13 @@ def like_post(post_id):
                     post_owner["user_id"],
                     session["user_id"],
                     "like",
-                    "liked your post â¤ï¸",
+                    "liked your post \u2764\ufe0f",
 f"/feed#post-{post_id}"
                 )
             )
             send_push_notification(
                 post_owner["user_id"],
-                "â¤ï¸ New Like",
+                "\u2764\ufe0f New Like",
                 "Someone liked your post.",
                 f"/feed#post-{post_id}",
                 "unicamplink-like"
@@ -4381,13 +4428,13 @@ def comment(post_id):
                 post_owner["user_id"],
                 session["user_id"],
                 "comment",
-                "commented on your post ðŸ’¬",
+                "commented on your post \U0001F4AC",
 f"/feed#post-{post_id}"
             )
         )
         send_push_notification(
             post_owner["user_id"],
-            "ðŸ’¬ New Comment",
+            "\U0001F4AC New Comment",
             "Someone commented on your post.",
             f"/feed#post-{post_id}",
             "unicamplink-comment"
@@ -4845,6 +4892,27 @@ def profile():
         (session["user_id"],)
     ).fetchone()
 
+    # ========================================================
+    # GAMIFICATION / PUBLIC PROFILE BADGES
+    # ========================================================
+
+    profile_badges = conn.execute(
+        """
+        SELECT
+            b.id,
+            b.name,
+            b.description,
+            b.icon,
+            ub.awarded_at
+        FROM user_badges ub
+        JOIN badges b
+            ON b.id = ub.badge_id
+        WHERE ub.user_id = ?
+        ORDER BY ub.awarded_at DESC, b.id ASC
+        """,
+        (session["user_id"],)
+    ).fetchall()
+
     conn.close()
 
     return render_template(
@@ -4854,6 +4922,7 @@ def profile():
         post_count=post_count,
         total_likes=total_likes,
         campus_ambassador=campus_ambassador,
+        profile_badges=profile_badges,
         is_owner=True
     )
 # ============================================================
@@ -4953,6 +5022,23 @@ def view_profile(user_id):
         (user_id,)
     ).fetchone()
 
+    profile_badges = conn.execute(
+        """
+        SELECT
+            b.id,
+            b.name,
+            b.description,
+            b.icon,
+            ub.awarded_at
+        FROM user_badges ub
+        JOIN badges b
+            ON b.id = ub.badge_id
+        WHERE ub.user_id = ?
+        ORDER BY ub.awarded_at DESC, b.id ASC
+        """,
+        (user_id,)
+    ).fetchall()
+
     conn.close()
 
     is_owner = (
@@ -4966,6 +5052,7 @@ def view_profile(user_id):
         post_count=post_count,
         total_likes=total_likes,
         campus_ambassador=campus_ambassador,
+        profile_badges=profile_badges,
         is_owner=is_owner
     )
 
@@ -7293,7 +7380,7 @@ def send_friend_request(user_id):
             user_id,
             current_user_id,
             "friend_request",
-            "sent you a friend request â¤ï¸",
+            "sent you a friend request \u2764\ufe0f",
             "/friend-requests"
         )
     )
@@ -7505,7 +7592,7 @@ def accept_friend_request(request_id):
             friend_request["sender_id"],
             current_user_id,
             "friend_accepted",
-            "accepted your friend request â¤ï¸",
+            "accepted your friend request \u2764\ufe0f",
             "/profile"
         )
     )

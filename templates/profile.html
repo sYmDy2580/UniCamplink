@@ -1298,6 +1298,93 @@
        TABLET / MOBILE
     ========================================================= */
 
+    /* =========================================================
+       GAMIFICATION ACHIEVEMENTS
+    ========================================================= */
+
+    .profile-achievements {
+        margin-top: 18px;
+        padding: 16px;
+        border: 1px solid rgba(56, 189, 248, .22);
+        border-radius: 16px;
+        background: linear-gradient(
+            135deg,
+            rgba(56, 189, 248, .10),
+            rgba(56, 189, 248, .03)
+        );
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+    }
+
+    .profile-achievements-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .profile-achievements-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .profile-achievements-subtitle {
+        margin: 3px 0 0;
+        color: var(--rz-muted, #64748b);
+        font-size: 11px;
+    }
+
+    .profile-achievements-count {
+        flex-shrink: 0;
+        padding: 5px 9px;
+        border: 1px solid rgba(56, 189, 248, .25);
+        border-radius: 999px;
+        background: rgba(56, 189, 248, .08);
+        color: #38bdf8;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .profile-achievements-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .profile-achievement {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        padding: 7px 10px;
+        border: 1px solid var(--rz-border, rgba(148, 163, 184, .20));
+        border-radius: 999px;
+        background: var(--rz-card, rgba(255, 255, 255, .04));
+        color: var(--rz-text, inherit);
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .profile-achievement-icon {
+        flex-shrink: 0;
+        font-size: 14px;
+    }
+
+    .profile-achievement-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .profile-achievements-empty {
+        color: var(--rz-muted, #64748b);
+        font-size: 11px;
+    }
+
     @media (max-width: 760px) {
 
         body {
@@ -2398,6 +2485,72 @@
                 </div>
 
             </div>
+
+
+            <!-- PUBLIC GAMIFICATION ACHIEVEMENTS -->
+
+            <section class="profile-achievements">
+
+                <div class="profile-achievements-header">
+
+                    <div>
+                        <h2 class="profile-achievements-title">
+                            &#127942;
+                            Achievements
+                        </h2>
+
+                        <p class="profile-achievements-subtitle">
+                            Badges earned through campus participation.
+                        </p>
+                    </div>
+
+                    <span class="profile-achievements-count">
+                        {{ profile_badges|length }}
+                        {% if profile_badges|length == 1 %}
+                            badge
+                        {% else %}
+                            badges
+                        {% endif %}
+                    </span>
+
+                </div>
+
+
+                {% if profile_badges %}
+
+                    <div class="profile-achievements-list">
+
+                        {% for badge in profile_badges %}
+
+                            <span
+                                class="profile-achievement"
+                                title="{{ badge['description'] }}"
+                            >
+
+                                <span class="profile-achievement-icon">
+                                    {{ badge["icon"]|safe if badge["icon"] else "&#127942;" }}
+                                </span>
+
+                                <span class="profile-achievement-name">
+                                    {{ badge["name"] }}
+                                </span>
+
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <span class="profile-achievements-empty">
+                        No badges yet &mdash; keep participating!
+                    </span>
+
+                {% endif %}
+
+            </section>
+
 
         </div>
 
