@@ -798,6 +798,195 @@
                 #0f172a;
         }
 
+
+        /* =====================================================
+           GROUP 2.0 LIVE CHAT
+        ====================================================== */
+
+        .group-chat-live-status {
+            min-height: 22px;
+            padding: 4px 18px 8px;
+            color: var(--text-muted, #64748b);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .group-chat-typing {
+            min-height: 18px;
+            opacity: 0;
+            transition: opacity 0.18s ease;
+        }
+
+        .group-chat-typing.active {
+            opacity: 1;
+        }
+
+        .group-chat-typing-dots {
+            display: inline-flex;
+            gap: 3px;
+            align-items: center;
+        }
+
+        .group-chat-typing-dots span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: groupTypingDot 1.2s infinite ease-in-out;
+        }
+
+        .group-chat-typing-dots span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .group-chat-typing-dots span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes groupTypingDot {
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.45;
+            }
+
+            30% {
+                transform: translateY(-3px);
+                opacity: 1;
+            }
+        }
+
+        .group-message-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .message-row:hover .group-message-actions,
+        .message-row:focus-within .group-message-actions {
+            opacity: 1;
+        }
+
+        .group-message-action {
+            border: 0;
+            background: transparent;
+            padding: 0;
+            color: var(--text-muted, #64748b);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .group-message-action:hover {
+            color: var(--primary, #38bdf8);
+        }
+
+        .group-message-action.delete:hover {
+            color: #ef4444;
+        }
+
+        .group-reply-quote {
+            margin-bottom: 7px;
+            padding: 7px 9px;
+            border-left: 3px solid var(--primary, #38bdf8);
+            border-radius: 7px;
+            background: rgba(56, 189, 248, 0.08);
+            color: var(--text-muted, #64748b);
+            font-size: 11px;
+            line-height: 1.35;
+            cursor: pointer;
+        }
+
+        .group-reply-quote strong {
+            display: block;
+            margin-bottom: 2px;
+            color: var(--text, #0f172a);
+            font-size: 11px;
+        }
+
+        .group-reply-preview {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 0 12px 8px;
+            padding: 9px 11px;
+            border-left: 3px solid var(--primary, #38bdf8);
+            border-radius: 8px;
+            background: var(--surface-2, #f8fafc);
+        }
+
+        .group-reply-preview.active {
+            display: flex;
+        }
+
+        .group-reply-preview-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .group-reply-preview-label {
+            margin-bottom: 2px;
+            color: var(--primary, #38bdf8);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .group-reply-preview-text {
+            overflow: hidden;
+            color: var(--text-muted, #64748b);
+            font-size: 12px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .group-reply-cancel {
+            flex: 0 0 auto;
+            border: 0;
+            background: transparent;
+            color: var(--text-muted, #64748b);
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .group-reply-cancel:hover {
+            color: #ef4444;
+        }
+
+        .group-chat-composer.is-sending {
+            opacity: 0.72;
+        }
+
+        .group-chat-input:disabled {
+            cursor: wait;
+        }
+
+        @media (max-width: 700px) {
+
+            .group-chat-live-status {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .group-message-actions {
+                opacity: 1;
+            }
+
+            .group-message-action {
+                font-size: 10px;
+            }
+
+            .group-reply-preview {
+                margin-left: 8px;
+                margin-right: 8px;
+            }
+        }
+
     </style>
 
 </head>
@@ -905,132 +1094,100 @@
                  MESSAGES
             ================================================== -->
 
-            {% if group_messages %}
-
-                <div
-                    class="chat-messages"
-                    id="groupChatMessages"
-                >
-
-                    {% for message in group_messages %}
-
-                        {% set mine =
-                            message['sender_id']
-                            == current_user_id
-                        %}
-
-                        <div
-                            class="message-row
-                            {% if mine %}
-                                mine
-                            {% else %}
-                                other
-                            {% endif %}"
-                        >
-
-                            <div class="message-content">
-
-                                {% if message['sender_picture'] %}
-
-                                    <img
-                                        class="message-avatar"
-                                        src="{{ url_for(
-                                            'static',
-                                            filename='uploads/' + message['sender_picture']
-                                        ) }}"
-                                        alt="{{ message['sender_name'] }}"
-                                    >
-
-                                {% else %}
-
-                                    <div class="message-avatar">
-                                        {{ message['sender_name'][0]|upper }}
-                                    </div>
-
-                                {% endif %}
-
-
-                                <div class="message-bubble-wrap">
-
-                                    {% if not mine %}
-
-                                        <div class="message-sender">
-
-                                            {{ message['sender_name'] }}
-
-                                        </div>
-
-                                    {% endif %}
-
-
-                                    <div class="message-bubble">
-
-                                        {{ message['message'] }}
-
-                                    </div>
-
-
-                                    <div class="message-time">
-
-                                        {{ message['created_at']|nigeria_time }}
-
-                                    </div>
-
-                                </div>
-
+            <div
+                class="chat-messages"
+                id="groupChatMessages"
+                aria-live="polite"
+                aria-label="Group messages"
+            >
+                {% if not group_messages %}
+                    <div class="empty-chat" id="groupChatEmpty">
+                        <div>
+                            <div class="empty-chat-icon">
+                                <span class="group-chat-live-dot" aria-hidden="true"></span>
                             </div>
 
+                            <h2>
+                                No messages yet
+                            </h2>
+
+                            <p>
+                                Start the conversation with
+                                your group members.
+                            </p>
                         </div>
-
-                    {% endfor %}
-
-                </div>
-
-            {% else %}
-
-                <div class="empty-chat">
-
-                    <div>
-
-                        <div class="empty-chat-icon">
-                            💬
-                        </div>
-
-                        <h2>
-                            No messages yet
-                        </h2>
-
-                        <p>
-                            Start the conversation with
-                            your group members.
-                        </p>
-
                     </div>
+                {% endif %}
+            </div>
 
-                </div>
-
-            {% endif %}
-
+            <div
+                class="group-chat-live-status"
+                id="groupChatTypingStatus"
+                aria-live="polite"
+            >
+                <div
+                    class="group-chat-typing"
+                    id="groupChatTyping"
+                ></div>
+            </div>
 
             <!-- =================================================
                  COMPOSER
             ================================================== -->
 
+            <div
+                class="group-reply-preview"
+                id="groupReplyPreview"
+            >
+                <div class="group-reply-preview-content">
+                    <div
+                        class="group-reply-preview-label"
+                        id="groupReplyPreviewLabel"
+                    >
+                        Replying to
+                    </div>
+
+                    <div
+                        class="group-reply-preview-text"
+                        id="groupReplyPreviewText"
+                    ></div>
+                </div>
+
+                <button
+                    type="button"
+                    class="group-reply-cancel"
+                    id="groupReplyCancel"
+                    aria-label="Cancel reply"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
             <form
                 method="POST"
                 class="group-chat-composer"
+                id="groupChatComposer"
             >
 
                 <input
                     type="hidden"
                     name="csrf_token"
+                    id="groupChatCsrfToken"
                     value="{{ csrf_token() }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="reply_to_message_id"
+                    id="groupReplyTarget"
+                    value=""
                 >
 
                 <input
                     type="text"
                     name="message"
                     class="group-chat-input"
+                    id="groupChatInput"
                     placeholder="Message {{ group['name'] }}..."
                     maxlength="2000"
                     autocomplete="off"
@@ -1041,8 +1198,9 @@
                     type="submit"
                     class="send-button"
                     aria-label="Send message"
+                    id="groupChatSendButton"
                 >
-                    ➤
+                    Send
                 </button>
 
             </form>
@@ -1053,125 +1211,913 @@
 
 
     <script>
+/* =========================================================
+   GROUP 2.0
+   LIVE GROUP CHAT
+   ========================================================= */
 
-        /*
-         * Always open the group conversation
-         * at the newest message.
-         */
+(function () {
 
-        const chatBox =
-            document.getElementById(
-                "groupChatMessages"
-            );
+    const groupId = {{ group['id'] }};
+    const currentUserId = {{ current_user_id }};
 
-        if (chatBox) {
+    const chatBox =
+        document.getElementById("groupChatMessages");
+
+    const composer =
+        document.getElementById("groupChatComposer");
+
+    const input =
+        document.getElementById("groupChatInput");
+
+    const sendButton =
+        document.getElementById("groupChatSendButton");
+
+    const csrfInput =
+        document.getElementById("groupChatCsrfToken");
+
+    const replyTarget =
+        document.getElementById("groupReplyTarget");
+
+    const replyPreview =
+        document.getElementById("groupReplyPreview");
+
+    const replyPreviewLabel =
+        document.getElementById("groupReplyPreviewLabel");
+
+    const replyPreviewText =
+        document.getElementById("groupReplyPreviewText");
+
+    const replyCancel =
+        document.getElementById("groupReplyCancel");
+
+    const typingElement =
+        document.getElementById("groupChatTyping");
+
+    if (
+        !chatBox ||
+        !composer ||
+        !input ||
+        !sendButton ||
+        !csrfInput
+    ) {
+        return;
+    }
+
+    let messagesById = new Map();
+    let selectedReply = null;
+    let lastMessageId = 0;
+    let typingHeartbeat = null;
+    let typingActive = false;
+    let pollInProgress = false;
+
+    const POLL_INTERVAL = 2500;
+    const TYPING_HEARTBEAT = 2000;
+
+    function escapeHtml(value) {
+
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+    function formatMessageTime(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        const normalized =
+            String(value).replace(" ", "T") + "Z";
+
+        const date = new Date(normalized);
+
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(value);
+        }
+
+        return date.toLocaleTimeString(
+            "en-NG",
+            {
+                hour: "numeric",
+                minute: "2-digit"
+            }
+        );
+
+    }
+
+    function scrollToBottom(force) {
+
+        if (!force) {
+
+            const distance =
+                chatBox.scrollHeight -
+                chatBox.scrollTop -
+                chatBox.clientHeight;
+
+            if (distance > 180) {
+                return;
+            }
+
+        }
+
+        requestAnimationFrame(function () {
 
             chatBox.scrollTop =
                 chatBox.scrollHeight;
 
-        }
+        });
 
-    </script>
-    <script>
-/* =========================================================
-   MESSAGING 2.0
-   GROUP CHAT MOBILE KEYBOARD-AWARE SHELL
-   ========================================================= */
-
-(function () {
-
-    const navbar =
-        document.querySelector(".group-chat-navbar");
-
-    const chatPage =
-        document.querySelector(".group-chat-page");
-
-    if (!navbar || !chatPage) {
-        return;
     }
 
-    function updateGroupChatViewport() {
+    function renderTypingUsers(users) {
 
-        /*
-         * The group header stays fixed.
-         * JavaScript only adjusts the available
-         * conversation viewport.
-         */
-
-        navbar.style.top = "0px";
-
-        if (!window.visualViewport) {
+        if (!typingElement) {
             return;
         }
 
-        const viewportHeight =
-            window.visualViewport.height;
+        if (!users || !users.length) {
 
-        const headerHeight =
-            navbar.offsetHeight;
+            typingElement.classList.remove("active");
+            typingElement.innerHTML = "";
 
-        chatPage.style.top =
-            headerHeight + "px";
+            return;
+        }
 
-        chatPage.style.height =
-            Math.max(
-                0,
-                viewportHeight - headerHeight
-            ) + "px";
+        const names = users
+            .map(function (user) {
+                return user.name || "Someone";
+            });
+
+        let label = "";
+
+        if (names.length === 1) {
+            label = names[0] + " is typing";
+        } else if (names.length === 2) {
+            label =
+                names[0] +
+                " and " +
+                names[1] +
+                " are typing";
+        } else {
+            label =
+                names.slice(0, 2).join(", ") +
+                " and " +
+                (names.length - 2) +
+                " others are typing";
+        }
+
+        typingElement.innerHTML =
+            escapeHtml(label) +
+            ' <span class="group-chat-typing-dots">' +
+                "<span></span>" +
+                "<span></span>" +
+                "<span></span>" +
+            "</span>";
+
+        typingElement.classList.add("active");
+
     }
 
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener(
-            "resize",
-            updateGroupChatViewport
+    function findMessage(id) {
+
+        return messagesById.get(Number(id)) || null;
+
+    }
+
+    function setReplyTarget(message) {
+
+        if (!message) {
+            return;
+        }
+
+        selectedReply = message;
+
+        replyTarget.value = message.id;
+
+        replyPreviewLabel.textContent =
+            "Replying to " +
+            (message.sender_name || "UniCamplink User");
+
+        replyPreviewText.textContent =
+            message.message || "";
+
+        replyPreview.classList.add("active");
+
+        input.focus();
+
+    }
+
+    function clearReplyTarget() {
+
+        selectedReply = null;
+
+        replyTarget.value = "";
+
+        replyPreview.classList.remove("active");
+
+        replyPreviewLabel.textContent =
+            "Replying to";
+
+        replyPreviewText.textContent = "";
+
+    }
+
+    function buildReplyQuote(message) {
+
+        if (
+            !message.reply_to_message_id ||
+            !message.reply_message
+        ) {
+            return "";
+        }
+
+        return (
+            '<div class="group-reply-quote" ' +
+            'data-reply-target="' +
+            escapeHtml(message.reply_to_message_id) +
+            '">' +
+
+                "<strong>" +
+                    escapeHtml(
+                        message.reply_sender_name ||
+                        "UniCamplink User"
+                    ) +
+                "</strong>" +
+
+                escapeHtml(message.reply_message) +
+
+            "</div>"
         );
+
     }
 
-    window.addEventListener(
-        "resize",
-        updateGroupChatViewport
+    function buildMessageHtml(message) {
+
+        const mine =
+            Number(message.sender_id) ===
+            Number(currentUserId);
+
+        const senderName =
+            message.sender_name ||
+            "UniCamplink User";
+
+        let avatar = "";
+
+        if (message.sender_picture) {
+
+            avatar =
+                '<img class="message-avatar" src="/static/uploads/' +
+                encodeURIComponent(
+                    message.sender_picture
+                ) +
+                '" alt="' +
+                escapeHtml(senderName) +
+                '">';
+
+        } else {
+
+            avatar =
+                '<div class="message-avatar">' +
+                escapeHtml(
+                    senderName.charAt(0).toUpperCase()
+                ) +
+                "</div>";
+
+        }
+
+        const senderHtml = mine
+            ? ""
+            :
+                '<div class="message-sender">' +
+                escapeHtml(senderName) +
+                "</div>";
+
+        const actions =
+            '<div class="group-message-actions">' +
+
+                '<button type="button" ' +
+                    'class="group-message-action reply" ' +
+                    'data-action="reply" ' +
+                    'data-message-id="' +
+                    escapeHtml(message.id) +
+                    '">' +
+                    "Reply" +
+                "</button>" +
+
+                (
+                    mine
+                    ? '<button type="button" ' +
+                        'class="group-message-action delete" ' +
+                        'data-action="delete" ' +
+                        'data-message-id="' +
+                        escapeHtml(message.id) +
+                        '">' +
+                        "Delete" +
+                    "</button>"
+                    :
+                    ""
+                ) +
+
+            "</div>";
+
+        return (
+            '<div class="message-row ' +
+            (mine ? "mine" : "other") +
+            '" data-message-id="' +
+            escapeHtml(message.id) +
+            '">' +
+
+                '<div class="message-content">' +
+
+                    avatar +
+
+                    '<div class="message-bubble-wrap">' +
+
+                        senderHtml +
+
+                        '<div class="message-bubble">' +
+
+                            buildReplyQuote(message) +
+
+                            '<div class="group-message-text">' +
+                                escapeHtml(message.message) +
+                            "</div>" +
+
+                        "</div>" +
+
+                        '<div class="message-time">' +
+                            formatMessageTime(
+                                message.created_at
+                            ) +
+                        "</div>" +
+
+                        actions +
+
+                    "</div>" +
+
+                "</div>" +
+
+            "</div>"
+        );
+
+    }
+
+    function renderMessages(messages) {
+
+        if (!Array.isArray(messages)) {
+            return;
+        }
+
+        const wasNearBottom =
+            chatBox.scrollHeight -
+            chatBox.scrollTop -
+            chatBox.clientHeight <
+            180;
+
+        messagesById = new Map();
+
+        messages.forEach(function (message) {
+
+            messagesById.set(
+                Number(message.id),
+                message
+            );
+
+        });
+
+        if (!messages.length) {
+
+            chatBox.innerHTML =
+                '<div class="empty-chat" id="groupChatEmpty">' +
+                    "<div>" +
+                        '<div class="empty-chat-icon">&bull;</div>' +
+                        "<h2>No messages yet</h2>" +
+                        "<p>" +
+                            "Start the conversation with " +
+                            "your group members." +
+                        "</p>" +
+                    "</div>" +
+                "</div>";
+
+            lastMessageId = 0;
+
+            return;
+        }
+
+        chatBox.innerHTML =
+            messages
+                .map(buildMessageHtml)
+                .join("");
+
+        lastMessageId =
+            Number(
+                messages[messages.length - 1].id
+            ) || 0;
+
+        if (wasNearBottom) {
+            scrollToBottom(true);
+        }
+
+    }
+
+    async function fetchMessages(forceScroll) {
+
+        if (pollInProgress) {
+            return;
+        }
+
+        pollInProgress = true;
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/group/" +
+                    groupId +
+                    "/messages",
+                    {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        },
+                        credentials: "same-origin",
+                        cache: "no-store"
+                    }
+                );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data =
+                await response.json();
+
+            const oldLastMessageId =
+                lastMessageId;
+
+            renderMessages(
+                data.messages || []
+            );
+
+            renderTypingUsers(
+                data.typing_users || []
+            );
+
+            if (
+                forceScroll ||
+                oldLastMessageId === 0 ||
+                (
+                    lastMessageId >
+                    oldLastMessageId &&
+                    Number(
+                        data.messages?.[
+                            data.messages.length - 1
+                        ]?.sender_id
+                    ) === Number(currentUserId)
+                )
+            ) {
+                scrollToBottom(true);
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Group chat polling failed.",
+                error
+            );
+
+        } finally {
+
+            pollInProgress = false;
+
+        }
+
+    }
+
+    async function sendTypingState(isTyping) {
+
+        try {
+
+            await fetch(
+                "/api/group/" +
+                groupId +
+                "/typing",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                        "X-CSRFToken":
+                            csrfInput.value
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        typing: isTyping
+                    })
+                }
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Group typing update failed.",
+                error
+            );
+
+        }
+
+    }
+
+    function stopTyping() {
+
+        if (!typingActive) {
+            return;
+        }
+
+        typingActive = false;
+
+        if (typingHeartbeat) {
+
+            clearInterval(
+                typingHeartbeat
+            );
+
+            typingHeartbeat = null;
+
+        }
+
+        sendTypingState(false);
+
+    }
+
+    function startTyping() {
+
+        if (!input.value.trim()) {
+            return;
+        }
+
+        if (!typingActive) {
+
+            typingActive = true;
+
+            sendTypingState(true);
+
+            typingHeartbeat =
+                setInterval(
+                    function () {
+
+                        if (
+                            input.value.trim()
+                        ) {
+                            sendTypingState(true);
+                        } else {
+                            stopTyping();
+                        }
+
+                    },
+                    TYPING_HEARTBEAT
+                );
+
+        }
+
+    }
+
+    async function deleteMessage(messageId) {
+
+        const message =
+            findMessage(messageId);
+
+        if (!message) {
+            return;
+        }
+
+        if (
+            Number(message.sender_id) !==
+            Number(currentUserId)
+        ) {
+            return;
+        }
+
+        const confirmed =
+            window.confirm(
+                "Delete this message?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/group/" +
+                    groupId +
+                    "/message/" +
+                    messageId +
+                    "/delete",
+                    {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken":
+                                csrfInput.value,
+                            "Accept":
+                                "application/json"
+                        },
+                        credentials: "same-origin"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok || !data.ok) {
+
+                window.alert(
+                    data.error ||
+                    "The message could not be deleted."
+                );
+
+                return;
+            }
+
+            await fetchMessages(false);
+
+        } catch (error) {
+
+            console.error(
+                "Group message deletion failed.",
+                error
+            );
+
+            window.alert(
+                "The message could not be deleted."
+            );
+
+        }
+
+    }
+
+    chatBox.addEventListener(
+        "click",
+        function (event) {
+
+            const actionButton =
+                event.target.closest(
+                    "[data-action]"
+                );
+
+            if (!actionButton) {
+                return;
+            }
+
+            const action =
+                actionButton.dataset.action;
+
+            const messageId =
+                Number(
+                    actionButton.dataset.messageId
+                );
+
+            const message =
+                findMessage(messageId);
+
+            if (!message) {
+                return;
+            }
+
+            if (action === "reply") {
+
+                setReplyTarget(message);
+
+                return;
+            }
+
+            if (action === "delete") {
+
+                deleteMessage(messageId);
+
+            }
+
+        }
     );
 
-    updateGroupChatViewport();
+    chatBox.addEventListener(
+        "click",
+        function (event) {
 
-})();
-</script>
-<script>
-/* =========================================================
-   MESSAGING 2.0
-   GROUP CHAT COMPOSER STABILITY
-   ========================================================= */
+            const quote =
+                event.target.closest(
+                    "[data-reply-target]"
+                );
 
-(function () {
+            if (!quote) {
+                return;
+            }
 
-    const messageInput =
-        document.querySelector(".group-chat-input");
+            const targetId =
+                Number(
+                    quote.dataset.replyTarget
+                );
 
-    const messages =
-        document.getElementById("groupChatMessages");
+            const target =
+                findMessage(targetId);
 
-    if (!messageInput) {
-        return;
-    }
+            if (!target) {
+                return;
+            }
 
-    messageInput.addEventListener(
-        "focus",
-        function () {
+            const targetElement =
+                chatBox.querySelector(
+                    '[data-message-id="' +
+                    targetId +
+                    '"]'
+                );
 
-            requestAnimationFrame(function () {
+            if (!targetElement) {
+                return;
+            }
 
-                if (messages) {
-                    messages.scrollTop =
-                        messages.scrollHeight;
-                }
-
+            targetElement.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
             });
 
         }
     );
 
+    replyCancel.addEventListener(
+        "click",
+        clearReplyTarget
+    );
+
+    input.addEventListener(
+        "input",
+        function () {
+
+            if (input.value.trim()) {
+                startTyping();
+            } else {
+                stopTyping();
+            }
+
+        }
+    );
+
+    input.addEventListener(
+        "blur",
+        function () {
+
+            window.setTimeout(
+                stopTyping,
+                250
+            );
+
+        }
+    );
+
+    input.addEventListener(
+        "focus",
+        function () {
+
+            requestAnimationFrame(
+                function () {
+                    scrollToBottom(true);
+                }
+            );
+
+        }
+    );
+
+    composer.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const message =
+                input.value.trim();
+
+            if (!message) {
+                return;
+            }
+
+            if (message.length > 2000) {
+                return;
+            }
+
+            stopTyping();
+
+            sendButton.disabled = true;
+            input.disabled = true;
+            composer.classList.add(
+                "is-sending"
+            );
+
+            const replyId =
+                replyTarget.value
+                    ? Number(
+                        replyTarget.value
+                    )
+                    : null;
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/group/" +
+                        groupId +
+                        "/send",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+                                "X-CSRFToken":
+                                    csrfInput.value,
+                                "Accept":
+                                    "application/json"
+                            },
+                            credentials:
+                                "same-origin",
+                            body:
+                                JSON.stringify({
+                                    message:
+                                        message,
+                                    reply_to_message_id:
+                                        replyId
+                                })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok || !data.ok) {
+
+                    window.alert(
+                        data.error ||
+                        "Message could not be sent."
+                    );
+
+                    return;
+                }
+
+                input.value = "";
+
+                clearReplyTarget();
+
+                await fetchMessages(true);
+
+                input.focus();
+
+            } catch (error) {
+
+                console.error(
+                    "Group message send failed.",
+                    error
+                );
+
+                window.alert(
+                    "Message could not be sent."
+                );
+
+            } finally {
+
+                sendButton.disabled = false;
+                input.disabled = false;
+                composer.classList.remove(
+                    "is-sending"
+                );
+
+            }
+
+        }
+    );
+
+    window.addEventListener(
+        "beforeunload",
+        function () {
+            stopTyping();
+        }
+    );
+
+    fetchMessages(true);
+
+    window.setInterval(
+        function () {
+            fetchMessages(false);
+        },
+        POLL_INTERVAL
+    );
+
 })();
-</script>
+    </script>
 
 </body>
 

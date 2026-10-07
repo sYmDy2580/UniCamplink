@@ -76,6 +76,16 @@ chat_typing_state = {}
 chat_typing_lock = threading.Lock()
 
 
+# ============================================================
+# GROUP CHAT TYPING INDICATOR
+# In-memory only - no SQLite writes.
+# ============================================================
+GROUP_TYPING_TIMEOUT = 4.0
+
+group_typing_state = {}
+
+group_typing_lock = threading.Lock()
+
 
 # ============================================================
 # SECRET KEY SECURITY
@@ -1841,6 +1851,38 @@ def update_group_messages_table():
     conn.commit()
     conn.close()
 
+# ============================================================
+# GROUP MESSAGE REPLY MIGRATION
+# ============================================================
+
+def update_group_messages_reply_table():
+
+    conn = get_db_connection()
+
+    if not column_exists(
+        "group_messages",
+        "reply_to_message_id"
+    ):
+
+        conn.execute(
+            """
+            ALTER TABLE group_messages
+            ADD COLUMN reply_to_message_id INTEGER
+            """
+        )
+
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS
+        idx_group_messages_reply
+        ON group_messages(reply_to_message_id)
+        """
+    )
+
+    conn.commit()
+    conn.close()
+
+
 def update_posts_table():
 
     conn = get_db_connection()
@@ -2942,6 +2984,7 @@ update_users_table()
 update_group_messages_table()
 update_users_block_status()
 update_group_messages_table()
+update_group_messages_reply_table()
 update_posts_table()
 update_comments_table()
 update_messages_table()
@@ -5763,6 +5806,628 @@ def group_detail(group_id):
 # ============================================================
 # GROUP CHAT
 # ============================================================
+
+@app.route(
+    "/api/group/<int:group_id>/messages",
+    methods=["GET"]
+)
+def api_group_messages(group_id):
+
+    if "user_id" not in session:
+        return {
+            "messages": [],
+            "typing_users": []
+        }, 401
+
+    current_user_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    group = conn.execute(
+        """
+        SELECT
+            id,
+            name
+        FROM groups
+        WHERE id = ?
+        """,
+        (group_id,)
+    ).fetchone()
+
+    if not group:
+        conn.close()
+        return {
+            "messages": [],
+            "typing_users": []
+        }, 404
+
+    membership = conn.execute(
+        """
+        SELECT id
+        FROM group_members
+        WHERE group_id = ?
+        AND user_id = ?
+        """,
+        (
+            group_id,
+            current_user_id
+        )
+    ).fetchone()
+
+    if not membership:
+        conn.close()
+        return {
+            "messages": [],
+            "typing_users": []
+        }, 403
+
+    group_messages = conn.execute(
+        """
+        SELECT
+            group_messages.id,
+            group_messages.group_id,
+            group_messages.sender_id,
+            group_messages.message,
+            group_messages.created_at,
+            group_messages.reply_to_message_id,
+
+            users.name AS sender_name,
+            users.profile_picture AS sender_picture,
+
+            reply_messages.message AS reply_message,
+            reply_users.name AS reply_sender_name
+
+        FROM group_messages
+
+        JOIN users
+        ON users.id = group_messages.sender_id
+
+        LEFT JOIN group_messages AS reply_messages
+        ON reply_messages.id =
+           group_messages.reply_to_message_id
+        AND reply_messages.group_id = group_messages.group_id
+
+        LEFT JOIN users AS reply_users
+        ON reply_users.id = reply_messages.sender_id
+
+        WHERE group_messages.group_id = ?
+
+        ORDER BY
+            group_messages.created_at ASC,
+            group_messages.id ASC
+        """,
+        (group_id,)
+    ).fetchall()
+
+    members = conn.execute(
+        """
+        SELECT
+            users.id,
+            users.name
+        FROM group_members
+        JOIN users
+        ON users.id = group_members.user_id
+        WHERE group_members.group_id = ?
+        AND group_members.user_id != ?
+        ORDER BY users.name
+        """,
+        (
+            group_id,
+            current_user_id
+        )
+    ).fetchall()
+
+    conn.close()
+
+    now = time.monotonic()
+    typing_users = []
+
+    with group_typing_lock:
+        for member in members:
+
+            typing_key = (
+                group_id,
+                member["id"]
+            )
+
+            last_typing = group_typing_state.get(
+                typing_key
+            )
+
+            if (
+                last_typing is not None
+                and now - last_typing
+                <= GROUP_TYPING_TIMEOUT
+            ):
+                typing_users.append(
+                    {
+                        "id": member["id"],
+                        "name": member["name"]
+                    }
+                )
+            elif last_typing is not None:
+                group_typing_state.pop(
+                    typing_key,
+                    None
+                )
+
+    return {
+        "messages": [
+            {
+                "id": message["id"],
+                "group_id": message["group_id"],
+                "sender_id": message["sender_id"],
+                "message": message["message"],
+                "created_at": message["created_at"],
+                "reply_to_message_id": (
+                    message["reply_to_message_id"]
+                    if message["reply_to_message_id"]
+                    else None
+                ),
+                "reply_message": (
+                    message["reply_message"] or ""
+                ),
+                "reply_sender_name": (
+                    message["reply_sender_name"] or ""
+                ),
+                "sender_name": (
+                    message["sender_name"]
+                    or "UniCamplink User"
+                ),
+                "sender_picture": (
+                    message["sender_picture"] or ""
+                )
+            }
+            for message in group_messages
+        ],
+        "typing_users": typing_users
+    }
+
+
+@app.route(
+    "/api/group/<int:group_id>/typing",
+    methods=["POST"]
+)
+def api_group_typing(group_id):
+
+    if "user_id" not in session:
+        return {
+            "ok": False,
+            "error": "Authentication required."
+        }, 401
+
+    current_user_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    group = conn.execute(
+        """
+        SELECT id
+        FROM groups
+        WHERE id = ?
+        """,
+        (group_id,)
+    ).fetchone()
+
+    if not group:
+        conn.close()
+        return {
+            "ok": False,
+            "error": "Group not found."
+        }, 404
+
+    membership = conn.execute(
+        """
+        SELECT id
+        FROM group_members
+        WHERE group_id = ?
+        AND user_id = ?
+        """,
+        (
+            group_id,
+            current_user_id
+        )
+    ).fetchone()
+
+    conn.close()
+
+    if not membership:
+        return {
+            "ok": False,
+            "error": "You are not a member of this group."
+        }, 403
+
+    payload = request.get_json(silent=True) or {}
+    is_typing = bool(payload.get("typing"))
+
+    typing_key = (
+        group_id,
+        current_user_id
+    )
+
+    with group_typing_lock:
+        if is_typing:
+            group_typing_state[
+                typing_key
+            ] = time.monotonic()
+        else:
+            group_typing_state.pop(
+                typing_key,
+                None
+            )
+
+    return {
+        "ok": True
+    }
+
+
+@app.route(
+    "/api/group/<int:group_id>/send",
+    methods=["POST"]
+)
+def api_group_send_message(group_id):
+
+    if "user_id" not in session:
+        return {
+            "ok": False,
+            "error": "Authentication required."
+        }, 401
+
+    current_user_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    group = conn.execute(
+        """
+        SELECT
+            id,
+            name
+        FROM groups
+        WHERE id = ?
+        """,
+        (group_id,)
+    ).fetchone()
+
+    if not group:
+        conn.close()
+        return {
+            "ok": False,
+            "error": "Group not found."
+        }, 404
+
+    membership = conn.execute(
+        """
+        SELECT id
+        FROM group_members
+        WHERE group_id = ?
+        AND user_id = ?
+        """,
+        (
+            group_id,
+            current_user_id
+        )
+    ).fetchone()
+
+    if not membership:
+        conn.close()
+        return {
+            "ok": False,
+            "error": "You are not a member of this group."
+        }, 403
+
+    payload = request.get_json(silent=True) or {}
+
+    message = clean_text(
+        payload.get("message"),
+        MAX_MESSAGE_LENGTH
+    )
+
+    if not message:
+        conn.close()
+        return {
+            "ok": False,
+            "error": (
+                "Message cannot be empty and must not "
+                "exceed 2000 characters."
+            )
+        }, 400
+
+    reply_to_message_id = payload.get(
+        "reply_to_message_id"
+    )
+
+    if reply_to_message_id in (
+        None,
+        "",
+        0,
+        "0"
+    ):
+        reply_to_message_id = None
+    else:
+        try:
+            reply_to_message_id = int(
+                reply_to_message_id
+            )
+        except (TypeError, ValueError):
+            conn.close()
+            return {
+                "ok": False,
+                "error": "Invalid reply target."
+            }, 400
+
+        reply_target = conn.execute(
+            """
+            SELECT id
+            FROM group_messages
+            WHERE id = ?
+            AND group_id = ?
+            """,
+            (
+                reply_to_message_id,
+                group_id
+            )
+        ).fetchone()
+
+        if not reply_target:
+            conn.close()
+            return {
+                "ok": False,
+                "error": "Reply target not found."
+            }, 404
+
+    cursor = conn.execute(
+        """
+        INSERT INTO group_messages
+        (
+            group_id,
+            sender_id,
+            message,
+            reply_to_message_id
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            group_id,
+            current_user_id,
+            message,
+            reply_to_message_id
+        )
+    )
+
+    group_message_id = cursor.lastrowid
+
+    sender = conn.execute(
+        """
+        SELECT
+            name,
+            profile_picture
+        FROM users
+        WHERE id = ?
+        """,
+        (current_user_id,)
+    ).fetchone()
+
+    sender_name = (
+        sender["name"]
+        if sender
+        else "A student"
+    )
+
+    group_members = conn.execute(
+        """
+        SELECT user_id
+        FROM group_members
+        WHERE group_id = ?
+        AND user_id != ?
+        """,
+        (
+            group_id,
+            current_user_id
+        )
+    ).fetchall()
+
+    for member in group_members:
+        conn.execute(
+            """
+            INSERT INTO notifications
+            (
+                user_id,
+                sender_id,
+                type,
+                message,
+                link
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                member["user_id"],
+                current_user_id,
+                "group_message",
+                f"{sender_name} sent a message in "
+                f"{group['name']}",
+                f"/group/{group_id}/chat"
+            )
+        )
+
+    conn.commit()
+
+    created_message = conn.execute(
+        """
+        SELECT
+            group_messages.id,
+            group_messages.group_id,
+            group_messages.sender_id,
+            group_messages.message,
+            group_messages.created_at,
+            group_messages.reply_to_message_id,
+
+            users.name AS sender_name,
+            users.profile_picture AS sender_picture,
+
+            reply_messages.message AS reply_message,
+            reply_users.name AS reply_sender_name
+
+        FROM group_messages
+
+        JOIN users
+        ON users.id = group_messages.sender_id
+
+        LEFT JOIN group_messages AS reply_messages
+        ON reply_messages.id =
+           group_messages.reply_to_message_id
+
+        LEFT JOIN users AS reply_users
+        ON reply_users.id = reply_messages.sender_id
+
+        WHERE group_messages.id = ?
+        """,
+        (group_message_id,)
+    ).fetchone()
+
+    conn.close()
+
+    return {
+        "ok": True,
+        "message": {
+            "id": created_message["id"],
+            "group_id": created_message["group_id"],
+            "sender_id": created_message["sender_id"],
+            "message": created_message["message"],
+            "created_at": created_message["created_at"],
+            "reply_to_message_id": (
+                created_message["reply_to_message_id"]
+                if created_message["reply_to_message_id"]
+                else None
+            ),
+            "reply_message": (
+                created_message["reply_message"] or ""
+            ),
+            "reply_sender_name": (
+                created_message["reply_sender_name"] or ""
+            ),
+            "sender_name": (
+                created_message["sender_name"]
+                or "UniCamplink User"
+            ),
+            "sender_picture": (
+                created_message["sender_picture"] or ""
+            )
+        }
+    }
+
+
+@app.route(
+    "/api/group/<int:group_id>/message/<int:message_id>/delete",
+    methods=["POST"]
+)
+def api_delete_group_message(group_id, message_id):
+
+    if "user_id" not in session:
+        return {
+            "ok": False,
+            "error": "Authentication required."
+        }, 401
+
+    current_user_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    membership = conn.execute(
+        """
+        SELECT id
+        FROM group_members
+        WHERE group_id = ?
+        AND user_id = ?
+        """,
+        (
+            group_id,
+            current_user_id
+        )
+    ).fetchone()
+
+    if not membership:
+        conn.close()
+        return {
+            "ok": False,
+            "error": "You are not a member of this group."
+        }, 403
+
+    message_row = conn.execute(
+        """
+        SELECT
+            id,
+            group_id,
+            sender_id
+        FROM group_messages
+        WHERE id = ?
+        AND group_id = ?
+        """,
+        (
+            message_id,
+            group_id
+        )
+    ).fetchone()
+
+    if not message_row:
+        conn.close()
+        return {
+            "ok": False,
+            "error": "Message not found."
+        }, 404
+
+    if message_row["sender_id"] != current_user_id:
+        conn.close()
+        return {
+            "ok": False,
+            "error": "You can only delete your own messages."
+        }, 403
+
+    try:
+        conn.execute(
+            """
+            UPDATE group_messages
+            SET reply_to_message_id = NULL
+            WHERE reply_to_message_id = ?
+            """,
+            (message_id,)
+        )
+
+        deleted = conn.execute(
+            """
+            DELETE FROM group_messages
+            WHERE id = ?
+            AND group_id = ?
+            AND sender_id = ?
+            """,
+            (
+                message_id,
+                group_id,
+                current_user_id
+            )
+        )
+
+        if deleted.rowcount != 1:
+            conn.rollback()
+            conn.close()
+            return {
+                "ok": False,
+                "error": "Message could not be deleted."
+            }, 409
+
+        conn.commit()
+
+    except Exception:
+        conn.rollback()
+        conn.close()
+        raise
+
+    conn.close()
+
+    return {
+        "ok": True,
+        "message_id": message_id
+    }
+
 
 @app.route(
     "/group/<int:group_id>/chat",
