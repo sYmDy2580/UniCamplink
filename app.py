@@ -8086,6 +8086,100 @@ def chat(user_id):
 # LIVE CHAT MESSAGES API
 # ============================================================
 
+
+@app.route(
+    "/api/chat/message/<int:message_id>/delete",
+    methods=["POST"]
+)
+def api_delete_chat_message(message_id):
+
+    if "user_id" not in session:
+        return {
+            "ok": False,
+            "error": "Authentication required."
+        }, 401
+
+    current_user_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    message_row = conn.execute(
+        """
+        SELECT
+            id,
+            sender_id,
+            receiver_id
+        FROM messages
+        WHERE id = ?
+        """,
+        (message_id,)
+    ).fetchone()
+
+    if not message_row:
+        conn.close()
+
+        return {
+            "ok": False,
+            "error": "Message not found."
+        }, 404
+
+    if message_row["sender_id"] != current_user_id:
+        conn.close()
+
+        return {
+            "ok": False,
+            "error": "You can only delete your own messages."
+        }, 403
+
+    try:
+
+        # Remove reply references first so existing replies
+        # remain valid after the original message is deleted.
+        conn.execute(
+            """
+            UPDATE messages
+            SET reply_to_message_id = NULL
+            WHERE reply_to_message_id = ?
+            """,
+            (message_id,)
+        )
+
+        deleted = conn.execute(
+            """
+            DELETE FROM messages
+            WHERE id = ?
+            AND sender_id = ?
+            """,
+            (
+                message_id,
+                current_user_id
+            )
+        )
+
+        if deleted.rowcount != 1:
+            conn.rollback()
+            conn.close()
+
+            return {
+                "ok": False,
+                "error": "Message could not be deleted."
+            }, 409
+
+        conn.commit()
+
+    except Exception:
+        conn.rollback()
+        conn.close()
+        raise
+
+    conn.close()
+
+    return {
+        "ok": True,
+        "message_id": message_id
+    }
+
+
 @app.route("/api/chat/<int:user_id>/messages")
 def api_chat_messages(user_id):
 

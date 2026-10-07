@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1882,6 +1882,24 @@
                                             ↩ Reply
                                         </button>
 
+                                        ${
+                                            isSent
+                                                ? `
+                                                    <button
+                                                        type="button"
+                                                        class="delete-message-button"
+                                                        data-message-id="${
+                                                            Number(message.id)
+                                                        }"
+                                                        aria-label="Delete message"
+                                                        title="Delete message"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                `
+                                                : ""
+                                        }
+
                                     </div>
 
 
@@ -1924,7 +1942,119 @@
 
             messagesContainer.addEventListener(
                 "click",
-                function(event) {
+                async function(event) {
+
+                    const deleteButton =
+                        event.target.closest(
+                            ".delete-message-button"
+                        );
+
+                    if (deleteButton) {
+
+                        const messageId =
+                            Number(
+                                deleteButton.dataset.messageId
+                            );
+
+                        if (!Number.isInteger(messageId)) {
+                            return;
+                        }
+
+                        const targetMessage =
+                            renderedMessages.find(
+                                message =>
+                                    Number(message.id) ===
+                                    messageId
+                            );
+
+                        if (!targetMessage) {
+                            return;
+                        }
+
+                        const confirmed =
+                            window.confirm(
+                                "Delete this message for everyone?"
+                            );
+
+                        if (!confirmed) {
+                            return;
+                        }
+
+                        const messageRow =
+                            deleteButton.closest(
+                                ".message-row"
+                            );
+
+                        const csrfInput =
+                            messageForm
+                                ? messageForm.querySelector(
+                                    'input[name="csrf_token"]'
+                                )
+                                : null;
+
+                        const csrfToken =
+                            csrfInput
+                                ? csrfInput.value
+                                : "";
+
+                        deleteButton.disabled = true;
+
+                        try {
+
+                            const response =
+                                await fetch(
+                                    `/api/chat/message/${messageId}/delete`,
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "Accept":
+                                                "application/json",
+                                            "X-CSRFToken":
+                                                csrfToken
+                                        }
+                                    }
+                                );
+
+                            const data =
+                                await response.json();
+
+                            if (
+                                !response.ok ||
+                                !data.ok
+                            ) {
+                                throw new Error(
+                                    data.error ||
+                                    "Unable to delete message."
+                                );
+                            }
+
+                            renderedMessages =
+                                renderedMessages.filter(
+                                    message =>
+                                        Number(message.id) !==
+                                        messageId
+                                );
+
+                            if (messageRow) {
+                                messageRow.remove();
+                            }
+
+                        }
+                        catch (error) {
+
+                            deleteButton.disabled =
+                                false;
+
+                            window.alert(
+                                error.message ||
+                                "Unable to delete message."
+                            );
+
+                        }
+
+                        return;
+                    }
+
 
                     const replyButton =
                         event.target.closest(
