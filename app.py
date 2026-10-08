@@ -6809,12 +6809,30 @@ def virtual_topup_webhook():
             verification_payload = json.loads(
                 response.read().decode("utf-8")
             )
-    except (
-        urllib.error.HTTPError,
-        urllib.error.URLError,
-        TimeoutError,
-        json.JSONDecodeError,
-    ):
+    except urllib.error.HTTPError as exc:
+        try:
+            error_body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            error_body = "<unable to read Paystack error response>"
+
+        app.logger.error(
+            "Paystack verification failed: HTTP %s: %s",
+            exc.code,
+            error_body,
+        )
+
+        return jsonify({
+            "ok": False,
+            "error": "Unable to verify Paystack transaction.",
+        }), 502
+
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        app.logger.error(
+            "Paystack verification failed: %s: %s",
+            type(exc).__name__,
+            str(exc),
+        )
+
         return jsonify({
             "ok": False,
             "error": "Unable to verify Paystack transaction.",
