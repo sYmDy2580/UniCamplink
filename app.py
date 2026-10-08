@@ -6138,7 +6138,30 @@ def initialize_virtual_topup():
         try:
             with urllib.request.urlopen(paystack_request, timeout=20) as response:
                 paystack_response = json.loads(response.read().decode("utf-8"))
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        except urllib.error.HTTPError as exc:
+            try:
+                error_body = exc.read().decode("utf-8", errors="replace")
+            except Exception:
+                error_body = "<unable to read Paystack error response>"
+
+            app.logger.error(
+                "Paystack initialization failed: HTTP %s: %s",
+                exc.code,
+                error_body,
+            )
+
+            conn.execute(
+                """
+                UPDATE virtual_topup_transactions
+                SET status = 'failed', failure_reason = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE provider_reference = ? AND user_id = ?
+                """,
+                (f"Paystack initialization failed: HTTP {exc.code}: {error_body}", reference, session["user_id"]),
+            )
+            conn.commit()
+            return jsonify({"ok": False, "error": "Unable to initialize payment."}), 502
+
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             app.logger.error(
                 "Paystack initialization failed: %s: %s",
                 type(exc).__name__,
