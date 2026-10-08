@@ -6760,12 +6760,42 @@ def virtual_topup_webhook():
             "error": "Invalid payment reference.",
         }), 400
 
+    try:
+        paystack_amount = int(data.get("amount"))
+    except (TypeError, ValueError):
+        paystack_amount = -1
+
+    paystack_currency = str(data.get("currency", "")).strip().upper()
+    paystack_status = str(data.get("status", "")).strip().lower()
+
+    if paystack_currency != "NGN":
+        return jsonify({
+            "ok": False,
+            "error": "Payment currency mismatch.",
+        }), 400
+
+    if paystack_status != "success":
+        return jsonify({
+            "ok": True,
+            "reference": reference,
+            "status": paystack_status or "pending",
+            "credited": False,
+        }), 200
+
     conn = get_db_connection()
 
     try:
         topup = conn.execute(
             """
-            SELECT id, user_id, status
+            SELECT
+                id,
+                user_id,
+                wallet_id,
+                real_amount,
+                virtual_amount,
+                status,
+                credited_at,
+                expires_at
             FROM virtual_topup_transactions
             WHERE provider_reference = ?
             LIMIT 1
@@ -6780,92 +6810,325 @@ def virtual_topup_webhook():
                 "reference": reference,
             }), 200
 
-        if topup["status"] == "success":
+        expected_amount_kobo = int(topup["real_amount"]) * 100
+
+        if paystack_amount != expected_amount_kobo:
+            app.logger.error(
+                "Paystack webhook amount mismatch for %s: expected %s, received %s",
+                reference,
+                expected_amount_kobo,
+                paystack_amount,
+            )
+            return jsonify({
+                "ok": False,
+                "error": "Payment amount mismatch.",
+            }), 400
+
+        if topup["status"] == "success" and topup["credited_at"]:
+            wallet = conn.execute(
+                """
+                SELECT balance
+                FROM virtual_wallets
+                WHERE id = ? AND user_id = ? AND status = 'active'
+                """,
+                (topup["wallet_id"], topup["user_id"]),
+            ).fetchone()
+
             return jsonify({
                 "ok": True,
-                "reference": reference,
                 "status": "success",
+                "reference": reference,
+                "credited": True,
+                "virtual_amount": int(topup["virtual_amount"]),
+                "balance": int(wallet["balance"]) if wallet else None,
                 "already_processed": True,
             }), 200
 
+        if topup["status"] != "pending":
+            return jsonify({
+                "ok": False,
+                "error": "This Top-Up is no longer pending.",
+            }), 409
+
+        expires_at = str(topup["expires_at"] or "").strip()
+
+        if expires_at:
+            try:
+                expires_at_dt = datetime.fromisoformat(expires_at)
+                now_dt = datetime.now(NIGERIA_TZ)
+
+                if expires_at_dt.tzinfo is None:
+                    expires_at_dt = expires_at_dt.replace(
+                        tzinfo=NIGERIA_TZ
+                    )
+
+                if now_dt > expires_at_dt:
+                    conn.execute(
+                        """
+                        UPDATE virtual_topup_transactions
+                        SET
+                            status = 'failed',
+                            failure_reason = 'Payment session expired.',
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                          AND status = 'pending'
+                        """,
+                        (topup["id"],),
+                    )
+                    conn.commit()
+
+                    return jsonify({
+                        "ok": False,
+                        "error": "This Top-Up payment session has expired.",
+                    }), 409
+            except (TypeError, ValueError):
+                app.logger.warning(
+                    "Unable to parse Virtual Top-Up expiry for %s: %s",
+                    reference,
+                    expires_at,
+                )
+
+        try:
+            conn.execute("BEGIN IMMEDIATE")
+
+            current = conn.execute(
+                """
+                SELECT
+                    id,
+                    user_id,
+                    wallet_id,
+                    real_amount,
+                    virtual_amount,
+                    status,
+                    credited_at
+                FROM virtual_topup_transactions
+                WHERE id = ?
+                  AND provider_reference = ?
+                  AND user_id = ?
+                LIMIT 1
+                """,
+                (
+                    topup["id"],
+                    reference,
+                    topup["user_id"],
+                ),
+            ).fetchone()
+
+            if not current:
+                conn.rollback()
+                return jsonify({
+                    "ok": False,
+                    "error": "Top-Up transaction no longer exists.",
+                }), 404
+
+            if current["status"] == "success" and current["credited_at"]:
+                wallet = conn.execute(
+                    """
+                    SELECT balance
+                    FROM virtual_wallets
+                    WHERE id = ? AND user_id = ? AND status = 'active'
+                    """,
+                    (
+                        current["wallet_id"],
+                        current["user_id"],
+                    ),
+                ).fetchone()
+
+                conn.rollback()
+
+                return jsonify({
+                    "ok": True,
+                    "status": "success",
+                    "reference": reference,
+                    "credited": True,
+                    "virtual_amount": int(current["virtual_amount"]),
+                    "balance": int(wallet["balance"]) if wallet else None,
+                    "already_processed": True,
+                }), 200
+
+            if current["status"] != "pending":
+                conn.rollback()
+                return jsonify({
+                    "ok": False,
+                    "error": "This Top-Up is no longer pending.",
+                }), 409
+
+            wallet = conn.execute(
+                """
+                SELECT id, balance
+                FROM virtual_wallets
+                WHERE id = ?
+                  AND user_id = ?
+                  AND status = 'active'
+                LIMIT 1
+                """,
+                (
+                    current["wallet_id"],
+                    current["user_id"],
+                ),
+            ).fetchone()
+
+            if not wallet:
+                conn.rollback()
+                return jsonify({
+                    "ok": False,
+                    "error": "Active virtual wallet not found.",
+                }), 404
+
+            balance_before = int(wallet["balance"])
+            virtual_amount = int(current["virtual_amount"])
+            balance_after = balance_before + virtual_amount
+
+            ledger_reference = f"virtual-topup-{reference}"
+
+            existing_ledger = conn.execute(
+                """
+                SELECT id, balance_after
+                FROM virtual_transactions
+                WHERE reference = ?
+                LIMIT 1
+                """,
+                (ledger_reference,),
+            ).fetchone()
+
+            if existing_ledger:
+                conn.execute(
+                    """
+                    UPDATE virtual_topup_transactions
+                    SET
+                        status = 'success',
+                        verified_at = CURRENT_TIMESTAMP,
+                        credited_at = CURRENT_TIMESTAMP,
+                        failure_reason = '',
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                    """,
+                    (current["id"],),
+                )
+
+                conn.commit()
+
+                refreshed_wallet = conn.execute(
+                    """
+                    SELECT balance
+                    FROM virtual_wallets
+                    WHERE id = ? AND user_id = ? AND status = 'active'
+                    """,
+                    (
+                        current["wallet_id"],
+                        current["user_id"],
+                    ),
+                ).fetchone()
+
+                return jsonify({
+                    "ok": True,
+                    "status": "success",
+                    "reference": reference,
+                    "credited": True,
+                    "virtual_amount": virtual_amount,
+                    "balance": (
+                        int(refreshed_wallet["balance"])
+                        if refreshed_wallet
+                        else int(existing_ledger["balance_after"])
+                    ),
+                    "already_processed": True,
+                }), 200
+
+            conn.execute(
+                """
+                UPDATE virtual_wallets
+                SET balance = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                  AND user_id = ?
+                  AND status = 'active'
+                """,
+                (
+                    balance_after,
+                    wallet["id"],
+                    current["user_id"],
+                ),
+            )
+
+            if conn.execute("SELECT changes()").fetchone()[0] != 1:
+                conn.rollback()
+                return jsonify({
+                    "ok": False,
+                    "error": "Virtual wallet could not be updated.",
+                }), 409
+
+            conn.execute(
+                """
+                INSERT INTO virtual_transactions (
+                    wallet_id,
+                    user_id,
+                    transaction_type,
+                    amount,
+                    balance_before,
+                    balance_after,
+                    reference,
+                    description
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    wallet["id"],
+                    current["user_id"],
+                    "topup",
+                    virtual_amount,
+                    balance_before,
+                    balance_after,
+                    ledger_reference,
+                    (
+                        f"Virtual Top-Up: NGN {int(current['real_amount']):,} "
+                        f"real payment -> {virtual_amount:,} Virtual"
+                    ),
+                ),
+            )
+
+            conn.execute(
+                """
+                UPDATE virtual_topup_transactions
+                SET
+                    status = 'success',
+                    verified_at = CURRENT_TIMESTAMP,
+                    credited_at = CURRENT_TIMESTAMP,
+                    failure_reason = '',
+                    payment_channel = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (
+                    str(data.get("channel", "paystack-webhook")).strip()[:64],
+                    current["id"],
+                ),
+            )
+
+            conn.commit()
+
+            return jsonify({
+                "ok": True,
+                "status": "success",
+                "reference": reference,
+                "credited": True,
+                "virtual_amount": virtual_amount,
+                "balance": balance_after,
+                "already_processed": False,
+            }), 200
+
+        except Exception:
+            conn.rollback()
+            app.logger.exception(
+                "Paystack webhook crediting failed for reference %s",
+                reference,
+            )
+
+            return jsonify({
+                "ok": False,
+                "error": "Unable to credit Virtual Top-Up.",
+            }), 500
+
     finally:
         conn.close()
-
-    verification_request = urllib.request.Request(
-        f"{PAYSTACK_BASE_URL}/transaction/verify/"
-        f"{urllib.parse.quote(reference, safe='')}",
-        headers={
-            "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
-            "Content-Type": "application/json",
-        },
-        method="GET",
-    )
-
-    try:
-        with urllib.request.urlopen(
-            verification_request,
-            timeout=15,
-        ) as response:
-            verification_payload = json.loads(
-                response.read().decode("utf-8")
-            )
-    except urllib.error.HTTPError as exc:
-        try:
-            error_body = exc.read().decode("utf-8", errors="replace")
-        except Exception:
-            error_body = "<unable to read Paystack error response>"
-
-        app.logger.error(
-            "Paystack verification failed: HTTP %s: %s",
-            exc.code,
-            error_body,
-        )
-
-        return jsonify({
-            "ok": False,
-            "error": "Unable to verify Paystack transaction.",
-        }), 502
-
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-        app.logger.error(
-            "Paystack verification failed: %s: %s",
-            type(exc).__name__,
-            str(exc),
-        )
-
-        return jsonify({
-            "ok": False,
-            "error": "Unable to verify Paystack transaction.",
-        }), 502
-
-    if not verification_payload.get("status"):
-        return jsonify({
-            "ok": False,
-            "error": "Paystack transaction verification failed.",
-        }), 502
-
-    transaction_data = verification_payload.get("data") or {}
-
-    if transaction_data.get("status") != "success":
-        return jsonify({
-            "ok": True,
-            "reference": reference,
-            "status": transaction_data.get("status", "pending"),
-            "credited": False,
-        }), 200
-
-    user_id = int(topup["user_id"])
-
-    with app.test_request_context(
-        "/api/virtual-topup/verify",
-        method="POST",
-        json={"reference": reference},
-    ):
-        session["user_id"] = user_id
-
-        verification_response = verify_virtual_topup()
-
-    return verification_response
 
 
 @app.route("/virtual-topup/callback")
