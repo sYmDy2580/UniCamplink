@@ -9,8 +9,13 @@ load_dotenv()
 import smtplib
 from email.message import EmailMessage
 from urllib.parse import quote
+import urllib.error
+import urllib.request
+import uuid
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
+
+NIGERIA_TZ = timezone(timedelta(hours=1))
 
 import threading
 import time
@@ -1877,6 +1882,29 @@ def update_virtual_topup_tables():
                 ON DELETE RESTRICT
         )
     """)
+
+    existing_columns = {
+        row["name"]
+        for row in conn.execute(
+            "PRAGMA table_info(virtual_topup_transactions)"
+        ).fetchall()
+    }
+
+    if "authorization_url" not in existing_columns:
+        conn.execute(
+            """
+            ALTER TABLE virtual_topup_transactions
+            ADD COLUMN authorization_url TEXT
+            """
+        )
+
+    if "access_code" not in existing_columns:
+        conn.execute(
+            """
+            ALTER TABLE virtual_topup_transactions
+            ADD COLUMN access_code TEXT
+            """
+        )
 
     conn.execute("""
         CREATE UNIQUE INDEX IF NOT EXISTS
@@ -5972,6 +6000,213 @@ def virtual_topup():
         packages=packages
     )
 
+
+# ============================================================
+# VIRTUAL TOP-UP ? PAYSTACK INITIALIZATION
+# ============================================================
+
+@app.route("/api/virtual-topup/initialize", methods=["POST"])
+def initialize_virtual_topup():
+    """Initialize a Paystack checkout for a Virtual Top-Up package."""
+    if "user_id" not in session:
+        return jsonify({"ok": False, "error": "Authentication required."}), 401
+
+    if not PAYSTACK_SECRET_KEY:
+        return jsonify({"ok": False, "error": "Paystack is not configured."}), 503
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        package_id = int(payload.get("package_id"))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "Invalid package."}), 400
+
+    idempotency_key = str(payload.get("idempotency_key", "")).strip()
+    if not idempotency_key or len(idempotency_key) > 128:
+        return jsonify({"ok": False, "error": "Invalid idempotency key."}), 400
+
+    conn = get_db_connection()
+    try:
+        user = conn.execute(
+            "SELECT id, email FROM users WHERE id = ?",
+            (session["user_id"],),
+        ).fetchone()
+
+        if not user:
+            return jsonify({"ok": False, "error": "User not found."}), 404
+
+        package = conn.execute(
+            """
+            SELECT id, name, real_amount, virtual_amount,
+                   currency, virtual_currency
+            FROM virtual_topup_packages
+            WHERE id = ? AND enabled = 1
+            """,
+            (package_id,),
+        ).fetchone()
+
+        if not package:
+            return jsonify({"ok": False, "error": "Top-Up package not found."}), 404
+
+        existing = conn.execute(
+            """
+            SELECT id, provider_reference, authorization_url,
+                   access_code, status
+            FROM virtual_topup_transactions
+            WHERE user_id = ? AND idempotency_key = ?
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (session["user_id"], idempotency_key),
+        ).fetchone()
+
+        if existing:
+            if (
+                existing["status"] == "pending"
+                and existing["provider_reference"]
+                and existing["authorization_url"]
+            ):
+                return jsonify({
+                    "ok": True,
+                    "reference": existing["provider_reference"],
+                    "authorization_url": existing["authorization_url"],
+                    "access_code": existing["access_code"],
+                    "reused": True,
+                })
+
+            return jsonify({
+                "ok": False,
+                "error": "A top-up request already exists for this request key.",
+            }), 409
+
+        expires_at = datetime.now(NIGERIA_TZ) + timedelta(minutes=15)
+        reference = f"VTOPUP-{session['user_id']}-{uuid.uuid4().hex}"
+
+        cursor = conn.execute(
+            """
+            INSERT INTO virtual_topup_transactions (
+                user_id, wallet_id, package_id, real_amount, virtual_amount,
+                payment_provider, provider_reference, payment_channel,
+                status, idempotency_key, expires_at, created_at, updated_at
+            )
+            SELECT
+                ?, w.id, ?, ?, ?, 'paystack', ?, 'card,bank_transfer',
+                'pending', ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+            FROM virtual_wallets w
+            WHERE w.user_id = ? AND w.status = 'active'
+            """,
+            (
+                session["user_id"], package["id"], package["real_amount"],
+                package["virtual_amount"], reference, idempotency_key,
+                expires_at.isoformat(), session["user_id"],
+            ),
+        )
+
+        if cursor.rowcount != 1:
+            conn.rollback()
+            return jsonify({"ok": False, "error": "Active virtual wallet not found."}), 404
+
+        conn.commit()
+
+        paystack_payload = {
+            "email": user["email"],
+            "amount": str(int(package["real_amount"]) * 100),
+            "currency": "NGN",
+            "reference": reference,
+            "channels": ["card", "bank_transfer"],
+            "callback_url": url_for("virtual_topup_callback", _external=True),
+            "metadata": {
+                "user_id": session["user_id"],
+                "package_id": package["id"],
+                "virtual_amount": package["virtual_amount"],
+                "idempotency_key": idempotency_key,
+            },
+        }
+
+        request_data = json.dumps(paystack_payload).encode("utf-8")
+        paystack_request = urllib.request.Request(
+            f"{PAYSTACK_BASE_URL}/transaction/initialize",
+            data=request_data,
+            headers={
+                "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(paystack_request, timeout=20) as response:
+                paystack_response = json.loads(response.read().decode("utf-8"))
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            conn.execute(
+                """
+                UPDATE virtual_topup_transactions
+                SET status = 'failed', failure_reason = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE provider_reference = ? AND user_id = ?
+                """,
+                (f"Paystack initialization failed: {exc}", reference, session["user_id"]),
+            )
+            conn.commit()
+            return jsonify({"ok": False, "error": "Unable to initialize payment."}), 502
+
+        if not paystack_response.get("status"):
+            message = str(paystack_response.get("message") or "Paystack rejected the request.")
+            conn.execute(
+                """
+                UPDATE virtual_topup_transactions
+                SET status = 'failed', failure_reason = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE provider_reference = ? AND user_id = ?
+                """,
+                (message, reference, session["user_id"]),
+            )
+            conn.commit()
+            return jsonify({"ok": False, "error": message}), 502
+
+        paystack_data = paystack_response.get("data") or {}
+        authorization_url = paystack_data.get("authorization_url")
+        access_code = paystack_data.get("access_code")
+        returned_reference = paystack_data.get("reference")
+
+        if not authorization_url or not access_code or returned_reference != reference:
+            conn.execute(
+                """
+                UPDATE virtual_topup_transactions
+                SET status = 'failed', failure_reason = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE provider_reference = ? AND user_id = ?
+                """,
+                ("Invalid Paystack initialization response.", reference, session["user_id"]),
+            )
+            conn.commit()
+            return jsonify({"ok": False, "error": "Invalid payment initialization response."}), 502
+
+        conn.execute(
+            """
+            UPDATE virtual_topup_transactions
+            SET authorization_url = ?, access_code = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE provider_reference = ? AND user_id = ?
+            """,
+            (authorization_url, access_code, reference, session["user_id"]),
+        )
+        conn.commit()
+
+        return jsonify({
+            "ok": True,
+            "reference": reference,
+            "authorization_url": authorization_url,
+            "access_code": access_code,
+            "reused": False,
+        })
+    finally:
+        conn.close()
+
+
+@app.route("/virtual-topup/callback")
+def virtual_topup_callback():
+    """Return the user to Virtual Top-Up after hosted checkout."""
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    reference = request.args.get("reference", "").strip()
+    return redirect(url_for("virtual_topup", reference=reference))
 
 # ============================================================
 # PROFILE
