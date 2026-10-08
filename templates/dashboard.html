@@ -396,6 +396,80 @@
             gap: 6px;
         }
 
+        /* =========================================================
+           DASHBOARD VIRTUAL WALLET
+        ========================================================= */
+
+        .rz-dashboard-wallet {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border: 1px solid rgba(56, 189, 248, .28);
+            border-radius: 15px;
+            background: rgba(56, 189, 248, .08);
+            color: var(--rz-text);
+            text-decoration: none;
+            box-shadow: var(--rz-shadow);
+            transition:
+                background .2s ease,
+                border-color .2s ease,
+                transform .2s ease;
+        }
+
+        .rz-dashboard-wallet:hover {
+            background: rgba(56, 189, 248, .14);
+            border-color: rgba(56, 189, 248, .45);
+            transform: translateY(-1px);
+        }
+
+        .rz-dashboard-wallet-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .rz-dashboard-wallet-label {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            line-height: 1.15;
+        }
+
+        .rz-dashboard-wallet-label small {
+            margin-bottom: 4px;
+            color: var(--rz-muted);
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .45px;
+        }
+
+        .rz-dashboard-wallet-label strong {
+            display: block;
+            color: var(--rz-text);
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rz-dashboard-wallet-type {
+            flex: 0 0 auto;
+            color: var(--rz-muted);
+            font-size: 9px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+
         .rz-wallet-nav {
             min-width: 128px;
 
@@ -1927,6 +2001,30 @@
                 gap: 4px;
             }
 
+            .rz-dashboard-wallet {
+                margin-bottom: 10px;
+                padding: 11px 12px;
+                gap: 8px;
+                border-radius: 14px;
+            }
+
+            .rz-dashboard-wallet-left {
+                gap: 8px;
+            }
+
+            .rz-dashboard-wallet-label small {
+                font-size: 8px;
+            }
+
+            .rz-dashboard-wallet-label strong {
+                font-size: 16px;
+                font-weight: 900;
+            }
+
+            .rz-dashboard-wallet-type {
+                font-size: 8px;
+            }
+
             .rz-wallet-nav {
                 min-width: 0;
 
@@ -2334,34 +2432,7 @@
         <!-- NAV RIGHT -->
 
         <div class="rz-nav-right">
-
-            <!-- VIRTUAL WALLET -->
-
-            <a
-                href="{{ url_for('virtual_wallet') }}"
-                class="rz-wallet-nav"
-                title="Virtual Wallet"
-                aria-label="Virtual Wallet"
-            >
-
-                <span class="rz-wallet-icon">V</span>
-
-                <span class="rz-wallet-info">
-
-                    <strong>
-                        &#8358;{{ "{:,}".format(virtual_wallet["balance"] if virtual_wallet else 0) }}
-                    </strong>
-
-                    <small>
-                        {{ virtual_wallet["wallet_type"] if virtual_wallet else "LAPO" }} &#8358; Virtual
-                    </small>
-
-                </span>
-
-            </a>
-
-
-            <a
+<a
                 href="{{ url_for('profile') }}"
                 class="rz-icon-btn"
                 title="Profile"
@@ -2666,6 +2737,38 @@
         ================================================== -->
 
         <section class="rz-center">
+
+
+            <!-- VIRTUAL WALLET -->
+
+            <a
+                href="{{ url_for('virtual_wallet') }}"
+                class="rz-dashboard-wallet"
+                title="Open Virtual Wallet"
+                aria-label="Open Virtual Wallet"
+            >
+                <div class="rz-dashboard-wallet-left">
+
+                    <span class="rz-wallet-icon">V</span>
+
+                    <span class="rz-dashboard-wallet-label">
+
+                        <small>Virtual Wallet</small>
+
+                        <strong>
+                            &#8358;{{ "{:,}".format(virtual_wallet["balance"] if virtual_wallet else 0) }}
+                        </strong>
+
+                    </span>
+
+                </div>
+
+                <span class="rz-dashboard-wallet-type">
+                    {{ virtual_wallet["wallet_type"] if virtual_wallet else "LAPO" }}
+                    &#8358; Virtual
+                </span>
+
+            </a>
 
 
             <!-- WELCOME -->
