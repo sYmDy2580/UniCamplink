@@ -10,7 +10,7 @@ import smtplib
 from email.message import EmailMessage
 from urllib.parse import quote
 from uuid import uuid4
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import threading
 import time
@@ -1798,6 +1798,336 @@ def update_virtual_economy_tables():
     conn.close()
 
 
+def update_virtual_reward_tables():
+    """Create the configurable Virtual Naira rewards system."""
+
+    conn = get_db_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS virtual_reward_rules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT NOT NULL UNIQUE,
+            amount INTEGER NOT NULL,
+            enabled INTEGER NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS virtual_reward_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            action TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            reference_type TEXT,
+            reference_id TEXT,
+            reference TEXT NOT NULL UNIQUE,
+            description TEXT NOT NULL DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (user_id)
+                REFERENCES users(id)
+                ON DELETE CASCADE
+        )
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_virtual_reward_events_user
+        ON virtual_reward_events(user_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_virtual_reward_events_action
+        ON virtual_reward_events(action)
+    """)
+
+    reward_rules = [
+        ("DAILY_LOGIN", 2000),
+        ("CREATE_POST", 3000),
+        ("CREATE_COMMENT", 500),
+        ("CREATE_GROUP_POST", 1000),
+        ("ACCEPT_FRIEND", 2000)
+    ]
+
+    for action, amount in reward_rules:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO virtual_reward_rules
+            (
+                action,
+                amount,
+                enabled
+            )
+            VALUES (?, ?, 1)
+            """,
+            (action, amount)
+        )
+
+        conn.execute(
+            """
+            UPDATE virtual_reward_rules
+            SET amount = ?,
+                enabled = 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE action = ?
+            """,
+            (amount, action)
+        )
+
+    conn.commit()
+    conn.close()
+
+
+
+def award_virtual_reward(
+    conn,
+    user_id,
+    action,
+    reference_type=None,
+    reference_id=None
+):
+    """Safely and atomically award Virtual Naira for an approved activity."""
+
+    if not user_id:
+        return {
+            "awarded": False,
+            "amount": 0,
+            "reason": "invalid_user"
+        }
+
+    if not action:
+        return {
+            "awarded": False,
+            "amount": 0,
+            "reason": "invalid_action"
+        }
+
+    rule = conn.execute(
+        """
+        SELECT
+            action,
+            amount,
+            enabled
+        FROM virtual_reward_rules
+        WHERE action = ?
+        LIMIT 1
+        """,
+        (action,)
+    ).fetchone()
+
+    if not rule:
+        return {
+            "awarded": False,
+            "amount": 0,
+            "reason": "unknown_reward"
+        }
+
+    if not int(rule["enabled"]):
+        return {
+            "awarded": False,
+            "amount": 0,
+            "reason": "reward_disabled"
+        }
+
+    amount = int(rule["amount"])
+
+    if amount <= 0:
+        return {
+            "awarded": False,
+            "amount": 0,
+            "reason": "invalid_reward_amount"
+        }
+
+    if reference_type is not None:
+        reference_type = str(reference_type).strip()
+
+    if reference_id is not None:
+        reference_id = str(reference_id).strip()
+
+    if action == "DAILY_LOGIN":
+        nigeria_date = datetime.now(
+            timezone(timedelta(hours=1))
+        ).strftime("%Y-%m-%d")
+
+        reward_reference = (
+            f"virtual-reward-{action}-"
+            f"{int(user_id)}-{nigeria_date}"
+        )
+    else:
+        if not reference_type or not reference_id:
+            return {
+                "awarded": False,
+                "amount": 0,
+                "reason": "missing_reference"
+            }
+
+        reward_reference = (
+            f"virtual-reward-{action}-"
+            f"{int(user_id)}-{reference_type}-{reference_id}"
+        )
+
+    try:
+        conn.execute("SAVEPOINT virtual_reward")
+
+        existing_event = conn.execute(
+            """
+            SELECT
+                id,
+                amount
+            FROM virtual_reward_events
+            WHERE reference = ?
+            LIMIT 1
+            """,
+            (reward_reference,)
+        ).fetchone()
+
+        if existing_event:
+            conn.execute("RELEASE SAVEPOINT virtual_reward")
+
+            wallet = get_virtual_wallet(conn, user_id)
+
+            return {
+                "awarded": False,
+                "amount": 0,
+                "reason": "already_awarded",
+                "balance": int(wallet["balance"]) if wallet else 0
+            }
+
+        wallet = get_virtual_wallet(conn, user_id)
+
+        if not wallet:
+            conn.execute(
+                "ROLLBACK TO SAVEPOINT virtual_reward"
+            )
+            conn.execute(
+                "RELEASE SAVEPOINT virtual_reward"
+            )
+
+            return {
+                "awarded": False,
+                "amount": 0,
+                "reason": "wallet_not_found"
+            }
+
+        balance_before = int(wallet["balance"])
+        balance_after = balance_before + amount
+
+        wallet_update = conn.execute(
+            """
+            UPDATE virtual_wallets
+            SET balance = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+              AND user_id = ?
+              AND status = 'active'
+            """,
+            (
+                balance_after,
+                wallet["id"],
+                user_id
+            )
+        )
+
+        if wallet_update.rowcount != 1:
+            raise RuntimeError(
+                "Virtual wallet update failed."
+            )
+
+        description = (
+            f"Virtual reward: {action.replace('_', ' ').title()}"
+        )
+
+        conn.execute(
+            """
+            INSERT INTO virtual_transactions
+            (
+                wallet_id,
+                user_id,
+                transaction_type,
+                amount,
+                balance_before,
+                balance_after,
+                reference,
+                description
+            )
+            VALUES (?, ?, 'reward', ?, ?, ?, ?, ?)
+            """,
+            (
+                wallet["id"],
+                user_id,
+                amount,
+                balance_before,
+                balance_after,
+                reward_reference,
+                description
+            )
+        )
+
+        conn.execute(
+            """
+            INSERT INTO virtual_reward_events
+            (
+                user_id,
+                action,
+                amount,
+                reference_type,
+                reference_id,
+                reference,
+                description
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                user_id,
+                action,
+                amount,
+                reference_type,
+                reference_id,
+                reward_reference,
+                description
+            )
+        )
+
+        conn.execute(
+            "RELEASE SAVEPOINT virtual_reward"
+        )
+
+        return {
+            "awarded": True,
+            "amount": amount,
+            "balance_before": balance_before,
+            "balance_after": balance_after,
+            "reference": reward_reference
+        }
+
+    except sqlite3.IntegrityError:
+        conn.execute(
+            "ROLLBACK TO SAVEPOINT virtual_reward"
+        )
+        conn.execute(
+            "RELEASE SAVEPOINT virtual_reward"
+        )
+
+        wallet = get_virtual_wallet(conn, user_id)
+
+        return {
+            "awarded": False,
+            "amount": 0,
+            "reason": "already_awarded",
+            "balance": int(wallet["balance"]) if wallet else 0
+        }
+
+    except Exception:
+        conn.execute(
+            "ROLLBACK TO SAVEPOINT virtual_reward"
+        )
+        conn.execute(
+            "RELEASE SAVEPOINT virtual_reward"
+        )
+        raise
+
+
 def update_users_table():
 
     conn = get_db_connection()
@@ -3123,6 +3453,7 @@ def seed_gamification_badges(conn):
 
 create_tables()
 update_virtual_economy_tables()
+update_virtual_reward_tables()
 update_users_table()
 update_group_messages_table()
 update_users_block_status()
@@ -3552,12 +3883,19 @@ def login():
                 (email,)
             )
 
-            conn.commit()
-
             session.clear()
 
             session["user_id"] = user["id"]
             session["user_name"] = user["name"]
+
+            # V-REWARDS: reward one successful login per Nigeria calendar day.
+            award_virtual_reward(
+                conn,
+                user["id"],
+                "DAILY_LOGIN"
+            )
+
+            conn.commit()
 
             conn.close()
 
@@ -4327,6 +4665,15 @@ def create_post():
         reference_id=post_id
     )
 
+    # V-REWARDS: reward the successful post creation.
+    award_virtual_reward(
+        conn,
+        current_user_id,
+        "CREATE_POST",
+        reference_type="post",
+        reference_id=post_id
+    )
+
     # GAMIFICATION: record daily activity for the streak.
     update_activity_streak(conn, current_user_id)
 
@@ -4972,6 +5319,15 @@ def comment(post_id):
         session["user_id"],
         "CREATE_COMMENT",
         3,
+        reference_type="comment",
+        reference_id=comment_id
+    )
+
+    # V-REWARDS: reward the successful comment/reply.
+    award_virtual_reward(
+        conn,
+        session["user_id"],
+        "CREATE_COMMENT",
         reference_type="comment",
         reference_id=comment_id
     )
@@ -7300,6 +7656,15 @@ def create_group_post(group_id):
         reference_id=post_id
     )
 
+    # V-REWARDS: reward the successful group post creation.
+    award_virtual_reward(
+        conn,
+        session["user_id"],
+        "CREATE_GROUP_POST",
+        reference_type="post",
+        reference_id=post_id
+    )
+
     # GAMIFICATION: record daily activity for the streak.
     update_activity_streak(conn, session["user_id"])
 
@@ -8844,6 +9209,15 @@ def accept_friend_request(request_id):
         current_user_id,
         "ACCEPT_FRIEND",
         10,
+        reference_type="friend_request",
+        reference_id=request_id
+    )
+
+    # V-REWARDS: reward the successful friend-request acceptance.
+    award_virtual_reward(
+        conn,
+        current_user_id,
+        "ACCEPT_FRIEND",
         reference_type="friend_request",
         reference_id=request_id
     )
