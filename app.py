@@ -153,6 +153,16 @@ PAYSTACK_BASE_URL = os.environ.get(
     "https://api.paystack.co"
 ).strip().rstrip("/")
 
+PAYSTACK_VIRTUAL_TOPUP_ENABLED = (
+    os.environ.get(
+        "PAYSTACK_VIRTUAL_TOPUP_ENABLED",
+        "false",
+    ).strip().lower()
+    == "true"
+)
+
+PAYSTACK_LIVE_MODE = PAYSTACK_SECRET_KEY.startswith("sk_live_")
+
 
 # ============================================================
 # SESSION SECURITY
@@ -6013,6 +6023,18 @@ def initialize_virtual_topup():
     if "user_id" not in session:
         return jsonify({"ok": False, "error": "Authentication required."}), 401
 
+    if not PAYSTACK_VIRTUAL_TOPUP_ENABLED:
+        return jsonify({
+            "ok": False,
+            "error": "Virtual Top-Up is temporarily unavailable.",
+        }), 503
+
+    if not PAYSTACK_LIVE_MODE:
+        return jsonify({
+            "ok": False,
+            "error": "Virtual Top-Up is not available in this environment.",
+        }), 503
+
     if not PAYSTACK_SECRET_KEY:
         return jsonify({"ok": False, "error": "Paystack is not configured."}), 503
 
@@ -6239,6 +6261,18 @@ def verify_virtual_topup():
     """Verify a Paystack Virtual Top-Up and credit the Virtual wallet exactly once."""
     if "user_id" not in session:
         return jsonify({"ok": False, "error": "Authentication required."}), 401
+
+    if not PAYSTACK_VIRTUAL_TOPUP_ENABLED:
+        return jsonify({
+            "ok": False,
+            "error": "Virtual Top-Up is temporarily unavailable.",
+        }), 503
+
+    if not PAYSTACK_LIVE_MODE:
+        return jsonify({
+            "ok": False,
+            "error": "Virtual Top-Up is not available in this environment.",
+        }), 503
 
     if not PAYSTACK_SECRET_KEY:
         return jsonify({"ok": False, "error": "Paystack is not configured."}), 503
@@ -6692,6 +6726,18 @@ def verify_virtual_topup():
 @csrf.exempt
 def virtual_topup_webhook():
     """Handle authenticated Paystack Virtual Top-Up webhook events."""
+    if not PAYSTACK_VIRTUAL_TOPUP_ENABLED:
+        return jsonify({
+            "ok": False,
+            "error": "Virtual Top-Up is temporarily unavailable.",
+        }), 503
+
+    if not PAYSTACK_LIVE_MODE:
+        return jsonify({
+            "ok": False,
+            "error": "Virtual Top-Up is not available in this environment.",
+        }), 503
+
     if not PAYSTACK_SECRET_KEY:
         return jsonify({
             "ok": False,
