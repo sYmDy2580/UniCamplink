@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Virtual Top-Up &#8358; UniCamplink</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .topup-page {
+            width: min(100% - 32px, 760px);
+            margin: 0 auto;
+            padding: 32px 0 60px;
+        }
+
+        .topup-header {
+            margin-bottom: 22px;
+        }
+
+        .topup-back {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: #0284c7;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .topup-title {
+            margin: 0;
+            font-size: clamp(28px, 6vw, 42px);
+            line-height: 1.05;
+        }
+
+        .topup-subtitle {
+            margin: 10px 0 0;
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .balance-card {
+            background: linear-gradient(
+                135deg,
+                #0f172a,
+                #1e293b
+            );
+            color: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow:
+                0 18px 45px rgba(15, 23, 42, 0.16);
+        }
+
+        .balance-label {
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .balance {
+            margin-top: 8px;
+            font-size: clamp(32px, 8vw, 48px);
+            font-weight: 900;
+            line-height: 1;
+            word-break: break-word;
+        }
+
+        .balance span {
+            font-size: 14px;
+            font-weight: 700;
+            color: #7dd3fc;
+        }
+
+        .balance-note {
+            margin-top: 16px;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            margin: 28px 0 12px;
+            font-size: 21px;
+        }
+
+        .package-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .package-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow:
+                0 8px 25px rgba(15, 23, 42, 0.06);
+        }
+
+        .package-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .package-real {
+            font-size: 25px;
+            font-weight: 900;
+        }
+
+        .package-label {
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .package-virtual {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .package-virtual-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .package-virtual-amount {
+            margin-top: 5px;
+            color: #0284c7;
+            font-size: clamp(24px, 6vw, 34px);
+            font-weight: 900;
+            word-break: break-word;
+        }
+
+        .package-button {
+            width: 100%;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 14px;
+            padding: 14px 18px;
+            background: #38bdf8;
+            color: #082f49;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .package-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .security-note {
+            margin-top: 22px;
+            padding: 17px;
+            border-radius: 16px;
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            color: #0c4a6e;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .security-note strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 560px) {
+
+            .topup-page {
+                width: min(100% - 20px, 760px);
+                padding-top: 20px;
+            }
+
+            .balance-card {
+                border-radius: 20px;
+                padding: 20px;
+            }
+
+            .package-card {
+                border-radius: 17px;
+                padding: 17px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <main class="topup-page">
+
+        <header class="topup-header">
+
+            <a
+                href="{{ url_for('virtual_wallet') }}"
+                class="topup-back"
+            >
+                &#8592; Virtual Wallet
+            </a>
+
+            <h1 class="topup-title">
+                Virtual Top-Up
+            </h1>
+
+            <p class="topup-subtitle">
+                Add Virtual Naira to your UniCamplink Virtual Economy balance.
+            </p>
+
+        </header>
+
+
+        <section class="balance-card">
+
+            <div class="balance-label">
+                Current Virtual Balance
+            </div>
+
+            <div class="balance">
+                &#8358;{{ "{:,}".format(wallet["balance"]) }}
+
+                <span>
+                    Virtual
+                </span>
+            </div>
+
+            <div class="balance-note">
+                Virtual Naira has no cash value and cannot be withdrawn
+                to a bank account.
+            </div>
+
+        </section>
+
+
+        <h2 class="section-title">
+            Choose a Top-Up
+        </h2>
+
+
+        <section class="package-list">
+
+            {% for package in packages %}
+
+                <article class="package-card">
+
+                    <div class="package-card-top">
+
+                        <div>
+
+                            <div class="package-real">
+                                &#8358;{{ "{:,}".format(package["real_amount"]) }}
+                            </div>
+
+                            <div class="package-label">
+                                Real payment
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="package-virtual">
+
+                        <div class="package-virtual-label">
+                            You receive
+                        </div>
+
+                        <div class="package-virtual-amount">
+                            &#8358;{{ "{:,}".format(package["virtual_amount"]) }}
+                            Virtual
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="package-button"
+                        disabled
+                    >
+                        Payment Coming Soon
+                    </button>
+
+                </article>
+
+            {% endfor %}
+
+        </section>
+
+
+        <div class="security-note">
+
+            <strong>
+                Secure payment verification
+            </strong>
+
+            Your Virtual Naira will only be credited after
+            UniCamplink verifies the real payment on the server.
+            A failed, expired, or unverified payment cannot add
+            Virtual Naira to your wallet.
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

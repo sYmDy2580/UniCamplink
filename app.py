@@ -1798,6 +1798,142 @@ def update_virtual_economy_tables():
     conn.close()
 
 
+def update_virtual_topup_tables():
+    """Create the secure Virtual Naira top-up foundation."""
+
+    conn = get_db_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS virtual_topup_packages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            real_amount INTEGER NOT NULL,
+            virtual_amount INTEGER NOT NULL,
+            currency TEXT NOT NULL DEFAULT 'NGN',
+            virtual_currency TEXT NOT NULL DEFAULT 'NGN_VIRTUAL',
+            enabled INTEGER NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS virtual_topup_transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            wallet_id INTEGER NOT NULL,
+            package_id INTEGER NOT NULL,
+
+            real_amount INTEGER NOT NULL,
+            virtual_amount INTEGER NOT NULL,
+
+            payment_provider TEXT NOT NULL DEFAULT '',
+            provider_reference TEXT,
+            payment_channel TEXT,
+
+            status TEXT NOT NULL DEFAULT 'pending',
+
+            idempotency_key TEXT NOT NULL UNIQUE,
+
+            expires_at TIMESTAMP NOT NULL,
+            verified_at TIMESTAMP,
+            credited_at TIMESTAMP,
+
+            failure_reason TEXT DEFAULT '',
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (user_id)
+                REFERENCES users(id)
+                ON DELETE CASCADE,
+
+            FOREIGN KEY (wallet_id)
+                REFERENCES virtual_wallets(id)
+                ON DELETE CASCADE,
+
+            FOREIGN KEY (package_id)
+                REFERENCES virtual_topup_packages(id)
+                ON DELETE RESTRICT
+        )
+    """)
+
+    conn.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS
+        idx_virtual_topup_provider_reference
+        ON virtual_topup_transactions(provider_reference)
+        WHERE provider_reference IS NOT NULL
+          AND provider_reference != ''
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS
+        idx_virtual_topup_user
+        ON virtual_topup_transactions(user_id)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS
+        idx_virtual_topup_status
+        ON virtual_topup_transactions(status)
+    """)
+
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS
+        idx_virtual_topup_expires
+        ON virtual_topup_transactions(expires_at)
+    """)
+
+    packages = [
+        ("V-TOPUP-1000", 1000, 1000000),
+        ("V-TOPUP-2000", 2000, 2000000),
+        ("V-TOPUP-5000", 5000, 50000000),
+        ("V-TOPUP-10000", 10000, 1000000000)
+    ]
+
+    for name, real_amount, virtual_amount in packages:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO virtual_topup_packages
+            (
+                name,
+                real_amount,
+                virtual_amount,
+                currency,
+                virtual_currency,
+                enabled
+            )
+            VALUES (?, ?, ?, 'NGN', 'NGN_VIRTUAL', 1)
+            """,
+            (
+                name,
+                real_amount,
+                virtual_amount
+            )
+        )
+
+        conn.execute(
+            """
+            UPDATE virtual_topup_packages
+            SET real_amount = ?,
+                virtual_amount = ?,
+                currency = 'NGN',
+                virtual_currency = 'NGN_VIRTUAL',
+                enabled = 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE name = ?
+            """,
+            (
+                real_amount,
+                virtual_amount,
+                name
+            )
+        )
+
+    conn.commit()
+    conn.close()
+
+
 def update_virtual_reward_tables():
     """Create the configurable Virtual Naira rewards system."""
 
@@ -3453,6 +3589,7 @@ def seed_gamification_badges(conn):
 
 create_tables()
 update_virtual_economy_tables()
+update_virtual_topup_tables()
 update_virtual_reward_tables()
 update_users_table()
 update_group_messages_table()
@@ -5761,6 +5898,58 @@ def virtual_wallet():
         "virtual_wallet.html",
         wallet=wallet,
         transactions=transactions
+    )
+
+
+# ============================================================
+# VIRTUAL ECONOMY ? TOP-UP
+# ============================================================
+
+@app.route("/virtual-topup")
+def virtual_topup():
+    """Display the authenticated user's Virtual Top-Up options."""
+
+    if "user_id" not in session:
+        return redirect(
+            url_for("login")
+        )
+
+    conn = get_db_connection()
+
+    wallet = get_virtual_wallet(
+        conn,
+        session["user_id"]
+    )
+
+    if not wallet:
+        conn.close()
+
+        return (
+            "Virtual wallet not found.",
+            404
+        )
+
+    packages = conn.execute(
+        """
+        SELECT
+            id,
+            name,
+            real_amount,
+            virtual_amount,
+            currency,
+            virtual_currency
+        FROM virtual_topup_packages
+        WHERE enabled = 1
+        ORDER BY real_amount ASC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "virtual_topup.html",
+        wallet=wallet,
+        packages=packages
     )
 
 
