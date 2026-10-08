@@ -1690,6 +1690,114 @@ def create_tables():
 # DATABASE MIGRATIONS
 # ============================================================
 
+def update_virtual_economy_tables():
+    """Create and initialize the UniCamplink Virtual Economy foundation."""
+
+    conn = get_db_connection()
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS virtual_wallets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL UNIQUE,
+            wallet_type TEXT NOT NULL DEFAULT 'LAPO',
+            currency TEXT NOT NULL DEFAULT 'NGN_VIRTUAL',
+            balance INTEGER NOT NULL DEFAULT 100000,
+            status TEXT NOT NULL DEFAULT 'active',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (user_id)
+                REFERENCES users(id)
+                ON DELETE CASCADE
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS virtual_transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            wallet_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            transaction_type TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            balance_before INTEGER NOT NULL,
+            balance_after INTEGER NOT NULL,
+            reference TEXT UNIQUE,
+            description TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (wallet_id)
+                REFERENCES virtual_wallets(id)
+                ON DELETE CASCADE,
+
+            FOREIGN KEY (user_id)
+                REFERENCES users(id)
+                ON DELETE CASCADE
+        )
+    """)
+
+    users = conn.execute(
+        "SELECT id FROM users ORDER BY id"
+    ).fetchall()
+
+    for user in users:
+        user_id = user["id"]
+
+        existing_wallet = conn.execute(
+            """
+            SELECT id
+            FROM virtual_wallets
+            WHERE user_id = ?
+            """,
+            (user_id,)
+        ).fetchone()
+
+        if existing_wallet:
+            continue
+
+        cursor = conn.execute(
+            """
+            INSERT INTO virtual_wallets
+            (
+                user_id,
+                wallet_type,
+                currency,
+                balance,
+                status
+            )
+            VALUES (?, 'LAPO', 'NGN_VIRTUAL', 100000, 'active')
+            """,
+            (user_id,)
+        )
+
+        wallet_id = cursor.lastrowid
+
+        conn.execute(
+            """
+            INSERT INTO virtual_transactions
+            (
+                wallet_id,
+                user_id,
+                transaction_type,
+                amount,
+                balance_before,
+                balance_after,
+                reference,
+                description
+            )
+            VALUES (?, ?, 'initial_balance', 100000, 0, 100000, ?, ?)
+            """,
+            (
+                wallet_id,
+                user_id,
+                f"virtual-wallet-initial-{user_id}",
+                "Initial LAPO virtual wallet balance"
+            )
+        )
+
+    conn.commit()
+    conn.close()
+
+
 def update_users_table():
 
     conn = get_db_connection()
@@ -2486,6 +2594,40 @@ def update_gamification_tables():
 # GAMIFICATION ENGINE
 # ============================================================
 
+def get_virtual_wallet(conn, user_id):
+    """Return the active virtual wallet for a user."""
+
+    return conn.execute(
+        """
+        SELECT
+            id,
+            user_id,
+            wallet_type,
+            currency,
+            balance,
+            status,
+            created_at,
+            updated_at
+        FROM virtual_wallets
+        WHERE user_id = ?
+          AND status = 'active'
+        LIMIT 1
+        """,
+        (user_id,)
+    ).fetchone()
+
+
+def get_virtual_balance(conn, user_id):
+    """Return a user's current Virtual Naira balance."""
+
+    wallet = get_virtual_wallet(conn, user_id)
+
+    if not wallet:
+        return 0
+
+    return int(wallet["balance"])
+
+
 def get_level_for_points(points):
     """Return the player's current campus level."""
     try:
@@ -2980,6 +3122,7 @@ def seed_gamification_badges(conn):
 # ============================================================
 
 create_tables()
+update_virtual_economy_tables()
 update_users_table()
 update_group_messages_table()
 update_users_block_status()
@@ -3142,7 +3285,7 @@ def signup():
             password
         )
 
-        conn.execute(
+        cursor = conn.execute(
             """
             INSERT INTO users
             (
@@ -3158,6 +3301,48 @@ def signup():
                 email,
                 university,
                 password_hash
+            )
+        )
+
+        new_user_id = cursor.lastrowid
+
+        wallet_cursor = conn.execute(
+            """
+            INSERT INTO virtual_wallets
+            (
+                user_id,
+                wallet_type,
+                currency,
+                balance,
+                status
+            )
+            VALUES (?, 'LAPO', 'NGN_VIRTUAL', 100000, 'active')
+            """,
+            (new_user_id,)
+        )
+
+        wallet_id = wallet_cursor.lastrowid
+
+        conn.execute(
+            """
+            INSERT INTO virtual_transactions
+            (
+                wallet_id,
+                user_id,
+                transaction_type,
+                amount,
+                balance_before,
+                balance_after,
+                reference,
+                description
+            )
+            VALUES (?, ?, 'initial_balance', 100000, 0, 100000, ?, ?)
+            """,
+            (
+                wallet_id,
+                new_user_id,
+                f"virtual-wallet-initial-{new_user_id}",
+                "Initial LAPO virtual wallet balance"
             )
         )
 
@@ -3543,6 +3728,15 @@ def dashboard():
     current_user_id = session["user_id"]
 
     # ========================================================
+    # VIRTUAL WALLET
+    # ========================================================
+
+    virtual_wallet = get_virtual_wallet(
+        conn,
+        current_user_id
+    )
+
+    # ========================================================
     # ACTIVE ANNOUNCEMENT
     # ========================================================
 
@@ -3793,7 +3987,8 @@ def dashboard():
         active_announcement=active_announcement,
         people_you_may_know=people_you_may_know,
         gamification=gamification,
-        gamification_badges=gamification_badges
+        gamification_badges=gamification_badges,
+        virtual_wallet=virtual_wallet
     )
 # ============================================================
 # CGPA CALCULATOR
@@ -5156,6 +5351,62 @@ def create_report():
         ),
         "report_id": report_id
     }), 201
+
+# ============================================================
+# VIRTUAL ECONOMY ? WALLET
+# ============================================================
+
+@app.route("/virtual-wallet")
+def virtual_wallet():
+    """Display the authenticated user's Virtual Wallet."""
+
+    if "user_id" not in session:
+        return redirect(
+            url_for("login")
+        )
+
+    conn = get_db_connection()
+
+    wallet = get_virtual_wallet(
+        conn,
+        session["user_id"]
+    )
+
+    if not wallet:
+        conn.close()
+
+        return (
+            "Virtual wallet not found.",
+            404
+        )
+
+    transactions = conn.execute(
+        """
+        SELECT
+            id,
+            transaction_type,
+            amount,
+            balance_before,
+            balance_after,
+            reference,
+            description,
+            created_at
+        FROM virtual_transactions
+        WHERE wallet_id = ?
+        ORDER BY id DESC
+        LIMIT 50
+        """,
+        (wallet["id"],)
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "virtual_wallet.html",
+        wallet=wallet,
+        transactions=transactions
+    )
+
 
 # ============================================================
 # PROFILE

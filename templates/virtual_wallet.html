@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Virtual Wallet ? UniCamplink</title>
+
+    <style>
+
+        :root {
+            --wallet-primary: #38bdf8;
+            --wallet-primary-dark: #0ea5e9;
+
+            --wallet-bg: #07111f;
+            --wallet-surface: #0d1a2b;
+            --wallet-surface-2: #101f33;
+
+            --wallet-text: #e8f0f8;
+            --wallet-muted: #8ea3bb;
+            --wallet-border: #20344b;
+
+            --wallet-success: #22c55e;
+            --wallet-danger: #ef4444;
+
+            --wallet-radius: 18px;
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(56, 189, 248, .10),
+                    transparent 35%
+                ),
+                var(--wallet-bg);
+
+            color: var(--wallet-text);
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+
+        .wallet-page {
+            width: min(900px, 100%);
+
+            margin: auto;
+
+            padding:
+                24px 16px 60px;
+        }
+
+
+        .wallet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 16px;
+
+            margin-bottom: 24px;
+        }
+
+
+        .wallet-back {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--wallet-muted);
+
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+
+        .wallet-back:hover {
+            color: var(--wallet-primary);
+        }
+
+
+        .wallet-title {
+            margin: 0;
+
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+
+        .wallet-subtitle {
+            margin: 5px 0 0;
+
+            color: var(--wallet-muted);
+
+            font-size: 13px;
+        }
+
+
+        .wallet-card {
+            padding: 28px;
+
+            border:
+                1px solid
+                rgba(56, 189, 248, .25);
+
+            border-radius: var(--wallet-radius);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(56, 189, 248, .13),
+                    var(--wallet-surface)
+                );
+
+            box-shadow:
+                0 18px 50px rgba(0, 0, 0, .22);
+        }
+
+
+        .wallet-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        .wallet-type {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--wallet-primary);
+
+            font-size: 13px;
+            font-weight: 900;
+
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+
+        .wallet-dot {
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: var(--wallet-success);
+
+            box-shadow:
+                0 0 0 4px rgba(34, 197, 94, .12);
+        }
+
+
+        .wallet-status {
+            padding: 6px 10px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(34, 197, 94, .10);
+
+            color: var(--wallet-success);
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+
+        .wallet-balance-label {
+            margin-top: 32px;
+
+            color: var(--wallet-muted);
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .wallet-balance {
+            margin-top: 6px;
+
+            font-size: clamp(34px, 7vw, 58px);
+
+            line-height: 1;
+
+            font-weight: 950;
+
+            letter-spacing: -.04em;
+        }
+
+
+        .wallet-balance span {
+            margin-left: 5px;
+
+            color: var(--wallet-primary);
+
+            font-size: 14px;
+
+            letter-spacing: 0;
+        }
+
+
+        .wallet-note {
+            margin-top: 18px;
+
+            padding: 12px 14px;
+
+            border:
+                1px solid
+                rgba(56, 189, 248, .15);
+
+            border-radius: 12px;
+
+            background:
+                rgba(56, 189, 248, .06);
+
+            color: var(--wallet-muted);
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+
+        .wallet-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 14px;
+
+            margin-top: 20px;
+        }
+
+
+        .wallet-stat {
+            padding: 18px;
+
+            border:
+                1px solid
+                var(--wallet-border);
+
+            border-radius: 14px;
+
+            background:
+                var(--wallet-surface);
+        }
+
+
+        .wallet-stat-label {
+            color: var(--wallet-muted);
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+
+        .wallet-stat-value {
+            margin-top: 6px;
+
+            font-size: 16px;
+            font-weight: 850;
+        }
+
+
+        .transactions {
+            margin-top: 26px;
+
+            border:
+                1px solid
+                var(--wallet-border);
+
+            border-radius: var(--wallet-radius);
+
+            background:
+                var(--wallet-surface);
+
+            overflow: hidden;
+        }
+
+
+        .transactions-header {
+            padding: 18px 20px;
+
+            border-bottom:
+                1px solid
+                var(--wallet-border);
+        }
+
+
+        .transactions-header h2 {
+            margin: 0;
+
+            font-size: 16px;
+        }
+
+
+        .transaction {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 14px;
+
+            padding: 16px 20px;
+
+            border-bottom:
+                1px solid
+                var(--wallet-border);
+        }
+
+
+        .transaction:last-child {
+            border-bottom: 0;
+        }
+
+
+        .transaction-title {
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+
+        .transaction-date {
+            margin-top: 4px;
+
+            color: var(--wallet-muted);
+
+            font-size: 11px;
+        }
+
+
+        .transaction-amount {
+            color: var(--wallet-primary);
+
+            font-size: 13px;
+            font-weight: 900;
+
+            white-space: nowrap;
+        }
+
+
+        .empty-transactions {
+            padding: 24px 20px;
+
+            color: var(--wallet-muted);
+
+            font-size: 13px;
+
+            text-align: center;
+        }
+
+
+        @media (max-width: 600px) {
+
+            .wallet-page {
+                padding:
+                    16px 12px 40px;
+            }
+
+
+            .wallet-title {
+                font-size: 20px;
+            }
+
+
+            .wallet-card {
+                padding: 20px;
+            }
+
+
+            .wallet-card-top {
+                gap: 12px;
+            }
+
+
+            .wallet-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .transaction {
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <main class="wallet-page">
+
+        <header class="wallet-header">
+
+            <div>
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="wallet-back"
+                >
+                    ? Dashboard
+                </a>
+
+                <h1 class="wallet-title">
+                    Virtual Wallet
+                </h1>
+
+                <p class="wallet-subtitle">
+                    Your UniCamplink Virtual Naira wallet
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <section class="wallet-card">
+
+            <div class="wallet-card-top">
+
+                <div class="wallet-type">
+
+                    <span class="wallet-dot"></span>
+
+                    {{ wallet["wallet_type"] }}
+
+                    ? Virtual
+
+                </div>
+
+
+                <span class="wallet-status">
+                    {{ wallet["status"]|capitalize }}
+                </span>
+
+            </div>
+
+
+            <div class="wallet-balance-label">
+                Available Virtual Balance
+            </div>
+
+
+            <div class="wallet-balance">
+
+                ?{{ "{:,}".format(wallet["balance"]) }}
+
+                <span>
+                    Virtual
+                </span>
+
+            </div>
+
+
+            <div class="wallet-note">
+
+                This is a virtual UniCamplink balance for use
+                inside the Virtual Economy. It has no cash value
+                and cannot be withdrawn to a bank account.
+
+            </div>
+
+
+            <div class="wallet-grid">
+
+                <div class="wallet-stat">
+
+                    <div class="wallet-stat-label">
+                        Wallet Type
+                    </div>
+
+                    <div class="wallet-stat-value">
+                        {{ wallet["wallet_type"] }}
+                    </div>
+
+                </div>
+
+
+                <div class="wallet-stat">
+
+                    <div class="wallet-stat-label">
+                        Currency
+                    </div>
+
+                    <div class="wallet-stat-value">
+                        Virtual Naira
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="transactions">
+
+            <div class="transactions-header">
+
+                <h2>
+                    Balance History
+                </h2>
+
+            </div>
+
+
+            {% if transactions %}
+
+                {% for transaction in transactions %}
+
+                    <div class="transaction">
+
+                        <div>
+
+                            <div class="transaction-title">
+                                {{ transaction["description"] or transaction["transaction_type"]|replace("_", " ")|title }}
+                            </div>
+
+                            <div class="transaction-date">
+                                {{ transaction["created_at"] }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="transaction-amount">
+
+                            +?{{ "{:,}".format(transaction["amount"]) }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty-transactions">
+                    No wallet transactions yet.
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
