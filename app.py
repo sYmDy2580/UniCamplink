@@ -128,6 +128,26 @@ ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "").strip().lower()
 
 
 # ============================================================
+# PAYSTACK ? VIRTUAL TOP-UP CONFIGURATION
+# ============================================================
+
+PAYSTACK_SECRET_KEY = os.environ.get(
+    "PAYSTACK_SECRET_KEY",
+    ""
+).strip()
+
+PAYSTACK_PUBLIC_KEY = os.environ.get(
+    "PAYSTACK_PUBLIC_KEY",
+    ""
+).strip()
+
+PAYSTACK_BASE_URL = os.environ.get(
+    "PAYSTACK_BASE_URL",
+    "https://api.paystack.co"
+).strip().rstrip("/")
+
+
+# ============================================================
 # SESSION SECURITY
 # ============================================================
 
