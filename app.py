@@ -6131,6 +6131,7 @@ def initialize_virtual_topup():
             headers={
                 "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
                 "Content-Type": "application/json",
+                "User-Agent": "UniCamplink/1.0",
             },
             method="POST",
         )
