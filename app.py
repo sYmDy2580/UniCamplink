@@ -5920,6 +5920,11 @@ def virtual_wallet():
 
     conn = get_db_connection()
 
+    current_user = conn.execute(
+        "SELECT email FROM users WHERE id = ? LIMIT 1",
+        (session["user_id"],)
+    ).fetchone()
+
     wallet = get_virtual_wallet(
         conn,
         session["user_id"]
@@ -5957,8 +5962,364 @@ def virtual_wallet():
     return render_template(
         "virtual_wallet.html",
         wallet=wallet,
-        transactions=transactions
+        transactions=transactions,
+        user_email=current_user["email"] if current_user else ""
     )
+
+
+# ============================================================
+# VIRTUAL ECONOMY ? TRANSFER
+# ============================================================
+
+@app.route("/api/virtual-wallet/transfer", methods=["POST"])
+def transfer_virtual_balance():
+    """Transfer Virtual balance atomically from one user to another."""
+
+    if "user_id" not in session:
+        return jsonify({
+            "ok": False,
+            "error": "Authentication required."
+        }), 401
+
+    payload = request.get_json(silent=True) or {}
+
+    recipient_email = str(
+        payload.get("recipient_email", "")
+    ).strip().lower()
+
+    if not recipient_email or len(recipient_email) > 320:
+        return jsonify({
+            "ok": False,
+            "error": "A valid recipient email is required."
+        }), 400
+
+    try:
+        amount = int(payload.get("amount"))
+    except (TypeError, ValueError):
+        return jsonify({
+            "ok": False,
+            "error": "Transfer amount must be a whole number."
+        }), 400
+
+    if amount <= 0:
+        return jsonify({
+            "ok": False,
+            "error": "Transfer amount must be greater than zero."
+        }), 400
+
+    idempotency_key = str(
+        payload.get("idempotency_key", "")
+    ).strip()
+
+    if not idempotency_key or len(idempotency_key) > 128:
+        return jsonify({
+            "ok": False,
+            "error": "A valid idempotency key is required."
+        }), 400
+
+    transfer_id = (
+        f"VTRANSFER-{int(session['user_id'])}-{idempotency_key}"
+    )
+    sender_reference = f"{transfer_id}-S"
+    recipient_reference = f"{transfer_id}-R"
+
+    conn = get_db_connection()
+
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+
+        sender = conn.execute(
+            """
+            SELECT
+                id,
+                name,
+                email
+            FROM users
+            WHERE id = ?
+            LIMIT 1
+            """,
+            (session["user_id"],)
+        ).fetchone()
+
+        if not sender:
+            conn.rollback()
+
+            return jsonify({
+                "ok": False,
+                "error": "Sender account was not found."
+            }), 404
+
+        recipient = conn.execute(
+            """
+            SELECT
+                id,
+                name,
+                email
+            FROM users
+            WHERE LOWER(email) = ?
+            LIMIT 1
+            """,
+            (recipient_email,)
+        ).fetchone()
+
+        if not recipient:
+            conn.rollback()
+
+            return jsonify({
+                "ok": False,
+                "error": "Recipient account was not found."
+            }), 404
+
+        if int(recipient["id"]) == int(sender["id"]):
+            conn.rollback()
+
+            return jsonify({
+                "ok": False,
+                "error": "You cannot transfer Virtual to yourself."
+            }), 400
+
+        existing = conn.execute(
+            """
+            SELECT
+                id,
+                user_id,
+                amount,
+                balance_after,
+                reference,
+                description,
+                created_at
+            FROM virtual_transactions
+            WHERE reference = ?
+              AND transaction_type = 'transfer_sent'
+            LIMIT 1
+            """,
+            (sender_reference,)
+        ).fetchone()
+
+        if existing:
+            expected_description = (
+                f"Virtual transfer to "
+                f"{recipient['name']} ({recipient['email']})"
+            )
+
+            if (
+                int(existing["user_id"]) != int(sender["id"])
+                or int(existing["amount"]) != amount
+                or existing["description"] != expected_description
+            ):
+                conn.rollback()
+
+                return jsonify({
+                    "ok": False,
+                    "error": (
+                        "This idempotency key was already used "
+                        "for a different transfer."
+                    )
+                }), 409
+
+            conn.rollback()
+
+            return jsonify({
+                "ok": True,
+                "message": "Transfer already completed.",
+                "duplicate": True,
+                "reference": transfer_id,
+                "sender_reference": sender_reference,
+                "recipient_reference": recipient_reference,
+                "amount": int(existing["amount"]),
+                "balance": int(existing["balance_after"])
+            }), 200
+
+        sender_wallet = conn.execute(
+            """
+            SELECT
+                id,
+                balance,
+                status
+            FROM virtual_wallets
+            WHERE user_id = ?
+            LIMIT 1
+            """,
+            (sender["id"],)
+        ).fetchone()
+
+        if not sender_wallet or sender_wallet["status"] != "active":
+            conn.rollback()
+
+            return jsonify({
+                "ok": False,
+                "error": "Your Virtual Wallet is unavailable."
+            }), 404
+
+        recipient_wallet = conn.execute(
+            """
+            SELECT
+                id,
+                balance,
+                status
+            FROM virtual_wallets
+            WHERE user_id = ?
+            LIMIT 1
+            """,
+            (recipient["id"],)
+        ).fetchone()
+
+        if not recipient_wallet or recipient_wallet["status"] != "active":
+            conn.rollback()
+
+            return jsonify({
+                "ok": False,
+                "error": "Recipient Virtual Wallet is unavailable."
+            }), 404
+
+        sender_balance_before = int(sender_wallet["balance"])
+        recipient_balance_before = int(recipient_wallet["balance"])
+
+        if sender_balance_before < amount:
+            conn.rollback()
+
+            return jsonify({
+                "ok": False,
+                "error": "Insufficient Virtual balance.",
+                "balance": sender_balance_before
+            }), 400
+
+        sender_balance_after = sender_balance_before - amount
+        recipient_balance_after = recipient_balance_before + amount
+
+        sender_update = conn.execute(
+            """
+            UPDATE virtual_wallets
+            SET
+                balance = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+              AND status = 'active'
+              AND balance = ?
+            """,
+            (
+                sender_balance_after,
+                sender_wallet["id"],
+                sender_balance_before
+            )
+        )
+
+        if sender_update.rowcount != 1:
+            raise RuntimeError(
+                "Sender wallet balance changed unexpectedly."
+            )
+
+        recipient_update = conn.execute(
+            """
+            UPDATE virtual_wallets
+            SET
+                balance = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+              AND status = 'active'
+              AND balance = ?
+            """,
+            (
+                recipient_balance_after,
+                recipient_wallet["id"],
+                recipient_balance_before
+            )
+        )
+
+        if recipient_update.rowcount != 1:
+            raise RuntimeError(
+                "Recipient wallet balance changed unexpectedly."
+            )
+
+        conn.execute(
+            """
+            INSERT INTO virtual_transactions
+            (
+                wallet_id,
+                user_id,
+                transaction_type,
+                amount,
+                balance_before,
+                balance_after,
+                reference,
+                description
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                sender_wallet["id"],
+                sender["id"],
+                "transfer_sent",
+                amount,
+                sender_balance_before,
+                sender_balance_after,
+                sender_reference,
+                (
+                    f"Virtual transfer to "
+                    f"{recipient['name']} ({recipient['email']})"
+                )
+            )
+        )
+
+        conn.execute(
+            """
+            INSERT INTO virtual_transactions
+            (
+                wallet_id,
+                user_id,
+                transaction_type,
+                amount,
+                balance_before,
+                balance_after,
+                reference,
+                description
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                recipient_wallet["id"],
+                recipient["id"],
+                "transfer_received",
+                amount,
+                recipient_balance_before,
+                recipient_balance_after,
+                recipient_reference,
+                (
+                    f"Virtual transfer from "
+                    f"{sender['name']} ({sender['email']})"
+                )
+            )
+        )
+
+        conn.commit()
+
+        return jsonify({
+            "ok": True,
+            "message": (
+                f"Successfully sent {amount:,} Virtual "
+                f"to {recipient['name']}."
+            ),
+            "reference": transfer_id,
+            "sender_reference": sender_reference,
+            "recipient_reference": recipient_reference,
+            "amount": amount,
+            "balance": sender_balance_after,
+            "recipient": {
+                "name": recipient["name"],
+                "email": recipient["email"]
+            }
+        }), 200
+
+    except Exception:
+        conn.rollback()
+
+        return jsonify({
+            "ok": False,
+            "error": "Transfer failed. No balance was changed."
+        }), 500
+
+    finally:
+        conn.close()
 
 
 # ============================================================
