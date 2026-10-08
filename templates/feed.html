@@ -495,6 +495,80 @@ a {
 
 
 /* ============================================================
+   EDIT POST EDITOR
+============================================================ */
+
+.post-edit-editor {
+    margin-top: 12px;
+    width: 100%;
+}
+
+.post-edit-textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 12px;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #0f172a);
+    font: inherit;
+    line-height: 1.5;
+    outline: none;
+}
+
+.post-edit-textarea:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.post-edit-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.post-edit-counter {
+    color: #64748b;
+}
+
+.post-edit-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.post-edit-btn {
+    border: 0;
+    border-radius: 9px;
+    padding: 8px 14px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.post-edit-cancel {
+    background: rgba(148, 163, 184, 0.16);
+    color: inherit;
+}
+
+.post-edit-save {
+    background: #38bdf8;
+    color: #ffffff;
+}
+
+.post-edit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================================================
    POST MENU
 ============================================================ */
 
@@ -1738,6 +1812,15 @@ html[data-theme="light"] .razor-sponsored-badge {
     >
 
         {% if post['user_id'] == session['user_id'] %}
+
+        <button
+            type="button"
+            class="post-menu-item edit-post-menu-item"
+            onclick="editPost('{{ post['id'] }}')"
+        >
+            &#9998;
+            <span>Edit post</span>
+        </button>
 
         <button
             type="button"
@@ -3964,6 +4047,422 @@ document.addEventListener(
 
 
 /* ============================================================
+   EDIT POST
+============================================================ */
+
+function editPost(postId) {
+
+    const post =
+        document.getElementById(
+            `post-${postId}`
+        );
+
+    if (!post) {
+        return;
+    }
+
+    const content =
+        post.querySelector(
+            ".post-content"
+        );
+
+    if (!content) {
+        return;
+    }
+
+    if (
+        content.dataset.editing === "true"
+    ) {
+        return;
+    }
+
+    const originalText =
+        content.textContent || "";
+
+    content.dataset.editing =
+        "true";
+
+    content.dataset.originalText =
+        originalText;
+
+    const editor =
+        document.createElement(
+            "div"
+        );
+
+    editor.className =
+        "post-edit-editor";
+
+    const textarea =
+        document.createElement(
+            "textarea"
+        );
+
+    textarea.className =
+        "post-edit-textarea";
+
+    textarea.maxLength =
+        5000;
+
+    textarea.value =
+        originalText;
+
+    textarea.setAttribute(
+        "aria-label",
+        "Edit post"
+    );
+
+    const meta =
+        document.createElement(
+            "div"
+        );
+
+    meta.className =
+        "post-edit-meta";
+
+    const counter =
+        document.createElement(
+            "span"
+        );
+
+    counter.className =
+        "post-edit-counter";
+
+    const updateCounter =
+        function() {
+
+            counter.textContent =
+                `${textarea.value.length}/5000`;
+
+        };
+
+    updateCounter();
+
+    textarea.addEventListener(
+        "input",
+        updateCounter
+    );
+
+    meta.appendChild(
+        counter
+    );
+
+    const actions =
+        document.createElement(
+            "div"
+        );
+
+    actions.className =
+        "post-edit-actions";
+
+    const cancelButton =
+        document.createElement(
+            "button"
+        );
+
+    cancelButton.type =
+        "button";
+
+    cancelButton.className =
+        "post-edit-btn post-edit-cancel";
+
+    cancelButton.textContent =
+        "Cancel";
+
+    cancelButton.addEventListener(
+        "click",
+        function() {
+
+            cancelPostEdit(
+                postId
+            );
+
+        }
+    );
+
+    const saveButton =
+        document.createElement(
+            "button"
+        );
+
+    saveButton.type =
+        "button";
+
+    saveButton.className =
+        "post-edit-btn post-edit-save";
+
+    saveButton.textContent =
+        "Save";
+
+    saveButton.addEventListener(
+        "click",
+        function() {
+
+            savePostEdit(
+                postId,
+                textarea,
+                saveButton,
+                cancelButton
+            );
+
+        }
+    );
+
+    actions.appendChild(
+        cancelButton
+    );
+
+    actions.appendChild(
+        saveButton
+    );
+
+    editor.appendChild(
+        textarea
+    );
+
+    editor.appendChild(
+        meta
+    );
+
+    editor.appendChild(
+        actions
+    );
+
+    content.replaceChildren(
+        editor
+    );
+
+    textarea.focus();
+
+    textarea.setSelectionRange(
+        textarea.value.length,
+        textarea.value.length
+    );
+
+}
+
+
+function cancelPostEdit(
+    postId
+) {
+
+    const post =
+        document.getElementById(
+            `post-${postId}`
+        );
+
+    if (!post) {
+        return;
+    }
+
+    const content =
+        post.querySelector(
+            ".post-content"
+        );
+
+    if (!content) {
+        return;
+    }
+
+    const originalText =
+        content.dataset.originalText ||
+        "";
+
+    content.dataset.editing =
+        "false";
+
+    delete content.dataset.originalText;
+
+    renderPostContent(
+        content,
+        originalText
+    );
+
+}
+
+
+async function savePostEdit(
+    postId,
+    textarea,
+    saveButton,
+    cancelButton
+) {
+
+    if (
+        !textarea ||
+        !saveButton ||
+        !cancelButton
+    ) {
+        return;
+    }
+
+    const post =
+        document.getElementById(
+            `post-${postId}`
+        );
+
+    if (!post) {
+        return;
+    }
+
+    const content =
+        post.querySelector(
+            ".post-content"
+        );
+
+    if (!content) {
+        return;
+    }
+
+    const newText =
+        textarea.value;
+
+    const originalText =
+        content.dataset.originalText ||
+        "";
+
+    if (
+        newText === originalText
+    ) {
+
+        cancelPostEdit(
+            postId
+        );
+
+        return;
+
+    }
+
+    if (
+        newText.length > 5000
+    ) {
+
+        alert(
+            "Post text cannot exceed 5000 characters."
+        );
+
+        textarea.focus();
+
+        return;
+
+    }
+
+    if (
+        !newText.trim()
+    ) {
+
+        const hasMedia =
+            post.querySelector(
+                ".post-media"
+            );
+
+        if (!hasMedia) {
+
+            alert(
+                "Post cannot be empty. Add some text."
+            );
+
+            textarea.focus();
+
+            return;
+
+        }
+
+    }
+
+    saveButton.disabled =
+        true;
+
+    cancelButton.disabled =
+        true;
+
+    saveButton.textContent =
+        "Saving...";
+
+    try {
+
+        const formData =
+            new URLSearchParams();
+
+        formData.append(
+            "content",
+            newText
+        );
+
+        formData.append(
+            "csrf_token",
+            csrfToken
+        );
+
+        const response =
+            await fetch(
+                `/edit-post/${postId}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With":
+                            "XMLHttpRequest",
+                        "Accept":
+                            "application/json",
+                        "Content-Type":
+                            "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    body:
+                        formData.toString()
+                }
+            );
+
+        const data =
+            await parseApiResponse(
+                response
+            );
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.error ||
+                "The post could not be updated."
+            );
+
+        }
+
+        content.dataset.editing =
+            "false";
+
+        delete content.dataset.originalText;
+
+        renderPostContent(
+            content,
+            data.content || ""
+        );
+
+    } catch (error) {
+
+        alert(
+            error.message ||
+            "The post could not be updated."
+        );
+
+        saveButton.disabled =
+            false;
+
+        cancelButton.disabled =
+            false;
+
+        saveButton.textContent =
+            "Save";
+
+        textarea.focus();
+
+    }
+
+}
+
+
+/* ============================================================
    DELETE POST
 ============================================================ */
 
@@ -4529,6 +5028,176 @@ function insertNewRazorPost(
         );
 
     }
+
+
+    /* ========================================================
+       POST MENU
+    ======================================================== */
+
+    const postMenu =
+        document.createElement(
+            "div"
+        );
+
+    postMenu.className =
+        "post-menu";
+
+    const menuToggle =
+        document.createElement(
+            "button"
+        );
+
+    menuToggle.type =
+        "button";
+
+    menuToggle.className =
+        "post-menu-toggle";
+
+    menuToggle.setAttribute(
+        "aria-label",
+        "Post options"
+    );
+
+    menuToggle.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
+    menuToggle.textContent =
+        "\u22ee";
+
+    menuToggle.addEventListener(
+        "click",
+        function() {
+
+            togglePostMenu(
+                String(postData.id),
+                menuToggle
+            );
+
+        }
+    );
+
+    const menuDropdown =
+        document.createElement(
+            "div"
+        );
+
+    menuDropdown.className =
+        "post-menu-dropdown";
+
+    menuDropdown.dataset.postMenu =
+        String(postData.id);
+
+    const currentUserId =
+        postsContainer.dataset.currentUserId;
+
+    if (
+        String(postData.user_id) ===
+        String(currentUserId)
+    ) {
+
+        const editButton =
+            document.createElement(
+                "button"
+            );
+
+        editButton.type =
+            "button";
+
+        editButton.className =
+            "post-menu-item edit-post-menu-item";
+
+        editButton.innerHTML =
+            "&#9998; <span>Edit post</span>";
+
+        editButton.addEventListener(
+            "click",
+            function() {
+
+                editPost(
+                    String(postData.id)
+                );
+
+            }
+        );
+
+        menuDropdown.appendChild(
+            editButton
+        );
+
+        const deleteButton =
+            document.createElement(
+                "button"
+            );
+
+        deleteButton.type =
+            "button";
+
+        deleteButton.className =
+            "post-menu-item delete-post-menu-item";
+
+        deleteButton.innerHTML =
+            "&#128465; <span>Delete post</span>";
+
+        deleteButton.addEventListener(
+            "click",
+            function() {
+
+                deletePost(
+                    String(postData.id)
+                );
+
+            }
+        );
+
+        menuDropdown.appendChild(
+            deleteButton
+        );
+
+    }
+
+    const reportButton =
+        document.createElement(
+            "button"
+        );
+
+    reportButton.type =
+        "button";
+
+    reportButton.className =
+        "post-menu-item";
+
+    reportButton.innerHTML =
+        "&#9873; <span>Report</span>";
+
+    reportButton.addEventListener(
+        "click",
+        function() {
+
+            openReportModal(
+                "post",
+                String(postData.id)
+            );
+
+        }
+    );
+
+    menuDropdown.appendChild(
+        reportButton
+    );
+
+    postMenu.appendChild(
+        menuToggle
+    );
+
+    postMenu.appendChild(
+        menuDropdown
+    );
+
+    post.appendChild(
+        postMenu
+    );
 
 
     /* ========================================================

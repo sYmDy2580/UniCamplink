@@ -4233,6 +4233,158 @@ def create_post():
     )
 
 # ============================================================
+# EDIT POST
+# ============================================================
+
+@app.route(
+    "/edit-post/<int:post_id>",
+    methods=["POST"]
+)
+def edit_post(post_id):
+
+    is_ajax = (
+        request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("Accept", "").lower()
+    )
+
+    if "user_id" not in session:
+
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "error": "Please log in again."
+            }), 401
+
+        return redirect(url_for("login"))
+
+    content = clean_text(
+        request.form.get("content"),
+        MAX_POST_LENGTH
+    )
+
+    if content is None:
+
+        message = (
+            "Post text is too long. "
+            "Maximum length is 5000 characters."
+        )
+
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "error": message
+            }), 400
+
+        return message, 400
+
+    conn = get_db_connection()
+
+    post = conn.execute(
+        """
+        SELECT
+            id,
+            user_id,
+            content,
+            image,
+            video
+        FROM posts
+        WHERE id = ?
+        """,
+        (post_id,)
+    ).fetchone()
+
+    if not post:
+
+        conn.close()
+
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "error": "Post not found."
+            }), 404
+
+        return "Post not found.", 404
+
+    # SECURITY: only the post owner may edit the post.
+    if post["user_id"] != session["user_id"]:
+
+        conn.close()
+
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "error": "You can only edit your own posts."
+            }), 403
+
+        return "You can only edit your own posts.", 403
+
+    # Do not allow an existing text-only post to become empty.
+    # Image/video posts may legitimately have no text.
+    if (
+        not content
+        and not post["image"]
+        and not post["video"]
+    ):
+
+        conn.close()
+
+        message = (
+            "Post cannot be empty. "
+            "Add some text, an image, or a video."
+        )
+
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "error": message
+            }), 400
+
+        return message, 400
+
+    updated = conn.execute(
+        """
+        UPDATE posts
+        SET content = ?
+        WHERE id = ?
+        AND user_id = ?
+        """,
+        (
+            content or "",
+            post_id,
+            session["user_id"]
+        )
+    )
+
+    if updated.rowcount != 1:
+
+        conn.rollback()
+        conn.close()
+
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "error": "Post could not be updated."
+            }), 500
+
+        return "Post could not be updated.", 500
+
+    conn.commit()
+    conn.close()
+
+    if is_ajax:
+
+        return jsonify({
+            "success": True,
+            "post_id": post_id,
+            "content": content or ""
+        })
+
+    return redirect(
+        url_for("feed")
+    )
+
+
+# ============================================================
 # DELETE POST
 # ============================================================
 
