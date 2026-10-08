@@ -3,6 +3,7 @@ from pywebpush import webpush, WebPushException
 import os
 import math
 import hmac
+import hashlib
 import sqlite3
 from dotenv import load_dotenv
 load_dotenv()
@@ -6568,8 +6569,8 @@ def verify_virtual_topup():
                     balance_after,
                     ledger_reference,
                     (
-                        f"Virtual Top-Up: ?{int(current['real_amount']):,} "
-                        f"real payment ? ?{virtual_amount:,} Virtual"
+                        f"Virtual Top-Up: NGN {int(current['real_amount']):,} "
+                        f"real payment -> {virtual_amount:,} Virtual"
                     ),
                 ),
             )
@@ -6652,6 +6653,172 @@ def verify_virtual_topup():
 
     finally:
         conn.close()
+
+
+# ============================================================
+# VIRTUAL TOP-UP ? PAYSTACK WEBHOOK
+# ============================================================
+
+@app.route("/api/virtual-topup/webhook", methods=["POST"])
+@csrf.exempt
+def virtual_topup_webhook():
+    """Handle authenticated Paystack Virtual Top-Up webhook events."""
+    if not PAYSTACK_SECRET_KEY:
+        return jsonify({
+            "ok": False,
+            "error": "Paystack is not configured.",
+        }), 503
+
+    raw_body = request.get_data()
+    supplied_signature = request.headers.get(
+        "x-paystack-signature",
+        "",
+    ).strip()
+
+    if not supplied_signature:
+        return jsonify({
+            "ok": False,
+            "error": "Missing webhook signature.",
+        }), 401
+
+    expected_signature = hmac.new(
+        PAYSTACK_SECRET_KEY.encode("utf-8"),
+        raw_body,
+        hashlib.sha512,
+    ).hexdigest()
+
+    if not hmac.compare_digest(
+        supplied_signature,
+        expected_signature,
+    ):
+        return jsonify({
+            "ok": False,
+            "error": "Invalid webhook signature.",
+        }), 401
+
+    try:
+        event = request.get_json(silent=False)
+    except Exception:
+        return jsonify({
+            "ok": False,
+            "error": "Invalid webhook payload.",
+        }), 400
+
+    if not isinstance(event, dict):
+        return jsonify({
+            "ok": False,
+            "error": "Invalid webhook payload.",
+        }), 400
+
+    if event.get("event") != "charge.success":
+        return jsonify({
+            "ok": True,
+            "ignored": True,
+        }), 200
+
+    data = event.get("data") or {}
+    if not isinstance(data, dict):
+        return jsonify({
+            "ok": False,
+            "error": "Invalid webhook data.",
+        }), 400
+
+    reference = str(data.get("reference", "")).strip()
+
+    if not reference or len(reference) > 128:
+        return jsonify({
+            "ok": False,
+            "error": "Invalid payment reference.",
+        }), 400
+
+    conn = get_db_connection()
+
+    try:
+        topup = conn.execute(
+            """
+            SELECT id, user_id, status
+            FROM virtual_topup_transactions
+            WHERE provider_reference = ?
+            LIMIT 1
+            """,
+            (reference,),
+        ).fetchone()
+
+        if not topup:
+            return jsonify({
+                "ok": True,
+                "ignored": True,
+                "reference": reference,
+            }), 200
+
+        if topup["status"] == "success":
+            return jsonify({
+                "ok": True,
+                "reference": reference,
+                "status": "success",
+                "already_processed": True,
+            }), 200
+
+    finally:
+        conn.close()
+
+    verification_request = urllib.request.Request(
+        f"{PAYSTACK_BASE_URL}/transaction/verify/"
+        f"{urllib.parse.quote(reference, safe='')}",
+        headers={
+            "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+            "Content-Type": "application/json",
+        },
+        method="GET",
+    )
+
+    try:
+        with urllib.request.urlopen(
+            verification_request,
+            timeout=15,
+        ) as response:
+            verification_payload = json.loads(
+                response.read().decode("utf-8")
+            )
+    except (
+        urllib.error.HTTPError,
+        urllib.error.URLError,
+        TimeoutError,
+        json.JSONDecodeError,
+    ):
+        return jsonify({
+            "ok": False,
+            "error": "Unable to verify Paystack transaction.",
+        }), 502
+
+    if not verification_payload.get("status"):
+        return jsonify({
+            "ok": False,
+            "error": "Paystack transaction verification failed.",
+        }), 502
+
+    transaction_data = verification_payload.get("data") or {}
+
+    if transaction_data.get("status") != "success":
+        return jsonify({
+            "ok": True,
+            "reference": reference,
+            "status": transaction_data.get("status", "pending"),
+            "credited": False,
+        }), 200
+
+    user_id = int(topup["user_id"])
+
+    with app.test_request_context(
+        "/api/virtual-topup/verify",
+        method="POST",
+        json={"reference": reference},
+    ):
+        session["user_id"] = user_id
+
+        verification_response = verify_virtual_topup()
+
+    return verification_response
 
 
 @app.route("/virtual-topup/callback")

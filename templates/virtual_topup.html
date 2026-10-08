@@ -10,6 +10,8 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>Virtual Top-Up &#8358; UniCamplink</title>
 
     <style>
@@ -163,6 +165,36 @@
             word-break: break-word;
         }
 
+
+        .payment-status {
+            display: none;
+            margin: 0 0 18px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .payment-status.show {
+            display: block;
+        }
+
+        .payment-status.info {
+            background: rgba(56, 189, 248, 0.10);
+            border: 1px solid rgba(56, 189, 248, 0.30);
+        }
+
+        .payment-status.success {
+            background: rgba(34, 197, 94, 0.10);
+            border: 1px solid rgba(34, 197, 94, 0.30);
+        }
+
+        .payment-status.error {
+            background: rgba(239, 68, 68, 0.10);
+            border: 1px solid rgba(239, 68, 68, 0.30);
+        }
+
         .package-button {
             width: 100%;
             margin-top: 18px;
@@ -242,6 +274,8 @@
                 Add Virtual Naira to your UniCamplink Virtual Economy balance.
             </p>
 
+        <div id="payment-status" class="payment-status" role="status" aria-live="polite"></div>
+
         </header>
 
 
@@ -251,7 +285,7 @@
                 Current Virtual Balance
             </div>
 
-            <div class="balance">
+            <div class="balance" data-virtual-balance>
                 &#8358;{{ "{:,}".format(wallet["balance"]) }}
 
                 <span>
@@ -312,9 +346,9 @@
                     <button
                         type="button"
                         class="package-button"
-                        disabled
+                        data-package-id="{{ package['id'] }}"
                     >
-                        Payment Coming Soon
+                        Pay with Paystack
                     </button>
 
                 </article>
@@ -338,6 +372,149 @@
         </div>
 
     </main>
+
+
+<script>
+(function () {
+    "use strict";
+
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfMeta ? csrfMeta.content : "";
+    const statusBox = document.getElementById("payment-status");
+    const buttons = Array.from(document.querySelectorAll(".package-button"));
+
+    function showStatus(message, type) {
+        if (!statusBox) return;
+        statusBox.textContent = message || "";
+        statusBox.className = "payment-status";
+        if (message) statusBox.classList.add("show");
+        if (type) statusBox.classList.add(type);
+    }
+
+    function setButtonsDisabled(disabled, activeButton) {
+        buttons.forEach(function (button) {
+            button.disabled = disabled;
+            button.textContent =
+                disabled && button === activeButton
+                    ? "Preparing payment..."
+                    : "Pay with Paystack";
+        });
+    }
+
+    function makeIdempotencyKey() {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+            return window.crypto.randomUUID();
+        }
+        return "vtopup-" + Date.now() + "-" +
+            Math.random().toString(36).slice(2);
+    }
+
+    async function postJson(url, payload) {
+        const response = await fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify(payload)
+        });
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (_) {
+            throw new Error("The server returned an unreadable response.");
+        }
+
+        if (!response.ok || !data.ok) {
+            throw new Error(data.error || "The request could not be completed.");
+        }
+        return data;
+    }
+
+    buttons.forEach(function (button) {
+        button.addEventListener("click", async function () {
+            if (!csrfToken) {
+                showStatus("Security token missing. Refresh the page and try again.", "error");
+                return;
+            }
+
+            const packageId = Number(button.dataset.packageId);
+            if (!Number.isInteger(packageId) || packageId < 1) {
+                showStatus("Invalid package. Refresh the page and try again.", "error");
+                return;
+            }
+
+            setButtonsDisabled(true, button);
+            showStatus("Preparing your secure Paystack checkout...", "info");
+
+            try {
+                const data = await postJson("/api/virtual-topup/initialize", {
+                    package_id: packageId,
+                    idempotency_key: makeIdempotencyKey()
+                });
+
+                if (!data.authorization_url) {
+                    throw new Error("Paystack did not return a checkout URL.");
+                }
+
+                showStatus("Redirecting to Paystack...", "info");
+                window.location.assign(data.authorization_url);
+            } catch (error) {
+                setButtonsDisabled(false, null);
+                showStatus(error.message || "Unable to start payment.", "error");
+            }
+        });
+    });
+
+    async function verifyCallback(reference) {
+        if (!csrfToken) {
+            showStatus("Security token missing. Refresh the page and try again.", "error");
+            return;
+        }
+
+        setButtonsDisabled(true, null);
+        showStatus("Verifying your payment securely...", "info");
+
+        try {
+            const data = await postJson("/api/virtual-topup/verify", {
+                reference: reference
+            });
+
+            if (data.credited) {
+                showStatus(
+                    "Payment verified. Your Virtual balance has been updated.",
+                    "success"
+                );
+
+                window.history.replaceState(
+                    {},
+                    document.title,
+                    window.location.pathname
+                );
+
+                window.setTimeout(function () {
+                    window.location.reload();
+                }, 1800);
+                return;
+            }
+
+            showStatus(
+                data.error || "Payment is not yet completed. Please check again shortly.",
+                data.status === "pending" ? "info" : "error"
+            );
+            setButtonsDisabled(false, null);
+        } catch (error) {
+            showStatus(error.message || "Unable to verify the payment right now.", "error");
+            setButtonsDisabled(false, null);
+        }
+    }
+
+    const reference = new URLSearchParams(window.location.search).get("reference");
+    if (reference) verifyCallback(reference);
+})();
+</script>
 
 </body>
 
