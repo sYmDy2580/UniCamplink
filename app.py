@@ -6139,6 +6139,11 @@ def initialize_virtual_topup():
             with urllib.request.urlopen(paystack_request, timeout=20) as response:
                 paystack_response = json.loads(response.read().decode("utf-8"))
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            app.logger.error(
+                "Paystack initialization failed: %s: %s",
+                type(exc).__name__,
+                str(exc),
+            )
             conn.execute(
                 """
                 UPDATE virtual_topup_transactions
