@@ -254,6 +254,51 @@
         }
 
 
+        .wallet-topup-button {
+            margin-top: 18px;
+
+            width: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            padding: 13px 16px;
+
+            border-radius: 12px;
+
+            background: var(--wallet-primary);
+
+            color: #ffffff;
+
+            font-weight: 700;
+
+            text-decoration: none;
+
+            transition:
+                transform 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+
+        .wallet-topup-button:hover {
+            opacity: 0.92;
+
+            transform: translateY(-1px);
+        }
+
+
+        .wallet-topup-button span {
+            font-size: 20px;
+
+            line-height: 1;
+        }
+
+
         .wallet-grid {
             display: grid;
 
@@ -496,6 +541,15 @@
                 and cannot be withdrawn to a bank account.
 
             </div>
+
+
+            <a
+                href="{{ url_for('virtual_topup') }}"
+                class="wallet-topup-button"
+            >
+                <span>+</span>
+                Top Up Virtual Balance
+            </a>
 
 
             <div class="wallet-grid">
