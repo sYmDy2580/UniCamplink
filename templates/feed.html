@@ -883,6 +883,17 @@ a {
     margin-bottom: 13px;
 }
 
+.comments-loading {
+    padding: 12px 4px;
+    color: var(--razor-muted-dark);
+    font-size: 12px;
+    text-align: center;
+}
+
+.comments-loading.is-error {
+    cursor: pointer;
+}
+
 .razor-comment {
     display: flex;
     align-items: flex-start;
@@ -3573,8 +3584,18 @@ function addCommentToList(
     }
 
 
-    let repliesContainer =
+    const parentBody =
         parentComment.querySelector(
+            ":scope > .comment-body"
+        );
+
+    if (!parentBody) {
+        commentsList.appendChild(commentElement);
+        return;
+    }
+
+    let repliesContainer =
+        parentBody.querySelector(
             ":scope > .comment-replies"
         );
 
@@ -3591,7 +3612,7 @@ function addCommentToList(
             "comment-replies";
 
 
-        parentComment.appendChild(
+        parentBody.appendChild(
             repliesContainer
         );
 
@@ -3644,6 +3665,18 @@ async function loadComments(postId) {
 
     commentsList.dataset.loading =
         "true";
+
+    const loadingIndicator =
+        document.createElement("div");
+
+    loadingIndicator.className =
+        "comments-loading";
+
+    loadingIndicator.setAttribute("role", "status");
+    loadingIndicator.textContent =
+        "Loading comments...";
+
+    commentsList.replaceChildren(loadingIndicator);
 
 
     try {
@@ -3736,6 +3769,28 @@ async function loadComments(postId) {
 
         delete commentsList.dataset.loaded;
 
+        loadingIndicator.classList.add("is-error");
+        loadingIndicator.setAttribute("role", "button");
+        loadingIndicator.tabIndex = 0;
+        loadingIndicator.textContent =
+            "Couldn't load comments. Tap to retry.";
+
+        loadingIndicator.addEventListener(
+            "click",
+            function() {
+                loadComments(postId);
+            }
+        );
+
+        loadingIndicator.addEventListener(
+            "keydown",
+            function(event) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    loadComments(postId);
+                }
+            }
+        );
 
         console.error(
             "Comment loading error:",
